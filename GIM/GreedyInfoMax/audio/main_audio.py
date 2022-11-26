@@ -29,6 +29,9 @@ def train(opt, model):
 
         for step, (audio, filename, _, start_idx) in enumerate(train_loader):
 
+            if step == 400: # todo: remove
+                break
+
             # validate training progress by plotting latent representation of various speakers
             if step % latent_val_idx == 0:
                 val_by_latent_speakers.val_by_latent_speakers(
