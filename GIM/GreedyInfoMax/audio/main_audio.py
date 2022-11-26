@@ -2,6 +2,7 @@ import torch
 import time
 import numpy as np
 import random
+import gc
 
 #### own modules
 from GreedyInfoMax.utils import logger
@@ -75,6 +76,10 @@ def train(opt, model):
 
 
 if __name__ == "__main__":
+
+    # added myself
+    torch.cuda.empty_cache()
+    gc.collect()
 
     opt = arg_parser.parse_args()
     arg_parser.create_log_path(opt)

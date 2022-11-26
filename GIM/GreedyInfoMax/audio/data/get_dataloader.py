@@ -12,7 +12,7 @@ def get_libri_dataloaders(opt):
     :return: train_loader, train_dataset,
     test_loader, test_dataset - corresponds to validation or test set depending on opt.validate
     """
-    # num_workers=1
+    num_workers=1
     # num_workers = 16
 
     if opt.validate:

@@ -7,8 +7,11 @@ import torch
 import numpy as np
 import random
 
+
 def default_loader(path):
-    return torchaudio.load(path, normalization=False)
+    return torchaudio.load(path,
+                           # normalization=False todo
+                           )
 
 
 def default_flist_reader(flist):
@@ -50,21 +53,22 @@ class LibriDataset(Dataset):
         speaker_id, dir_id, sample_id = self.file_list[index]
         filename = "{}-{}-{}".format(speaker_id, dir_id, sample_id)
         audio, samplerate = self.loader(
-            os.path.join(self.root, speaker_id, dir_id, "{}.flac".format(filename))
+            os.path.join(self.root, speaker_id, dir_id,
+                         "{}.flac".format(filename))
         )
 
         assert (
             samplerate == 16000
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        ## discard last part that is not a full 10ms
+        # discard last part that is not a full 10ms
         max_length = audio.size(1) // 160 * 160
 
         start_idx = random.choice(
             np.arange(160, max_length - self.audio_length - 0, 160)
         )
 
-        audio = audio[:, start_idx : start_idx + self.audio_length]
+        audio = audio[:, start_idx: start_idx + self.audio_length]
 
         audio = (audio - self.mean) / self.std
 
@@ -96,14 +100,15 @@ class LibriDataset(Dataset):
         speaker_id, dir_id, sample_id = self.file_list[index]
         filename = "{}-{}-{}".format(speaker_id, dir_id, sample_id)
         audio, samplerate = self.loader(
-            os.path.join(self.root, speaker_id, dir_id, "{}.flac".format(filename))
+            os.path.join(self.root, speaker_id, dir_id,
+                         "{}.flac".format(filename))
         )
 
         assert (
             samplerate == 16000
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        ## discard last part that is not a full 10ms
+        # discard last part that is not a full 10ms
         max_length = audio.size(1) // 160 * 160
         audio = audio[:max_length]
 

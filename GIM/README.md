@@ -150,10 +150,11 @@ python -m GreedyInfoMax.vision.downstream_classification --grayscale --model_pat
 <!-- run -->
 <!-- Audio -->
 <!-- train on libri speech -->
-python -m GreedyInfoMax.audio.main_audio --subsample --num_epochs 1000 --learning_rate 2e-4 --start_epoch 0 -i ./datasets/ -o . --save_dir audio_experiment
+C:\Python\Python310\python.exe -m GreedyInfoMax.audio.main_audio --subsample --num_epochs 1000 --learning_rate 2e-4 --start_epoch 0 -i ./datasets/ -o . --save_dir audio_experiment 
+--batch_size 2
 
 <!-- Testing the Greedy InfoMax Model for phone classification -->
-python -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_phones --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .
+C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_phones --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .
 
 <!-- Testing the Greedy InfoMax Model for speaker classification -->
-python -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_speaker --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .
+C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_speaker --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .
