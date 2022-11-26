@@ -66,6 +66,6 @@ def fit_TSNE_and_plot(opt, feature_space, speaker_labels, label):
     speaker_labels = np.reshape(speaker_labels, (-1, 1))
 
     # X: array, shape(n_samples, n_features)
-    projection = TSNE().fit_transform(feature_space)
+    projection = TSNE(init='random', learning_rate=200.0).fit_transform(feature_space)
 
     scatter(opt, projection, speaker_labels, label)
