@@ -138,20 +138,19 @@ Please cite our paper if you use this code in your own work:
 
 <!-- CV -->
 <!-- echo "Training the Greedy InfoMax Model on vision data (stl-10)" -->
-C:\Python\Python310\python.exe  -m GreedyInfoMax.vision.main_vision --grayscale --download_dataset --save_dir vision_experiment
+<!-- C:\Python\Python310\python.exe  -m GreedyInfoMax.vision.main_vision --grayscale --download_dataset --save_dir vision_experiment -->
 <!-- echo "Testing the Greedy InfoMax Model for image classification" -->
-python -m GreedyInfoMax.vision.downstream_classification --grayscale --model_path ./logs/vision_experiment --model_num 299
+<!-- python -m GreedyInfoMax.vision.downstream_classification --grayscale --model_path ./logs/vision_experiment --model_num 299 -->
 
 
 
 <!-- run -->
 <!-- Audio -->
 <!-- train on libri speech -->
-C:\Python\Python310\python.exe -m GreedyInfoMax.audio.main_audio --subsample --num_epochs 1000 --learning_rate 2e-4 --start_epoch 0 -i ./datasets/ -o . --save_dir audio_experiment 
---batch_size 2
+C:\Python\Python310\python.exe -m GreedyInfoMax.audio.main_audio --subsample --num_epochs 1000 --learning_rate 2e-4 --start_epoch 0 -i ./datasets/ -o . --save_dir audio_experiment --batch_size 2
 
 <!-- Testing the Greedy InfoMax Model for phone classification -->
-C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_phones --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .
+C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_phones --model_path ./logs/audio_experiment --model_num 2 -i ./datasets/ -o .
 
 <!-- Testing the Greedy InfoMax Model for speaker classification -->
 C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_speaker --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .

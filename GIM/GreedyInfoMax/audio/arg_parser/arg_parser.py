@@ -46,6 +46,9 @@ def create_log_path(opt, add_path_var=None):
     else:
         opt.log_path = os.path.join(opt.data_output_dir, "logs", opt.time)
 
+    # remove ":" from name as windows can't handle it
+    opt.log_path = opt.log_path.replace(":", "_")
+
     ### very hacky way to avoid overwriting of log-files in case scripts are started at the same time
     while os.path.exists(opt.log_path) and not unique_path:
         opt.log_path += "_" + str(np.random.randint(100))
