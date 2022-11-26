@@ -154,7 +154,7 @@ if __name__ == "__main__":
     arg_parser.create_log_path(opt, add_path_var="linear_model")
 
     opt.batch_size = 8
-    opt.num_epochs = 20
+    opt.num_epochs = 1 #20
 
     # random seeds
     torch.manual_seed(opt.seed)
