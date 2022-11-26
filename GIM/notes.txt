@@ -1,0 +1,70 @@
+$ bash setup_dependencies.sh
+Make sure conda is installed.
+Installing environment:
+Collecting package metadata (repodata.json): failed
+
+CondaHTTPError: HTTP 000 CONNECTION FAILED for url <https://conda.anaconda.org/pytorch/win-32/repodata.json>
+Elapsed: -
+
+An HTTP error occurred when trying to retrieve this URL.
+HTTP errors are often intermittent, and a simple retry will get you on your way.
+'https://conda.anaconda.org/pytorch/win-32'
+
+
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+If using 'conda activate' from a batch script, change your
+invocation to 'CALL conda.bat activate'.
+
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - cmd.exe
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+
+->fix: C:/ProgramData/Miniconda3/Scripts/conda  config --set ssl_verify false
+
+
+
+
+Older version (v3.6)
+- https://stackoverflow.com/questions/54628161/which-version-of-miniconda-has-python-3-6-for-windows-64-bit
+
+Conda active not found:
+  - https://stackoverflow.com/questions/47246350/conda-activate-not-working
+  - moet source ervoor zetten
+
+
+
+
+
+cd C:\GitHub\Greedy_InfoMax
+conda env create -f environment.yml
+activate infomax
+
+
+
+#!/usr/bin/env bash
+echo "Downloading audio datasets:"
+mkdir datasets
+cd datasets || exit
+wget http://www.openslr.org/resources/12/train-clean-100.tar.gz
+tar -xzf train-clean-100.tar.gz || exit
+mkdir LibriSpeech100_labels_split
+cd LibriSpeech100_labels_split || exit
+gdown https://drive.google.com/uc?id=1vSHmncPsRY7VWWAd_BtoWs9-fQ5cBrEB # test split
+gdown https://drive.google.com/uc?id=1ubREoLQu47_ZDn39YWv1wvVPe2ZlIZAb # train split
+gdown https://drive.google.com/uc?id=1bLuDkapGBERG_VYPS7fNZl5GXsQ9z3p2 # converted_aligned_phones.zip
+unzip converted_aligned_phones.zip
+cd ../..
+
