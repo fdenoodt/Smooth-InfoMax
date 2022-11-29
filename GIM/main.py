@@ -42,10 +42,11 @@ def train(opt, model):
                 break
 
             # validate training progress by plotting latent representation of various speakers
-            if step % latent_val_idx == 0:
-                val_by_latent_speakers.val_by_latent_speakers(
-                    opt, train_dataset, model, epoch, step
-                )
+            # TODO
+            # if step % latent_val_idx == 0:
+            #     val_by_latent_speakers.val_by_latent_speakers(
+            #         opt, train_dataset, model, epoch, step
+            #     )
 
             if step % print_idx == 0:
                 print(
@@ -102,14 +103,10 @@ if __name__ == "__main__":
             'learning_rate': 0.0002, 'prediction_step': 12, 'negative_samples': 10,
             'sampling_method': 1, 'train_layer': 6, 'subsample': True, 'loss': 0, 'model_splits': 6,
             'use_autoregressive': False, 'remove_BPTT': False, 'start_epoch': 0,
-            # 'time': 'Sat Nov 26 18:41:08 2022',
             'model_path': '.', 'model_num': '', 'model_type': 0,
             'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), 'experiment': 'audio', 'log_path': './logs/audio_experiment',
             'log_path_latent': './logs/audio_experiment/latent_space',
         }
-
-    # opt = arg_parser.parse_args()
-    # opt = arg_parser.parse_args()
 
     arg_parser.create_log_path(opt)
 
@@ -126,7 +123,8 @@ if __name__ == "__main__":
     logs = logger.Logger(opt)
 
     # get datasets and dataloaders
-    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_libri_dataloaders(
+    # train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_libri_dataloaders(
+    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
         opt
     )
 

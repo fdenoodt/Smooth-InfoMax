@@ -19,13 +19,7 @@ class FullModel(nn.Module):
         """
         Entire CPC model that can be split into smaller chunks for training
         """
-        print("CCC")
-        print(opt['use_autoregressive'])
-
         super(FullModel, self).__init__()
-
-        print("AAA")
-        print(opt['use_autoregressive'])
 
         self.opt = opt
         self.reg_hidden = reg_hidden
