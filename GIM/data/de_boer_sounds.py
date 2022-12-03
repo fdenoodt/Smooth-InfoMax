@@ -10,7 +10,7 @@ import random
 
 def default_loader(path):
     return torchaudio.load(path,
-                            # normalization=False todo
+                           # normalization=False todo
                            )
 
 
@@ -33,9 +33,8 @@ class DeBoerDataset(Dataset):
         self,
         opt,
         root,
-        # flist,
-        audio_length=20480,
-        # flist_reader=default_flist_reader,
+        audio_length=64 * 441,  # org: 20480=128 * 160
+        # result will be audio sequences of length 64 * 441 = 28.224
         loader=default_loader,
     ):
         self.root = root
@@ -45,30 +44,19 @@ class DeBoerDataset(Dataset):
         # the Nones correspond to speaker_id and dir_id --> see default flist reader
         self.file_list = [(0, "train", fname.split(".wav")[0])
                           for fname in files]
-        # self.file_list, self.speaker_dict = flist_reader(flist)
 
         self.loader = loader
         self.audio_length = audio_length
-
-        # TODO!! must be updated
-        # used for normalisation purposes
-        # self.mean = -1456218.7500
-        # self.std = 135303504.0
 
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
         filename = f"{sample_id}"
         audio, samplerate = self.loader(
             os.path.join(self.root, dir_id, f"{filename}.wav")
-
-            # os.path.join(self.root, speaker_id, dir_id,
-            #              "{}.flac".format(filename))
         )
 
-        
-
         assert (
-            samplerate == 44100 # todo: before 16000 = 16Khz
+            samplerate == 44100  # todo: before 16000 = 16Khz
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # discard last part that is not a full 10ms
@@ -76,21 +64,24 @@ class DeBoerDataset(Dataset):
         # So our input features will be of length 441, and not 160
         # Thus downsampling factor of network will be 441
 
-        # old:
-        # max_length = (audio.size(1) // 160) * 160
-
         max_length = (audio.size(1) // 441) * 441
-        
 
         start_idx = random.choice(
-            #Old:  np.arange(160, max_length - self.audio_length - 0, 160)
             np.arange(441, max_length - self.audio_length - 0, 441)
         )
 
-        audio = audio[:, start_idx: start_idx + self.audio_length]
+        # print("BB")
+        # print(start_idx)
+        # print("BB")
 
-        # # todo: I removed it as I didn't quite know what to do with std and I couldn't replicate Sindy's mean
-        # audio = (audio - self.mean) / self.std 
+        OLD = audio  # audio org: [1, 41278] -> [1, 20480]
+        audio = audio[:,  # corresponds to first dim (= 1)
+                      start_idx: start_idx + self.audio_length]
+        # print("****")
+        # print((OLD.shape, audio.shape))
+
+        # print(audio)
+        # print(audio.shape)
 
         return audio, filename, speaker_id, start_idx
 
@@ -125,7 +116,7 @@ class DeBoerDataset(Dataset):
         )
 
         assert (
-            samplerate == 44100 #16000
+            samplerate == 44100  # 16000
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # discard last part that is not a full 10ms

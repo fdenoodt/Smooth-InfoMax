@@ -96,7 +96,7 @@ class FullModel(nn.Module):
                 )
                 enc_input = enc_hidden
 
-            if not self.opt["use_autoregressive"]:
+            if not self.opt["use_autoregressive"]: #default: 'use_autoregressive': False
                 # append separate autoregressive layer
                 self.fullmodel.append(
                     independent_module.IndependentModule(
@@ -115,67 +115,78 @@ class FullModel(nn.Module):
         else:
             raise Exception("Invalid option for opt['model_splits']")
 
+    # bv: x = [2, 1, 20480]
+    #     filename = [a, b]
+    #     start_idx = [a, b]
+    #     n=6
+
     def forward(self, x, filename=None, start_idx=None, n=6):
         model_input = x
-        shape = x.shape # 2 x 1 x 20480  -> batch = 2, signal of 20k elements
-        # print(shape)
+        # shape = x.shape # 2 x 1 x 20480  -> batch = 2, signal of 20k elements
 
         cur_device = utils.get_device(self.opt, x)
 
         # first dimension is used for concatenating results from different GPUs
-        loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
+        loss = torch.zeros(1, len(self.fullmodel),
+                           device=cur_device)  # loss.shape = (1, 6)
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
         if n == 6:  # train all layers at once
             for idx, layer in enumerate(self.fullmodel):
+
+                # Indep module returns:
+                # total_loss, accuracies, c, z
+
                 loss[:, idx], accuracy[:, idx], _, z = layer(
                     model_input, filename, start_idx
                 )
                 model_input = z.permute(0, 2, 1).detach()
-        else:
-            """
-            forward to the layer that we want to train and only output that layer's loss
-            (all other values stay at zero initialization)
-            This does not reap the memory benefits that would be possible if we trained layers completely separately 
-            (by training a layer and saving its output as the dataset to train the next layer on), but enables us 
-            to test the behaviour of the model for greedy iterative training
-            """
-            assert (
-                self.opt["model_splits"] == 5 or self.opt["model_splits"] == 6
-            ), "Works only for GIM model training"
 
-            for idx, layer in enumerate(self.fullmodel[: n + 1]):
-                if idx == n:
-                    loss[:, idx], accuracy[:, idx], _, _ = layer(
-                        model_input, filename, start_idx
-                    )
-                else:
-                    _, z = layer.get_latents(model_input)
-                    model_input = z.permute(0, 2, 1).detach()
+        # todo: I removed
+        # else:
+        #     """
+        #     forward to the layer that we want to train and only output that layer's loss
+        #     (all other values stay at zero initialization)
+        #     This does not reap the memory benefits that would be possible if we trained layers completely separately
+        #     (by training a layer and saving its output as the dataset to train the next layer on), but enables us
+        #     to test the behaviour of the model for greedy iterative training
+        #     """
+        #     assert (
+        #         self.opt["model_splits"] == 5 or self.opt["model_splits"] == 6
+        #     ), "Works only for GIM model training"
+
+        #     for idx, layer in enumerate(self.fullmodel[: n + 1]):
+        #         if idx == n:
+        #             loss[:, idx], accuracy[:, idx], _, _ = layer(
+        #                 model_input, filename, start_idx
+        #             )
+        #         else:
+        #             _, z = layer.get_latents(model_input)
+        #             model_input = z.permute(0, 2, 1).detach()
 
         return loss
 
-    def forward_through_n_layers(self, x, n):
-        if self.opt["model_splits"] == 1:
-            if n > 4:
-                model_input = x
-                for idx, layer in enumerate(self.fullmodel):
-                    c, z = layer.get_latents(model_input)
-                    model_input = z.permute(0, 2, 1).detach()
-                x = c
-            else:
-                x = self.fullmodel[0].encoder.forward_through_n_layers(
-                    x, n+1
-                )
-                x = x.permute(0, 2, 1)
-        elif self.opt["model_splits"] == 6 or self.opt["model_splits"] == 5:
-            model_input = x
-            for idx, layer in enumerate(self.fullmodel[: n + 1]):
-                c, z = layer.get_latents(model_input)
-                model_input = z.permute(0, 2, 1).detach()
-            if n < 5:
-                x = z
-            else:
-                x = c
+    # def forward_through_n_layers(self, x, n):
+    #     if self.opt["model_splits"] == 1:
+    #         if n > 4:
+    #             model_input = x
+    #             for idx, layer in enumerate(self.fullmodel):
+    #                 c, z = layer.get_latents(model_input)
+    #                 model_input = z.permute(0, 2, 1).detach()
+    #             x = c
+    #         else:
+    #             x = self.fullmodel[0].encoder.forward_through_n_layers(
+    #                 x, n+1
+    #             )
+    #             x = x.permute(0, 2, 1)
+    #     elif self.opt["model_splits"] == 6 or self.opt["model_splits"] == 5:
+    #         model_input = x
+    #         for idx, layer in enumerate(self.fullmodel[: n + 1]):
+    #             c, z = layer.get_latents(model_input)
+    #             model_input = z.permute(0, 2, 1).detach()
+    #         if n < 5:
+    #             x = z
+    #         else:
+    #             x = c
 
-        return x
+    #     return x

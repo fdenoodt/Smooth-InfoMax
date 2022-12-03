@@ -111,6 +111,10 @@ class IndependentModule(nn.Module):
 
         return c, z
 
+    # bv: x = [2, 1, 20480]
+    #     filename = [a, b]
+    #     start_idx = [a, b]
+    #     n=6
     def forward(self, x, filename=None, start_idx=None):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
@@ -121,8 +125,10 @@ class IndependentModule(nn.Module):
                 if use_autoregressor=True, or the output of the encoder otherwise)
         """
 
-        c, z = self.get_latents(x)  # B x L x C
-        total_loss, accuracies = self.loss.get_loss(x, z, c, filename, start_idx)
+        # B x L x C = Batch size x #channels x length
+        c, z = self.get_latents(x)
+        total_loss, accuracies = self.loss.get_loss(
+            x, z, c, filename, start_idx)
 
         # for multi-GPU training
         total_loss = total_loss.unsqueeze(0)
