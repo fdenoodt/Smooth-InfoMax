@@ -5,6 +5,7 @@ import time
 import numpy as np
 import random
 import gc
+from options import OPTIONS
 
 # own modules
 from utils import logger
@@ -43,8 +44,9 @@ def train(opt, model):
             # full audio sound, but its a multiple of 441 (so small part is gone)
             # print(audio.shape) # eg: [2, 1, 20480] # 2 comes from batch size
 
-            if step == 400:  # todo: remove
-                break
+            if(opt["dont_train"]):
+                if step == 400:  # todo: remove
+                    break
 
             # validate training progress by plotting latent representation of various speakers
             # TODO
@@ -106,19 +108,8 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
     gc.collect()
 
-    opt = \
-        {
-            'num_epochs': 2, 'seed': 2, 'batch_size': 2, 'data_input_dir': './datasets/',
-            'data_output_dir': '.', 'validate': False, 'save_dir': 'audio_experiment',
-            'learning_rate': 0.0002, 'prediction_step': 12, 'negative_samples': 10,
-            'sampling_method': 1, 'train_layer': 6, 'subsample': True, 'loss': 0, 'model_splits': 6,
-            # is for intermediate layers, by default this is set to false, only last layer has auto regressor (this is always the case, regardless of what this param is set to)
-            'use_autoregressive': False,
-            'remove_BPTT': False, 'start_epoch': 0,
-            'model_path': '.', 'model_num': '', 'model_type': 0,
-            'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), 'experiment': 'audio', 'log_path': './logs/audio_experiment',
-            'log_path_latent': './logs/audio_experiment/latent_space',
-        }
+    opt = OPTIONS
+        
 
     arg_parser.create_log_path(opt)
 
