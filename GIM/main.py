@@ -37,6 +37,11 @@ def train(opt, model):
         loss_epoch = [0 for _ in range(opt["model_splits"])]
 
         for step, (audio, filename, _, start_idx) in enumerate(train_loader):
+            
+            # full audio sound, but its a multiple of 441 (so small part is gone)
+            # print(audio)
+            # print(audio.shape) # eg: [2, 1, 20480]
+            # 2 comes from batch size
 
             if step == 400:  # todo: remove
                 break
@@ -63,10 +68,12 @@ def train(opt, model):
 
             model_input = audio.to(opt["device"])
 
+            # calls full_model.py > forward
             loss = model(model_input, filename,
                          start_idx, n=opt["train_layer"])
             # average over the losses from different GPUs
             loss = torch.mean(loss, 0)
+            # print(loss) bv tensor([2.3979, 2.3967, 2.3920, 2.3834, 2.3853, 2.3862], device='cuda:0',
 
             model.zero_grad()
             overall_loss = sum(loss)

@@ -10,7 +10,7 @@ import random
 
 def default_loader(path):
     return torchaudio.load(path,
-                           # normalization=False todo
+                            # normalization=False todo
                            )
 
 
@@ -51,8 +51,9 @@ class DeBoerDataset(Dataset):
         self.audio_length = audio_length
 
         # TODO!! must be updated
-        self.mean = -1456218.7500
-        self.std = 135303504.0
+        # used for normalisation purposes
+        # self.mean = -1456218.7500
+        # self.std = 135303504.0
 
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
@@ -64,23 +65,32 @@ class DeBoerDataset(Dataset):
             #              "{}.flac".format(filename))
         )
 
-        # print(samplerate) # 44100
         
 
         assert (
-            samplerate == 44100 # todo: before 16000
+            samplerate == 44100 # todo: before 16000 = 16Khz
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # discard last part that is not a full 10ms
-        max_length = audio.size(1) // 160 * 160
+        # original paper had audio of 16khz, ours is 44khz and we still want parts of 10ms
+        # So our input features will be of length 441, and not 160
+        # Thus downsampling factor of network will be 441
+
+        # old:
+        # max_length = (audio.size(1) // 160) * 160
+
+        max_length = (audio.size(1) // 441) * 441
+        
 
         start_idx = random.choice(
-            np.arange(160, max_length - self.audio_length - 0, 160)
+            #Old:  np.arange(160, max_length - self.audio_length - 0, 160)
+            np.arange(441, max_length - self.audio_length - 0, 441)
         )
 
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
-        audio = (audio - self.mean) / self.std
+        # # todo: I removed it as I didn't quite know what to do with std and I couldn't replicate Sindy's mean
+        # audio = (audio - self.mean) / self.std 
 
         return audio, filename, speaker_id, start_idx
 
@@ -115,11 +125,12 @@ class DeBoerDataset(Dataset):
         )
 
         assert (
-            samplerate == 16000
+            samplerate == 44100 #16000
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # discard last part that is not a full 10ms
-        max_length = audio.size(1) // 160 * 160
+        max_length = (audio.size(1) // 441) * 441
+        # max_length = audio.size(1) // 160 * 160
         audio = audio[:max_length]
 
         audio = (audio - self.mean) / self.std

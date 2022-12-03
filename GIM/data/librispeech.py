@@ -68,6 +68,8 @@ class LibriDataset(Dataset):
             np.arange(160, max_length - self.audio_length - 0, 160)
         )
 
+        # don't care about first dim
+        # audio = [start_idx, start_idx + audio_length]
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
         audio = (audio - self.mean) / self.std

@@ -117,6 +117,8 @@ class FullModel(nn.Module):
 
     def forward(self, x, filename=None, start_idx=None, n=6):
         model_input = x
+        shape = x.shape # 2 x 1 x 20480  -> batch = 2, signal of 20k elements
+        # print(shape)
 
         cur_device = utils.get_device(self.opt, x)
 
