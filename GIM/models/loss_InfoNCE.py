@@ -192,11 +192,8 @@ class InfoNCE_Loss(loss.Loss):
                     accuracies - average accuracies over all samples, timesteps and predictions steps in the batch
         """
         seq_len = z.size(1)
-
         cur_device = utils.get_device(self.opt, Wc)
-
         total_loss = 0
-
         accuracies = torch.zeros(self.opt["prediction_step"], 1)
         true_labels = torch.zeros(
             (seq_len * self.opt["batch_size"],), device=cur_device
@@ -237,5 +234,4 @@ class InfoNCE_Loss(loss.Loss):
 
         total_loss /= self.opt["prediction_step"]
         accuracies = torch.mean(accuracies)
-
         return total_loss, accuracies

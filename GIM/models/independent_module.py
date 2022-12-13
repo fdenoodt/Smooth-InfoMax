@@ -12,13 +12,8 @@ from models import (
 
 class IndependentModule(nn.Module):
     def __init__(
-        self,
-        opt,
-        enc_kernel_sizes,
-        enc_strides,
-        enc_padding,
-        enc_hidden,
-        reg_hidden,
+        self, opt,
+        enc_kernel_sizes, enc_strides, enc_padding, enc_hidden, reg_hidden,
         enc_input=1,
         use_autoregressive=True,
         use_encoder=True,
