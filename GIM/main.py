@@ -100,8 +100,8 @@ def train(opt, model):
                 opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
-        
-        logs.create_log(model, epoch=epoch, optimizer=optimizer)
+        if(epoch % opt['log_every_x_epochs'] == 0):
+            logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
 if __name__ == "__main__":
