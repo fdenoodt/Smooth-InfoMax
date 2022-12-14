@@ -7,6 +7,7 @@ import torchaudio
 import matplotlib.pyplot as plt
 
 
+# %%
 def compute_mean(path):
     fname = path + "/8419-286667-0008.flac"
     return torchaudio.load(fname)
@@ -32,7 +33,7 @@ def default_flist_reader(flist):
 # def print_stats(waveform, sample_rate=None, src=None):
 #     if src:
 #         print("-" * 10)
-#         print("Source:", src)
+#         print("Source:", src) 
 #         print("-" * 10)
 #     if sample_rate:
 #         print("Sample Rate:", sample_rate)
@@ -111,3 +112,92 @@ print(audio.shape)
 #
 plt.plot(audio[0])
 np.mean(audio[0].to('cpu').numpy())
+
+
+# %%
+
+waveform, sample_rate = torchaudio.load(r'C:/GitHub/thesis-fabian-denoodt/GIM/datasets/gigabo/train/bababi_1.wav', normalize=True)
+new = torchaudio.functional.resample(waveform, orig_freq=sample_rate, new_freq=16000)
+
+print(waveform.shape)
+print(new.shape)
+
+waveform1 = waveform
+waveform2 = new
+
+# %%
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+
+# plt.figure(1)
+# plt.title("Signal Wave...")
+# plt.plot(waveform1[0])
+# plt.plot(waveform2[0])
+# plt.show()
+
+# %%
+waveform1.shape
+waveform2.shape
+
+
+# %%
+# https://blog.deepgram.com/pytorch-intro-with-torchaudio/
+# def print_stats(waveform, sample_rate=None, src=None):
+#    if src:
+#        print("-"*10)
+#        print(f"Source: {src}")
+#        print("-"*10)
+#    if sample_rate:
+#        print(f"Sample Rate: {sample_rate}")
+#    print("Dtype:", waveform.dtype)
+#    print(f" - Max:     {waveform.max().item():6.3f}")
+#    print(f" - Min:     {waveform.min().item():6.3f}")
+#    print(f" - Mean:    {waveform.mean().item():6.3f}")
+#    print(f" - Std Dev: {waveform.std().item():6.3f}")
+#    print()
+#    print(waveform)
+#    print()
+
+# def plot_specgram(waveform, sample_rate, title="Spectrogram", xlim=None):
+#    waveform = waveform.numpy()
+#    num_channels, num_frames = waveform.shape
+#    figure, axes = plt.subplots(num_channels, 1)
+#    if num_channels == 1:
+#        axes = [axes]
+#    for c in range(num_channels):
+#        axes[c].specgram(waveform[c], Fs=sample_rate)
+#        if num_channels > 1:
+#            axes[c].set_ylabel(f"Channel {c+1}")
+#        if xlim:
+#            axes[c].set_xlim(xlim)
+#    figure.suptitle(title)
+#    plt.show(block=False)
+
+# def plot_waveform(waveform, sample_rate, title="Waveform", xlim=None, ylim=None):
+#    waveform = waveform.to('cpu').numpy()
+#    num_channels, num_frames = waveform.shape
+#    time_axis = torch.arange(0, num_frames) / sample_rate
+
+#    figure, axes = plt.subplots(num_channels, 1)
+#    if num_channels == 1:
+#        axes = [axes]
+#    for c in range(num_channels):
+#        axes[c].plot(time_axis, waveform[c], linewidth=1)
+#        axes[c].grid(True)
+#        if num_channels > 1:
+#            axes[c].set_ylabel(f"Channel {c+1}")
+#        if xlim:
+#            axes[c].set_xlim(xlim)
+#        if ylim:
+#            axes[c].set_ylim(ylim)
+#    figure.suptitle(title)
+#    plt.show(block=False)
+
+# print_stats(waveform1, sample_rate=None, src="Original")
+# print_stats(waveform2, sample_rate=None, src="Effects Applied")
+# plot_waveform(waveform1, None, title="Original", xlim=(-0.1, 3.2))
+# plot_specgram(waveform1, None, title="Original", xlim=(0, 3.04))
+# plot_waveform(waveform2, None, title="Effects Applied", xlim=(-0.1, 3.2))
+# plot_specgram(waveform2, None, title="Effects Applied", xlim=(0, 3.04))

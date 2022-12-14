@@ -22,7 +22,7 @@ class InfoNCE_Loss(loss.Loss):
         )
 
         if self.opt["subsample"]:
-            self.subsample_win = 128
+            self.subsample_win = 64 #128 #TODO: THINK IF CORRECT
 
         self.loss = nn.LogSoftmax(dim=1)
 

@@ -34,8 +34,12 @@ class DeBoerDataset(Dataset):
         opt,
         root,
         directory="train",
-        audio_length=64 * 441,  # org: 20480=128 * 160
-        # result will be audio sequences of length 64 * 441 = 28.224
+        # Resulting sequences will be of 16khz -> 16k samples per second
+        # 16.000 samples per sec
+        # 160 samples = 0.01 sec
+        # 128 * 0.01 sec -> 1.28 second samples
+        audio_length=64 * 160, # -> 20480 elements over 1.28 seconds
+        # audio_length=128 * 160, # -> 20480 elements over 1.28 seconds
         loader=default_loader,
     ):
         self.root = root
@@ -60,34 +64,32 @@ class DeBoerDataset(Dataset):
             samplerate == 44100  # todo: before 16000 = 16Khz
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        # discard last part that is not a full 10ms
-        # original paper had audio of 16khz, ours is 44khz and we still want parts of 10ms
-        # So our input features will be of length 441, and not 160
-        # Thus downsampling factor of network will be 441
+        # resample
+        audio = self.resample(audio,
+                              curr_samplerate=44100,
+                              new_samplerate=16000)
 
-        max_length = (audio.size(1) // 441) * 441
+        # discard last part that is not a full 10ms
+        max_length = (audio.size(1) // 160) * 160
 
         start_idx = random.choice(
-            np.arange(441, max_length - self.audio_length - 0, 441)
+            np.arange(160, max_length - self.audio_length - 0, 160)
         )
 
-        # print("BB")
-        # print(start_idx)
-        # print("BB")
-
-        OLD = audio  # audio org: [1, 41278] -> [1, 20480]
+        # OLD = audio  # audio org: [1, 41278] -> [1, 20480]
         audio = audio[:,  # corresponds to first dim (= 1)
                       start_idx: start_idx + self.audio_length]
-        # print("****")
-        # print((OLD.shape, audio.shape))
-
-        # print(audio)
-        # print(audio.shape)
 
         return audio, filename, speaker_id, start_idx
 
     def __len__(self):
         return len(self.file_list)
+
+    def resample(self, audio, curr_samplerate=44100, new_samplerate=16000):
+        new_samplerate = 16000
+        audio = torchaudio.functional.resample(
+            audio, orig_freq=curr_samplerate, new_freq=new_samplerate)
+        return audio
 
     def get_audio_by_speaker(self, speaker_id, batch_size=20):
         """
@@ -117,12 +119,16 @@ class DeBoerDataset(Dataset):
         )
 
         assert (
-            samplerate == 44100  # 16000
+            samplerate == 44100
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
+        # resample
+        audio = self.resample(audio,
+                              curr_samplerate=44100,
+                              new_samplerate=16000)
+
         # discard last part that is not a full 10ms
-        max_length = (audio.size(1) // 441) * 441
-        # max_length = audio.size(1) // 160 * 160
+        max_length = audio.size(1) // 160 * 160
         audio = audio[:max_length]
 
         audio = (audio - self.mean) / self.std

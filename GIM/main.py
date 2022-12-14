@@ -1,5 +1,5 @@
-# %%
-import importlib
+# import importlib
+
 import torch
 import time
 import numpy as np
@@ -96,9 +96,11 @@ def train(opt, model):
 
         # validate by testing the CPC performance on the validation set
         if opt["validate"]:
-            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(opt, model, test_loader)
+            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(
+                opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
+        
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
@@ -137,5 +139,3 @@ if __name__ == "__main__":
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
-
-# %%
