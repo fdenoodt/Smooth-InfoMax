@@ -33,6 +33,7 @@ class DeBoerDataset(Dataset):
         self,
         opt,
         root,
+        directory="train",
         audio_length=64 * 441,  # org: 20480=128 * 160
         # result will be audio sequences of length 64 * 441 = 28.224
         loader=default_loader,
@@ -40,9 +41,9 @@ class DeBoerDataset(Dataset):
         self.root = root
         self.opt = opt
 
-        files = os.listdir(f"{root}/train")
+        files = os.listdir(f"{root}/{directory}")
         # the Nones correspond to speaker_id and dir_id --> see default flist reader
-        self.file_list = [(0, "train", fname.split(".wav")[0])
+        self.file_list = [(0, directory, fname.split(".wav")[0])
                           for fname in files]
 
         self.loader = loader

@@ -93,28 +93,28 @@ def get_de_boer_sounds_data_loaders(opt):
     """
     num_workers = 1
 
-    if opt["validate"]:
-        assert False  # TODO
-    else:
-        print("Using Train+Val / Test Split")
-        train_dataset = de_boer_sounds.DeBoerDataset(
-            opt=opt,
-            root=os.path.join(
-                opt["data_input_dir"],
-                "gigabo",
-            )
-        )
+    # if opt["validate"]:
+    #     assert False  # TODO
+    # else:
+    print("Using Train+Val / Test Split")
+    train_dataset = de_boer_sounds.DeBoerDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"],
+            "gigabo",
+        ),
+        directory="train"
+    )
 
-        # test_dataset = librispeech.LibriDataset(
-        #     opt,
-        #     os.path.join(
-        #         opt["data_input_dir"],
-        #         "LibriSpeech/train-clean-100",
-        #     ),
-        #     os.path.join(
-        #         opt["data_input_dir"], "LibriSpeech100_labels_split/test_split.txt"
-        #     ),
-        # )
+    test_dataset = de_boer_sounds.DeBoerDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"],
+            "gigabo",
+        ),
+        directory="test"
+    )
+    # end else
 
     train_loader = torch.utils.data.DataLoader(
         dataset=train_dataset,
@@ -124,12 +124,12 @@ def get_de_boer_sounds_data_loaders(opt):
         num_workers=num_workers,
     )
 
-    # test_loader = torch.utils.data.DataLoader(
-    #     dataset=test_dataset,
-    #     batch_size=opt["batch_size_multiGPU"],
-    #     shuffle=False,
-    #     drop_last=True,
-    #     num_workers=num_workers,
-    # )
+    test_loader = torch.utils.data.DataLoader(
+        dataset=train_dataset,
+        batch_size=opt["batch_size_multiGPU"],
+        shuffle=False,
+        drop_last=True,
+        num_workers=num_workers,
+    )
 
-    return train_loader, train_dataset, None, None  # test_loader, test_dataset
+    return train_loader, train_dataset, test_loader, test_dataset
