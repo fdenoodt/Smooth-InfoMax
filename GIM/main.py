@@ -121,7 +121,13 @@ if __name__ == "__main__":
 
     # load model
     model, optimizer = load_audio_model.load_model_and_optimizer(opt)
-
+    print("AAAAAAAAAAAAAAAAAAAAA")
+    print("AAAAAAAAAAAAAAAAAAAAA")
+    print("AAAAAAAAAAAAAAAAAAAAA")
+    print("AAAAAAAAAAAAAAAAAAAAA")
+    print("AAAAAAAAAAAAAAAAAAAAA")
+    print(model)
+    
     # initialize logger
     logs = logger.Logger(opt)
 

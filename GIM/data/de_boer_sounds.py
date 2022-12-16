@@ -38,8 +38,7 @@ class DeBoerDataset(Dataset):
         # 16.000 samples per sec
         # 160 samples = 0.01 sec
         # 128 * 0.01 sec -> 1.28 second samples
-        audio_length=64 * 160, # -> 20480 elements over 1.28 seconds
-        # audio_length=128 * 160, # -> 20480 elements over 1.28 seconds
+        audio_length=64 * 160, # -> 10240 elements over 0.64 seconds
         loader=default_loader,
     ):
         self.root = root

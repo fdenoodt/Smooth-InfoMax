@@ -97,7 +97,11 @@ class IndependentModule(nn.Module):
         else:
             z = x
 
+        # print("****")
+        # print(z.shape) 
         z = z.permute(0, 2, 1)
+        # print(z.shape)
+        # eg: org shape: [2, 512, 64] -> [2, 64, 512]
 
         if self.use_autoregressive and calc_autoregressive:
             c = self.autoregressor(z)
@@ -121,7 +125,17 @@ class IndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        c, z = self.get_latents(x)
+        c, z = self.get_latents(x) # c = z
+
+        
+        # print("****")
+        # print(x.shape, c.shape, z.shape)
+        # Can have the following outputs:
+        # torch.Size([2, 1, 10240]) torch.Size([2, 2047, 512]) torch.Size([2, 2047, 512])
+        # torch.Size([2, 512, 2047]) torch.Size([2, 511, 512]) torch.Size([2, 511, 512]) 
+        # torch.Size([2, 512, 511]) torch.Size([2, 256, 512]) torch.Size([2, 256, 512]) 
+        # torch.Size([2, 512, 256]) torch.Size([2, 129, 512]) torch.Size([2, 129, 512])
+        # torch.Size([2, 512, 64]) torch.Size([2, 64, 256]) torch.Size([2, 64, 512])
         total_loss, accuracies = self.loss.get_loss(
             x, z, c, filename, start_idx)
 

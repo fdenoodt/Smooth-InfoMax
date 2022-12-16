@@ -26,9 +26,13 @@ class InfoNCE_Loss(loss.Loss):
 
         self.loss = nn.LogSoftmax(dim=1)
 
+    # eg: x = torch.Size([2, 1, 10240]) z = torch.Size([2, 2047, 512]) c = torch.Size([2, 2047, 512])
+    # x, z, c can have other dimensions too!
     def get_loss(self, x, z, c, filename=None, start_idx=None):
 
         full_z = z
+        # print("****")
+        # print(z.shape) 
         if self.opt["subsample"]:
             """ 
             positive samples are restricted to this subwindow to reduce the number of calculations for the loss, 
@@ -39,7 +43,14 @@ class InfoNCE_Loss(loss.Loss):
                 c = c[:, seq_begin : seq_begin + self.subsample_win, :]
                 z = z[:, seq_begin : seq_begin + self.subsample_win, :]
 
+        # print(z.shape)
+
+        # torch.Size([2, 511, 512]) -> full_z
+        # torch.Size([2, 64, 512]) --> z
+        # torch.Size([2, 64, 6144]) --> Wc
+
         Wc = self.predictor(c)
+        # print(Wc.shape)
         total_loss, accuracies = self.calc_InfoNCE_loss(Wc, z, full_z)
         return total_loss, accuracies
 
@@ -213,10 +224,13 @@ class InfoNCE_Loss(loss.Loss):
 
             pos_samples = self.get_pos_sample_f(Wc_k, z_k)
             neg_samples = self.get_neg_samples_f(Wc_k, z_k, cur_device, z_neg, k)
+            
+            # print(pos_samples.shape) #eg: [110, 1]
+            # print(neg_samples.shape) #eg: [110, 10] -> the 110 can differ (114, 116, 120, ...)
 
             # concatenate positive and negative samples
-            results = torch.cat((pos_samples, neg_samples), 1)
-            loss = self.loss(results)[:, 0]
+            results = torch.cat((pos_samples, neg_samples), 1) # eg: [110, 11]
+            loss = self.loss(results)[:, 0] # eg: [110]
 
             total_samples = (seq_len - k) * self.opt["batch_size"]
             loss = -loss.sum() / total_samples
