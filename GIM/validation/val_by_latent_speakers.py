@@ -16,6 +16,7 @@ def val_by_latent_speakers(opt, dataset, model, epoch, step):
     input_size = (opt["batch_size"], 1, 20480)
 
     model.eval()
+    # iterate over layers
     for idx, layer in enumerate(model.module.fullmodel):
         latent_rep_size, latent_rep_length = layer.get_latent_seq_len(input_size)
         big_feature_space.append(
@@ -32,6 +33,7 @@ def val_by_latent_speakers(opt, dataset, model, epoch, step):
             if idx == max_speakers:
                 break
 
+            # k represents speaker id
             audio = dataset.get_audio_by_speaker(k, batch_size=batch_size)
 
             if audio.size(0) != batch_size:
@@ -40,6 +42,7 @@ def val_by_latent_speakers(opt, dataset, model, epoch, step):
 
             model_input = audio.to(opt["device"])
 
+            # iterate over layers
             for idx, layer in enumerate(model.module.fullmodel):
                 context, z = layer.get_latents(model_input)
                 model_input = z.permute(0, 2, 1)

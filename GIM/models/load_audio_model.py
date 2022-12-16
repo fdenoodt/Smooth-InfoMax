@@ -15,7 +15,6 @@ def load_model_and_optimizer(
     enc_hidden = 512
     reg_hidden = 256
 
-    print(opt['use_autoregressive'])
     # Initialize model.
     model = full_model.FullModel(
         opt,
