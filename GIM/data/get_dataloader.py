@@ -3,6 +3,7 @@ import os
 
 from data import librispeech
 from data import de_boer_sounds
+from data import de_boer_decoder_sounds
 
 
 def get_libri_dataloaders(opt):
@@ -83,7 +84,7 @@ def get_libri_dataloaders(opt):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_de_boer_sounds_data_loaders(opt):
+def get_de_boer_sounds_data_loaders(opt, GIM_encoder=None):
     """
     creates and returns the Libri dataset and dataloaders,
     either with train/val split, or train+val/test split
@@ -93,9 +94,6 @@ def get_de_boer_sounds_data_loaders(opt):
     """
     num_workers = 1
 
-    # if opt["validate"]:
-    #     assert False  # TODO
-    # else:
     print("Using Train+Val / Test Split")
     train_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
@@ -103,7 +101,8 @@ def get_de_boer_sounds_data_loaders(opt):
             opt["data_input_dir"],
             "gigabo",
         ),
-        directory="train"
+        directory="train",
+        encoder=GIM_encoder
     )
 
     test_dataset = de_boer_sounds.DeBoerDataset(
@@ -112,9 +111,9 @@ def get_de_boer_sounds_data_loaders(opt):
             opt["data_input_dir"],
             "gigabo",
         ),
-        directory="test"
+        directory="test",
+        encoder=GIM_encoder
     )
-    # end else
 
     train_loader = torch.utils.data.DataLoader(
         dataset=train_dataset,
@@ -133,3 +132,35 @@ def get_de_boer_sounds_data_loaders(opt):
     )
 
     return train_loader, train_dataset, test_loader, test_dataset
+
+
+def get_de_boer_sounds_decoder_data_loaders(opt, GIM_encoder=None):
+    """
+    creates and returns the Libri dataset and dataloaders,
+    either with train/val split, or train+val/test split
+    :param opt:
+    :return: train_loader, train_dataset,
+    test_loader, test_dataset - corresponds to validation or test set depending on opt["validate"]
+    """
+    num_workers = 1
+
+    print("Using Train+Val / Test Split")
+    train_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"],
+            "gigabo",
+        ),
+        directory="train",
+        encoder=GIM_encoder
+    )
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset=train_dataset,
+        batch_size=opt["batch_size_multiGPU"],
+        shuffle=True,
+        drop_last=True,
+        num_workers=num_workers,
+    )
+
+    return train_loader, train_dataset, None, None

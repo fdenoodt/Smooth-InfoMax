@@ -38,8 +38,10 @@ class DeBoerDataset(Dataset):
         # 16.000 samples per sec
         # 160 samples = 0.01 sec
         # 128 * 0.01 sec -> 1.28 second samples
-        audio_length=64 * 160, # -> 10240 elements over 0.64 seconds
+        audio_length=64 * 160,  # -> 10240 elements over 0.64 seconds
         loader=default_loader,
+        # used for model predictions, the same dataset class is used for our custom autoencoder
+        encoder=None
     ):
         self.root = root
         self.opt = opt
@@ -51,6 +53,7 @@ class DeBoerDataset(Dataset):
 
         self.loader = loader
         self.audio_length = audio_length
+        self.encoder = encoder
 
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
@@ -78,6 +81,9 @@ class DeBoerDataset(Dataset):
         # OLD = audio  # audio org: [1, 41278] -> [1, 20480]
         audio = audio[:,  # corresponds to first dim (= 1)
                       start_idx: start_idx + self.audio_length]
+
+        # if encode via GIM is requested
+        audio = self.encoder(audio) if self.encoder != None else audio
 
         return audio, filename, speaker_id, start_idx
 
