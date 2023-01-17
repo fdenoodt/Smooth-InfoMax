@@ -1,3 +1,5 @@
+# %%
+
 # import importlib
 
 import torch
@@ -45,7 +47,7 @@ def train(opt, model):
             # print(audio.shape) # eg: [2, 1, 20480] # 2 comes from batch size
 
             if(opt["dont_train"]):
-                if step == 400:  # todo: remove
+                if step == 400:
                     break
 
             # validate training progress by plotting latent representation of various speakers
@@ -69,7 +71,6 @@ def train(opt, model):
             starttime = time.time()
 
             model_input = audio.to(opt["device"])
-            # print(audio.shape) # eg: [2, 1, 20480]
 
             # calls full_model.py > forward
             # Loss is based on 2 audio samples (batch size = 2)
@@ -121,7 +122,7 @@ if __name__ == "__main__":
 
     # load model
     model, optimizer = load_audio_model.load_model_and_optimizer(opt)
-    
+
     # initialize logger
     logs = logger.Logger(opt)
 
@@ -139,3 +140,12 @@ if __name__ == "__main__":
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
+
+
+# # %%
+# from IPython.display import Audio
+# Audio(temp[1], rate=16000)
+
+# # %%
+
+

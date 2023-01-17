@@ -99,10 +99,15 @@ def get_de_boer_sounds_data_loaders(opt, GIM_encoder=None):
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
-            "gigabo",
-        ),
+            "gigabo"),
         directory="train",
-        encoder=GIM_encoder
+        encoder=GIM_encoder,
+
+        # ONLY NOISE FOR TRAINING DATASETS!
+        background_noise=True, white_guassian_noise=True, 
+        background_noise_path=os.path.join(
+            opt["data_input_dir"],
+            "musan")
     )
 
     test_dataset = de_boer_sounds.DeBoerDataset(
@@ -124,7 +129,7 @@ def get_de_boer_sounds_data_loaders(opt, GIM_encoder=None):
     )
 
     test_loader = torch.utils.data.DataLoader(
-        dataset=train_dataset,
+        dataset=test_dataset,
         batch_size=opt["batch_size_multiGPU"],
         shuffle=False,
         drop_last=True,

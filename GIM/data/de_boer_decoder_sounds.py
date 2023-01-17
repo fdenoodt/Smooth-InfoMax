@@ -45,7 +45,7 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # resample
-        audio = self.resample(audio,
+        audio = resample(audio,
                               curr_samplerate=44100,
                               new_samplerate=16000)
 
