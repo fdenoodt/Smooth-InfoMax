@@ -63,22 +63,31 @@ class RandomBackgroundNoise:
             raise IOError(
                 f'No .wav file found in the noise directory `{noise_dir}`')
 
-    def __call__(self, audio_signal):
-        c, audio_length = audio_signal.shape
+    def get_random_file(self):
         random_noise_file = random.choice(self.noise_files_list)
         noise, noise_sr = torchaudio.load(random_noise_file)
+        return noise, noise_sr
+        
+    def __call__(self, audio_signal):
+        c, audio_length = audio_signal.shape
+        
+        while True:
+            noise, noise_sr = self.get_random_file()
 
-        # Change sample rate to target
-        noise = resample(noise, noise_sr, self.target_sr)
-        c_noise, noise_length = noise.shape
+            # Change sample rate to target
+            noise = resample(noise, noise_sr, self.target_sr)
+            c_noise, noise_length = noise.shape
 
-        # change length
-        if noise_length > audio_length:
-            offset = random.randint(0, noise_length-audio_length)
-            noise = noise[..., offset:offset+audio_length]
-        elif noise_length < audio_length:
-            raise Exception("noise length should be longer than audio length")
-            # noise = torch.cat([noise, torch.zeros((noise.shape[0], audio_length-noise_length))], dim=-1)
+            # change length
+            if noise_length > audio_length:
+                offset = random.randint(0, noise_length-audio_length)
+                noise = noise[..., offset:offset+audio_length]
+                break
+            else:
+                print("new attempt")
+            # elif noise_length < audio_length:
+            #     raise Exception("noise length should be longer than audio length")
+                # noise = torch.cat([noise, torch.zeros((noise.shape[0], audio_length-noise_length))], dim=-1)
 
         snr_db = random.randint(self.min_snr_db, self.max_snr_db)
         speech_rms = audio_signal.norm(p=2)
