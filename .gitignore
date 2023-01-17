@@ -3,3 +3,7 @@ GIM/options.py
 GIM/.vscode/settings.json
 GIM/g_drive_model/optim_180.ckpt
 GIM/g_drive_model/model_180.ckpt
+save_numpy/data1.csv
+save_numpy/firstarray.csv
+GIM/decoder_layer_3.pth
+GIM/audio_batch
