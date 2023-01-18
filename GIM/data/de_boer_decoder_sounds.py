@@ -13,9 +13,7 @@ import random
 
 
 def default_loader(path):
-    return torchaudio.load(path,
-                           # normalization=False todo
-                           )
+    return torchaudio.load(path)
 
 
 def default_flist_reader(flist):
@@ -45,7 +43,7 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
         # resample
-        audio = resample(audio,
+        audio = de_boer_sounds.resample(audio,
                               curr_samplerate=44100,
                               new_samplerate=16000)
 
