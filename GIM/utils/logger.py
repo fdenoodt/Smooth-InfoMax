@@ -64,9 +64,15 @@ class Logger:
                 torch.save(
                     layer.state_dict(),
                     os.path.join(
-                        self.opt["log_path"], "model_{}_{}.ckpt".format(idx, epoch)
+                        self.opt["log_path"], "model    _{}_{}.ckpt".format(idx, epoch)
                     ),
                 )
+        elif self.opt['experiment'] == "RMSE_decoder": 
+            torch.save(
+                model.state_dict(),
+                os.path.join(self.opt["log_path"], "model_{}.ckpt".format(epoch)),
+            )
+            
         else:
             torch.save(
                 model.state_dict(),
@@ -135,7 +141,8 @@ class Logger:
                 print("not enough models there yet, nothing to delete")
 
         # Save hyper-parameters
-        with open(os.path.join(self.opt["log_path"], "log.txt"), "w+") as cur_file:
+        path = os.path.join(self.opt["log_path"], "log.txt")
+        with open(path, "w+") as cur_file:
             cur_file.write(str(self.opt))
             if accuracy is not None:
                 cur_file.write("Top 1 -  accuracy: " + str(accuracy))
@@ -148,7 +155,7 @@ class Logger:
 
         # Save losses throughout training and plot
         np.save(
-            os.path.join(self.opt["log_path"], "train_loss"), np.array(self.train_loss)
+            os.path.join(self.opt["log_path"], "train_loss"), np.array(self.train_loss, dtype=object)
         )
 
         if self.val_loss is not None:

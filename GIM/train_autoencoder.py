@@ -1,6 +1,7 @@
 # %%
 import time
 import importlib
+from typing import Any
 import decoder_architectures
 import helper_functions
 import torch.nn as nn
@@ -34,11 +35,6 @@ def encode(audio, model, depth=1):
 
 
 def encoder_lambda(xs_batch):
-    # No auto differentaiton support error:
-    # Chat gpt:
-    # It looks like the issue is with the encode function being called with a gradient-enabled tensor as the audios argument, which is causing the stack function to be called with a gradient-enabled tensor as an argument. This is causing the RuntimeError because the stack function does not support automatic differentiation when one of its arguments requires a gradient.
-    # One solution would be to disable gradients for the audios tensor before calling the encode function. You can do this by using the torch.no_grad context manager or the detach method. Here's what the modified code would look like using the torch.no_grad context manager:
-
     # Gim_encoder is outerscope variable
     with torch.no_grad():
         return encode(xs_batch, GIM_encoder, depth=3)
@@ -56,9 +52,9 @@ random.seed(0)
 class LogHandler():
     def __init__(self, logs, train_loader) -> None:
         self.total_step = len(train_loader)
-        self.logs = logs
+        self.logs: logger.Logger = logs
 
-    def call(self, loss_epoch) -> None:
+    def __call__(self,loss_epoch, *args: Any, **kwds: Any) -> Any:
         self.logs.append_train_loss([x / self.total_step for x in loss_epoch])
 
 
@@ -70,7 +66,7 @@ class EpochPrinter():
         self.step = 0
         self.total_step = len(train_loader)
 
-    def call(self, step, epoch) -> None:
+    def __call__(self, step, epoch, *args: Any, **kwds: Any) -> Any:
         if step % self.print_idx == 0:
             print(
                 "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}".format(
@@ -93,9 +89,10 @@ def train(decoder, logs, train_loader):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
 
-    for epoch in range(5):
+    for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
+
         loss_epoch = [0]
-        
+
         for step, (org_audio, enc_audio, _, _, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
 
@@ -125,7 +122,7 @@ def train(decoder, logs, train_loader):
             loss_epoch[0] += loss.item()
             # </> end for step
 
-        log_handler(loss_epoch) # store losses + models
+        log_handler(loss_epoch) # store losses
 
     # torch.save(decoder.state_dict(), "decoder_layer_3.pth")
     # plt.plot(errors)  # plot the errors
@@ -142,10 +139,11 @@ if __name__ == "__main__":
     arg_parser.create_log_path(opt)
 
     experiment_name = 'RMSE_decoder'
-    opt['experiment'] = experiment_name,
-    opt['save_dir'] = f'{experiment_name}_experiment',
-    opt['log_path'] = f'./logs/{experiment_name}_experiment',
-    opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space',
+    opt['experiment'] = experiment_name
+    opt['save_dir'] = f'{experiment_name}_experiment'
+    opt['log_path'] = f'./logs/{experiment_name}_experiment'
+    opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
+    opt['num_epochs'] = 5
 
     logs = logger.Logger(opt)
 
@@ -159,7 +157,7 @@ if __name__ == "__main__":
 
     logs.create_log(two_layer_decoder)
 
-    # torch.cuda.empty_cache()
+    torch.cuda.empty_cache()
 
 
 # %%
