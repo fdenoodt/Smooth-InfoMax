@@ -32,9 +32,16 @@ class LogHandler():
     def __init__(self, logs, train_loader) -> None:
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
+    
+    def __call__(self, model, epoch, optimizer, loss_epoch) -> None:
+        self.append_loss(loss_epoch)
+        self.save_model(model, epoch, optimizer)
 
-    def __call__(self, loss_epoch, *args: Any, **kwds: Any) -> Any:
+    def append_loss(self, loss_epoch) -> None:
         self.logs.append_train_loss([x / self.total_step for x in loss_epoch])
+
+    def save_model(self, model, epoch, optimizer) -> None:
+        logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
 class EpochPrinter():
@@ -89,12 +96,10 @@ def train(decoder, logs, train_loader):
             loss.backward()
             optimizer.step()
 
-            # print the loss at each step
-
             loss_epoch[0] += loss.item()
             # </> end for step
 
-        log_handler(loss_epoch) # store losses
+        log_handler(decoder, epoch, optimizer, loss_epoch)
     return decoder
 
 # %%
@@ -121,9 +126,7 @@ if __name__ == "__main__":
 
     two_layer_decoder = OneLayerDecoder()
     decoder = train(two_layer_decoder, logs, train_loader)
-
-    logs.create_log(two_layer_decoder)
-
+    
     torch.cuda.empty_cache()
 
 

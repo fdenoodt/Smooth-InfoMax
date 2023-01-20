@@ -110,7 +110,6 @@ class DeBoerDataset(Dataset):
         # 128 * 0.01 sec -> 1.28 second samples
         audio_length=64 * 160,  # -> 10240 elements over 0.64 seconds
         loader=default_loader,
-        # used for model predictions, the same dataset class is used for our custom autoencoder
         background_noise=False,
         white_guassian_noise=False,
         target_sample_rate=16000,
@@ -172,9 +171,6 @@ class DeBoerDataset(Dataset):
         
         if self.white_guassian_noise:
             audio = self.white_gaussian_noise_transform(audio)
-
-        # if encode via GIM is requested
-        audio = self.encoder(audio) if self.encoder != None else audio
 
         return audio, filename, speaker_id, start_idx
 
