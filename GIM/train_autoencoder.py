@@ -34,10 +34,45 @@ def encode(audio, model, depth=1):
             return z
 
 
-def encoder_lambda(xs_batch):
-    # Gim_encoder is outerscope variable
-    with torch.no_grad():
-        return encode(xs_batch, GIM_encoder, depth=2)
+
+
+
+def load_model(path):
+    print("loading model")
+    # Code comes from: def load_model_and_optimizer()
+    kernel_sizes = [10, 8, 4, 4, 4]
+    strides = [5, 4, 2, 2, 2]
+    padding = [2, 2, 2, 2, 1]
+    enc_hidden = 512
+    reg_hidden = 256
+
+    calc_accuracy = False
+    num_GPU = None
+
+    # Initialize model.
+    model = full_model.FullModel(
+        opt,
+        kernel_sizes=kernel_sizes,
+        strides=strides,
+        padding=padding,
+        enc_hidden=enc_hidden,
+        reg_hidden=reg_hidden,
+        calc_accuracy=calc_accuracy,
+    )
+
+    # Run on only one GPU for supervised losses.
+    if opt["loss"] == 2 or opt["loss"] == 1:
+        num_GPU = 1
+
+    model, num_GPU = model_utils.distribute_over_GPUs(
+        opt, model, num_GPU=num_GPU)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt['learning_rate'])
+    model.load_state_dict(torch.load(path, 
+        map_location=device
+        ))
+
+    return model, optimizer
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -47,6 +82,14 @@ GIM_encoder, _ = load_model(path='./g_drive_model/model_180.ckpt')
 GIM_encoder.eval()
 
 random.seed(0)
+
+def encoder_lambda(xs_batch):
+    # Gim_encoder is outerscope variable
+    with torch.no_grad():
+        return encode(xs_batch, GIM_encoder, depth=1)
+
+
+
 
 
 class LogHandler():
@@ -80,8 +123,8 @@ class EpochPrinter():
 
 
 def train(decoder, logs, train_loader):
-    epoch_printer = EpochPrinter(train_loader)
-    log_handler = LogHandler(logs, train_loader)
+    # epoch_printer = EpochPrinter(train_loader)
+    # log_handler = LogHandler(logs, train_loader)
 
     decoder.to(device)
     decoder.train()
@@ -94,35 +137,28 @@ def train(decoder, logs, train_loader):
         loss_epoch = [0]
 
         for step, (org_audio, enc_audio, _, _, _) in enumerate(train_loader):
-            epoch_printer(step, epoch)
+            # epoch_printer(step, epoch)
 
-            enc_audios = enc_audio.to(device)  # torch.Size([2, 1, 2047, 512])
-            enc_audios = enc_audios.squeeze(dim=1)  # torch.Size([2, 2047, 512])
-            enc_audios = enc_audios.permute(0, 2, 1)  # torch.Size([2, 512, 2047])
-
-            org_audio = org_audio.to(device)  # torch.Size([2, 1, 10240])
+            enc_audios = enc_audio.to(device)
+            org_audio = org_audio.to(device)
 
             # zero the gradients
             optimizer.zero_grad()
 
             # forward pass
             outputs = decoder(enc_audios)
-            outputs = outputs.squeeze(dim=1)
-
-            org_audio = org_audio.squeeze(dim=1)  # torch.Size([2,10240])
             loss = criterion(outputs, org_audio)
 
             # backward pass and optimization step
             loss.backward()
             optimizer.step()
 
-            # # print the loss at each step
-            # epoch_loss += loss.item()  # sum of errors instead of mean
+            # print the loss at each step
 
             loss_epoch[0] += loss.item()
             # </> end for step
 
-        log_handler(loss_epoch) # store losses
+        # log_handler(loss_epoch) # store losses
     return decoder
 
 # %%
@@ -130,6 +166,9 @@ def train(decoder, logs, train_loader):
 
 if __name__ == "__main__":
     torch.cuda.empty_cache()
+
+
+
 
     arg_parser.create_log_path(opt)
 
