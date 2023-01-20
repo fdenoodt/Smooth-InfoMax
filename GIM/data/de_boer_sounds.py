@@ -111,7 +111,6 @@ class DeBoerDataset(Dataset):
         audio_length=64 * 160,  # -> 10240 elements over 0.64 seconds
         loader=default_loader,
         # used for model predictions, the same dataset class is used for our custom autoencoder
-        encoder=None,
         background_noise=False,
         white_guassian_noise=False,
         target_sample_rate=16000,
@@ -130,7 +129,6 @@ class DeBoerDataset(Dataset):
 
         self.loader = loader
         self.audio_length = audio_length
-        self.encoder = encoder
 
 
         self.white_gaussian_noise_transform = add_random_noise

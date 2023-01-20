@@ -1,6 +1,5 @@
 import IPython.display as ipd
 from options import OPTIONS as opt
-from utils import model_utils
 import torch
 from models import full_model
 import matplotlib.pyplot as plt
@@ -8,8 +7,6 @@ import librosa
 import librosa.display
 import IPython.display as ipd
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-opt['batch_size'] = 8
 
 
 def plot_spectrogram(signal, name):

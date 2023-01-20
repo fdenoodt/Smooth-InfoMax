@@ -139,7 +139,7 @@ def get_de_boer_sounds_data_loaders(opt, GIM_encoder=None):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_de_boer_sounds_decoder_data_loaders(opt, GIM_encoder=None):
+def get_de_boer_sounds_decoder_data_loaders(opt):
     """
     creates and returns the Libri dataset and dataloaders,
     either with train/val split, or train+val/test split
@@ -156,8 +156,8 @@ def get_de_boer_sounds_decoder_data_loaders(opt, GIM_encoder=None):
             opt["data_input_dir"],
             "gigabo",
         ),
-        directory="train",
-        encoder=GIM_encoder
+        directory="train"
+        # encoder=GIM_encoder
     )
 
     train_loader = torch.utils.data.DataLoader(
