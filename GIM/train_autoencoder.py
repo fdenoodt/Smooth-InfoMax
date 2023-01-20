@@ -37,7 +37,7 @@ def encode(audio, model, depth=1):
 def encoder_lambda(xs_batch):
     # Gim_encoder is outerscope variable
     with torch.no_grad():
-        return encode(xs_batch, GIM_encoder, depth=3)
+        return encode(xs_batch, GIM_encoder, depth=2)
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -123,19 +123,14 @@ def train(decoder, logs, train_loader):
             # </> end for step
 
         log_handler(loss_epoch) # store losses
-
-    # torch.save(decoder.state_dict(), "decoder_layer_3.pth")
-    # plt.plot(errors)  # plot the errors
-    # plt.xlabel("Training steps")
-    # plt.ylabel("Training error")
-    # plt.show()
-
     return decoder
 
 # %%
 
 
 if __name__ == "__main__":
+    torch.cuda.empty_cache()
+
     arg_parser.create_log_path(opt)
 
     experiment_name = 'RMSE_decoder'
@@ -152,7 +147,7 @@ if __name__ == "__main__":
         opt,
         GIM_encoder=encoder_lambda)
 
-    two_layer_decoder = TwoLayerDecoder()
+    two_layer_decoder = OneLayerDecoder()
     decoder = train(two_layer_decoder, logs, train_loader)
 
     logs.create_log(two_layer_decoder)
