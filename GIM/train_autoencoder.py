@@ -59,44 +59,42 @@ class EpochPrinter():
 
 
 def train(decoder, logs, train_loader):
-    # epoch_printer = EpochPrinter(train_loader)
-    # log_handler = LogHandler(logs, train_loader)
+    epoch_printer = EpochPrinter(train_loader)
+    log_handler = LogHandler(logs, train_loader)
 
-    # decoder.to(device)
-    # decoder.train()
+    decoder.to(device)
+    decoder.train()
 
-    # criterion = nn.MSELoss()
-    # optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
         loss_epoch = [0]
 
         for step, (org_audio, enc_audio, _, _, _) in enumerate(train_loader):
-            pass
-            # epoch_printer(step, epoch)
+            epoch_printer(step, epoch)
 
-            # enc_audios = enc_audio.to(device)
-            # org_audio = org_audio.to(device)
+            enc_audios = enc_audio.to(device)
+            org_audio = org_audio.to(device)
 
-            # # zero the gradients
-            # optimizer.zero_grad()
+            # zero the gradients
+            optimizer.zero_grad()
 
-            # # forward pass
-            # outputs = decoder(enc_audios)
-            # loss = criterion(outputs, org_audio)
+            # forward pass
+            outputs = decoder(enc_audios)
+            loss = criterion(outputs, org_audio)
 
-            # # backward pass and optimization step
-            # loss.backward()
-            # optimizer.step()
+            # backward pass and optimization step
+            loss.backward()
+            optimizer.step()
 
-            # # print the loss at each step
+            # print the loss at each step
 
-            # loss_epoch[0] += loss.item()
+            loss_epoch[0] += loss.item()
             # </> end for step
 
-        # log_handler(loss_epoch) # store losses
-        print(epoch)
+        log_handler(loss_epoch) # store losses
     return decoder
 
 # %%
@@ -121,11 +119,10 @@ if __name__ == "__main__":
     train_loader, _, _, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
-    # two_layer_decoder = OneLayerDecoder()
-    decoder = train(None, logs, train_loader)
-    # decoder = train(two_layer_decoder, logs, train_loader)
+    two_layer_decoder = OneLayerDecoder()
+    decoder = train(two_layer_decoder, logs, train_loader)
 
-    # logs.create_log(two_layer_decoder)
+    logs.create_log(two_layer_decoder)
 
     torch.cuda.empty_cache()
 
