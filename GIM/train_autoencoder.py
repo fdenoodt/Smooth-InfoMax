@@ -24,7 +24,6 @@ if(True):
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-
 random.seed(0)
 
 
@@ -32,13 +31,14 @@ class LogHandler():
     def __init__(self, logs, train_loader) -> None:
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
-    
-    def __call__(self, model, epoch, optimizer, loss_epoch) -> None:
-        self.append_loss(loss_epoch)
+
+    def __call__(self, model, epoch, optimizer, train_loss_epoch, val_loss_epoch) -> None:
+        self.append_loss(train_loss_epoch, val_loss_epoch)
         self.save_model(model, epoch, optimizer)
 
-    def append_loss(self, loss_epoch) -> None:
-        self.logs.append_train_loss([x / self.total_step for x in loss_epoch])
+    def append_loss(self, train_loss, val_loss) -> None:
+        self.logs.append_train_loss([x / self.total_step for x in train_loss])
+        self.logs.append_val_loss([x / self.total_step for x in val_loss])
 
     def save_model(self, model, epoch, optimizer) -> None:
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
@@ -52,7 +52,7 @@ class EpochPrinter():
         self.step = 0
         self.total_step = len(train_loader)
 
-    def __call__(self, step, epoch, *args: Any, **kwds: Any) -> Any:
+    def __call__(self, step, epoch) -> Any:
         if step % self.print_idx == 0:
             print(
                 "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}".format(
@@ -65,7 +65,31 @@ class EpochPrinter():
             )
 
 
-def train(decoder, logs, train_loader):
+def validation_loss(opt, model, test_loader, criterion):
+    # based on GIM/ChatGPT
+    total_step = len(test_loader)
+
+    loss_epoch = [0]
+    starttime = time.time()
+
+    for step, (org_audio, enc_audio, _, _, _) in enumerate(test_loader):
+        enc_audio = enc_audio.to(device)
+        org_audio = org_audio.to(device)
+
+        with torch.no_grad():
+            outputs = model(enc_audio)
+            loss = criterion(outputs, org_audio)
+            loss = torch.mean(loss, 0)
+            loss_epoch += loss.data.cpu().numpy()
+
+    # print(
+    #     f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
+
+    validation_loss = [x/total_step for x in loss_epoch]
+    return validation_loss
+
+
+def train(decoder, logs, train_loader, test_loader):
     epoch_printer = EpochPrinter(train_loader)
     log_handler = LogHandler(logs, train_loader)
 
@@ -77,7 +101,7 @@ def train(decoder, logs, train_loader):
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
-        loss_epoch = [0]
+        train_loss_epoch = [0]
 
         for step, (org_audio, enc_audio, _, _, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
@@ -96,10 +120,13 @@ def train(decoder, logs, train_loader):
             loss.backward()
             optimizer.step()
 
-            loss_epoch[0] += loss.item()
+            train_loss_epoch[0] += loss.item()
             # </> end for step
 
-        log_handler(decoder, epoch, optimizer, loss_epoch)
+        val_loss_epoch = validation_loss(opt, decoder, test_loader, criterion)
+
+        log_handler(decoder, epoch, optimizer,
+                    train_loss_epoch, val_loss_epoch)
     return decoder
 
 # %%
@@ -117,16 +144,17 @@ if __name__ == "__main__":
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
     opt['num_epochs'] = 5
     opt['batch_size'] = 8
+    # opt["model_splits"] = 1
 
     logs = logger.Logger(opt)
 
     # load the data
-    train_loader, _, _, _ = get_dataloader.\
+    train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
     two_layer_decoder = OneLayerDecoder()
-    decoder = train(two_layer_decoder, logs, train_loader)
-    
+    decoder = train(two_layer_decoder, logs, train_loader, test_loader)
+
     torch.cuda.empty_cache()
 
 

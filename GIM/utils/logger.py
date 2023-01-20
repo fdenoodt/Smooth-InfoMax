@@ -160,7 +160,7 @@ class Logger:
 
         if self.val_loss is not None:
             np.save(
-                os.path.join(self.opt["log_path"], "val_loss"), np.array(self.val_loss)
+                os.path.join(self.opt["log_path"], "val_loss"), np.array(self.val_loss, dtype=object)
             )
 
         self.draw_loss_curve()

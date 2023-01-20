@@ -165,4 +165,21 @@ def get_de_boer_sounds_decoder_data_loaders(opt):
         num_workers=num_workers,
     )
 
-    return train_loader, train_dataset, None, None
+    test_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"],
+            "gigabo",
+        ),
+        directory="test"
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        dataset=test_dataset,
+        batch_size=opt["batch_size_multiGPU"],
+        shuffle=True,
+        drop_last=True,
+        num_workers=num_workers,
+    )
+
+    return train_loader, train_dataset, test_loader, test_dataset,
