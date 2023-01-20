@@ -12,6 +12,7 @@ import random
 
 from models.GIM_decoder import GIM_Encoder
 
+
 def default_loader(path):
     return torchaudio.load(path)
 
@@ -31,7 +32,7 @@ def default_flist_reader(flist):
 
 
 class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
-    def __init__(self, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, encoder=None, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
+    def __init__(self, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
         super().__init__(opt, root, directory, audio_length, loader,
                          background_noise, white_guassian_noise, target_sample_rate, background_noise_path)
 
@@ -61,9 +62,7 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
             np.arange(160, max_length - self.audio_length - 0, 160)
         )
 
-        # OLD = audio  # audio org: [1, 41278] -> [1, 20480]
-        audio = audio[:,  # corresponds to first dim (= 1)
-                      start_idx: start_idx + self.audio_length]
+        audio = audio[:, start_idx: start_idx + self.audio_length]
 
         # if encode via GIM is requested
         audio_enc = self.encoder(audio)
@@ -71,5 +70,6 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
         # eg: [1, 2047, 512] -> [2047, 512] -> [512, 2047]
         audio_enc = audio_enc.squeeze(dim=0)
         audio_enc = audio_enc.permute(1, 0)
+        audio_enc = audio_enc.cpu() # this fixes warning
 
         return audio, audio_enc, filename, speaker_id, start_idx

@@ -62,11 +62,11 @@ def train(decoder, logs, train_loader):
     # epoch_printer = EpochPrinter(train_loader)
     # log_handler = LogHandler(logs, train_loader)
 
-    decoder.to(device)
-    decoder.train()
+    # decoder.to(device)
+    # decoder.train()
 
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
+    # criterion = nn.MSELoss()
+    # optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
@@ -121,10 +121,11 @@ if __name__ == "__main__":
     train_loader, _, _, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
-    two_layer_decoder = OneLayerDecoder()
-    decoder = train(two_layer_decoder, logs, train_loader)
+    # two_layer_decoder = OneLayerDecoder()
+    decoder = train(None, logs, train_loader)
+    # decoder = train(two_layer_decoder, logs, train_loader)
 
-    logs.create_log(two_layer_decoder)
+    # logs.create_log(two_layer_decoder)
 
     torch.cuda.empty_cache()
 
