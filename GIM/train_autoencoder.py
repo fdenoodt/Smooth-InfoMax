@@ -1,4 +1,5 @@
 # %%
+import os
 import time
 import importlib
 from typing import Any
@@ -71,14 +72,18 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
     starttime = time.time()
 
     for step, (org_audio,  _, _, _) in enumerate(test_loader):
-
-        enc_audio = GIM_Encoder(org_audio).to(device)
+        x = org_audio.shape
         org_audio = org_audio.to(device)
+        enc_audio = GIM_encoder(org_audio).to(device)
 
         with torch.no_grad():
             outputs = model(enc_audio)
             loss = criterion(outputs, org_audio)
+            x = loss.shape
             loss = torch.mean(loss, 0)
+            y = loss.shape
+
+
             loss_epoch += loss.data.cpu().numpy()
 
     # print(
@@ -88,9 +93,9 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
     return validation_loss
 
 
-def train(decoder, logs, train_loader, test_loader):
-    encoder = GIM_Encoder(opt)
-    
+def train(decoder, logs, train_loader, test_loader, layer_depth, path):
+    encoder = GIM_Encoder(opt, layer_depth=layer_depth, path=path)
+
     epoch_printer = EpochPrinter(train_loader)
     log_handler = LogHandler(logs, train_loader)
 
@@ -98,7 +103,8 @@ def train(decoder, logs, train_loader, test_loader):
     decoder.train()
 
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2)
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-2)  # 1.5 * 10^-2 = 1.5/100
+    # optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2) # 1.5 * 10^-2 = 1.5/100
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
@@ -125,11 +131,16 @@ def train(decoder, logs, train_loader, test_loader):
             # </> end for step
 
         val_loss_epoch = validation_loss(encoder, decoder, test_loader, criterion)
-        log_handler(decoder, epoch, optimizer,
-                    train_loss_epoch, val_loss_epoch)
+        print(train_loss_epoch, val_loss_epoch)
+        log_handler(decoder, epoch, optimizer, train_loss_epoch, val_loss_epoch)
     return decoder
 
 # %%
+
+
+def create_log_dir(path):  # created via chat gpt
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 if __name__ == "__main__":
@@ -137,27 +148,30 @@ if __name__ == "__main__":
 
     arg_parser.create_log_path(opt)
 
-    experiment_name = 'RMSE_decoder'
+    experiment_name = 'RMSE_decoder_GIM_layer3'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 25
+    opt['num_epochs'] = 3
     opt['batch_size'] = 64
+
+    create_log_dir(opt['log_path'])
 
     logs = logger.Logger(opt)
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(
-            opt, layer_depth=1, GIM_encoder_path="./g_drive_model/model_180.ckpt")
+            opt, layer_depth=3, GIM_encoder_path="./g_drive_model/model_180.ckpt")
 
-    two_layer_decoder = OneLayerDecoder()
-    decoder = train(two_layer_decoder, logs, train_loader, test_loader)
+    two_layer_decoder = TwoLayerDecoder()
+    decoder = train(two_layer_decoder, logs, train_loader, test_loader,
+                    layer_depth=3,
+                    path="./g_drive_model/model_180.ckpt")
 
     torch.cuda.empty_cache()
 
-
     # %%
-    
+
     # %%
