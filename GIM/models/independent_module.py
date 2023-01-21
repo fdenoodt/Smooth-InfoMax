@@ -6,9 +6,8 @@ from models import (
     encoder,
     loss_InfoNCE,
     loss_supervised_phones,
-    loss_supervised_speaker,
+    # loss_supervised_speaker, # fixes circular dependency
 )
-
 
 class IndependentModule(nn.Module):
     def __init__(
@@ -62,9 +61,10 @@ class IndependentModule(nn.Module):
             )
 
         elif self.opt["loss"] == 2:   # supervised loss using the phone labels
-            self.loss = loss_supervised_speaker.Speaker_Loss(
-                opt, self.hidden_dim, calc_accuracy
-            )
+            raise Exception("todo - fabian")
+            # self.loss = loss_supervised_speaker.Speaker_Loss(
+            #     opt, self.hidden_dim, calc_accuracy
+            # )
         else:
             raise Exception("Invalid option passed for opt['loss']")
 
