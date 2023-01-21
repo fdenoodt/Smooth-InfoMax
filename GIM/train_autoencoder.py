@@ -106,6 +106,8 @@ def train(decoder, logs, train_loader, test_loader):
             enc_audios = enc_audio.to(device)
             org_audio = org_audio.to(device)
 
+            print(enc_audios)
+
             # zero the gradients
             optimizer.zero_grad()
 

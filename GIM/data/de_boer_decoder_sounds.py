@@ -1,6 +1,7 @@
 # %%
 
 from torch.utils.data import Dataset
+from GIM_encoder import GIM_Encoder
 # from de_boer_sounds import DeBoerDataset
 
 from data import de_boer_sounds
@@ -12,7 +13,7 @@ from collections import defaultdict
 import numpy as np
 import random
 
-from models.GIM_encoder import GIM_Encoder
+# from models.GIM_encoder import GIM_Encoder
 
 
 def default_loader(path):
