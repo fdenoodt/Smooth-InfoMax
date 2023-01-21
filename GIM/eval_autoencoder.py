@@ -1,18 +1,16 @@
 # %%
-
 import importlib
+from GIM_encoder import GIM_Encoder
 import decoder_architectures
 import helper_functions
-import torch.nn as nn
-import IPython.display as ipd
 from options import OPTIONS as opt
 import torch
 from utils import logger
-from arg_parser import arg_parser
 from data import get_dataloader
 import matplotlib.pyplot as plt
 import IPython.display as ipd
 import random
+from options import OPTIONS as opt
 from IPython.display import Audio
 
 random.seed(0)
@@ -31,9 +29,11 @@ if(True):
 if __name__ == "__main__":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    decoder = OneLayerDecoder().to(device)
-    decoder.load_state_dict(torch.load(
-        "C:\\GitHub\\thesis-fabian-denoodt\\GIM\\logs\\RMSE_decoder_experiment\\model_0.ckpt", map_location=device))
+    decoder = TwoLayerDecoder().to(device)
+    # decoder = OneLayerDecoder().to(device)
+    model_path = "./logs\\\RMSE_decoder_GIM_layer3_experiment\\model_17.ckpt"
+    # model_path = "./logs\\RMSE_decoder_experiment\\model_24.ckpt"
+    decoder.load_state_dict(torch.load(model_path, map_location=device))
     decoder.eval()
 
     experiment_name = 'RMSE_decoder'
@@ -49,13 +49,15 @@ if __name__ == "__main__":
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(
-            opt, layer_depth=1, GIM_encoder_path="./g_drive_model/model_180.ckpt")
+            opt, layer_depth=3, GIM_encoder_path="./g_drive_model/model_180.ckpt")
+
+    encoder = GIM_Encoder(opt)
 
     # %%
 
-    (org_audio, enc_audio, _, _, _) = next(iter(train_loader))
-    enc_audio = enc_audio.to(device)
+    (org_audio, _, _, _) = next(iter(test_loader))
     org_audio = org_audio.to(device)
+    enc_audio = encoder(org_audio).to(device)
 
     # %%
     outp = decoder(enc_audio)
@@ -68,9 +70,19 @@ if __name__ == "__main__":
 
     show_line_sequence(org_audio[0][0])
     show_line_sequence(outp[0][0])
+
+
+    def det_np(data):
+        #detach + numpy
+        return data.to('cpu').detach().numpy()
+    # %%
+
+    Audio(det_np(outp[0][0]), rate=16000)
     
     # %%
-    
+    Audio(det_np(org_audio[0][0]), rate=16000)
+
+    # %%
 
     # %%
     # decoder.eval()
