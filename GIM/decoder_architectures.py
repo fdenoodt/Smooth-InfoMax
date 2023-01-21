@@ -39,6 +39,7 @@ class OneLayerDecoder(nn.Module):
         self.output_dim = output_dim
 
     def forward(self, x):
+        a = x.shape
         x = self.deconv1d(x)
         # The F.interpolate function will allow you to resize the output tensor to the desired size of output_dim.
         x = F.interpolate(x, size=self.output_dim,
@@ -144,8 +145,12 @@ class TwoLayerDecoder(nn.Module):
 #     print(org_audio.shape)
 #     print(enc_audio.shape)
 
-#     decoder = OneLayerDecoder().to(device)
-#     d = decoder(enc_audio)
+
+# target shape: inp = torch.rand(([2, 512, 2047])).to('cuda')
+# current shape: inp = torch.rand(([2, 2047, 512]))
+# decoder = OneLayerDecoder().to('cuda')
+# d = decoder(inp)
+
     
 #     # %%
 

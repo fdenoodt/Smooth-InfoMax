@@ -2,6 +2,7 @@
 import time
 import importlib
 from typing import Any
+from GIM_encoder import GIM_Encoder
 import decoder_architectures
 import helper_functions
 import torch.nn as nn
@@ -62,15 +63,16 @@ class EpochPrinter():
             )
 
 
-def validation_loss(model, test_loader, criterion):
+def validation_loss(GIM_encoder, model, test_loader, criterion):
     # based on GIM/ChatGPT
     total_step = len(test_loader)
 
     loss_epoch = [0]
     starttime = time.time()
 
-    for step, (org_audio, enc_audio, _, _, _) in enumerate(test_loader):
-        enc_audio = enc_audio.to(device)
+    for step, (org_audio,  _, _, _) in enumerate(test_loader):
+
+        enc_audio = GIM_Encoder(org_audio).to(device)
         org_audio = org_audio.to(device)
 
         with torch.no_grad():
@@ -87,6 +89,8 @@ def validation_loss(model, test_loader, criterion):
 
 
 def train(decoder, logs, train_loader, test_loader):
+    encoder = GIM_Encoder(opt)
+    
     epoch_printer = EpochPrinter(train_loader)
     log_handler = LogHandler(logs, train_loader)
 
@@ -100,13 +104,11 @@ def train(decoder, logs, train_loader, test_loader):
 
         train_loss_epoch = [0]
 
-        for step, (org_audio, enc_audio, _, _, _) in enumerate(train_loader):
+        for step, (org_audio, _, _, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
 
-            enc_audios = enc_audio.to(device)
             org_audio = org_audio.to(device)
-
-            print(enc_audios)
+            enc_audios = encoder(org_audio).to(device)
 
             # zero the gradients
             optimizer.zero_grad()
@@ -122,7 +124,7 @@ def train(decoder, logs, train_loader, test_loader):
             train_loss_epoch[0] += loss.item()
             # </> end for step
 
-        val_loss_epoch = validation_loss(decoder, test_loader, criterion)
+        val_loss_epoch = validation_loss(encoder, decoder, test_loader, criterion)
         log_handler(decoder, epoch, optimizer,
                     train_loss_epoch, val_loss_epoch)
     return decoder
@@ -140,7 +142,7 @@ if __name__ == "__main__":
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 3
+    opt['num_epochs'] = 25
     opt['batch_size'] = 64
 
     logs = logger.Logger(opt)

@@ -1,9 +1,10 @@
 # %%
 
-from torch.utils.data import Dataset
-from GIM_encoder import GIM_Encoder
+# from torch.utils.data import Dataset
+# from GIM_encoder import GIM_Encoder
 # from de_boer_sounds import DeBoerDataset
 
+from GIM_encoder import GIM_Encoder
 from data import de_boer_sounds
 
 import os
@@ -35,11 +36,11 @@ def default_flist_reader(flist):
 
 
 class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
-    def __init__(self, layer_depth, GIM_encoder_path, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
+    def __init__(self, encoder, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
         super().__init__(opt, root, directory, audio_length, loader,
                          background_noise, white_guassian_noise, target_sample_rate, background_noise_path)
 
-        self.encoder = GIM_Encoder(opt, layer_depth, GIM_encoder_path)
+        self.encoder: GIM_Encoder = encoder
 
     def __getitem__(self, index):
 
@@ -66,45 +67,7 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
         )
 
         audio = audio[:, start_idx: start_idx + self.audio_length]
-
-        # if encode via GIM is requested
-        audio_enc = self.encoder(audio)
-
-        # print("**************")
-        # # print(self.encoder.encoder.module.fullmodel[0])
-        # print("**************")
-        # print(self.encoder.encoder.module.fullmodel[0].weight)
-        # print("**************")
-        # print("**************")
-        # print("**************")
-        # print("**************")
-        # print("**************")
-        # print("**************")
-
-
-        # self.encoder.module.fullmodel
-
-        # print(self.encoder)
-
-        # assert False
-        
-        # print("***")
-        # print(audio)
-        # print(audio_enc)
-        # print("***")
-        # print()
-        # print()
-        # print()
-        # print()
-
-
-        # eg: [1, 2047, 512] -> [2047, 512] -> [512, 2047]
-        audio_enc = audio_enc.squeeze(dim=0)
-        audio_enc = audio_enc.permute(1, 0)
-        audio_enc = audio_enc.cpu()  # this fixes warning
-
-
-        return audio, audio_enc, filename, speaker_id, start_idx
+        return audio, filename, speaker_id, start_idx
 
 # %%
 # import torch

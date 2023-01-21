@@ -1,5 +1,6 @@
 import torch
 import os
+from GIM_encoder import GIM_Encoder
 
 from data import librispeech
 from data import de_boer_sounds
@@ -147,9 +148,16 @@ def get_de_boer_sounds_decoder_data_loaders(opt, layer_depth, GIM_encoder_path):
     """
     num_workers = 1
 
+    # encoder = GIM_Encoder(opt, layer_depth, GIM_encoder_path)
+    # org_batch  = torch.rand((64, 1, 10240))
+    # sample = org_batch[0]
+    # enc = encoder.encode(sample)
+    
+
+
     print("Using Train+Val / Test Split")
     train_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
-        layer_depth, GIM_encoder_path,
+        None, #layer_depth, GIM_encoder_path,
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
@@ -167,7 +175,7 @@ def get_de_boer_sounds_decoder_data_loaders(opt, layer_depth, GIM_encoder_path):
     )
 
     test_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
-        layer_depth, GIM_encoder_path,
+        None, #layer_depth, GIM_encoder_path,
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],

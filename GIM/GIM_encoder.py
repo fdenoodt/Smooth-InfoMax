@@ -19,8 +19,6 @@ class GIM_Encoder():
             return self.encode(xs_batch)
 
     def load_model(self, path):
-        print("loading model")
-
         # Origins comes from: def load_model_and_optimizer()
         kernel_sizes = [10, 8, 4, 4, 4]
         strides = [5, 4, 2, 2, 2]
@@ -57,17 +55,55 @@ class GIM_Encoder():
 
         return model, optimizer
 
-    def encode(self, audio):
-        audios = audio.unsqueeze(0)
-        model_input = audios.to(device)
+    def encode(self, audio_batch):
+        # print(audio.shape, "enc")
+        # audios = audio.unsqueeze(0)
+        # audios = audio
+        model_input = audio_batch.to(device)
 
         for idx, layer in enumerate(self.encoder.module.fullmodel):
             context, z = layer.get_latents(model_input)
             model_input = z.permute(0, 2, 1)
 
             if(idx == self.layer_depth - 1):
-                return z
+                return z.permute(0, 2, 1) # swap channels and depth
+
+# %%
+
+if __name__=="__main__":
+
+    from options import OPTIONS as opt
+    # from data.de_boer_decoder_sounds import DeBoerDecoderDataset
+    # import os
 
 
-# from options import OPTIONS as opt
-# x = GIM_Encoder(opt)
+    encoder = GIM_Encoder(opt)
+    org_batch  = torch.rand((64, 1, 10240))
+    enc = encoder.encode(org_batch)
+
+
+
+#     print("Using Train+Val / Test Split")
+#     train_dataset = DeBoerDecoderDataset(
+#         encoder,
+#         opt=opt,
+#         root=os.path.join(
+#             opt["data_input_dir"],
+#             "gigabo",
+#         ),
+#         directory="train"
+#     )
+
+#     train_loader = torch.utils.data.DataLoader(
+#         dataset=train_dataset,
+#         batch_size=opt["batch_size_multiGPU"],
+#         shuffle=True,
+#         drop_last=True,
+#         num_workers=1,
+#     )
+
+
+#     d = next(iter(train_loader))
+#     # %%
+#     d
+# # %%
