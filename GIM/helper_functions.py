@@ -28,6 +28,7 @@ def show_line_sequence(sequence):
 
 
 def play_sound(audio):
+    audio = audio.to('cpu').detach().numpy()
     ipd.Audio(audio, rate=16000)
 
 
