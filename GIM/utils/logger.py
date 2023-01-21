@@ -44,6 +44,13 @@ class Logger:
         self.num_models_to_keep = 1
         assert self.num_models_to_keep > 0, "Dont delete all models!!!"
 
+    def np_save(self, path, data):
+        np.save(path, data)
+        try: # just for the decoder
+            np.savetxt(f"{path}.csv", data[0], delimiter=",")
+        except:
+            pass
+
     def create_log(
         self,
         model,
@@ -154,23 +161,23 @@ class Logger:
                 cur_file.write(" Very Final testing top 5 - accuracy: " + str(acc5))
 
         # Save losses throughout training and plot
-        np.save(
+        self.np_save(
             os.path.join(self.opt["log_path"], "train_loss"), np.array(self.train_loss, dtype=object)
         )
 
         if self.val_loss is not None:
-            np.save(
+            self.np_save(
                 os.path.join(self.opt["log_path"], "val_loss"), np.array(self.val_loss, dtype=object)
             )
 
         self.draw_loss_curve()
 
         if accuracy is not None:
-            np.save(os.path.join(self.opt["log_path"], "accuracy"), accuracy)
+            self.np_save(os.path.join(self.opt["log_path"], "accuracy"), accuracy)
 
         if final_test:
-            np.save(os.path.join(self.opt["log_path"], "final_accuracy"), accuracy)
-            np.save(os.path.join(self.opt["log_path"], "final_loss"), final_loss)
+            self.np_save(os.path.join(self.opt["log_path"], "final_accuracy"), accuracy)
+            self.np_save(os.path.join(self.opt["log_path"], "final_loss"), final_loss)
 
     def draw_loss_curve(self):
         for idx, loss in enumerate(self.train_loss):
