@@ -22,6 +22,10 @@ def plot_spectrogram(signal, name):
 
 
 
+def show_line_sequence(sequence):
+    plt.plot(sequence.to('cpu').detach().numpy())
+    plt.show()
+
 
 def play_sound(audio):
     ipd.Audio(audio, rate=16000)
