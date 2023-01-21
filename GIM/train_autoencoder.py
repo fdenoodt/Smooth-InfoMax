@@ -10,9 +10,9 @@ import torch
 from utils import logger
 from arg_parser import arg_parser
 from data import get_dataloader
-import matplotlib.pyplot as plt
 import random
 
+random.seed(0)
 
 if(True):
     importlib.reload(decoder_architectures)
@@ -22,9 +22,6 @@ if(True):
     from helper_functions import *
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-
-random.seed(0)
 
 
 class LogHandler():
@@ -65,7 +62,7 @@ class EpochPrinter():
             )
 
 
-def validation_loss(opt, model, test_loader, criterion):
+def validation_loss(model, test_loader, criterion):
     # based on GIM/ChatGPT
     total_step = len(test_loader)
 
@@ -123,8 +120,7 @@ def train(decoder, logs, train_loader, test_loader):
             train_loss_epoch[0] += loss.item()
             # </> end for step
 
-        val_loss_epoch = validation_loss(opt, decoder, test_loader, criterion)
-
+        val_loss_epoch = validation_loss(decoder, test_loader, criterion)
         log_handler(decoder, epoch, optimizer,
                     train_loss_epoch, val_loss_epoch)
     return decoder
@@ -142,15 +138,15 @@ if __name__ == "__main__":
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 5
-    opt['batch_size'] = 8
-    # opt["model_splits"] = 1
+    opt['num_epochs'] = 3
+    opt['batch_size'] = 64
 
     logs = logger.Logger(opt)
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
-        get_de_boer_sounds_decoder_data_loaders(opt)
+        get_de_boer_sounds_decoder_data_loaders(
+            opt, layer_depth=1, GIM_encoder_path="./g_drive_model/model_180.ckpt")
 
     two_layer_decoder = OneLayerDecoder()
     decoder = train(two_layer_decoder, logs, train_loader, test_loader)
@@ -158,4 +154,6 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
 
-# %%
+    # %%
+    
+    # %%

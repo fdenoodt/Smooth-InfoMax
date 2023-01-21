@@ -1,3 +1,4 @@
+# %%
 from models import full_model
 from utils import model_utils
 import torch
@@ -50,7 +51,9 @@ class GIM_Encoder():
 
         optimizer = torch.optim.Adam(model.parameters(),
                                      lr=self.opt['learning_rate'])
-        model.load_state_dict(torch.load(path, map_location=device))
+        model.load_state_dict(torch.load(path,
+                                         map_location=device
+                                         ))
 
         return model, optimizer
 
