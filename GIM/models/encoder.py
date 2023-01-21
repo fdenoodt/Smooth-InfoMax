@@ -36,6 +36,31 @@ class Encoder(nn.Module):
         return new_block
 
     def forward(self, x):
+        # print("****")
+        # self.model.eval()
+      
+        # print(self.model)
+
+        # for i, module in enumerate(self.model.modules()):
+        #     if isinstance(module, (nn.Conv1d, nn.Linear)):
+        #         print("Layer ", i)
+        #         print("Weights: ", module.weight)
+        #         print("Bias: ", module.bias)
+        #     else:
+        #         print("no")
+                
+        # # for layer in self.model:
+        # #     w = layer.weight.item()
+        # #     bias = layer.bias.item()
+    
+        # # for i, layer in enumerate(self.model):
+        # #     print("Layer ", i)
+        # #     print("Weights: ", layer.weight)
+        # #     print("Bias: ", layer.bias)
+            
+    
+
+
         return self.model(x)
 
     def forward_through_n_layers(self, x, n):

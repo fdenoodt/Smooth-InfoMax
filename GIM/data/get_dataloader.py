@@ -137,7 +137,7 @@ def get_de_boer_sounds_data_loaders(opt):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_de_boer_sounds_decoder_data_loaders(opt):
+def get_de_boer_sounds_decoder_data_loaders(opt, layer_depth, GIM_encoder_path):
     """
     creates and returns the Libri dataset and dataloaders,
     either with train/val split, or train+val/test split
@@ -149,6 +149,7 @@ def get_de_boer_sounds_decoder_data_loaders(opt):
 
     print("Using Train+Val / Test Split")
     train_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
+        layer_depth, GIM_encoder_path,
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
@@ -166,6 +167,7 @@ def get_de_boer_sounds_decoder_data_loaders(opt):
     )
 
     test_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
+        layer_depth, GIM_encoder_path,
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
