@@ -67,3 +67,7 @@ class GIM_Encoder():
 
             if(idx == self.layer_depth - 1):
                 return z
+
+
+# from options import OPTIONS as opt
+# x = GIM_Encoder(opt)
