@@ -1,18 +1,6 @@
 # %%
 from helper_functions import *
 from decoder_architectures import *
-import random
-import matplotlib.pyplot as plt
-from data import get_dataloader
-from arg_parser import arg_parser
-from utils import logger
-import torch
-from options import OPTIONS as opt
-import helper_functions
-import decoder_architectures
-from typing import Any
-import importlib
-import time
 import torch.nn.functional as F
 import torch.nn as nn
 
@@ -42,37 +30,21 @@ class OneLayerDecoder(nn.Module):
         a = x.shape
         x = self.deconv1d(x)
         # The F.interpolate function will allow you to resize the output tensor to the desired size of output_dim.
-        x = F.interpolate(x, size=self.output_dim,
-                          mode='linear', align_corners=False)
+        x = F.interpolate(x, size=self.output_dim, mode='linear', align_corners=False)
         return x
 
 
+# output_height = [(input_height - 1) * stride] + kernel_size[0] - [2 * padding] + output_padding
 class TwoLayerDecoder(nn.Module):
     def __init__(self, hidden_channels=512, output_channels=1, output_dim=10240):
         super().__init__()
-        # These lines of code define the layers and initialization of the Conv1DDecoder model.
-        # The ConvTranspose1d layer is a type of 1D convolutional layer that is used for upsampling the input data.
-        # It works by inserting zeros between the elements of the input tensor and then performing a normal 1D convolution operation.
-        # The kernel_size, padding, and stride parameters control the shape of the kernel and the spacing between the elements of the
-        # input tensor, just like in a regular 1D convolutional layer. The output_padding parameter controls the number of zeros to
-        # insert between the elements of the output tensor.
-
-        # The weight and bias parameters of the ConvTranspose1d layer are initialized using the normal_ and zero_ methods of the Tensor class, respectively. The normal_ method initializes the weights with random values drawn from a normal distribution with mean 0 and standard deviation 0.02, while the zero_ method initializes the biases with 0.
-        # Finally, the output_dim attribute of the Conv1DDecoder class is initialized with the output_dim parameter, which is the expected size of the output tensor.
-        # self.deconv1d.weight.data.normal_(0, 0.02)
-        # self.deconv1d.bias.data.zero_()
-
-        # l3^-1 in decoder:
-        # in: [2, 512, 256]
-        # out: [2, 512, 513] WRONG
+      
         self.conv_trans_layer1 = nn.ConvTranspose1d(
             hidden_channels, hidden_channels, kernel_size=4, padding=2, output_padding=1, stride=2)
 
-        # out: [2, 512, ?] WRONG
         self.conv_trans_layer2 = nn.ConvTranspose1d(
             hidden_channels, hidden_channels, kernel_size=8, padding=2, output_padding=2, stride=4)
 
-        # [2, 1, 10233]
         self.conv_trans_layer3 = nn.ConvTranspose1d(
             hidden_channels, output_channels, kernel_size=10, padding=2, output_padding=2, stride=5)
 
@@ -80,7 +52,6 @@ class TwoLayerDecoder(nn.Module):
 
     def forward(self, x):
         x = self.conv_trans_layer1(x)
-        # x = nn.ReLU(True),
         x = F.relu(x)
         x = self.conv_trans_layer2(x)
 
@@ -88,9 +59,20 @@ class TwoLayerDecoder(nn.Module):
         x = self.conv_trans_layer3(x)
 
         # The F.interpolate function will allow you to resize the output tensor to the desired size of output_dim.
-        x = F.interpolate(x, size=self.output_dim,
-                          mode='linear', align_corners=False)
+        x = F.interpolate(x, size=self.output_dim, mode='linear', align_corners=False)
         return x
+
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+decoder = OneLayerDecoder().to(device)
+
+model_path = "./logs\\RMSE_decoder2_experiment\\optim_24.ckpt"
+decoder.load_state_dict(torch.load(model_path, map_location=device))
+
+
+rnd = torch.rand((2, 512, 256)).to(device)
+outp2 = decoder(rnd)
+outp2
 
 
 # # %%

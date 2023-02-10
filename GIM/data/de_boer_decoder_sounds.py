@@ -4,7 +4,6 @@
 # from GIM_encoder import GIM_Encoder
 # from de_boer_sounds import DeBoerDataset
 
-from GIM_encoder import GIM_Encoder
 from data import de_boer_sounds
 
 import os
@@ -36,11 +35,10 @@ def default_flist_reader(flist):
 
 
 class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
-    def __init__(self, encoder, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
+    def __init__(self, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
         super().__init__(opt, root, directory, audio_length, loader,
                          background_noise, white_guassian_noise, target_sample_rate, background_noise_path)
 
-        self.encoder: GIM_Encoder = encoder
 
     def __getitem__(self, index):
 

@@ -14,7 +14,6 @@ from arg_parser import arg_parser
 from data import get_dataloader
 import numpy as np
 import random
-import math
 
 random.seed(0)
 
@@ -119,8 +118,7 @@ def train(decoder, logs, train_loader, test_loader, layer_depth, path):
     decoder.train()
 
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(
-        decoder.parameters(), lr=1e-2)  # 1.5 * 10^-2 = 1.5/100
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-2)  # 1.5 * 10^-2 = 1.5/100
     # optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2) # 1.5 * 10^-2 = 1.5/100
 
     training_losses = []
@@ -128,18 +126,18 @@ def train(decoder, logs, train_loader, test_loader, layer_depth, path):
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
         training_losses_epoch = []
-        for step, (org_audio, _, _, _) in enumerate(train_loader):
+        for step, (ground_truth_audio_batch, _, _, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
 
-            org_audio = org_audio.to(device)
-            enc_audios = encoder(org_audio).to(device)
+            ground_truth_audio_batch = ground_truth_audio_batch.to(device)
+            enc_audios = encoder(ground_truth_audio_batch).to(device)
 
             # zero the gradients
             optimizer.zero_grad()
 
             # forward pass
-            outputs = decoder(enc_audios)
-            loss = criterion(outputs, org_audio)
+            output_batch = decoder(enc_audios)
+            loss = criterion(output_batch, ground_truth_audio_batch)
 
             # backward pass and optimization step
             loss.backward()
@@ -184,15 +182,12 @@ if __name__ == "__main__":
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
-        get_de_boer_sounds_decoder_data_loaders(
-            opt, layer_depth=3, GIM_encoder_path="./g_drive_model/model_180.ckpt")
+        get_de_boer_sounds_decoder_data_loaders(opt)
 
     two_layer_decoder = TwoLayerDecoder()
-    decoder = train(two_layer_decoder, logs, train_loader, test_loader,
-                    layer_depth=3, path="./g_drive_model/model_180.ckpt")
+    decoder = train(two_layer_decoder, logs, train_loader, test_loader, layer_depth=3, path="./g_drive_model/model_180.ckpt")
 
     torch.cuda.empty_cache()
 
     # %%
 
-    # %%
