@@ -34,48 +34,44 @@ class OneLayerDecoder(nn.Module):
         return x
 
 
-# output_height = [(input_height - 1) * stride] + kernel_size[0] - [2 * padding] + output_padding
 class TwoLayerDecoder(nn.Module):
     def __init__(self, hidden_channels=512, output_channels=1, output_dim=10240):
         super().__init__()
-      
-        self.conv_trans_layer1 = nn.ConvTranspose1d(
-            hidden_channels, hidden_channels, kernel_size=4, padding=2, output_padding=1, stride=2)
 
-        self.conv_trans_layer2 = nn.ConvTranspose1d(
-            hidden_channels, hidden_channels, kernel_size=8, padding=2, output_padding=2, stride=4)
+        # inp: (batch_size, 512, 256) = (B, Chann, Height)
+        self.conv_trans_layer1 = nn.ConvTranspose1d(hidden_channels, hidden_channels, kernel_size=4, padding=2, output_padding=1, stride=2)
+        # output_height = [(input_height - 1) * stride] + kernel_size[0] - [2 * padding] + output_padding
+        # out_H = [(256 - 1) * 2] + 4 - [2 * 2] + 1 = 511
 
-        self.conv_trans_layer3 = nn.ConvTranspose1d(
-            hidden_channels, output_channels, kernel_size=10, padding=2, output_padding=2, stride=5)
+        self.conv_trans_layer2 = nn.ConvTranspose1d(hidden_channels, hidden_channels, kernel_size=10, padding=2, output_padding=1, stride=4)
+        # out_H = [(511 - 1) * 4] + 10 - [2 * 2] + 1 = 2047
+
+        self.conv_trans_layer3 = nn.ConvTranspose1d(hidden_channels, output_channels, kernel_size=12, padding=2, output_padding=2, stride=5)
+        # out_H = [(2047 - 1) * 5] + 12 - [2 * 2] + 2 = 10240
 
         self.output_dim = output_dim
 
     def forward(self, x):
-        x = self.conv_trans_layer1(x)
-        x = F.relu(x)
-        x = self.conv_trans_layer2(x)
-
-        x = F.relu(x)
+        x = F.relu(self.conv_trans_layer1(x))
+        x = F.relu(self.conv_trans_layer2(x))
         x = self.conv_trans_layer3(x)
 
-        # The F.interpolate function will allow you to resize the output tensor to the desired size of output_dim.
-        x = F.interpolate(x, size=self.output_dim, mode='linear', align_corners=False)
         return x
 
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-decoder = OneLayerDecoder().to(device)
+if __name__=="__main__":
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    decoder = TwoLayerDecoder().to(device)
 
-model_path = "./logs\\RMSE_decoder2_experiment\\optim_24.ckpt"
-decoder.load_state_dict(torch.load(model_path, map_location=device))
-
-
-rnd = torch.rand((2, 512, 256)).to(device)
-outp2 = decoder(rnd)
-outp2
+    # model_path = "./logs\\RMSE_decoder2_experiment\\optim_24.ckpt"
+    # decoder.load_state_dict(torch.load(model_path, map_location=device))
 
 
-# # %%
+    rnd = torch.rand((2, 512, 256)).to(device)
+    print(decoder(rnd).shape)
+
+
+# %%
 
 
 # def encode(audio, model, depth=1):

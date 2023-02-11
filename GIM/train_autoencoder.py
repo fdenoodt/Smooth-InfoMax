@@ -39,11 +39,14 @@ class LogHandler():
         self.draw_loss_curve(train_loss, val_loss)
 
     def save_train_losses(self, train_loss, val_loss):
-        np.savetxt(f"{opt['log_path']}/training_loss.csv", train_loss, delimiter=",")
-        np.savetxt(f"{opt['log_path']}/validation_loss.csv", val_loss, delimiter=",")
+        np.savetxt(f"{self.opt['log_path']}/training_loss.csv", train_loss, delimiter=",")
+        np.savetxt(f"{self.opt['log_path']}/validation_loss.csv", val_loss, delimiter=",")
      
     def save_model(self, model, epoch, optimizer) -> None:
-        logs.create_log(model, epoch=epoch, optimizer=optimizer)
+        torch.save(model.state_dict(), f'{self.opt["log_path"]}/model_{epoch}.pt')
+
+        
+
 
     def draw_loss_curve(self, train_loss, val_loss):
         assert len(train_loss) == len(val_loss)
@@ -102,15 +105,13 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
 
             loss_epoch.append(loss.data.cpu().numpy())
 
-    # print(f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
+    print(f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
 
     validation_loss = np.mean(loss_epoch)
     return validation_loss
 
 
-def train(decoder, logs, train_loader, test_loader, layer_depth, path):
-    encoder = GIM_Encoder(opt, layer_depth=layer_depth, path=path)
-
+def train(decoder, logs, train_loader, test_loader):
     epoch_printer = EpochPrinter(train_loader)
     log_handler = LogHandler(opt, logs, train_loader)
 
@@ -118,8 +119,7 @@ def train(decoder, logs, train_loader, test_loader, layer_depth, path):
     decoder.train()
 
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-2)  # 1.5 * 10^-2 = 1.5/100
-    # optimizer = torch.optim.Adam(decoder.parameters(), lr=1.5e-2) # 1.5 * 10^-2 = 1.5/100
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-2, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
 
     training_losses = []
     validation_losses = []
@@ -127,10 +127,9 @@ def train(decoder, logs, train_loader, test_loader, layer_depth, path):
 
         training_losses_epoch = []
         for step, (ground_truth_audio_batch, _, _, _) in enumerate(train_loader):
-            epoch_printer(step, epoch)
 
-            ground_truth_audio_batch = ground_truth_audio_batch.to(device)
-            enc_audios = encoder(ground_truth_audio_batch).to(device)
+            ground_truth_audio_batch = ground_truth_audio_batch.to(device) # (batch_size, 1, 10240)
+            enc_audios = encoder(ground_truth_audio_batch).to(device) # (batch_size, 512, 256)
 
             # zero the gradients
             optimizer.zero_grad()
@@ -155,7 +154,6 @@ def train(decoder, logs, train_loader, test_loader, layer_depth, path):
 
     return decoder
 
-# %%
 
 
 def create_log_dir(path):  # created via chat gpt
@@ -183,10 +181,13 @@ if __name__ == "__main__":
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
+    
 
+
+    encoder = GIM_Encoder(opt, layer_depth=3, path="./g_drive_model/model_180.ckpt")
     two_layer_decoder = TwoLayerDecoder()
-    decoder = train(two_layer_decoder, logs, train_loader, test_loader, layer_depth=3, path="./g_drive_model/model_180.ckpt")
-
+    decoder = train(two_layer_decoder, logs, train_loader, test_loader)
+ 
     torch.cuda.empty_cache()
 
     # %%

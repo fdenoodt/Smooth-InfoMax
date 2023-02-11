@@ -31,8 +31,7 @@ if __name__ == "__main__":
 
     decoder = TwoLayerDecoder().to(device)
     # decoder = OneLayerDecoder().to(device)
-    model_path = "./logs\\\RMSE_decoder_GIM_layer3_experiment\\model_19.ckpt"
-    # model_path = "./logs\\RMSE_decoder_experiment\\model_24.ckpt"
+    model_path = "./logs/RMSE_decoder_GIM_layer3_experiment/model_19.pt"
     decoder.load_state_dict(torch.load(model_path, map_location=device))
     decoder.eval()
 
