@@ -29,3 +29,4 @@ logs/
 datasets/
 *.pt
 *.ckpt
+*.zip
