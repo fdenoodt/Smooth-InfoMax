@@ -1,4 +1,5 @@
 import IPython.display as ipd
+from GIM_encoder import GIM_Encoder
 from options import OPTIONS as opt
 import torch
 import matplotlib.pyplot as plt
@@ -16,10 +17,14 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class LogHandler():
-    def __init__(self, opt, logs, train_loader) -> None:
+    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
+        self.criterion = criterion
+        self.logging_path = f"{opt['log_path']}/{criterion.name}/GIM_L{gim_encoder.layer_depth}"
+        create_log_dir(self.logging_path)
+
 
     def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
         self.save_train_losses(train_loss, val_loss)
@@ -27,14 +32,11 @@ class LogHandler():
         self.draw_loss_curve(train_loss, val_loss)
 
     def save_train_losses(self, train_loss, val_loss):
-        np.savetxt(f"{self.opt['log_path']}/training_loss.csv", train_loss, delimiter=",")
-        np.savetxt(f"{self.opt['log_path']}/validation_loss.csv", val_loss, delimiter=",")
+        np.savetxt(f"{self.logging_path}/training_loss.csv", train_loss, delimiter=",")
+        np.savetxt(f"{self.logging_path}/validation_loss.csv", val_loss, delimiter=",")
      
     def save_model(self, model, epoch, optimizer) -> None:
-        torch.save(model.state_dict(), f'{self.opt["log_path"]}/model_{epoch}.pt')
-
-        
-
+        torch.save(model.state_dict(), f'{self.logging_path}/model_{epoch}.pt')
 
     def draw_loss_curve(self, train_loss, val_loss):
         assert len(train_loss) == len(val_loss)
@@ -50,7 +52,7 @@ class LogHandler():
         plt.legend(loc="upper right")
 
         # save image
-        plt.savefig(os.path.join(self.opt["log_path"], "loss.png"))
+        plt.savefig(os.path.join(self.logging_path, "loss.png"))
         plt.close()
 
 
