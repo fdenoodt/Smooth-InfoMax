@@ -30,3 +30,5 @@ datasets/
 *.pt
 *.ckpt
 *.zip
+
+*.png
