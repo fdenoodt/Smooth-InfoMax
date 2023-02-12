@@ -23,6 +23,8 @@ if(True):
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+
+
 def validation_loss(GIM_encoder, model, test_loader, criterion):
     # based on GIM/ChatGPT
     total_step = len(test_loader)
@@ -41,7 +43,8 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
 
             loss_epoch.append(loss.data.cpu().numpy())
 
-    print(f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
+    print(
+        f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
 
     validation_loss = np.mean(loss_epoch)
     return validation_loss
@@ -51,10 +54,14 @@ def train(decoder, logs, train_loader, test_loader):
     epoch_printer = EpochPrinter(train_loader)
     log_handler = LogHandler(opt, logs, train_loader)
 
+    normalize_func = compute_normalizer(train_loader, encoder)
+
+
     decoder.to(device)
     decoder.train()
 
-    criterion = MSE_AND_SPECTRAL_LOSS(128) # number is adviced by chat gpt
+    criterion = nn.MSELoss()
+    # criterion = MSE_AND_SPECTRAL_LOSS(128)  # number is adviced by chat gpt
     # criterion = MSE_AND_SPECTRAL_LOSS(8192) # number is adviced by chat gpt
     optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-3, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
 
@@ -64,9 +71,10 @@ def train(decoder, logs, train_loader, test_loader):
 
         training_losses_epoch = []
         for step, (ground_truth_audio_batch, _, _, _) in enumerate(train_loader):
+            epoch_printer(step, epoch)
 
-            ground_truth_audio_batch = ground_truth_audio_batch.to(device) # (batch_size, 1, 10240)
-            enc_audios = encoder(ground_truth_audio_batch).to(device) # (batch_size, 512, 256)
+            ground_truth_audio_batch = ground_truth_audio_batch.to(device)  # (batch_size, 1, 10240)
+            enc_audios = normalize_func(encoder(ground_truth_audio_batch).to(device))  # (batch_size, 512, 256)
 
             # zero the gradients
             optimizer.zero_grad()
@@ -86,10 +94,11 @@ def train(decoder, logs, train_loader, test_loader):
         validation_losses.append(validation_loss(encoder, decoder, test_loader, criterion))
 
         log_handler(decoder, epoch, optimizer, training_losses, validation_losses)
-    
+
     # </> end epoch
 
     return decoder
+
 
 
 if __name__ == "__main__":
@@ -97,7 +106,8 @@ if __name__ == "__main__":
 
     arg_parser.create_log_path(opt)
 
-    experiment_name = 'RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss'
+    experiment_name = 'RMSE_decoder_GIM_layer3_MSE_loss'
+    # experiment_name = 'RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
@@ -105,7 +115,6 @@ if __name__ == "__main__":
     opt['num_epochs'] = 50
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
-     
 
     create_log_dir(opt['log_path'])
 
@@ -114,15 +123,11 @@ if __name__ == "__main__":
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
-    
 
-
-    
     encoder = GIM_Encoder(opt, layer_depth=3, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
     two_layer_decoder = TwoLayerDecoder()
     decoder = train(two_layer_decoder, logs, train_loader, test_loader)
- 
+
     torch.cuda.empty_cache()
 
     # %%
-

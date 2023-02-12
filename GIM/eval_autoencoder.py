@@ -32,8 +32,8 @@ if __name__ == "__main__":
     decoder = TwoLayerDecoder().to(device)
     # decoder = OneLayerDecoder().to(device)
     # model_path = "./logs/RMSE_decoder_GIM_layer3_spectral_loss_experiment/model_19.pt"
-    # model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_loss_experiment/model_49.pt"
-    model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss_experiment/model_49.pt"
+    model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_loss_experiment/model_10.pt"
+    # model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss_experiment/model_49.pt"
     decoder.load_state_dict(torch.load(model_path, map_location=device))
     decoder.eval()
 
@@ -53,16 +53,13 @@ if __name__ == "__main__":
     encoder = GIM_Encoder(opt, layer_depth=3, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
 
     # %%
-
-    rnd = torch.rand((2, 512, 256)).to('cuda')
-    outp2 = decoder(rnd)
-    outp2
+    normalize_func = compute_normalizer(train_loader, encoder)
 
     # %%
 
     (org_audio, _, _, _) = next(iter(train_loader))
     org_audio = org_audio.to(device)
-    enc_audio = encoder(org_audio).to(device)
+    enc_audio = normalize_func(encoder(org_audio).to(device))
 
     # %%
 

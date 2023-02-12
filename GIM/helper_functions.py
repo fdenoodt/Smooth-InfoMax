@@ -10,6 +10,9 @@ import os
 from typing import Any
 import numpy as np
 import time
+from torchvision import transforms
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class LogHandler():
@@ -97,6 +100,38 @@ def show_line_sequence(sequence):
 def play_sound(audio):
     audio = audio.to('cpu').detach().numpy()
     ipd.Audio(audio, rate=16000)
+
+
+def compute_normalizer(train_loader, encoder):
+    sum = 0.0
+    squared_sum = 0.0
+    num_samples = 0
+
+    # Iterate through the data using the data loader
+    for step, (batch_audio_signals, _, _, _) in enumerate(train_loader):
+        batch_audio_signals = batch_audio_signals.to(device)
+        enc_audios = encoder(batch_audio_signals).to(device)  # (batch_size, 512, 256)
+
+        b, c, l = enc_audios.shape
+        enc_audios = enc_audios.reshape(b * l * c)
+
+        # Add the sum and squared sum of the current batch to the running total
+        sum += enc_audios.sum()
+        squared_sum += (enc_audios ** 2).sum()
+        num_samples += enc_audios.shape[0]
+
+    # Compute the mean and standard deviation
+    mean = sum / num_samples
+    std = torch.sqrt(squared_sum / num_samples - mean ** 2)
+
+
+    print('Mean:', mean)
+    print('Standard deviation:', std)
+
+    transform_norm = transforms.Compose([
+        transforms.Normalize(mean, std)
+    ])
+    return transform_norm
 
 
 # def plot_fft():
