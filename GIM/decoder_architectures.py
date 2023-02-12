@@ -59,6 +59,38 @@ class TwoLayerDecoder(nn.Module):
         return x
 
 
+
+class SpectralLoss(nn.Module):
+    # aided by ChatGPT
+    def __init__(self, n_fft=1024):
+        super(SpectralLoss, self).__init__()
+        self.n_fft = n_fft
+        self.loss = nn.MSELoss()
+
+    def forward(self, batch_inputs, batch_targets): 
+        assert batch_inputs.shape == batch_targets.shape
+
+        # batch_inputs.shape: (batch_size, 1, length)
+        batch_inputs = batch_inputs.squeeze(1) # (batch_size, length)
+        batch_targets = batch_targets.squeeze(1) # (batch_size, length)
+
+        input_spectograms  = torch.stft(batch_inputs, self.n_fft, return_complex=False) # only magnitude
+        target_spectograms = torch.stft(batch_targets, self.n_fft, return_complex=False) # only magnitude
+        
+        input_spectograms = input_spectograms.pow(2).sum(-1)
+        target_spectograms = target_spectograms.pow(2).sum(-1)
+        return self.loss(input_spectograms, target_spectograms)
+    
+class MSE_AND_SPECTRAL_LOSS(nn.Module):
+    def __init__(self, n_fft=1024):
+        super(MSE_AND_SPECTRAL_LOSS, self).__init__()
+        self.mse_loss = nn.MSELoss()
+        self.spectral_loss = SpectralLoss(n_fft)
+
+    def forward(self, batch_inputs, batch_targets): 
+        assert batch_inputs.shape == batch_targets.shape
+        return (self.mse_loss(batch_inputs, batch_targets) * (4 *  10^7)) + self.spectral_loss(batch_inputs, batch_targets)
+
 if __name__=="__main__":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     decoder = TwoLayerDecoder().to(device)

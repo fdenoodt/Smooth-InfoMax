@@ -31,7 +31,9 @@ if __name__ == "__main__":
 
     decoder = TwoLayerDecoder().to(device)
     # decoder = OneLayerDecoder().to(device)
-    model_path = "./logs/RMSE_decoder_GIM_layer3_experiment/model_19.pt"
+    # model_path = "./logs/RMSE_decoder_GIM_layer3_spectral_loss_experiment/model_19.pt"
+    # model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_loss_experiment/model_49.pt"
+    model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss_experiment/model_49.pt"
     decoder.load_state_dict(torch.load(model_path, map_location=device))
     decoder.eval()
 
@@ -48,7 +50,7 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
-    encoder = GIM_Encoder(opt, layer_depth=3, path="./g_drive_model/model_180.ckpt")
+    encoder = GIM_Encoder(opt, layer_depth=3, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
 
     # %%
 
@@ -81,7 +83,7 @@ if __name__ == "__main__":
     # %%
 
     show_line_sequence(org_audio[0][0])
-    show_line_sequence(outp[1][0])
+    show_line_sequence(outp[0][0])
 
 
     def det_np(data):
@@ -89,7 +91,7 @@ if __name__ == "__main__":
         return data.to('cpu').detach().numpy()
     # %%
 
-    Audio(det_np(outp[1][0]), rate=16000)
+    Audio(det_np(outp[0][0]), rate=16000)
     
     # %%
     Audio(det_np(org_audio[0][0]), rate=16000)

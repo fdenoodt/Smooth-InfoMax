@@ -1,15 +1,12 @@
 # %%
-import os
 import time
 import importlib
-from typing import Any
 from GIM_encoder import GIM_Encoder
 import decoder_architectures
 import helper_functions
-import torch.nn as nn
 from options import OPTIONS as opt
 import torch
-from utils import logger
+
 from arg_parser import arg_parser
 from data import get_dataloader
 import numpy as np
@@ -25,67 +22,6 @@ if(True):
     from helper_functions import *
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-
-class LogHandler():
-    def __init__(self, opt, logs, train_loader) -> None:
-        self.opt = opt
-        self.total_step = len(train_loader)
-        self.logs: logger.Logger = logs
-
-    def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
-        self.save_train_losses(train_loss, val_loss)
-        self.save_model(model, epoch, optimizer)
-        self.draw_loss_curve(train_loss, val_loss)
-
-    def save_train_losses(self, train_loss, val_loss):
-        np.savetxt(f"{self.opt['log_path']}/training_loss.csv", train_loss, delimiter=",")
-        np.savetxt(f"{self.opt['log_path']}/validation_loss.csv", val_loss, delimiter=",")
-     
-    def save_model(self, model, epoch, optimizer) -> None:
-        torch.save(model.state_dict(), f'{self.opt["log_path"]}/model_{epoch}.pt')
-
-        
-
-
-    def draw_loss_curve(self, train_loss, val_loss):
-        assert len(train_loss) == len(val_loss)
-
-        lst_iter = np.arange(len(train_loss))
-        plt.plot(lst_iter, np.array(train_loss), "-b", label="train loss")
-
-        lst_iter = np.arange(len(val_loss))
-        plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
-
-        plt.xlabel("epoch")
-        plt.ylabel("loss")
-        plt.legend(loc="upper right")
-
-        # save image
-        plt.savefig(os.path.join(self.opt["log_path"], "loss.png"))
-        plt.close()
-
-
-class EpochPrinter():
-    def __init__(self, train_loader) -> None:
-        self.starttime = time.time()
-
-        self.print_idx = 100
-        self.step = 0
-        self.total_step = len(train_loader)
-
-    def __call__(self, step, epoch) -> Any:
-        if step % self.print_idx == 0:
-            print(
-                "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}".format(
-                    epoch + 1,
-                    opt["num_epochs"] + opt["start_epoch"],
-                    step,
-                    self.total_step,
-                    time.time() - self.starttime,
-                )
-            )
-
 
 def validation_loss(GIM_encoder, model, test_loader, criterion):
     # based on GIM/ChatGPT
@@ -118,8 +54,9 @@ def train(decoder, logs, train_loader, test_loader):
     decoder.to(device)
     decoder.train()
 
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-2, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
+    criterion = MSE_AND_SPECTRAL_LOSS(128) # number is adviced by chat gpt
+    # criterion = MSE_AND_SPECTRAL_LOSS(8192) # number is adviced by chat gpt
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-3, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
 
     training_losses = []
     validation_losses = []
@@ -155,24 +92,20 @@ def train(decoder, logs, train_loader, test_loader):
     return decoder
 
 
-
-def create_log_dir(path):  # created via chat gpt
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     arg_parser.create_log_path(opt)
 
-    experiment_name = 'RMSE_decoder_GIM_layer3'
+    experiment_name = 'RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 20
-    opt['batch_size'] = 64
+    opt['num_epochs'] = 50
+    opt['batch_size'] = 64 + 32
+    opt['batch_size_multiGPU'] = opt['batch_size']
+     
 
     create_log_dir(opt['log_path'])
 
@@ -184,7 +117,8 @@ if __name__ == "__main__":
     
 
 
-    encoder = GIM_Encoder(opt, layer_depth=3, path="./g_drive_model/model_180.ckpt")
+    
+    encoder = GIM_Encoder(opt, layer_depth=3, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
     two_layer_decoder = TwoLayerDecoder()
     decoder = train(two_layer_decoder, logs, train_loader, test_loader)
  
