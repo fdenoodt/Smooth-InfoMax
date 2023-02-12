@@ -17,14 +17,13 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class LogHandler():
-    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder) -> None:
+    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
         self.criterion = criterion
-        self.logging_path = f"{opt['log_path']}/{criterion.name}/GIM_L{gim_encoder.layer_depth}"
+        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate}/GIM_L{gim_encoder.layer_depth}"
         create_log_dir(self.logging_path)
-
 
     def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
         self.save_train_losses(train_loss, val_loss)
@@ -32,9 +31,11 @@ class LogHandler():
         self.draw_loss_curve(train_loss, val_loss)
 
     def save_train_losses(self, train_loss, val_loss):
-        np.savetxt(f"{self.logging_path}/training_loss.csv", train_loss, delimiter=",")
-        np.savetxt(f"{self.logging_path}/validation_loss.csv", val_loss, delimiter=",")
-     
+        np.savetxt(f"{self.logging_path}/training_loss.csv",
+                   train_loss, delimiter=",")
+        np.savetxt(f"{self.logging_path}/validation_loss.csv",
+                   val_loss, delimiter=",")
+
     def save_model(self, model, epoch, optimizer) -> None:
         torch.save(model.state_dict(), f'{self.logging_path}/model_{epoch}.pt')
 
@@ -57,24 +58,23 @@ class LogHandler():
 
 
 class EpochPrinter():
-    def __init__(self, train_loader) -> None:
+    def __init__(self, train_loader, learning_rate, criterion, decoder_depth) -> None:
         self.starttime = time.time()
 
         self.print_idx = 100
         self.step = 0
         self.total_step = len(train_loader)
+        self.learning_rate = learning_rate
+        self.criterion = criterion
+        self.decoder_depth = decoder_depth
 
     def __call__(self, step, epoch) -> Any:
         if step % self.print_idx == 0:
-            print(
-                "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}".format(
-                    epoch + 1,
-                    opt["num_epochs"] + opt["start_epoch"],
-                    step,
-                    self.total_step,
-                    time.time() - self.starttime,
-                )
-            )
+            print(f"Epoch[{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], \
+                  Step[{step}/{self.total_step, }], Time(s): {time.time() - self.starttime: .1f} \
+                  L: {self.decoder_depth} \
+                  lr: {self.learning_rate}, {self.criterion.name}")
+
 
 def create_log_dir(path):  # created via chat gpt
     if not os.path.exists(path):
@@ -91,7 +91,6 @@ def plot_spectrogram(signal, name):
     plt.title(f"Log-frequency power spectrogram for {name}")
     plt.xlabel("Time")
     plt.show()
-
 
 
 def show_line_sequence(sequence):
@@ -112,7 +111,8 @@ def compute_normalizer(train_loader, encoder):
     # Iterate through the data using the data loader
     for step, (batch_audio_signals, _, _, _) in enumerate(train_loader):
         batch_audio_signals = batch_audio_signals.to(device)
-        enc_audios = encoder(batch_audio_signals).to(device)  # (batch_size, 512, 256)
+        enc_audios = encoder(batch_audio_signals).to(
+            device)  # (batch_size, 512, 256)
 
         b, c, l = enc_audios.shape
         enc_audios = enc_audios.reshape(b * l * c)
@@ -125,7 +125,6 @@ def compute_normalizer(train_loader, encoder):
     # Compute the mean and standard deviation
     mean = sum / num_samples
     std = torch.sqrt(squared_sum / num_samples - mean ** 2)
-
 
     print('Mean:', mean)
     print('Standard deviation:', std)
@@ -143,5 +142,3 @@ def compute_normalizer(train_loader, encoder):
 #     plt.figure(figsize=(18, 10))
 #     plt.plot(X_mag)  # magnitude spectrum
 #     plt.xlabel('Frequency (Hz)')
-
-

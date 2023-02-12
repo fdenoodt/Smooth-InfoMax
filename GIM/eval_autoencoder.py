@@ -29,10 +29,12 @@ if(True):
 if __name__ == "__main__":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    decoder = GimL3Decoder().to(device)
-    # decoder = OneLayerDecoder().to(device)
+    layer_depth = 1
+    decoder = GimL1Decoder().to(device)
+    # decoder = GimL3Decoder().to(device)
+    model_path = "./logs/GIM_DECODER_experiment/MSE Loss/lr_0.001/GIM_L1/model_4.pt"
     # model_path = "./logs/RMSE_decoder_GIM_layer3_spectral_loss_experiment/model_19.pt"
-    model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_loss_experiment/model_49.pt"
+    # model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_loss_experiment/model_49.pt"
     # model_path = "./logs/RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss_experiment/model_49.pt"
     decoder.load_state_dict(torch.load(model_path, map_location=device))
     decoder.eval()
@@ -50,7 +52,7 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
-    encoder = GIM_Encoder(opt, layer_depth=3, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
+    encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
 
     # %%
     normalize_func = compute_normalizer(train_loader, encoder)

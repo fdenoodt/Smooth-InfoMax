@@ -50,13 +50,9 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
     return validation_loss
 
 
-def train(decoder, logs, train_loader, test_loader):
-    criterion = MSE_Loss()
-    # criterion = MSE_AND_SPECTRAL_LOSS(128) 
-    # criterion = MSE_AND_SPECTRAL_LOSS(8192) # number is adviced by chat gpt
-
-    epoch_printer = EpochPrinter(train_loader)
-    log_handler = LogHandler(opt, logs, train_loader, criterion, encoder)
+def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
+    epoch_printer = EpochPrinter(train_loader, learning_rate, criterion, encoder.layer_depth)
+    log_handler = LogHandler(opt, logs, train_loader, criterion, encoder, learning_rate)
 
     normalize_func = compute_normalizer(train_loader, encoder)
 
@@ -64,7 +60,7 @@ def train(decoder, logs, train_loader, test_loader):
     decoder.to(device)
     decoder.train()
 
-    optimizer = torch.optim.Adam(decoder.parameters(), lr=1e-3, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
+    optimizer = torch.optim.Adam(decoder.parameters(), lr=learning_rate, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
 
     training_losses = []
     validation_losses = []
@@ -114,7 +110,7 @@ if __name__ == "__main__":
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 5
+    opt['num_epochs'] = 100
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
 
@@ -126,12 +122,13 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.\
         get_de_boer_sounds_decoder_data_loaders(opt)
 
-    for layer_depth, Decoder in zip([1, 2, 3, 4], [GimL1Decoder, GimL2Decoder, GimL3Decoder, GimL4Decoder]):
-        encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-        decoder = Decoder()
-        decoder = train(decoder, logs, train_loader, test_loader)
+    for criterion in [MSE_Loss(), MSE_AND_SPECTRAL_LOSS(128), MSE_AND_SPECTRAL_LOSS(8192)]: 
+        for lr in [1e-3, 1e-2, 1e-4, 1e-5]:
+            for layer_depth, Decoder in zip([1, 2, 3, 4], [GimL1Decoder, GimL2Decoder, GimL3Decoder, GimL4Decoder]):
+                encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
+                decoder = Decoder()
+                decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
 
-        break
 
     torch.cuda.empty_cache()
 
