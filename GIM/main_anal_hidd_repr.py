@@ -41,13 +41,15 @@ def visualise_2d_tensor(tensor, GIM_model_name, target_dir, name):
 
     # Show the plot
     plt.savefig(f"{target_dir}/{name}.png")
-    plt.show()
+    # plt.show()
 
 
 def _save_encodings(target_dir, encoder, data_loader):
     for idx, (batch_org_audio, filenames, _, _) in enumerate(iter(data_loader)):
         batch_org_audio = batch_org_audio.to(device)
         batch_enc_audio = encoder(batch_org_audio)
+
+        print(f"Batch {idx} - {batch_enc_audio.shape} - Mean: {torch.mean(batch_enc_audio)} - Std: {torch.std(batch_enc_audio)}")
 
         torch.save(batch_enc_audio, f"{target_dir}/batch_encodings_{idx}.pt")
         torch.save(filenames, f"{target_dir}/batch_filenames_{idx}.pt")
@@ -111,14 +113,15 @@ if __name__ == "__main__":
     logs = logger.Logger(opt)
 
     # load the data
-    # train_loader, _, test_loader, _ = get_dataloader.\
-    #     get_de_boer_sounds_decoder_data_loaders(opt)
+    train_loader, _, test_loader, _ = get_dataloader.\
+        get_de_boer_sounds_decoder_data_loaders(opt)
 
-    # layer_depth = 3
-    # encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-
-    # generate_and_save_encodings(encoder, train_loader, test_loader, "01GIM_L3")
-    generate_visualisations("01GIM_L3")
+    for layer_depth in [4]:
+    # for layer_depth in [1, 2, 3, 4]:
+        encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
+        gim_name = f"01GIM_L{layer_depth}"
+        generate_and_save_encodings(encoder, train_loader, test_loader, gim_name)
+        generate_visualisations(gim_name)
 
 
 
