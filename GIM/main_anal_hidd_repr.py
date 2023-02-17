@@ -77,6 +77,8 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
             for idx, (enc, name) in enumerate(zip(batch_encodings, batch_filenames)):
                 name = name.split("_")[0] # eg: babugu_1 -> babugu
                 visualise_2d_tensor(enc, GIM_model_name, target_dir, f"{name}")
+                break
+        break
 
 def generate_visualisations(GIM_model_name):
     saved_files_dir = f"{log_path}/hidden_repr/{GIM_model_name}/"
@@ -114,10 +116,10 @@ if __name__ == "__main__":
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.\
-        get_de_boer_sounds_decoder_data_loaders(opt)
+        get_de_boer_sounds_decoder_data_loaders(opt, shuffle=False)
 
-    for layer_depth in [4]:
-    # for layer_depth in [1, 2, 3, 4]:
+    # for layer_depth in [4]:
+    for layer_depth in [1, 2, 3, 4]:
         encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
         gim_name = f"01GIM_L{layer_depth}"
         generate_and_save_encodings(encoder, train_loader, test_loader, gim_name)
