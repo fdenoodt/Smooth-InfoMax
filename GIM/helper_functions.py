@@ -70,10 +70,7 @@ class EpochPrinter():
 
     def __call__(self, step, epoch) -> Any:
         if step % self.print_idx == 0:
-            print(f"Epoch[{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], \
-                  Step[{step}/{self.total_step, }], Time(s): {time.time() - self.starttime: .1f} \
-                  L: {self.decoder_depth} \
-                  lr: {self.learning_rate}, {self.criterion.name}")
+            print(f"Epoch[{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], Step[{step}/{self.total_step, }], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
 
 
 def create_log_dir(path):  # created via chat gpt
