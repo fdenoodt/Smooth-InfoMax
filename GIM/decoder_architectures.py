@@ -153,16 +153,16 @@ class MSE_Loss(nn.Module):
 
 
 class MSE_AND_SPECTRAL_LOSS(nn.Module):
-    def __init__(self, n_fft=1024, lambd=4 * 10 ^ 7):  # = 40_000_000
+    def __init__(self, n_fft=1024, lambd=1):
         super(MSE_AND_SPECTRAL_LOSS, self).__init__()
-        self.name = f"MSE + Spectral Loss FFT={n_fft} Lambda={lambd}"
+        self.name = f"MSE + scSpectral Loss FFT={n_fft} Lambda={lambd:.7f}"
         self.mse_loss = nn.MSELoss()
         self.spectral_loss = SpectralLoss(n_fft)
         self.lambd = lambd
 
     def forward(self, batch_inputs, batch_targets):
         assert batch_inputs.shape == batch_targets.shape
-        return (self.mse_loss(batch_inputs, batch_targets) * self.lambd) + self.spectral_loss(batch_inputs, batch_targets)
+        return self.mse_loss(batch_inputs, batch_targets) + (self.lambd * self.spectral_loss(batch_inputs, batch_targets))
 
 
 class FFTLoss(nn.Module):
