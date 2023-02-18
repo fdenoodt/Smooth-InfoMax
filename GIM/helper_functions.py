@@ -27,7 +27,7 @@ class LogHandler():
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
         self.criterion = criterion
-        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate}/GIM_L{gim_encoder.layer_depth}"
+        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{gim_encoder.layer_depth}"
         create_log_dir(self.logging_path)
 
     def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
@@ -206,3 +206,4 @@ def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, ti
 def save_audio(audio, dir, file, sample_rate=16000):
     create_log_dir(dir)
     sf.write(f"{dir}/{file}.wav", audio, sample_rate)
+

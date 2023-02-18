@@ -13,18 +13,18 @@ from options import OPTIONS as opt
 random.seed(0)
 
 
-if(True):
-    importlib.reload(decoder_architectures)
-    importlib.reload(helper_functions)
+# if(True):
+#     importlib.reload(decoder_architectures)
+#     importlib.reload(helper_functions)
 
-    from decoder_architectures import *
-    from helper_functions import *
+from decoder_architectures import *
+from helper_functions import *
 
 
 def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=29):
     '''Generate predictions for the test set and save them to disk.'''
 
-    path = f"./logs/GIM_DECODER_experiment/{criterion}/lr_{lr}/GIM_L{layer_depth}/"
+    path = f"./logs/GIM_DECODER_experiment/{criterion}/lr_{lr:.7f}/GIM_L{layer_depth}/"
     model_path = f"{path}/model_{model_nb}.pt"
 
     decoder.load_state_dict(torch.load(model_path, map_location=device))
