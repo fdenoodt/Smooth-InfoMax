@@ -110,7 +110,7 @@ if __name__ == "__main__":
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 1 # 100
+    opt['num_epochs'] = 30
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
 
@@ -133,15 +133,24 @@ if __name__ == "__main__":
     #         decoder = Decoder()
     #         decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
 
+    # SOLEY FFT
+    criterion = FFTLoss(fft_size=10240)
+    for lr in [1e-3, 1e-2, 1e-5, 1e-4]:
+        for layer_depth, Decoder in zip([4], [GimL4Decoder]):
+            encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
+            decoder = Decoder()
+            decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
+            generate_predictions(encoder, criterion.name, lr, layer_depth, decoder, model_nb=opt['num_epochs'] - 1)
 
 
+
+    # mse + sft
     for lambd in [1, 0.1, 0.01, 0.001, 0.0001]:
         bin_size = 8192
         criterion = MSE_AND_SPECTRAL_LOSS(bin_size, lambd)
         # for criterion in [MSE_Loss(), MSE_AND_SPECTRAL_LOSS(128), MSE_AND_SPECTRAL_LOSS(8192)]: 
         for lr in [1e-5, 1e-4, 1e-3, 1e-2]:
             # for layer_depth, Decoder in zip([1, 2, 3, 4], [GimL1Decoder, GimL2Decoder, GimL3Decoder, GimL4Decoder]):
-            
             for layer_depth, Decoder in zip([4], [GimL4Decoder]):
                 encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
                 decoder = Decoder()
