@@ -49,12 +49,28 @@ def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=
 
         for (org_audio, filename, outp) in zip(batch_org_audio, batch_filenames, batch_outp):
             org_audio, outp = org_audio[0], outp[0] # remove channel dimension
-            plot_two_graphs_side_by_side(
-                org_audio, outp, 
+            # time domain
+            # plot_two_graphs_side_by_side(
+            #     org_audio, outp, 
+            #     title=f"{filename}_td, model={model_nb}, True vs Predicted",
+            #     dir=f"{path}/predictions_model={model_nb}/test/",
+            #     file=f"{filename}_td, model={model_nb}, True vs Predicted", show=False)
+            
+            # frequency domain
+            org_mag, outp_mag = fft_magnitude(org_audio), fft_magnitude(outp)
+            # plot_two_graphs_side_by_side(
+            #     org_mag, outp_mag, 
+            #     title=f"{filename}_fd, model={model_nb}, True vs Predicted",
+            #     dir=f"{path}/predictions_model={model_nb}/test/",
+            #     file=f"{filename}_fd, model={model_nb}, True vs Predicted", show=False)
+            
+            plot_four_graphs_side_by_side(
+                org_audio, outp, org_mag, outp_mag,
                 title=f"{filename}, model={model_nb}, True vs Predicted",
                 dir=f"{path}/predictions_model={model_nb}/test/",
                 file=f"{filename}, model={model_nb}, True vs Predicted", show=False)
-            save_audio(outp, 
+            
+            save_audio(outp,
                        f"{path}/predictions_model={model_nb}/test/",
                        file=f"{filename}, model={model_nb}, True vs Predicted", sample_rate=16000)
             

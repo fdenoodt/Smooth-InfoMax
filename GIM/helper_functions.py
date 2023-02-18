@@ -157,6 +157,13 @@ def det_np(data):
 #     plt.plot(X_mag)  # magnitude spectrum
 #     plt.xlabel('Frequency (Hz)')
 
+def fft_magnitude(sequence):
+    ''' Compute the FFT magnitude of a sequence '''
+    # return np.fft.fft(sequence)
+    x = np.fft.fft(sequence)
+    x_mag = np.absolute(x)
+    return x_mag
+
 
 def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True):
     ''' Plot two graphs side by side '''
@@ -165,6 +172,26 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
 
     ax1.plot(sequence1)
     ax2.plot(sequence2)
+
+    if file is not None:
+        create_log_dir(dir)
+        plt.savefig(f"{dir}/{file}")
+
+    if show:
+        plt.show()
+
+    plt.clf()
+
+def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, title="True vs Predicted", dir=None, file=None, show=True):
+    ''' Plot four graphs side by side '''
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+    fig.suptitle(title)
+
+    ax1.plot(sequence1)
+    ax2.plot(sequence2)
+    ax3.plot(sequence3)
+    ax4.plot(sequence4)
 
     if file is not None:
         create_log_dir(dir)
