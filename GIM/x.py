@@ -9,6 +9,7 @@ import os
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+# %%
 
 signal1 = torch.rand((64, 1, 10240))
 signal_sin = torch.sin(torch.arange(0, 10240/1000, 1/1000)
@@ -269,6 +270,8 @@ plt.tight_layout()
 # used for the STFT will be wider and it can affect the time resolution of the STFT. Therefore, you need to choose 
 # the right value of n_fft depending on your specific task and dataset.
 
+# %%
+
 
 # generated via chat gpt.
 # class SpectralLoss(nn.Module):
@@ -286,25 +289,83 @@ plt.tight_layout()
 #         return self.loss(input_spect, target_spect)
     
 
+# class SpectralLoss(nn.Module):
+#     def __init__(self, n_fft):
+#         # n_fft, which is the number of FFT bins to be used when performing the STFT. The forward method applies the STFT to the input and target speech signals using the torch.stft() function, and computes the power spectrogram of each signal by summing the squared magnitude of the STFT coefficients. It then applies the MSE loss between the two power spectrograms.
+#         super(SpectralLoss, self).__init__()
+#         self.n_fft = n_fft
+#         self.loss = nn.MSELoss()
+
+#     def forward(self, input, target):
+#         input_spect  = torch.stft(input, self.n_fft, return_complex=True)
+#         target_spect = torch.stft(target, self.n_fft, return_complex=True)
+#         input_spect = input_spect.pow(2).sum(-1)
+#         target_spect = target_spect.pow(2).sum(-1)
+#         return self.loss(input_spect, target_spect)
+
+
+
+
+# # fix support batches higher dimensions:
+# class SpectralLoss(nn.Module):
+#     def __init__(self, n_fft):
+#         super(SpectralLoss, self).__init__()
+#         self.n_fft = n_fft
+#         self.loss = nn.MSELoss()
+
+#     def forward(self, input, target):
+#         input_spect  = torch.stft(input, self.n_fft, return_complex=False) # only magnitude
+#         target_spect = torch.stft(target, self.n_fft, return_complex=False) # only magnitude
+#         input_spect = input_spect.pow(2).sum(-1)
+#         target_spect = target_spect.pow(2).sum(-1)
+#         return self.loss(input_spect, target_spect)
+
+
+
+
+# # .repeat(64).reshape((64, 1, 10240))
+# signal_sin = torch.sin(torch.arange(0, 10240/1000, 1/1000)).to('cuda')
+# # .repeat(64).reshape((64, 1, 10240))
+# signal_sin2 = torch.sin(torch.arange(0, 10240/5000, 1/5000)).to('cuda')
+
+# signal_sin = signal_sin.unsqueeze(0).repeat(5, 1, 1)
+# signal_sin2 = signal_sin2.unsqueeze(0).repeat(5, 1, 1)
+
+# loss = SpectralLoss(n_fft=1024)
+# loss(signal_sin, signal_sin2)
+
+
+
 class SpectralLoss(nn.Module):
     def __init__(self, n_fft):
-        # n_fft, which is the number of FFT bins to be used when performing the STFT. The forward method applies the STFT to the input and target speech signals using the torch.stft() function, and computes the power spectrogram of each signal by summing the squared magnitude of the STFT coefficients. It then applies the MSE loss between the two power spectrograms.
         super(SpectralLoss, self).__init__()
         self.n_fft = n_fft
         self.loss = nn.MSELoss()
 
-    def forward(self, input, target):
-        input_spect  = torch.stft(input, self.n_fft, return_complex=True)
-        target_spect = torch.stft(target, self.n_fft, return_complex=True)
-        input_spect = input_spect.pow(2).sum(-1)
-        target_spect = target_spect.pow(2).sum(-1)
-        return self.loss(input_spect, target_spect)
+    def forward(self, batch_inputs, batch_targets): 
+        assert batch_inputs.shape == batch_targets.shape
+
+        (batch_size, one, length) = batch_inputs.shape
+        batch_inputs = batch_inputs.squeeze(1) # (batch_size, length)
+        batch_targets = batch_targets.squeeze(1) # (batch_size, length)
+
+        input_spectograms  = torch.stft(batch_inputs, self.n_fft, return_complex=False) # only magnitude
+        target_spectograms = torch.stft(batch_targets, self.n_fft, return_complex=False) # only magnitude
+        
+        input_spectograms = input_spectograms.pow(2).sum(-1)
+        target_spectograms = target_spectograms.pow(2).sum(-1)
+        return self.loss(input_spectograms, target_spectograms)
+
+batch_size = 5
+signal_sin = torch.sin(torch.linspace(0, 10240/1000, 10240, device='cuda')).repeat(batch_size).view(batch_size, 1, 10240)
+signal_sin2 = torch.sin(torch.linspace(0, 10240/5000, 10240, device='cuda')).repeat(batch_size).view(batch_size, 1, 10240)
+
+print(signal_sin.shape)
+
+loss = SpectralLoss(n_fft=1024)
+print(loss(signal_sin, signal_sin2))
 
 
-# .repeat(64).reshape((64, 1, 10240))
-signal_sin = torch.sin(torch.arange(0, 10240/1000, 1/1000)).to('cuda')
-# .repeat(64).reshape((64, 1, 10240))
-signal_sin2 = torch.sin(torch.arange(0, 10240/5000, 1/5000)).to('cuda')
 
 
 
@@ -326,5 +387,6 @@ signal_sin2 = torch.sin(torch.arange(0, 10240/5000, 1/5000)).to('cuda')
 # why are you saying "in my case 5khz"?
 # I apologize for the confusion, I was referencing the example you provided where you defined the signal_sin2 variable as torch.sin(torch.arange(0, 10240/5000, 1/5000)).to('cuda'), which generates a sine wave with a frequency of 5kHz. So I recommended an n_fft of at least 10,240 which is 2 times the highest frequency that you want to analyze in this case 5kHz. In general, when working with STFT, it's important to choose an appropriate value for n_fft based on the highest frequency you want to analyze and the window size used, it's also good practice to experiment with different values of these parameters to find the one that best suits your application.
 
-loss = SpectralLoss(n_fft=1024)
-loss(signal_sin, signal_sin2)
+
+
+# signal_sin.shape
