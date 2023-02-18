@@ -90,9 +90,16 @@ def plot_spectrogram(signal, name):
     plt.show()
 
 
-def show_line_sequence(sequence):
+def show_line_sequence(sequence, show=True, file=None):
     plt.plot(sequence.to('cpu').detach().numpy())
-    plt.show()
+
+    if file is not None:
+        plt.savefig(file)
+
+    if show:
+        plt.show()
+
+    plt.clf()
 
 
 def play_sound(audio):
