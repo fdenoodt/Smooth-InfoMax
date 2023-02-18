@@ -1,3 +1,5 @@
+# %%
+import soundfile as sf
 import IPython.display as ipd
 from GIM_encoder import GIM_Encoder
 from options import OPTIONS as opt
@@ -17,6 +19,9 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class LogHandler():
+    '''
+    This class handles the logging of the training process.
+    '''
     def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
@@ -139,6 +144,11 @@ def compute_normalizer(train_loader, encoder):
     return transform_norm
 
 
+def det_np(data):
+    ''' convert tensor to numpy '''
+    #detach + numpy
+    return data.to('cpu').detach().numpy()
+
 # def plot_fft():
 #     wave = audios[0][0].to('cpu').numpy()
 #     X = np.fft.fft(wave)
@@ -146,3 +156,26 @@ def compute_normalizer(train_loader, encoder):
 #     plt.figure(figsize=(18, 10))
 #     plt.plot(X_mag)  # magnitude spectrum
 #     plt.xlabel('Frequency (Hz)')
+
+
+def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True):
+    ''' Plot two graphs side by side '''
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.suptitle(title)
+
+    ax1.plot(sequence1)
+    ax2.plot(sequence2)
+
+    if file is not None:
+        create_log_dir(dir)
+        plt.savefig(f"{dir}/{file}")
+
+    if show:
+        plt.show()
+
+    plt.clf()
+
+
+def save_audio(audio, dir, file, sample_rate=16000):
+    create_log_dir(dir)
+    sf.write(f"{dir}/{file}.wav", audio, sample_rate)
