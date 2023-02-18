@@ -201,6 +201,8 @@ def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, ti
         plt.show()
 
     plt.clf()
+    plt.cla()
+    plt.close(fig)
 
 
 def save_audio(audio, dir, file, sample_rate=16000):

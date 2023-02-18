@@ -79,11 +79,13 @@ def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=
 
 if __name__ == "__main__":
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    opt['batch_size'] = 64 + 32
+    opt['batch_size_multiGPU'] = opt['batch_size']
 
     LAYER_DEPTH = 4
     decoder = GimL4Decoder().to(DEVICE)
 
-    CRITERION = "MSE + Spectral Loss FFT=8192 Lambda=6"
+    CRITERION = "MSE + scSpectral Loss FFT=8192 Lambda=1.0000000"
     LR = 0.00001
 
     # did best: lr_0.0001/GIM_L{layer_depth}/model_29.pt"
@@ -91,7 +93,7 @@ if __name__ == "__main__":
 
     ENCODER = GIM_Encoder(opt, layer_depth=LAYER_DEPTH,
                           path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    generate_predictions(ENCODER, CRITERION, LR, LAYER_DEPTH, decoder)
+    generate_predictions(ENCODER, CRITERION, LR, LAYER_DEPTH, decoder, model_nb=4)
 
     # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
     # so huh? that means that a lot of info is already in first channel? what do other 511 channels then contain?
