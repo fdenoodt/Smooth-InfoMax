@@ -193,6 +193,19 @@ class FFTLoss(nn.Module):
 
         return fft_loss
 
+class MSE_AND_FFT_LOSS(nn.Module):
+    def __init__(self, fft_size=10240, lambd=1):
+        super(MSE_AND_FFT_LOSS, self).__init__()
+        self.name = f"MSE + scFFT Loss FFT={fft_size} Lambda={lambd:.7f}"
+        self.mse_loss = nn.MSELoss()
+        self.fft_loss = FFTLoss(fft_size)
+        self.lambd = lambd
+
+    def forward(self, batch_inputs, batch_targets):
+        assert batch_inputs.shape == batch_targets.shape
+        return self.mse_loss(batch_inputs, batch_targets) + (self.lambd * self.fft_loss(batch_inputs, batch_targets))
+
+
 if __name__ == "__main__":
     # (batch_size, 1, 10240)
     rnd = torch.rand((2, 512, 2047)).to(device)  # layer 1
