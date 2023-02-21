@@ -26,9 +26,15 @@ var/
 
 ## do not push heavy files which are created during training to github
 logs/
-datasets/
+*.wav
+*.flac
+*.TXT
 *.pt
+*.bin
+*pkl
+*.tar.gz
 *.ckpt
 *.zip
+*settings.json
 
 *.png
