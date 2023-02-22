@@ -164,6 +164,8 @@ def fft_magnitude(sequence):
     x_mag = np.absolute(x)
     return x_mag
 
+# if 16khz, only 8000 frequencies possible -> sample rate should be twice as large as the highest frequency
+
 
 def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True):
     ''' Plot two graphs side by side '''

@@ -15,6 +15,7 @@
 #     segment.export(f"output_{i}.wav", format="wav")
 import numpy as np
 import math
+from pyparsing import Iterable
 import soundfile as sf
 import librosa
 import matplotlib.pyplot as plt
@@ -72,10 +73,9 @@ def plot_three_graphs_side_by_side(y_1, y_2, y_3, name, save=None, show=True):
 
     if show:
         plt.show()
-    
+
     plt.clf()
     return None
-
 
 
 def chunks(mask, reference_indices, file):
@@ -111,18 +111,51 @@ def chunks(mask, reference_indices, file):
         return indices
 
 
+def threshold_otsu(x: Iterable, *args, **kwargs) -> float:
+    """Find the threshold value for a bimodal histogram using the Otsu method.
+    https://stackoverflow.com/questions/48213278/implementing-otsu-binarization-from-scratch-python
+
+    If you have a distribution that is bimodal (AKA with two peaks, with a valley
+    between them), then you can use this to find the location of that valley, that
+    splits the distribution into two.
+    
+
+    From the SciKit Image threshold_otsu implementation:
+    https://github.com/scikit-image/scikit-image/blob/70fa904eee9ef370c824427798302551df57afa1/skimage/filters/thresholding.py#L312
+    """
+    counts, bin_edges = np.histogram(x, *args, **kwargs)
+    bin_centers = (bin_edges[1:] + bin_edges[:-1]) / 2
+
+    # class probabilities for all possible thresholds
+    weight1 = np.cumsum(counts)
+    weight2 = np.cumsum(counts[::-1])[::-1]
+    # class means for all possible thresholds
+    mean1 = np.cumsum(counts * bin_centers) / weight1
+    mean2 = (np.cumsum((counts * bin_centers)[::-1]) / weight2[::-1])[::-1]
+
+    # Clip ends to align class 1 and class 2 variables:
+    # The last value of ``weight1``/``mean1`` should pair with zero values in
+    # ``weight2``/``mean2``, which do not exist.
+    variance12 = weight1[:-1] * weight2[1:] * (mean1[:-1] - mean2[1:]) ** 2
+
+    idx = np.argmax(variance12)
+    threshold = bin_centers[idx]
+
+    return threshold
+
+
 def main(dir):
     ctr = 1
     for file in glob.glob(f"{dir}/*.wav"):
-        # if(ctr == 2):
-        #     break
+        if(ctr == 20):
+            break
 
         ctr += 1
 
         # eg test\\babibu_1.wav'
         name = file[:-4]  # remove .wav
         name = name.split("\\")[1]  # remove test\\
-        print(name)
+        # print(name)
 
         # if not name == "babada_1":
         #     continue
@@ -138,11 +171,15 @@ def main(dir):
         # sliding window over signal
         # if sr = 22050, window size is 500 = 0.022675736961451247 seconds
         WINDOW_SIZE = int(sr // 44)
-        y_max_sliding_window = np.array(
-            [np.max(y_abs[i:i+WINDOW_SIZE]) for i in range(len(y_abs)-WINDOW_SIZE)])
+        y_max_sliding_window = np.array([np.max(y_abs[i:i+WINDOW_SIZE]) for i in range(len(y_abs)-WINDOW_SIZE)])
+        y_mean_sliding_window = np.array([np.percentile(y_abs[i:i+WINDOW_SIZE], 90) for i in range(len(y_abs)-WINDOW_SIZE)])
 
         # create mask for large jumps
-        mask = np.where(y_max_sliding_window > 0.2, 1, 0)
+        treshold = threshold_otsu(y_mean_sliding_window)
+        print(f"th: {treshold}")
+
+        # treshold = 0.2
+        mask = np.where(y_max_sliding_window > treshold, 1, 0)
         try:
             indices = chunks(mask, reference_indices, file)
         except:
@@ -150,12 +187,19 @@ def main(dir):
             print(f"Error: {file}")
             continue
 
+        # plot(mask, name="idk")
+        # plot(y_max_sliding_window, name="idk")
+        # plot(y_mean_sliding_window, name="idk")
+
+
         y_1 = y[0:indices[0]]
         y_2 = y[indices[0]:indices[1]]
         y_3 = y[indices[1]:]
 
+
         plot(y, name=f"Soundwave {name}", save=file, show=False)
-        plot_three_graphs_side_by_side(y_1, y_2, y_3, name=f"Soundwave - split up {name}", save=file, show=False)
+        plot_three_graphs_side_by_side(
+            y_1, y_2, y_3, name=f"Soundwave - split up {name}", save=file, show=False)
 
         # save using soundfile
         sf.write(f"split up data/{file[:-4]}_1.wav", y_1, sr)
@@ -164,8 +208,12 @@ def main(dir):
 
 
 if __name__ == "__main__":
-    print("Splitting up audio files - test")
-    main("test")
+
 
     print("Splitting up audio files - train")
     main("train")
+
+    print("Splitting up audio files - test")
+    main("test")
+
+# %%
