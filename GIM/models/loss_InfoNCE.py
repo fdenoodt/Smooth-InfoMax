@@ -22,7 +22,8 @@ class InfoNCE_Loss(loss.Loss):
         )
 
         if self.opt["subsample"]:
-            self.subsample_win = 64 #128 #TODO: THINK IF CORRECT
+            # I changed this to 55 because the input is 55*160 = 8800 elements long, so the subsample window is 0.01 sec long
+            self.subsample_win = 55 # 64 #128 #TODO: THINK IF CORRECT
 
         self.loss = nn.LogSoftmax(dim=1)
 
@@ -31,26 +32,15 @@ class InfoNCE_Loss(loss.Loss):
     def get_loss(self, x, z, c, filename=None, start_idx=None):
 
         full_z = z
-        # print("****")
-        # print(z.shape) 
         if self.opt["subsample"]:
-            """ 
-            positive samples are restricted to this subwindow to reduce the number of calculations for the loss, 
-            negative samples can still come from any point of the input sequence (full_z)
-            """
+            # positive samples are restricted to this subwindow to reduce the number of calculations for the loss, 
+            # negative samples can still come from any point of the input sequence (full_z)
             if c.size(1) > self.subsample_win:
                 seq_begin = np.random.randint(0, c.size(1) - self.subsample_win)
-                c = c[:, seq_begin : seq_begin + self.subsample_win, :]
+                c = c[:, seq_begin : seq_begin + self.subsample_win, :] # (b, l, c)
                 z = z[:, seq_begin : seq_begin + self.subsample_win, :]
 
-        # print(z.shape)
-
-        # torch.Size([2, 511, 512]) -> full_z
-        # torch.Size([2, 64, 512]) --> z
-        # torch.Size([2, 64, 6144]) --> Wc
-
         Wc = self.predictor(c)
-        # print(Wc.shape)
         total_loss, accuracies = self.calc_InfoNCE_loss(Wc, z, full_z)
         return total_loss, accuracies
 

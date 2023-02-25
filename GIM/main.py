@@ -40,13 +40,7 @@ def train(opt, model):
 
         loss_epoch = [0 for _ in range(opt["model_splits"])]
 
-        # each item of tuple is returned x batch size
         for step, (audio, filename, _, start_idx) in enumerate(train_loader):
-            # audio is window of size (64 * 441) starting at random time point
-
-            # full audio sound, but its a multiple of 441 (so small part is gone)
-            # print(audio.shape) # eg: [2, 1, 20480] # 2 comes from batch size
-
             if(opt["dont_train"]):
                 if step == 400:
                     break
@@ -60,13 +54,7 @@ def train(opt, model):
 
             if step % print_idx == 0:
                 print(
-                    "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}".format(
-                        epoch + 1,
-                        opt["num_epochs"] + opt["start_epoch"],
-                        step,
-                        total_step,
-                        time.time() - starttime,
-                    )
+                    f"Epoch [{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], Step [{step}/{total_step}], Time (s): {time.time() - starttime:.1f}"
                 )
 
             starttime = time.time()
@@ -79,8 +67,8 @@ def train(opt, model):
                          start_idx, n=opt["train_layer"])
 
             # average over the losses from different GPUs
+            # eg tens([2.3979, 2.3967, 2.3920, 2.3834, 2.3853, 2.3862])
             loss = torch.mean(loss, 0)
-            # print(loss) bv tensor([2.3979, 2.3967, 2.3920, 2.3834, 2.3853, 2.3862], device='cuda:0',
 
             model.zero_grad()
             overall_loss = sum(loss)
@@ -92,7 +80,7 @@ def train(opt, model):
                 loss_epoch[idx] += print_loss
 
                 if step % print_idx == 0:
-                    print("\t \t Loss: \t \t {:.4f}".format(print_loss))
+                    print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
         logs.append_train_loss([x / total_step for x in loss_epoch])
 
@@ -107,7 +95,6 @@ def train(opt, model):
 
 
 if __name__ == "__main__":
-    # added myself
     torch.cuda.empty_cache()
     gc.collect()
 
@@ -128,7 +115,6 @@ if __name__ == "__main__":
     logs = logger.Logger(opt)
 
     # get datasets and dataloaders
-    # train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_libri_dataloaders(
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
         opt
     )

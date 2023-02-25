@@ -51,8 +51,9 @@ def add_padding_to_each_file_in_dir(dir, max_length):
         target_path = f"split up data padded/{audio_file}"
         sf.write(target_path, audio, sr)
 
-        # plt.plot(audio)
-        # plt.show()
+        plt.plot(audio)
+        plt.show()
+        break
 
 
 if __name__ == '__main__':
@@ -70,4 +71,11 @@ if __name__ == '__main__':
     add_padding_to_each_file_in_dir(dir_train, MAX_LENGTH)
     add_padding_to_each_file_in_dir(dir_test, MAX_LENGTH)
 
+
+    # %%
+
+    # load gudugi_1_2_du.wav
+    audio, sr = librosa.load('split up data padded/train/gudugi_1_2_du.wav')
+    plt.plot(audio)
+    plt.show()
 

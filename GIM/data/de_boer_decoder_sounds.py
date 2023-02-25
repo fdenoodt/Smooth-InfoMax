@@ -35,7 +35,7 @@ def default_flist_reader(flist):
 
 
 class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
-    def __init__(self, opt, root, directory="train", audio_length=64 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
+    def __init__(self, opt, root, directory="train", audio_length=55 * 160, loader=default_loader, background_noise=False, white_guassian_noise=False, target_sample_rate=16000, background_noise_path=None):
         super().__init__(opt, root, directory, audio_length, loader,
                          background_noise, white_guassian_noise, target_sample_rate, background_noise_path)
 
