@@ -26,6 +26,7 @@ from validation import val_by_InfoNCELoss
 
 
 def train(opt, model):
+    '''Train the model'''
     total_step = len(train_loader)
 
     # how often to output training values
@@ -140,14 +141,6 @@ if __name__ == "__main__":
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
-
-
-# # %%
-# from IPython.display import Audio
-# Audio(temp[1], rate=16000)
-
-# # %%
-
 
 
 # %%

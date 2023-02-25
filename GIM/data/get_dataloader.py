@@ -6,6 +6,8 @@ from data import librispeech
 from data import de_boer_sounds
 from data import de_boer_decoder_sounds
 
+NUM_WORKERS = 1
+
 
 def get_libri_dataloaders(opt):
     """
@@ -15,9 +17,6 @@ def get_libri_dataloaders(opt):
     :return: train_loader, train_dataset,
     test_loader, test_dataset - corresponds to validation or test set depending on opt["validate"]
     """
-    num_workers = 1
-    # num_workers = 16
-
     if opt["validate"]:
         print("Using Train / Val Split")
         train_dataset = librispeech.LibriDataset(
@@ -71,7 +70,7 @@ def get_libri_dataloaders(opt):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=True,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -79,7 +78,7 @@ def get_libri_dataloaders(opt):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=False,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     return train_loader, train_dataset, test_loader, test_dataset
@@ -93,18 +92,16 @@ def get_de_boer_sounds_data_loaders(opt):
     :return: train_loader, train_dataset,
     test_loader, test_dataset - corresponds to validation or test set depending on opt["validate"]
     """
-    num_workers = 1
-
     print("Using Train+Val / Test Split")
     train_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
-            "gigabo"),
+            "corpus"),
         directory="train",
 
         # ONLY NOISE FOR TRAINING DATASETS!
-        background_noise=True, white_guassian_noise=True, 
+        background_noise=True, white_guassian_noise=True,
         background_noise_path=os.path.join(
             opt["data_input_dir"],
             "musan")
@@ -114,7 +111,7 @@ def get_de_boer_sounds_data_loaders(opt):
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
-            "gigabo",
+            "corpus",
         ),
         directory="test",
     )
@@ -124,7 +121,7 @@ def get_de_boer_sounds_data_loaders(opt):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=True,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -132,7 +129,51 @@ def get_de_boer_sounds_data_loaders(opt):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=False,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
+    )
+
+    return train_loader, train_dataset, test_loader, test_dataset
+
+
+def get_de_boer_sounds_split_data_loaders(opt):
+    ''' Retrieve dataloaders where audio signals are split into syllables'''
+
+    train_dataset = de_boer_sounds.DeBoerDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"], "corpus/split up data"
+        ),
+        directory="train",
+
+        # ONLY NOISE FOR TRAINING DATASETS!
+        background_noise=True, white_guassian_noise=True,
+        background_noise_path=os.path.join(
+            opt["data_input_dir"],
+            "musan")
+    )
+
+    test_dataset = de_boer_sounds.DeBoerDataset(
+        opt=opt,
+        root=os.path.join(
+            opt["data_input_dir"], "corpus/split up data",
+        ),
+        directory="test",
+    )
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset=train_dataset,
+        batch_size=opt["batch_size_multiGPU"],
+        shuffle=True,
+        drop_last=True,
+        num_workers=NUM_WORKERS,
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        dataset=test_dataset,
+        batch_size=opt["batch_size_multiGPU"],
+        shuffle=False,
+        drop_last=True,
+        num_workers=NUM_WORKERS,
     )
 
     return train_loader, train_dataset, test_loader, test_dataset
@@ -146,14 +187,12 @@ def get_de_boer_sounds_decoder_data_loaders(opt, shuffle=True):
     :return: train_loader, train_dataset,
     test_loader, test_dataset - corresponds to validation or test set depending on opt["validate"]
     """
-    num_workers = 1
-
     print("Using Train+Val / Test Split")
     train_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
-            "gigabo",
+            "corpus",
         ),
         directory="train"
     )
@@ -163,14 +202,14 @@ def get_de_boer_sounds_decoder_data_loaders(opt, shuffle=True):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=shuffle,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     test_dataset = de_boer_decoder_sounds.DeBoerDecoderDataset(
         opt=opt,
         root=os.path.join(
             opt["data_input_dir"],
-            "gigabo",
+            "corpus",
         ),
         directory="test"
     )
@@ -180,7 +219,7 @@ def get_de_boer_sounds_decoder_data_loaders(opt, shuffle=True):
         batch_size=opt["batch_size_multiGPU"],
         shuffle=shuffle,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     return train_loader, train_dataset, test_loader, test_dataset,

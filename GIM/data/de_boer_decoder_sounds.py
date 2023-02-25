@@ -74,7 +74,7 @@ class DeBoerDecoderDataset(de_boer_sounds.DeBoerDataset):
 #     opt=opt,
 #     root=os.path.join(
 #         opt["data_input_dir"],
-#         "gigabo",
+#         "corpus",
 #     ),
 #     directory="train"
 # )

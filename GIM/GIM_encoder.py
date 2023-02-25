@@ -89,7 +89,7 @@ if __name__=="__main__":
 #         opt=opt,
 #         root=os.path.join(
 #             opt["data_input_dir"],
-#             "gigabo",
+#             "corpus",
 #         ),
 #         directory="train"
 #     )

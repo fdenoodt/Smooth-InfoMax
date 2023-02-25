@@ -101,7 +101,7 @@ for idx, file in enumerate(file_list):
 
 # %%
 audio, _ = default_loader(
-    "C:/GitHub/thesis-fabian-denoodt/GIM/datasets/gigabo/train/bababi_1.wav")
+    "C:/GitHub/thesis-fabian-denoodt/GIM/datasets/corpus/train/bababi_1.wav")
 
 print(audio[0])
 print(audio.shape)
@@ -116,7 +116,7 @@ np.mean(audio[0].to('cpu').numpy())
 
 # %%
 
-waveform, sample_rate = torchaudio.load(r'C:/GitHub/thesis-fabian-denoodt/GIM/datasets/gigabo/train/bababi_1.wav', normalize=True)
+waveform, sample_rate = torchaudio.load(r'C:/GitHub/thesis-fabian-denoodt/GIM/datasets/corpus/train/bababi_1.wav', normalize=True)
 new = torchaudio.functional.resample(waveform, orig_freq=sample_rate, new_freq=16000)
 
 print(waveform.shape)
