@@ -37,6 +37,7 @@ def compute_padding_length(dir):
     return max_length, name
 
 def add_padding_to_each_file_in_dir(dir, max_length):
+    ''' Add padding to each audio file in a directory'''
     # for each file in the train and test directories, pad the audio to the max length and save it
     for audio_file in glob.glob(f"{dir}/*.wav"):
         # eg: audio_file = 'split up data/train\\bababa_1_1_ba.wav'
