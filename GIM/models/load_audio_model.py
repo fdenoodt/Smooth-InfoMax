@@ -13,7 +13,10 @@ def load_model_and_optimizer(
     strides = [5, 4, 2, 2, 2]
     padding = [2, 2, 2, 2, 1]
     enc_hidden = 512
-    reg_hidden = 256
+
+    assert len(kernel_sizes) == len(strides) == len(padding) == opt["model_splits"] - 1, (
+        "Inconsistent size of network parameters (kernels, strides and padding)"
+    )
 
     # Initialize model.
     model = full_model.FullModel(
@@ -22,7 +25,6 @@ def load_model_and_optimizer(
         strides=strides,
         padding=padding,
         enc_hidden=enc_hidden,
-        reg_hidden=reg_hidden,
         calc_accuracy=calc_accuracy,
     )
 
@@ -30,11 +32,13 @@ def load_model_and_optimizer(
     if opt["loss"] == 2 or opt["loss"] == 1:
         num_GPU = 1
 
-    model, num_GPU = model_utils.distribute_over_GPUs(opt, model, num_GPU=num_GPU)
+    model, num_GPU = model_utils.distribute_over_GPUs(
+        opt, model, num_GPU=num_GPU)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['learning_rate'])
 
-    model, optimizer = model_utils.reload_weights(opt, model, optimizer, reload_model)
+    model, optimizer = model_utils.reload_weights(
+        opt, model, optimizer, reload_model)
 
     model.train()
     print(model)

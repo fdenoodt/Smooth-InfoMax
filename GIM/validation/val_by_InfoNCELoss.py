@@ -4,7 +4,10 @@ import time
 def val_by_InfoNCELoss(opt, model, test_loader):
     total_step = len(test_loader)
 
-    loss_epoch = [0 for i in range(opt["model_splits"])]
+    # todo: - 1 is temporary as there is no FC layer yet
+    model_splits = opt["model_splits"] - 1
+
+    loss_epoch = [0 for i in range(model_splits)]
     starttime = time.time()
 
     for step, (audio, _, _, _) in enumerate(test_loader):
@@ -16,7 +19,7 @@ def val_by_InfoNCELoss(opt, model, test_loader):
 
         loss_epoch += loss.data.cpu().numpy()
 
-    for i in range(opt["model_splits"]):
+    for i in range(model_splits): 
         print(
             "Validation Loss Model {}: Time (s): {:.1f} --- {:.4f}".format(
                 i, time.time() - starttime, loss_epoch[i] / total_step

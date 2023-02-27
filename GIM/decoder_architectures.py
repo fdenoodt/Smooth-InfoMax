@@ -118,7 +118,7 @@ class GimL1Decoder(GimDecoder):
 
 class SpectralLoss(nn.Module):
     # aided by ChatGPT
-    def __init__(self, n_fft=1024):
+    def __init__(self, n_fft=1024): # should be higher than signal length
         super(SpectralLoss, self).__init__()
         self.name = f"Spectral Loss FFT={n_fft}"
         self.n_fft = n_fft

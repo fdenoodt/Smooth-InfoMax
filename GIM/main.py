@@ -1,7 +1,4 @@
 # %%
-
-# import importlib
-
 import torch
 import time
 import numpy as np
@@ -16,13 +13,6 @@ from models import load_audio_model
 from data import get_dataloader
 from validation import val_by_latent_speakers
 from validation import val_by_InfoNCELoss
-
-# importlib.reload(logger)
-# importlib.reload(arg_parser)
-# importlib.reload(load_audio_model)
-# importlib.reload(get_dataloader)
-# importlib.reload(val_by_latent_speakers)
-# importlib.reload(val_by_InfoNCELoss)
 
 
 def train(opt, model):
@@ -86,8 +76,7 @@ def train(opt, model):
 
         # validate by testing the CPC performance on the validation set
         if opt["validate"]:
-            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(
-                opt, model, test_loader)
+            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
         if(epoch % opt['log_every_x_epochs'] == 0):

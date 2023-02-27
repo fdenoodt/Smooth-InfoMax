@@ -1,9 +1,8 @@
 import torch.nn as nn
 
-
-class Encoder(nn.Module):
+class CNNEncoder(nn.Module):
     def __init__(self, input_dim, hidden, kernel_sizes, strides, padding):
-        super(Encoder, self).__init__()
+        super(CNNEncoder, self).__init__()
 
         self.hidden = hidden
 
@@ -13,9 +12,9 @@ class Encoder(nn.Module):
 
         self.model = nn.Sequential()
 
-        for idx in range(len(kernel_sizes)):
+        for idx, _ in enumerate(kernel_sizes):
             self.model.add_module(
-                "layer {}".format(idx),
+                f"layer {idx}",
                 self.new_block(
                     input_dim,
                     self.hidden,
@@ -36,31 +35,6 @@ class Encoder(nn.Module):
         return new_block
 
     def forward(self, x):
-        # print("****")
-        # self.model.eval()
-      
-        # print(self.model)
-
-        # for i, module in enumerate(self.model.modules()):
-        #     if isinstance(module, (nn.Conv1d, nn.Linear)):
-        #         print("Layer ", i)
-        #         print("Weights: ", module.weight)
-        #         print("Bias: ", module.bias)
-        #     else:
-        #         print("no")
-                
-        # # for layer in self.model:
-        # #     w = layer.weight.item()
-        # #     bias = layer.bias.item()
-    
-        # # for i, layer in enumerate(self.model):
-        # #     print("Layer ", i)
-        # #     print("Weights: ", layer.weight)
-        # #     print("Bias: ", layer.bias)
-            
-    
-
-
         return self.model(x)
 
     def forward_through_n_layers(self, x, n):

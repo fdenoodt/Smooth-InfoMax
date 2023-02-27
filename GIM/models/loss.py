@@ -6,5 +6,5 @@ class Loss(nn.Module):
         super(Loss, self).__init__()
 
     @abstractmethod
-    def get_loss(self, x, z, c, filename, start_idx):
+    def get_loss(self, z):
         pass

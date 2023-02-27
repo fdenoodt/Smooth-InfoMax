@@ -18,30 +18,28 @@ class InfoNCE_Loss(loss.Loss):
 
         # predict self.opt["prediction_step"] timesteps into the future
         self.predictor = nn.Linear(
-            self.hidden_dim, self.enc_hidden * self.opt["prediction_step"], bias=False
+            self.hidden_dim, self.hidden_dim * self.opt["prediction_step"], bias=False
         )
 
         if self.opt["subsample"]:
             # I changed this to 55 because the input is 55*160 = 8800 elements long, so the subsample window is 0.01 sec long
-            self.subsample_win = 55 # 64 #128 #TODO: THINK IF CORRECT
+            self.subsample_win = 55  # 64 #128 #TODO: THINK IF CORRECT
 
         self.loss = nn.LogSoftmax(dim=1)
 
-    # eg: x = torch.Size([2, 1, 10240]) z = torch.Size([2, 2047, 512]) c = torch.Size([2, 2047, 512])
-    # x, z, c can have other dimensions too!
-    def get_loss(self, x, z, c, filename=None, start_idx=None):
-
+    def get_loss(self, z):
         full_z = z
         if self.opt["subsample"]:
-            # positive samples are restricted to this subwindow to reduce the number of calculations for the loss, 
+            # positive samples are restricted to this subwindow to reduce the number of calculations for the loss,
             # negative samples can still come from any point of the input sequence (full_z)
-            if c.size(1) > self.subsample_win:
-                seq_begin = np.random.randint(0, c.size(1) - self.subsample_win)
-                c = c[:, seq_begin : seq_begin + self.subsample_win, :] # (b, l, c)
-                z = z[:, seq_begin : seq_begin + self.subsample_win, :]
+            if z.size(1) > self.subsample_win:
+                seq_begin = np.random.randint(
+                    0, z.size(1) - self.subsample_win)
+                z = z[:, seq_begin: seq_begin +
+                      self.subsample_win, :]  # (b, l, c)
 
-        Wc = self.predictor(c)
-        total_loss, accuracies = self.calc_InfoNCE_loss(Wc, z, full_z)
+        Wz = self.predictor(z)
+        total_loss, accuracies = self.calc_InfoNCE_loss(Wz, z, full_z)
         return total_loss, accuracies
 
     def broadcast_batch_length(self, input_tensor):
@@ -56,17 +54,17 @@ class InfoNCE_Loss(loss.Loss):
 
         return input_tensor.reshape(-1, input_tensor.size(2))
 
-    def get_pos_sample_f(self, Wc_k, z_k):
+    def get_pos_sample_f(self, Wz_k, z_k):
         """
         calculate the output of the log-bilinear model for the positive samples, i.e. where z_k is the actual
         encoded future that had to be predicted
-        :param Wc_k: prediction of the network for the encoded future at time-step t+k (dimensions: (B*L) x C)
+        :param Wz_k: prediction of the network for the encoded future at time-step t+k (dimensions: (B*L) x C)
         :param z_k: encoded future at time-step t+k (dimensions: (B*L) x C)
         :return: f_k, output of the log-bilinear model (without exp, as this is part of the log-softmax function)
         """
-        Wc_k = Wc_k.unsqueeze(1)
+        Wz_k = Wz_k.unsqueeze(1)
         z_k = z_k.unsqueeze(2)
-        f_k = torch.squeeze(torch.matmul(Wc_k, z_k), 1)
+        f_k = torch.squeeze(torch.matmul(Wz_k, z_k), 1)
         return f_k
 
     def get_neg_z(self, z, cur_device):
@@ -92,7 +90,8 @@ class InfoNCE_Loss(loss.Loss):
                 )
                 + offset
             )
-            rand_offset = rand_offset.reshape(self.neg_samples, -1).to(cur_device)
+            rand_offset = rand_offset.reshape(
+                self.neg_samples, -1).to(cur_device)
 
             z_neg = torch.stack(
                 [
@@ -107,7 +106,7 @@ class InfoNCE_Loss(loss.Loss):
             """ randomly selecting from all z values; 
                 can cause positive samples to be selected as negative samples as well 
                 (but probability is <0.1% in our experiments)
-                done once for all time-steps, much faster                
+                done once for all time-steps, much faster
             """
             z = self.broadcast_batch_length(z)
             z_neg = torch.stack(
@@ -138,8 +137,10 @@ class InfoNCE_Loss(loss.Loss):
             )
             if self.opt["subsample"]:
                 if z_neg.size(1) > self.subsample_win:
-                    seq_begin = np.random.randint(0, z_neg.size(1) - self.subsample_win)
-                    z_neg = z_neg[:, seq_begin : seq_begin + self.subsample_win, :, :]
+                    seq_begin = np.random.randint(
+                        0, z_neg.size(1) - self.subsample_win)
+                    z_neg = z_neg[:, seq_begin: seq_begin +
+                                  self.subsample_win, :, :]
             rand_neg_idx = None
             rand_offset = None
 
@@ -148,15 +149,15 @@ class InfoNCE_Loss(loss.Loss):
 
         return z_neg, rand_neg_idx, rand_offset
 
-    def get_neg_samples_f(self, Wc_k, z_k, device, z_neg=None, k=None):
+    def get_neg_samples_f(self, Wz_k, z_k, device, z_neg=None, k=None):
         """
         calculate the output of the log-bilinear model for the negative samples. For this, we get z_k_neg from z_k
         by randomly shuffling the indices.
-        :param Wc_k: prediction of the network for the encoded future at time-step t+k (dimensions: (B*L) x C)
+        :param Wz_k: prediction of the network for the encoded future at time-step t+k (dimensions: (B*L) x C)
         :param z_k: encoded future at time-step t+k (dimensions: (B*L) x C)
         :return: f_k, output of the log-bilinear model (without exp, as this is part of the log-softmax function)
         """
-        Wc_k = Wc_k.unsqueeze(1)
+        Wz_k = Wz_k.unsqueeze(1)
 
         if self.opt['sampling_method'] == 0:
             z_k_neg, _, _ = self.get_neg_z(z_k, device)
@@ -169,7 +170,7 @@ class InfoNCE_Loss(loss.Loss):
                 (e.g. negative samples for projecting from z_t to z_(t+k+1) 
                 and from z_(t+1) to z_(t+k) are the same)                
             """
-            z_k_neg = z_neg[z_neg.size(0) - Wc_k.size(0) :, :, :]
+            z_k_neg = z_neg[z_neg.size(0) - Wz_k.size(0):, :, :]
 
         elif self.opt['sampling_method'] == 2:
             z_k_neg = z_neg[:, k:, :]
@@ -178,14 +179,14 @@ class InfoNCE_Loss(loss.Loss):
         else:
             raise Exception("Invalid sampling_method option")
 
-        f_k = torch.squeeze(torch.matmul(Wc_k, z_k_neg), 1)
+        f_k = torch.squeeze(torch.matmul(Wz_k, z_k_neg), 1)
 
         return f_k
 
-    def calc_InfoNCE_loss(self, Wc, z, full_z=None):
+    def calc_InfoNCE_loss(self, Wz, z, full_z=None):
         """
-        calculate the loss based on the model outputs Wc (the prediction) and z (the encoded future)
-        :param Wc: output of the predictor, where W are the weights for the different timesteps and
+        calculate the loss based on the model outputs Wz (the prediction) and z (the encoded future)
+        :param Wz: output of the predictor, where W are the weights for the different timesteps and
         c the latent representation (either from the autoregressor, if use_autoregressor=True,
         or from the encoder otherwise) - dimensions: (B, L, C*self.opt["prediction_step"])
         :param z: encoded future - output of the encoder - dimensions: (B, L, C)
@@ -193,7 +194,7 @@ class InfoNCE_Loss(loss.Loss):
                     accuracies - average accuracies over all samples, timesteps and predictions steps in the batch
         """
         seq_len = z.size(1)
-        cur_device = utils.get_device(self.opt, Wc)
+        cur_device = utils.get_device(self.opt, Wz)
         total_loss = 0
         accuracies = torch.zeros(self.opt["prediction_step"], 1)
         true_labels = torch.zeros(
@@ -207,20 +208,21 @@ class InfoNCE_Loss(loss.Loss):
 
         for k in range(1, self.opt["prediction_step"] + 1):
             z_k = z[:, k:, :]
-            Wc_k = Wc[:, :-k, (k - 1) * self.enc_hidden : k * self.enc_hidden]
+            Wz_k = Wz[:, :-k, (k - 1) * self.enc_hidden: k * self.enc_hidden]
 
             z_k = self.broadcast_batch_length(z_k)
-            Wc_k = self.broadcast_batch_length(Wc_k)
+            Wz_k = self.broadcast_batch_length(Wz_k)
 
-            pos_samples = self.get_pos_sample_f(Wc_k, z_k)
-            neg_samples = self.get_neg_samples_f(Wc_k, z_k, cur_device, z_neg, k)
-            
+            pos_samples = self.get_pos_sample_f(Wz_k, z_k)
+            neg_samples = self.get_neg_samples_f(
+                Wz_k, z_k, cur_device, z_neg, k)
+
             # print(pos_samples.shape) #eg: [110, 1]
             # print(neg_samples.shape) #eg: [110, 10] -> the 110 can differ (114, 116, 120, ...)
 
             # concatenate positive and negative samples
-            results = torch.cat((pos_samples, neg_samples), 1) # eg: [110, 11]
-            loss = self.loss(results)[:, 0] # eg: [110]
+            results = torch.cat((pos_samples, neg_samples), 1)  # eg: [110, 11]
+            loss = self.loss(results)[:, 0]  # eg: [110]
 
             total_samples = (seq_len - k) * self.opt["batch_size"]
             loss = -loss.sum() / total_samples
@@ -230,7 +232,8 @@ class InfoNCE_Loss(loss.Loss):
             if self.calc_accuracy:
                 predicted = torch.argmax(results, 1)
                 correct = (
-                    (predicted == true_labels[: (seq_len - k) * self.opt["batch_size"]])
+                    (predicted == true_labels[: (
+                        seq_len - k) * self.opt["batch_size"]])
                     .sum()
                     .item()
                 )

@@ -1,88 +1,38 @@
-import torch
+# pylint: disable=Missing class docstringpylint(missing-class-docstring)
+
+
 import torch.nn as nn
 
 from models import (
-    autoregressor,
-    encoder,
+    cnn_encoder,
     loss_InfoNCE,
-    loss_supervised_phones,
-    # loss_supervised_speaker, # fixes circular dependency
 )
 
 class IndependentModule(nn.Module):
     def __init__(
         self, opt,
-        enc_kernel_sizes, enc_strides, enc_padding, enc_hidden, reg_hidden,
-        enc_input=1,
-        use_autoregressive=True,
-        use_encoder=True,
-        calc_accuracy=False,
+        # hidden either for cnn or fully connected
+        enc_kernel_sizes, enc_strides, enc_padding, hidden_dim, enc_input=1, calc_accuracy=False,
     ):
         super(IndependentModule, self).__init__()
 
         self.opt = opt
-        self.use_autoregressive = use_autoregressive
-        self.use_encoder = use_encoder
         self.calc_accuracy = calc_accuracy
 
-        assert (
-            self.use_autoregressive or self.use_encoder
-        ), "No parts of the model left!"
-
         # encoder
-        if self.use_encoder:
-            self.encoder = encoder.Encoder(
-                input_dim=enc_input,
-                hidden=enc_hidden,
-                kernel_sizes=enc_kernel_sizes,
-                strides=enc_strides,
-                padding=enc_padding,
-            )
-        self.enc_hidden = enc_hidden
-
-        # autoregressor
-        if self.use_autoregressive:
-            self.hidden_dim = reg_hidden
-            self.autoregressor = autoregressor.Autoregressor(
-                opt=opt, input_size=self.enc_hidden, hidden_dim=self.hidden_dim
-            )
-        else:
-            self.hidden_dim = enc_hidden
-
-        # different loss functions
-        if self.opt["loss"] == 0:  # InfoNCE loss
-            self.loss = loss_InfoNCE.InfoNCE_Loss(
-                opt, self.hidden_dim, self.enc_hidden, calc_accuracy
-            )
-
-        elif self.opt["loss"] == 1:  # supervised loss using the phone labels
-            self.loss = loss_supervised_phones.Phones_Loss(
-                opt, self.hidden_dim, calc_accuracy
-            )
-
-        elif self.opt["loss"] == 2:   # supervised loss using the phone labels
-            raise Exception("todo - fabian")
-            # self.loss = loss_supervised_speaker.Speaker_Loss(
-            #     opt, self.hidden_dim, calc_accuracy
-            # )
-        else:
-            raise Exception("Invalid option passed for opt['loss']")
-
-    def get_latent_seq_len(self, input_size):
-        r"""
-        Returns the size of the latent representation based on an input of size input_size
-        :return: size of the corresponding latent representation c, where c is the output of the autoregressor if
-        use_autoregressor=True, or the output of the encoder otherwise,
-        latent representation size: C and latent sequence length L
-        """
-        model_input = torch.zeros(input_size, device=self.opt["device"])
-        c, z = self.get_latents(model_input)
-        return (
-            c.size(2),
-            c.size(1),
+        self.encoder = cnn_encoder.CNNEncoder(
+            input_dim=enc_input,
+            hidden=hidden_dim,
+            kernel_sizes=enc_kernel_sizes,
+            strides=enc_strides,
+            padding=enc_padding,
         )
+        self.hidden_dim = hidden_dim
+        
+        self.loss = loss_InfoNCE.InfoNCE_Loss(opt, self.hidden_dim, self.hidden_dim, calc_accuracy)
+        # self.loss = loss_InfoNCE.InfoNCE_Loss(opt, self.hidden_dim, self.enc_hidden, calc_accuracy)
 
-    def get_latents(self, x, calc_autoregressive=True):
+    def get_latents(self, x):
         """
         Calculate the latent representation of the input (using both the encoder and the autoregressive model)
         :param x: batch with sampled audios (dimensions: B x C x L)
@@ -92,29 +42,12 @@ class IndependentModule(nn.Module):
                 both of dimensions: B x L x C
         """
         # encoder in and out: B x C x L, permute to be  B x L x C
-        if self.use_encoder:
-            z = self.encoder(x)
-        else:
-            z = x
-
-        # print("****")
-        # print(z.shape) 
+        z = self.encoder(x)
         z = z.permute(0, 2, 1)
-        # print(z.shape)
-        # eg: org shape: [2, 512, 64] -> [2, 64, 512]
 
-        if self.use_autoregressive and calc_autoregressive:
-            c = self.autoregressor(z)
-        else:
-            c = z
+        return z
 
-        return c, z
-
-    # bv: x = [2, 1, 20480]
-    #     filename = [a, b]
-    #     start_idx = [a, b]
-    #     n=6
-    def forward(self, x, filename=None, start_idx=None):
+    def forward(self, x):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
         :param x: batch with sampled audios (dimensions: B x C x L)
@@ -125,22 +58,14 @@ class IndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        c, z = self.get_latents(x) # c = z
+        z = self.get_latents(x)
 
-        
-        # print("****")
-        # print(x.shape, c.shape, z.shape)
-        # Can have the following outputs:
-        # torch.Size([2, 1, 10240]) torch.Size([2, 2047, 512]) torch.Size([2, 2047, 512])
-        # torch.Size([2, 512, 2047]) torch.Size([2, 511, 512]) torch.Size([2, 511, 512]) 
-        # torch.Size([2, 512, 511]) torch.Size([2, 256, 512]) torch.Size([2, 256, 512]) 
-        # torch.Size([2, 512, 256]) torch.Size([2, 129, 512]) torch.Size([2, 129, 512])
-        # torch.Size([2, 512, 64]) torch.Size([2, 64, 256]) torch.Size([2, 64, 512])
-        total_loss, accuracies = self.loss.get_loss(
-            x, z, c, filename, start_idx)
+        total_loss, accuracies = self.loss.get_loss(z)
 
         # for multi-GPU training
         total_loss = total_loss.unsqueeze(0)
         accuracies = accuracies.unsqueeze(0)
 
-        return total_loss, accuracies, c, z
+        return total_loss, accuracies, z
+        # todo: fix functions that call forward, they no longer receive a c
+    
