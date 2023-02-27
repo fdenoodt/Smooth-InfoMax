@@ -4,8 +4,7 @@ import time
 def val_by_InfoNCELoss(opt, model, test_loader):
     total_step = len(test_loader)
 
-    # todo: - 1 is temporary as there is no FC layer yet
-    model_splits = opt["model_splits"] - 1
+    model_splits = opt["model_splits"]
 
     loss_epoch = [0 for i in range(model_splits)]
     starttime = time.time()

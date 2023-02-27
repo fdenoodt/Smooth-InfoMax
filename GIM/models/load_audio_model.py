@@ -14,9 +14,10 @@ def load_model_and_optimizer(
     padding = [2, 2, 2, 2, 1]
     enc_hidden = 512
 
-    assert len(kernel_sizes) == len(strides) == len(padding) == opt["model_splits"] - 1, (
-        "Inconsistent size of network parameters (kernels, strides and padding)"
-    )
+    if opt["model_splits"] > 1:
+        assert len(kernel_sizes) == len(strides) == len(padding) == opt["model_splits"], (
+            "Inconsistent size of network parameters (kernels, strides and padding)"
+        )
 
     # Initialize model.
     model = full_model.FullModel(

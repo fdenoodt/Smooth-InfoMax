@@ -39,7 +39,7 @@ class FullModel(nn.Module):
                 )
             )
         elif (
-            self.opt["model_splits"] == 6
+            self.opt["model_splits"] == 5
         ):  # GIM model in which the last autoregressive layer is trained independently
             enc_input = 1
             for i, _ in enumerate(kernel_sizes):
@@ -59,7 +59,7 @@ class FullModel(nn.Module):
         else:
             raise Exception("Invalid option for opt['model_splits']")
 
-    def forward(self, x, filename=None, start_idx=None, n=6):
+    def forward(self, x):
         model_input = x
 
         cur_device = utils.get_device(self.opt, x)
@@ -68,10 +68,9 @@ class FullModel(nn.Module):
         loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
-        if n == 6:  # train all layers at once
-            for idx, layer in enumerate(self.fullmodel):
-                loss[:, idx], accuracy[:, idx], z = layer(model_input)
-                model_input = z.permute(0, 2, 1).detach()
+        for idx, layer in enumerate(self.fullmodel):
+            loss[:, idx], accuracy[:, idx], z = layer(model_input)
+            model_input = z.permute(0, 2, 1).detach()
 
         return loss
     

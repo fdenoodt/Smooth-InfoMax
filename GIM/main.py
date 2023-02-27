@@ -53,8 +53,7 @@ def train(opt, model):
 
             # calls full_model.py > forward
             # Loss is based on 2 audio samples (batch size = 2)
-            loss = model(model_input, filename,
-                         start_idx, n=opt["train_layer"])
+            loss = model(model_input)
 
             # average over the losses from different GPUs
             # eg tens([2.3979, 2.3967, 2.3920, 2.3834, 2.3853, 2.3862])

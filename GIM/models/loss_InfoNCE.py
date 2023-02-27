@@ -23,7 +23,7 @@ class InfoNCE_Loss(loss.Loss):
 
         if self.opt["subsample"]:
             # I changed this to 55 because the input is 55*160 = 8800 elements long, so the subsample window is 0.01 sec long
-            self.subsample_win = 55  # 64 #128 #TODO: THINK IF CORRECT
+            self.subsample_win = 55  # 64
 
         self.loss = nn.LogSoftmax(dim=1)
 
