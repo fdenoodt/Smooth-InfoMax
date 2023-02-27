@@ -12,6 +12,7 @@ def load_model_and_optimizer(
     kernel_sizes = [10, 8, 4, 4, 4]
     strides = [5, 4, 2, 2, 2]
     padding = [2, 2, 2, 2, 1]
+
     enc_hidden = 512
 
     if opt["model_splits"] > 1:

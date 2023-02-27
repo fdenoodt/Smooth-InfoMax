@@ -24,7 +24,6 @@ class GIM_Encoder():
         strides = [5, 4, 2, 2, 2]
         padding = [2, 2, 2, 2, 1]
         enc_hidden = 512
-        reg_hidden = 256
 
         calc_accuracy = False
         num_GPU = None
@@ -36,7 +35,6 @@ class GIM_Encoder():
             strides=strides,
             padding=padding,
             enc_hidden=enc_hidden,
-            reg_hidden=reg_hidden,
             calc_accuracy=calc_accuracy,
         )
 

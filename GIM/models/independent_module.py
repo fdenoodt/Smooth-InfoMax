@@ -21,8 +21,8 @@ class IndependentModule(nn.Module):
 
         # encoder
         self.encoder = cnn_encoder.CNNEncoder(
-            input_dim=enc_input,
-            hidden=hidden_dim,
+            inp_nb_channels=enc_input,
+            out_nb_channels=hidden_dim,
             kernel_sizes=enc_kernel_sizes,
             strides=enc_strides,
             padding=enc_padding,
@@ -67,5 +67,4 @@ class IndependentModule(nn.Module):
         accuracies = accuracies.unsqueeze(0)
 
         return total_loss, accuracies, z
-        # todo: fix functions that call forward, they no longer receive a c
-    
+

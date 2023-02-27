@@ -1,10 +1,11 @@
 import torch.nn as nn
 
+
 class CNNEncoder(nn.Module):
-    def __init__(self, input_dim, hidden, kernel_sizes, strides, padding):
+    def __init__(self, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding):
         super(CNNEncoder, self).__init__()
 
-        self.hidden = hidden
+        self.nb_channels = out_nb_channels
 
         assert (
             len(kernel_sizes) == len(strides) == len(padding)
@@ -16,14 +17,14 @@ class CNNEncoder(nn.Module):
             self.model.add_module(
                 f"layer {idx}",
                 self.new_block(
-                    input_dim,
-                    self.hidden,
+                    inp_nb_channels,
+                    self.nb_channels,
                     kernel_sizes[idx],
                     strides[idx],
                     padding[idx],
                 ),
             )
-            input_dim = self.hidden
+            inp_nb_channels = self.nb_channels
 
     def new_block(self, in_dim, out_dim, kernel_size, stride, padding):
         new_block = nn.Sequential(
@@ -36,8 +37,3 @@ class CNNEncoder(nn.Module):
 
     def forward(self, x):
         return self.model(x)
-
-    def forward_through_n_layers(self, x, n):
-        for i in range(n):
-            x = self.model[i](x)
-        return x
