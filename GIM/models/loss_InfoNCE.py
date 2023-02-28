@@ -142,10 +142,7 @@ class InfoNCE_Loss(loss.Loss):
             (seq_len * self.opt['batch_size'],), device=cur_device
         ).long()
 
-        if self.opt['sampling_method'] == 1 or self.opt['sampling_method'] == 2:
-            z_neg, _, _ = self.get_neg_z(full_z, cur_device)
-        else:
-            z_neg = None
+        z_neg, _, _ = self.get_neg_z(full_z, cur_device)
 
         for k in range(1, self.opt['prediction_step'] + 1):
             z_k = z[:, k:, :]

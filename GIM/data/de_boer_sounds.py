@@ -116,8 +116,7 @@ class DeBoerDataset(Dataset):
         # 16,000 samples per sec
         # 160 samples = 0.01 sec (10 ms)
         # 8821 // 160 = 55
-        audio_length=55 * 160, # -> 8800 elements
-        # 64 is used in subsample in InfoNCE loss
+        audio_length=55 * 160,  # -> 8800 elements # 64 is used in subsample in InfoNCE loss
         loader=default_loader,
         background_noise=False,
         white_guassian_noise=False,
@@ -132,7 +131,7 @@ class DeBoerDataset(Dataset):
 
         files = os.listdir(f"{root}/{directory}")
         # the Nones correspond to speaker_id and dir_id --> see default flist reader
-        self.file_list = [(0, directory, fname.split(".wav")[0])
+        self.file_list = [(directory, fname.split(".wav")[0])
                           for fname in files]
 
         self.loader = loader
@@ -147,8 +146,12 @@ class DeBoerDataset(Dataset):
                 and background_noise) or not(background_noise)
 
     def __getitem__(self, index):
-        speaker_id, dir_id, sample_id = self.file_list[index]
-        filename = f"{sample_id}"
+        dir_id, filename = self.file_list[index]
+        # eg: filename = bagigi_1_1_ba
+
+        full_word = filename.split("_")[0]  # bagigi
+        pronounced_syllable = filename[-2:] # ba
+
         audio, samplerate = self.loader(
             os.path.join(self.root, dir_id, f"{filename}.wav"))
 
@@ -168,7 +171,7 @@ class DeBoerDataset(Dataset):
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
         # Discard last part that is not a full 10ms
-        audio = audio[:, 0: self.audio_length] # resulting in 8800 elements
+        audio = audio[:, 0: self.audio_length]  # resulting in 8800 elements
 
         if self.background_noise:
             audio = self.noise_transform(audio)
@@ -176,51 +179,10 @@ class DeBoerDataset(Dataset):
         if self.white_guassian_noise:
             audio = self.white_gaussian_noise_transform(audio)
 
-        return audio, filename, speaker_id, 0
+        return audio, filename, pronounced_syllable, full_word
 
     def __len__(self):
         return len(self.file_list)
 
-    def get_audio_by_speaker(self, speaker_id, batch_size=20):
-        """
-        get audio samples based on the speaker_id
-        used for plotting the latent representations of different speakers
-        """
-        batch_size = min(len(self.speaker_dict[speaker_id]), batch_size)
-        batch = torch.zeros(batch_size, 1, self.audio_length)
-        for idx in range(batch_size):
-            batch[idx, 0, :], _, _, _ = self.__getitem__(
-                self.speaker_dict[speaker_id][idx]
-            )
 
-        return batch
 
-    def get_full_size_test_item(self, index):
-        """
-        get audio samples that cover the full length of the input files
-        used for testing the phone classification performance
-        """
-
-        speaker_id, dir_id, sample_id = self.file_list[index]
-        filename = "{}-{}-{}".format(speaker_id, dir_id, sample_id)
-        audio, samplerate = self.loader(
-            os.path.join(self.root, speaker_id, dir_id,
-                         f"{filename}.flac")
-        )
-
-        assert (
-            samplerate == 22050
-        ), "Watch out, samplerate is not consistent throughout the dataset!"
-
-        # resample
-        audio = resample(audio,
-                         curr_samplerate=22050,
-                         new_samplerate=self.target_sample_rate)
-
-        # discard last part that is not a full 10ms
-        max_length = audio.size(1) // 160 * 160
-        audio = audio[:max_length]
-
-        audio = (audio - self.mean) / self.std
-
-        return audio, filename

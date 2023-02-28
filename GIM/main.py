@@ -30,13 +30,12 @@ def train(opt, model):
 
         loss_epoch = [0 for _ in range(opt["model_splits"])]
 
-        for step, (audio, filename, _, start_idx) in enumerate(train_loader):
+        for step, (audio, filename, pronounced_syllable, full_word) in enumerate(train_loader):
             if(opt["dont_train"]):
                 if step == 400:
                     break
 
             # validate training progress by plotting latent representation of various speakers
-            # TODO
             # if step % latent_val_idx == 0:
             #     val_by_latent_speakers.val_by_latent_speakers(
             #         opt, train_dataset, model, epoch, step
@@ -49,8 +48,9 @@ def train(opt, model):
 
             starttime = time.time()
 
-            model_input = audio.to(opt["device"]) # shape: (batch_size, 1, 8800)
-            loss = model(model_input) # loss for each module
+            # shape: (batch_size, 1, 8800)
+            model_input = audio.to(opt["device"])
+            loss = model(model_input)  # loss for each module
 
             # Average over the losses from different GPUs
             loss = torch.mean(loss, 0)
@@ -71,7 +71,8 @@ def train(opt, model):
 
         # validate by testing the CPC performance on the validation set
         if opt["validate"]:
-            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(opt, model, test_loader)
+            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(
+                opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
         if(epoch % opt['log_every_x_epochs'] == 0):
