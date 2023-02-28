@@ -12,7 +12,8 @@ class FullModel(nn.Module):
         kernel_sizes,
         strides,
         padding,
-        enc_hidden,
+        cnn_hidden_dim,
+        regressor_hidden_dim,
         calc_accuracy=False,
     ):
         """
@@ -21,7 +22,6 @@ class FullModel(nn.Module):
         super(FullModel, self).__init__()
 
         self.opt = opt
-        self.enc_hidden = enc_hidden
 
         # load model
         self.fullmodel = nn.ModuleList([])
@@ -34,7 +34,8 @@ class FullModel(nn.Module):
                     enc_kernel_sizes=kernel_sizes,
                     enc_strides=strides,
                     enc_padding=padding,
-                    hidden_dim=enc_hidden,
+                    nb_channels_cnn=cnn_hidden_dim,
+                    nb_channels_regress=regressor_hidden_dim,
                     calc_accuracy=calc_accuracy,
                 )
             )
@@ -51,11 +52,13 @@ class FullModel(nn.Module):
                         enc_kernel_sizes=[kernel_sizes[i]],
                         enc_strides=[strides[i]],
                         enc_padding=[padding[i]],
-                        hidden_dim=enc_hidden,
+                        nb_channels_cnn=cnn_hidden_dim,
+                        nb_channels_regress=regressor_hidden_dim,
+
                         calc_accuracy=calc_accuracy,
                     )
                 )
-                enc_input = enc_hidden
+                enc_input = cnn_hidden_dim
         else:
             raise Exception("Invalid option for opt['model_splits']")
 
@@ -70,7 +73,6 @@ class FullModel(nn.Module):
 
         for idx, layer in enumerate(self.fullmodel):
             loss[:, idx], accuracy[:, idx], z = layer(model_input)
-            model_input = z.permute(0, 2, 1).detach()
+            model_input = z.permute(0, 2, 1).detach()  # (22, 55, 512)
 
         return loss
-    

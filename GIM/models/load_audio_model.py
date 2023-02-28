@@ -13,7 +13,8 @@ def load_model_and_optimizer(
     strides = [5, 4, 2, 2, 2]
     padding = [2, 2, 2, 2, 1]
 
-    enc_hidden = 512
+    cnn_hidden = 512
+    regressor_hidden = 256
 
     if opt["model_splits"] > 1:
         assert len(kernel_sizes) == len(strides) == len(padding) == opt["model_splits"], (
@@ -26,7 +27,8 @@ def load_model_and_optimizer(
         kernel_sizes=kernel_sizes,
         strides=strides,
         padding=padding,
-        enc_hidden=enc_hidden,
+        cnn_hidden_dim=cnn_hidden,
+        regressor_hidden_dim=regressor_hidden,
         calc_accuracy=calc_accuracy,
     )
 

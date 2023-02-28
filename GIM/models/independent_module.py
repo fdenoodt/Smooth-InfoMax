@@ -6,31 +6,37 @@ import torch.nn as nn
 from models import (
     cnn_encoder,
     loss_InfoNCE,
+    autoregressor
 )
+
 
 class IndependentModule(nn.Module):
     def __init__(
         self, opt,
-        # hidden either for cnn or fully connected
-        enc_kernel_sizes, enc_strides, enc_padding, hidden_dim, enc_input=1, calc_accuracy=False,
+        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, enc_input=1, calc_accuracy=False,
     ):
         super(IndependentModule, self).__init__()
 
         self.opt = opt
         self.calc_accuracy = calc_accuracy
+        self.nb_channels_cnn = nb_channels_cnn
+        self.nb_channels_regressor = nb_channels_regress
 
-        # encoder
+        # encoder, out: B x L x C = (22, 55, 512)
         self.encoder = cnn_encoder.CNNEncoder(
             inp_nb_channels=enc_input,
-            out_nb_channels=hidden_dim,
+            out_nb_channels=nb_channels_cnn,
             kernel_sizes=enc_kernel_sizes,
             strides=enc_strides,
             padding=enc_padding,
         )
-        self.hidden_dim = hidden_dim
-        
-        self.loss = loss_InfoNCE.InfoNCE_Loss(opt, self.hidden_dim, self.hidden_dim, calc_accuracy)
-        # self.loss = loss_InfoNCE.InfoNCE_Loss(opt, self.hidden_dim, self.enc_hidden, calc_accuracy)
+
+        self.autoregressor = autoregressor.Autoregressor(
+            opt=opt, input_size=self.nb_channels_cnn, hidden_dim=self.nb_channels_regressor
+        )
+
+        self.loss = loss_InfoNCE.InfoNCE_Loss(
+            opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
 
     def get_latents(self, x):
         """
@@ -44,8 +50,8 @@ class IndependentModule(nn.Module):
         # encoder in and out: B x C x L, permute to be  B x L x C
         z = self.encoder(x)
         z = z.permute(0, 2, 1)
-
-        return z
+        c = self.autoregressor(z)
+        return c, z
 
     def forward(self, x):
         """
@@ -58,13 +64,12 @@ class IndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        z = self.get_latents(x)
+        c, z = self.get_latents(x)  # B x L x C
 
-        total_loss, accuracies = self.loss.get_loss(z)
+        total_loss, accuracies = self.loss.get_loss(z, c)
 
         # for multi-GPU training
         total_loss = total_loss.unsqueeze(0)
         accuracies = accuracies.unsqueeze(0)
 
         return total_loss, accuracies, z
-

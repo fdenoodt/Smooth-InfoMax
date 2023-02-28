@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-
 from utils import utils
+
 
 class Autoregressor(nn.Module):
     def __init__(self, opt, input_size, hidden_dim):
@@ -14,38 +14,23 @@ class Autoregressor(nn.Module):
         )
 
         self.opt = opt
-        if self.opt["remove_BPTT"]:
-            self.gru = nn.GRUCell(
-                input_size=self.input_size, hidden_size=self.hidden_dim
-            )
 
-    def forward(self, input):
+    def forward(self, input):  # input: B x L x C: eg. (22, 55, 512)
 
         cur_device = utils.get_device(self.opt, input)
 
-        if self.opt["remove_BPTT"]:
-            """
-            For removing BPTT, we loop over the sequence manually and detach the hidden state 
-            to restrict gradients to work only within the current time-step
-            """
+        regress_hidden_state = torch.zeros(
+            1, input.size(0), self.hidden_dim, device=cur_device) # (1, 22, 256)
+        
+        self.gru.flatten_parameters()
+        output, regress_hidden_state = self.gru(input, regress_hidden_state)
 
-            input = input.permute(1, 0, 2)  # L, B, C
+        return output  # output: B x L x C: eg. (22, 55, 256)
 
-            regress_hidden_state = torch.zeros(
-                input.size(1), self.hidden_dim, device=cur_device
-            )
-            output = torch.zeros(
-                input.size(0), input.size(1), self.hidden_dim, device=cur_device
-            )
 
-            for i in range(len(input)):
-                regress_hidden_state = self.gru(input[i], regress_hidden_state.detach())
-                output[i] = regress_hidden_state
-
-            output = output.permute(1, 0, 2)
-        else:
-            regress_hidden_state = torch.zeros(1, input.size(0), self.hidden_dim, device=cur_device)
-            self.gru.flatten_parameters()
-            output, regress_hidden_state = self.gru(input, regress_hidden_state)
-
-        return output
+if __name__ == 'main':
+    opt = {'device': 'cuda'}
+    autoregressor = Autoregressor(opt, input_size=512, hidden_dim=256)
+    d = torch.randn(22, 55, 512)
+    res = autoregressor(d)
+    print(res.shape)
