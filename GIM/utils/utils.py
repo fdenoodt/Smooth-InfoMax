@@ -25,7 +25,7 @@ def accuracy(output, target, topk=(1,)):
         pred = pred.t()
         correct = pred.eq(target.view(1, -1).expand_as(pred))
 
-        correct = correct.contiguous()    #required for pytorch V1.7 view()
+        correct = correct.contiguous()  # required for pytorch V1.7 view()
 
         res = []
         for k in topk:
@@ -47,25 +47,31 @@ def scatter(opt, x, colors, label):
     # We create a scatter plot.
     plt.figure(figsize=(8, 8))
     ax = plt.subplot(aspect="equal")
-    ax.scatter(x[:, 0], x[:, 1], lw=0, s=40, c=palette[colors.ravel().astype(np.int)])
+    ax.scatter(x[:, 0], x[:, 1], lw=0, s=40,
+               c=palette[colors.ravel().astype(np.int)])
     plt.xlim(-25, 25)
     plt.ylim(-25, 25)
     ax.axis("off")
     ax.axis("tight")
 
+    # save fig
     plt.savefig(
-        os.path.join(opt["log_path_latent"], "latent_space_{}.png".format(label)), dpi=120
+        os.path.join(opt["log_path_latent"], f"latent_space_{label}.png"), dpi=120
     )
+
+    # save data to numpy csv (x, colors)
+    np.savetxt(os.path.join(opt["log_path_latent"],
+               f"latent_space_x_{label}.csv"), x, delimiter=",")
+
+    np.savetxt(os.path.join(
+        opt["log_path_latent"], f"latent_space_colors_{label}.csv"), colors, delimiter=",")
+
     plt.close()
 
 
 def fit_TSNE_and_plot(opt, feature_space, speaker_labels, label):
-    feature_space = np.reshape(
-        feature_space, (np.shape(feature_space)[0] * np.shape(feature_space)[1], -1)
-    )
-    speaker_labels = np.reshape(speaker_labels, (-1, 1))
-
-    # X: array, shape(n_samples, n_features)
-    projection = TSNE(init='random', learning_rate=200.0).fit_transform(feature_space)
+    projection = TSNE(init='random',
+                      learning_rate=200.0,
+                      perplexity=30).fit_transform(feature_space)
 
     scatter(opt, projection, speaker_labels, label)

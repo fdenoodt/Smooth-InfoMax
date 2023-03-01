@@ -1,5 +1,6 @@
-import torch
 import time
+import torch
+
 
 def val_by_InfoNCELoss(opt, model, test_loader):
     total_step = len(test_loader)
@@ -18,11 +19,9 @@ def val_by_InfoNCELoss(opt, model, test_loader):
 
         loss_epoch += loss.data.cpu().numpy()
 
-    for i in range(model_splits): 
+    for i in range(model_splits):
         print(
-            "Validation Loss Model {}: Time (s): {:.1f} --- {:.4f}".format(
-                i, time.time() - starttime, loss_epoch[i] / total_step
-            )
+            f"Validation Loss Model {i}: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[i] / total_step:.4f}"
         )
 
     validation_loss = [x/total_step for x in loss_epoch]

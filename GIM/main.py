@@ -11,18 +11,18 @@ from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model
 from data import get_dataloader
-from validation import val_by_latent_speakers
-from validation import val_by_InfoNCELoss
+from validation.val_by_syllables import val_by_latent_syllables
+from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
 
-def train(opt, model):
+def train(opt, model, optimizer, train_loader, test_loader):
     '''Train the model'''
     total_step = len(train_loader)
 
     # how often to output training values
     print_idx = 100
     # how often to validate training process by plotting latent representations of various speakers
-    latent_val_idx = 1000
+    latent_val_idx = 100 #0
 
     starttime = time.time()
 
@@ -30,16 +30,14 @@ def train(opt, model):
 
         loss_epoch = [0 for _ in range(opt["model_splits"])]
 
-        for step, (audio, filename, pronounced_syllable, full_word) in enumerate(train_loader):
+        for step, (audio, _, _, _) in enumerate(train_loader):
             if(opt["dont_train"]):
                 if step == 400:
                     break
 
             # validate training progress by plotting latent representation of various speakers
-            # if step % latent_val_idx == 0:
-            #     val_by_latent_speakers.val_by_latent_speakers(
-            #         opt, train_dataset, model, epoch, step
-            #     )
+            if step % latent_val_idx == 0:
+                val_by_latent_syllables(opt, test_loader, model, epoch, step)
 
             if step % print_idx == 0:
                 print(
@@ -71,8 +69,7 @@ def train(opt, model):
 
         # validate by testing the CPC performance on the validation set
         if opt["validate"]:
-            validation_loss = val_by_InfoNCELoss.val_by_InfoNCELoss(
-                opt, model, test_loader)
+            validation_loss = val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
         if(epoch % opt['log_every_x_epochs'] == 0):
@@ -83,35 +80,33 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
     gc.collect()
 
-    opt = OPTIONS
-
-    arg_parser.create_log_path(opt)
+    arg_parser.create_log_path(OPTIONS)
 
     # set random seeds
-    torch.manual_seed(opt["seed"])
-    torch.cuda.manual_seed(opt["seed"])
-    np.random.seed(opt["seed"])
-    random.seed(opt["seed"])
+    torch.manual_seed(OPTIONS["seed"])
+    torch.cuda.manual_seed(OPTIONS["seed"])
+    np.random.seed(OPTIONS["seed"])
+    random.seed(OPTIONS["seed"])
 
     # load model
-    model, optimizer = load_audio_model.load_model_and_optimizer(opt)
+    MODEL, OPTIMIZER = load_audio_model.load_model_and_optimizer(OPTIONS)
 
     # initialize logger
-    logs = logger.Logger(opt)
+    logs = logger.Logger(OPTIONS)
 
     # get datasets and dataloaders
-    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
-        opt
+    TRAIN_LOADER, TRAIN_DATASET, TEST_LOADER, TEST_DATASET = get_dataloader.get_de_boer_sounds_data_loaders(
+        OPTIONS
     )
 
     try:
         # Train the model
-        train(opt, model)
+        train(OPTIONS, MODEL, OPTIMIZER, TRAIN_LOADER, TEST_LOADER)
 
     except KeyboardInterrupt:
         print("Training got interrupted, saving log-files now.")
 
-    logs.create_log(model)
+    logs.create_log(MODEL)
 
 
 # %%

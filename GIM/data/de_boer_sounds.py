@@ -150,7 +150,8 @@ class DeBoerDataset(Dataset):
         # eg: filename = bagigi_1_1_ba
 
         full_word = filename.split("_")[0]  # bagigi
-        pronounced_syllable = filename[-2:] # ba
+        pronounced_syllable = filename[-2:]  # ba
+        pronounced_syllable = self.translate_syllable_to_number(pronounced_syllable) # 0
 
         audio, samplerate = self.loader(
             os.path.join(self.root, dir_id, f"{filename}.wav"))
@@ -184,5 +185,8 @@ class DeBoerDataset(Dataset):
     def __len__(self):
         return len(self.file_list)
 
-
-
+    def translate_syllable_to_number(self, syllable):
+        # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
+        syllable_to_number = {"ba": 0, "bi": 1, "bu": 2,
+                            "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
+        return syllable_to_number[syllable]
