@@ -14,6 +14,7 @@ from typing import Any
 import numpy as np
 import time
 from torchvision import transforms
+import torchaudio
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -211,3 +212,13 @@ def save_audio(audio, dir, file, sample_rate=16000):
     create_log_dir(dir)
     sf.write(f"{dir}/{file}.wav", audio, sample_rate)
 
+def resample(audio, curr_samplerate=22050, new_samplerate=16000):
+    audio = torchaudio.functional.resample(
+        audio, orig_freq=curr_samplerate, new_freq=new_samplerate)
+    return audio
+
+def translate_syllable_to_number(syllable):
+    # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
+    syllable_to_number = {"ba": 0, "bi": 1, "bu": 2,
+                        "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
+    return syllable_to_number[syllable]

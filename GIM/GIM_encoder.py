@@ -7,12 +7,11 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class GIM_Encoder():
-    def __init__(self, opt, layer_depth=1, path='./g_drive_model/model_180.ckpt') -> None:
+    def __init__(self, opt, path='./g_drive_model/model_180.ckpt') -> None:
         self.opt = opt
 
-        self.encoder, _ = self.load_model(path)
+        self.encoder: full_model.FullModel = self.load_model(path)[0]
         self.encoder.eval()
-        self.layer_depth = layer_depth
 
     def __call__(self, xs_batch) -> torch.tensor:
         with torch.no_grad():
@@ -23,20 +22,24 @@ class GIM_Encoder():
         kernel_sizes = [10, 8, 4, 4, 4]
         strides = [5, 4, 2, 2, 2]
         padding = [2, 2, 2, 2, 1]
-        enc_hidden = 512
+        
+        cnn_hidden = 512
+        regressor_hidden = 256
+
 
         calc_accuracy = False
         num_GPU = None
 
         # Initialize model.
-        model = full_model.FullModel(
-            self.opt,
-            kernel_sizes=kernel_sizes,
-            strides=strides,
-            padding=padding,
-            enc_hidden=enc_hidden,
-            calc_accuracy=calc_accuracy,
-        )
+        model: full_model.FullModel = full_model.FullModel(
+                self.opt,
+                kernel_sizes=kernel_sizes,
+                strides=strides,
+                padding=padding,
+                cnn_hidden_dim=cnn_hidden,
+                regressor_hidden_dim=regressor_hidden,
+                calc_accuracy=calc_accuracy,
+            )
 
         # Run on only one GPU for supervised losses.
         if self.opt["loss"] == 2 or self.opt["loss"] == 1:
@@ -54,17 +57,17 @@ class GIM_Encoder():
         return model, optimizer
 
     def encode(self, audio_batch):
-        # print(audio.shape, "enc")
-        # audios = audio.unsqueeze(0)
-        # audios = audio
+        latent_per_module = []
+
         model_input = audio_batch.to(device)
 
-        for idx, layer in enumerate(self.encoder.module.fullmodel):
-            context, z = layer.get_latents(model_input)
-            model_input = z.permute(0, 2, 1)
+        for idx, module in enumerate(self.encoder.module.fullmodel):
+            latent, _ = module.get_latents(model_input)
+            latent_per_module.append(latent)
 
-            if(idx == self.layer_depth - 1):
-                return z.permute(0, 2, 1) # swap channels and depth
+            model_input = latent.permute(0, 2, 1)
+
+        return latent_per_module
 
 # %%
 
@@ -77,7 +80,8 @@ if __name__=="__main__":
 
     encoder = GIM_Encoder(opt)
     org_batch  = torch.rand((64, 1, 10240))
-    enc = encoder.encode(org_batch)
+    enc = encoder(org_batch)
+    # enc = encoder.encode(org_batch)
 
 
 

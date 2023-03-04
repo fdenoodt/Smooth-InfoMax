@@ -1,18 +1,20 @@
 # %%
+"""
+This file is used to analyse the hidden representation of the audio signal.
+- It stores the hidden representation of the audio signal for each batch in a tensor.
+- The tensor is then visualised using a scatter plot.
+"""
 import importlib
+import random
+import numpy as np
+import torch
 from GIM_encoder import GIM_Encoder
 import helper_functions
 from options import OPTIONS as opt
-import torch
 
 from arg_parser import arg_parser
 from data import get_dataloader
-import numpy as np
-import random
-import cv2
-import matplotlib.cm as cm
 
-log_path = "analyse_hidden_repr/"
 
 random.seed(0)
 
@@ -44,28 +46,30 @@ def visualise_2d_tensor(tensor, GIM_model_name, target_dir, name):
     # plt.show()
 
 
-def _save_encodings(target_dir, encoder, data_loader):
+def _save_encodings(root_dir, data_type, encoder: GIM_Encoder, data_loader):
+    assert data_type in ["train", "test"]
+
+    # audio, filename, pronounced_syllable, full_word
     for idx, (batch_org_audio, filenames, _, _) in enumerate(iter(data_loader)):
         batch_org_audio = batch_org_audio.to(device)
-        batch_enc_audio = encoder(batch_org_audio)
+        batch_enc_audio_per_module = encoder(batch_org_audio)
 
-        print(f"Batch {idx} - {batch_enc_audio.shape} - Mean: {torch.mean(batch_enc_audio)} - Std: {torch.std(batch_enc_audio)}")
+        for module_idx, batch_enc_audio in enumerate(batch_enc_audio_per_module):
+            target_dir = f"{root_dir}/module={module_idx + 1}/{data_type}/" # eg: 01GIM_L{layer_depth}/module=1/train/
+            create_log_dir(target_dir)
 
-        torch.save(batch_enc_audio, f"{target_dir}/batch_encodings_{idx}.pt")
-        torch.save(filenames, f"{target_dir}/batch_filenames_{idx}.pt")
+            print(f"Batch {idx} - {batch_enc_audio.shape} - Mean: {torch.mean(batch_enc_audio)} - Std: {torch.std(batch_enc_audio)}")
+
+            torch.save(batch_enc_audio, f"{target_dir}/batch_encodings_{idx}.pt")
+            torch.save(filenames, f"{target_dir}/batch_filenames_{idx}.pt")
 
 
-def generate_and_save_encodings(encoder, train_loader, test_loader, GIM_model_name):
-    target_dir = f"{log_path}/hidden_repr/{GIM_model_name}/"
-    train_dir = f"{target_dir}/train"
-    test_dir = f"{target_dir}/test/"
-    create_log_dir(train_dir)
-    create_log_dir(test_dir)
+def generate_and_save_encodings(encoder, train_loader, test_loader, split: bool):
+    target_dir = f"{LOG_PATH}/hidden_repr/{'split' if split else 'full'}"
 
-    _save_encodings(train_dir, encoder, train_loader)
-    _save_encodings(test_dir, encoder, test_loader)
+    _save_encodings(target_dir, "train", encoder, train_loader)
+    _save_encodings(target_dir, "test", encoder, test_loader)
     
-    # visualise_2d_tensor(enc_audio[0], "01GIM_L3", f"{name}_encodings")
 
 def _generate_visualisations(data_dir, GIM_model_name, target_dir):
     # iterate over files in train_dir
@@ -81,11 +85,11 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
         break
 
 def generate_visualisations(GIM_model_name):
-    saved_files_dir = f"{log_path}/hidden_repr/{GIM_model_name}/"
+    saved_files_dir = f"{LOG_PATH}/hidden_repr/{GIM_model_name}/"
     train_dir = f"{saved_files_dir}/train"
     test_dir = f"{saved_files_dir}/test/"
 
-    target_dir = f"{log_path}/hidden_repr_vis/{GIM_model_name}/"
+    target_dir = f"{LOG_PATH}/hidden_repr_vis/{GIM_model_name}/"
     train_vis_dir = f"{target_dir}/train"
     test_vis_dir = f"{target_dir}/test/"
     create_log_dir(train_vis_dir)
@@ -95,40 +99,50 @@ def generate_visualisations(GIM_model_name):
     _generate_visualisations(test_dir, GIM_model_name, test_vis_dir)
 
 
-                
-                # {log_path}/hidden_repr_vis/
+# old model that was trained on larger samples:
+# DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/
 
+ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_test_w_ar"
+# ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"
+LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
+EPOCH_VERSION = 1
+AUTO_REGRESSOR_AFTER_MODULE = True
 
 if __name__ == "__main__":
     torch.cuda.empty_cache()
     arg_parser.create_log_path(opt)
-
-    experiment_name = 'RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss'
-    opt['experiment'] = experiment_name
-    opt['save_dir'] = f'{experiment_name}_experiment'
-    opt['log_path'] = f'./logs/{experiment_name}_experiment'
-    opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 50
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
+    opt['auto_regressor_after_module'] = AUTO_REGRESSOR_AFTER_MODULE
 
     logs = logger.Logger(opt)
 
-    # load the data
-    train_loader, _, test_loader, _ = get_dataloader.\
-        get_de_boer_sounds_decoder_data_loaders(opt, shuffle=False)
+    ENCODER_NAME = f"model_{EPOCH_VERSION}.ckpt"
+    ENCODER_MODEL_PATH = f"{ENCODER_MODEL_DIR}/{ENCODER_NAME}"
+    
+    # model consisting of single module
+    # experiment_name = 'RMSE_decoder_GIM_layer3_MSE_SPECTRAL_loss'
+    # opt['experiment'] = experiment_name
+    # opt['save_dir'] = f'{experiment_name}_experiment'
+    # opt['log_path'] = f'./logs/{experiment_name}_experiment'
+    # opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
+    # opt['batch_size_multiGPU'] = opt['batch_size']
+    # opt['num_epochs'] = 50
 
-    # for layer_depth in [4]:
-    for layer_depth in [1, 2, 3, 4]:
-        encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-        gim_name = f"01GIM_L{layer_depth}"
-        generate_and_save_encodings(encoder, train_loader, test_loader, gim_name)
-        generate_visualisations(gim_name)
 
 
+    # **** Full audio samples ****
+    # load the data: full audio samples
+    split = True
+    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(opt, shuffle=False, split_and_pad=split, train_noise=False)
+
+    ENCODER: GIM_Encoder = GIM_Encoder(opt, path=ENCODER_MODEL_PATH)
+    generate_and_save_encodings(ENCODER, train_loader, test_loader, split)
+    # generate_visualisations(gim_name)
+
+
+
+    # **** audio samples on syllables ****
 
     torch.cuda.empty_cache()
 
-    # %%
-    # visualise_3d_tensor(enc_audio[0], "test")
-    # %%
