@@ -28,12 +28,18 @@ class IndependentModule(nn.Module):
             padding=enc_padding,
         )
 
-        self.autoregressor = autoregressor.Autoregressor(
-            opt=opt, input_size=self.nb_channels_cnn, hidden_dim=self.nb_channels_regressor
-        )
+        if self.opt["auto_regressor_after_module"]:
+            self.autoregressor = autoregressor.Autoregressor(
+                opt=opt, input_size=self.nb_channels_cnn, hidden_dim=self.nb_channels_regressor
+            )
 
-        self.loss = loss_InfoNCE.InfoNCE_Loss(
-            opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
+            # hidden dim of the autoregressor is the input dim of the loss
+            self.loss = loss_InfoNCE.InfoNCE_Loss(
+                opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
+        else:
+            # hidden dim of the encoder is the input dim of the loss
+            self.loss = loss_InfoNCE.InfoNCE_Loss(
+                opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
 
     def get_latents(self, x):
         """
@@ -47,8 +53,12 @@ class IndependentModule(nn.Module):
         # encoder in and out: B x C x L, permute to be  B x L x C
         z = self.encoder(x)
         z = z.permute(0, 2, 1)
-        c = self.autoregressor(z)
-        return c, z
+
+        if self.opt["auto_regressor_after_module"]:
+            c = self.autoregressor(z)
+            return c, z
+        else:
+            return z, z
 
     def forward(self, x):
         """

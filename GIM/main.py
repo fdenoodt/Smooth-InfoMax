@@ -108,5 +108,3 @@ if __name__ == "__main__":
 
     logs.create_log(MODEL)
 
-
-# %%
