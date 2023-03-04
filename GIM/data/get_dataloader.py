@@ -122,7 +122,7 @@ def get_de_boer_sounds_data_loaders(opt, split_and_pad=True):
     test_loader = torch.utils.data.DataLoader(
         dataset=test_dataset,
         batch_size=opt["batch_size_multiGPU"],
-        shuffle=False,
+        shuffle=True,
         drop_last=True,
         num_workers=NUM_WORKERS,
     )

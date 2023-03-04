@@ -77,7 +77,7 @@ class RandomBackgroundNoise:
     def __call__(self, audio_signal):
         c, audio_length = audio_signal.shape
 
-        while True:
+        while True: # try until we get a noise with the right length
             noise, noise_sr = self.get_random_file()
 
             # Change sample rate to target
@@ -90,7 +90,8 @@ class RandomBackgroundNoise:
                 noise = noise[..., offset:offset+audio_length]
                 break
             else:
-                print("new attempt")
+                pass
+                # print("new attempt")
             # elif noise_length < audio_length:
             #     raise Exception("noise length should be longer than audio length")
                 # noise = torch.cat([noise, torch.zeros((noise.shape[0], audio_length-noise_length))], dim=-1)

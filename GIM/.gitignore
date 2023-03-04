@@ -38,3 +38,4 @@ logs/
 *settings.json
 
 *.png
+datasets/musan/*

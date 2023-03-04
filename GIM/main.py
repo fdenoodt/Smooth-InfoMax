@@ -22,7 +22,7 @@ def train(opt, model, optimizer, train_loader, test_loader):
     # how often to output training values
     print_idx = 100
     # how often to validate training process by plotting latent representations of various speakers
-    latent_val_idx = 100 #0
+    latent_val_idx = 1000
 
     starttime = time.time()
 
