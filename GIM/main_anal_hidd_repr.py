@@ -96,12 +96,13 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
                 batch_pronounced_syllable_idices = torch.load(
                     f"{data_dir}/{file.replace('encodings', 'pronounced_syllable')}").numpy()
             except FileNotFoundError:
-                batch_pronounced_syllable_idices = batch_filenames
+                # list of Nones, where N is the number of files in the batch
+                batch_pronounced_syllable_idices = [None] * len(batch_filenames)
 
             # iterate over the batch
             for idx, (enc, name, pronounced_syllable_idx) in enumerate(zip(batch_encodings, batch_filenames, batch_pronounced_syllable_idices)):
                 name = name.split("_")[0]  # eg: babugu_1 -> babugu
-                if name != pronounced_syllable_idx: # simple check to deal with split/full audio files
+                if pronounced_syllable_idx is not None:# simple check to deal with split/full audio files
                     pronounced_syllable = translate_number_to_syllable(pronounced_syllable_idx)
                     name = f"{name} - {pronounced_syllable}"
 
