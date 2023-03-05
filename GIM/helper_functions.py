@@ -222,3 +222,9 @@ def translate_syllable_to_number(syllable):
     syllable_to_number = {"ba": 0, "bi": 1, "bu": 2,
                         "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
     return syllable_to_number[syllable]
+
+def translate_number_to_syllable(index):
+    # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
+    number_to_syllable = {0: "ba", 1: "bi", 2: "bu",
+                        3: "da", 4: "di", 5: "du", 6: "ga", 7: "gi", 8: "gu"}
+    return number_to_syllable[index]

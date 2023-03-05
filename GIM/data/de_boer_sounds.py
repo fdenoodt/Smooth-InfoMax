@@ -86,6 +86,7 @@ class DeBoerDataset(Dataset):
             os.path.join(self.root, dir_id, f"{filename}.wav"))
 
         audio_length_before_resample = audio.size(1)
+        # TODO: MUST FIX TO SUPPORT OLD DATASET AGAIN
         assert (
             samplerate == 22050
         ), "Watch out, samplerate is not consistent throughout the dataset!"
