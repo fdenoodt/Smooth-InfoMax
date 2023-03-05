@@ -15,6 +15,8 @@ import numpy as np
 import time
 from torchvision import transforms
 import torchaudio
+import seaborn as sns
+
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -23,6 +25,7 @@ class LogHandler():
     '''
     This class handles the logging of the training process.
     '''
+
     def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
@@ -158,6 +161,7 @@ def det_np(data):
 #     plt.plot(X_mag)  # magnitude spectrum
 #     plt.xlabel('Frequency (Hz)')
 
+
 def fft_magnitude(sequence):
     ''' Compute the FFT magnitude of a sequence '''
     # return np.fft.fft(sequence)
@@ -185,6 +189,7 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
 
     plt.clf()
 
+
 def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, title="True vs Predicted", dir=None, file=None, show=True):
     ''' Plot four graphs side by side '''
 
@@ -208,23 +213,75 @@ def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, ti
     plt.close(fig)
 
 
+def scatter(x, syllable_indices, title, dir=None, file=None, show=True):
+    """
+    creates scatter plot for t-SNE visualization
+    :param x: 2-D latent space as output by t-SNE
+    :param syllable_indices: labels for each datapoint in x, used to assign different colors to them
+    :param title: title of the plot
+    :param dir: directory to save the plot in
+    :param file: file name to save the plot
+    :param show: whether to show the plot or not
+    """
+    # We choose a color palette with seaborn.
+    palette = np.array(sns.color_palette("hls", 10))
+
+    # We create a scatter plot.
+    plt.figure(figsize=(8, 8))
+    ax = plt.subplot(aspect="equal")
+
+    # for each loop created by chat gpt
+    for i, syllable_idx in enumerate(np.unique(syllable_indices)):
+        color = np.tile(palette[i], (x[syllable_indices==syllable_idx, 0].size, 1))
+        ax.scatter(x[syllable_indices==syllable_idx, 0], x[syllable_indices==syllable_idx, 1], 
+                   lw=0, 
+                   s=40,
+                   color=color,
+                   label=translate_number_to_syllable(syllable_idx))
+
+    plt.legend()
+
+    plt.xlim(-25, 25)
+    plt.ylim(-25, 25)
+    ax.axis("off")
+    ax.axis("tight")
+
+    plt.title(title)
+
+    if file is not None:
+        create_log_dir(dir)
+        plt.savefig(f"{dir}/{file}", dpi=120)
+
+    if show:
+        plt.show()
+
+    plt.clf()
+    plt.cla()
+
+
+
+
+
 def save_audio(audio, dir, file, sample_rate=16000):
     create_log_dir(dir)
     sf.write(f"{dir}/{file}.wav", audio, sample_rate)
+
 
 def resample(audio, curr_samplerate=22050, new_samplerate=16000):
     audio = torchaudio.functional.resample(
         audio, orig_freq=curr_samplerate, new_freq=new_samplerate)
     return audio
 
+
 def translate_syllable_to_number(syllable):
     # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
     syllable_to_number = {"ba": 0, "bi": 1, "bu": 2,
-                        "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
-    return syllable_to_number[syllable]
+                          "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
+    return syllable_to_number[int(syllable)]
+
 
 def translate_number_to_syllable(index):
     # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
     number_to_syllable = {0: "ba", 1: "bi", 2: "bu",
-                        3: "da", 4: "di", 5: "du", 6: "ga", 7: "gi", 8: "gu"}
+                          3: "da", 4: "di", 5: "du", 6: "ga", 7: "gi", 8: "gu"}
     return number_to_syllable[index]
