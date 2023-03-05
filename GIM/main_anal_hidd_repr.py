@@ -4,6 +4,8 @@ This file is used to analyse the hidden representation of the audio signal.
 - It stores the hidden representation of the audio signal for each batch in a tensor.
 - The tensor is then visualised using a scatter plot.
 """
+import librosa
+import glob
 import importlib
 import random
 import numpy as np
@@ -12,7 +14,7 @@ import torch
 from GIM_encoder import GIM_Encoder
 import helper_functions
 from options import OPTIONS as opt
-from options_anal_hidd_repr import LOG_PATH, EPOCH_VERSION, SAVE_ENCODINGS, AUTO_REGRESSOR_AFTER_MODULE, ENCODER_MODEL_DIR, VISUALISE_LATENT_ACTIVATIONS, VISUALISE_TSNE
+from options_anal_hidd_repr import LOG_PATH, EPOCH_VERSION, SAVE_ENCODINGS, AUTO_REGRESSOR_AFTER_MODULE, ENCODER_MODEL_DIR, VISUALISE_LATENT_ACTIVATIONS, VISUALISE_TSNE, VISUALISE_TSNE_ORIGINAL_DATA
 
 from arg_parser import arg_parser
 from data import get_dataloader
@@ -114,6 +116,7 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
                 if idx > 2:  # only do 2 visualisations per batch. So if 17 batches, 34 visualisations
                     break
 
+
 def plot_tsne(feature_space, label_indices, gim_name, target_dir):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
@@ -125,8 +128,33 @@ def plot_tsne(feature_space, label_indices, gim_name, target_dir):
 
     scatter(projection, label_indices,
             title=f"t-SNE Latent space - {gim_name}", dir=target_dir, file=file, show=False)
-    
+
     print(f"Saved t-SNE plot to {target_dir}/{file}.png")
+
+
+def generate_tsne_visualisations_original_data(train_or_test):
+    assert train_or_test in ["train", "test"]
+    target_dir = rf"./datasets\corpus\split up graphs\{train_or_test}"
+
+    all_audios = None
+    all_syllables = np.array([])  # indicies
+
+    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(opt, shuffle=False, split_and_pad=True, train_noise=False)
+
+    for idx, (batch_org_audio, filenames, syllable_idxs, _) in enumerate(iter(train_loader if train_or_test == "train" else test_loader)):
+        # eg: batch_org_audio.shape = (96, 1, 8800)
+        if idx == 0:  # obtain intial shape from first batch.
+            # (batch_size, length, nb_channels)
+            all_audios = torch.empty(0, batch_org_audio.size(1), batch_org_audio.size(2)).cpu()
+
+        all_audios = torch.cat((all_audios, batch_org_audio), dim=0).cpu()
+        all_syllables = np.concatenate((all_syllables, syllable_idxs))
+
+    all_audios = all_audios.numpy()
+    batch_size = all_audios.shape[0]
+    all_audios = np.reshape(all_audios, (batch_size, -1))
+    plot_tsne(all_audios, all_syllables, "Original data", target_dir)
+
 
 
 def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
@@ -196,7 +224,7 @@ def generate_visualisations():
 
 
 if __name__ == "__main__":
-    assert SAVE_ENCODINGS or VISUALISE_LATENT_ACTIVATIONS or VISUALISE_TSNE, "Nothing to do"
+    assert SAVE_ENCODINGS or VISUALISE_LATENT_ACTIVATIONS or VISUALISE_TSNE or VISUALISE_TSNE_ORIGINAL_DATA, "Nothing to do"
 
     torch.cuda.empty_cache()
     arg_parser.create_log_path(opt)
@@ -216,6 +244,8 @@ if __name__ == "__main__":
     if VISUALISE_TSNE or VISUALISE_LATENT_ACTIVATIONS:
         generate_visualisations()
 
-    # **** audio samples on syllables ****
+    if VISUALISE_TSNE_ORIGINAL_DATA:
+        generate_tsne_visualisations_original_data("train")
+        generate_tsne_visualisations_original_data("test")
 
     torch.cuda.empty_cache()
