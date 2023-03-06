@@ -12,7 +12,7 @@ import torch
 from GIM_encoder import GIM_Encoder
 import helper_functions
 from options import OPTIONS as opt
-from options_anal_hidd_repr import LOG_PATH, EPOCH_VERSION, SAVE_ENCODINGS, AUTO_REGRESSOR_AFTER_MODULE, ENCODER_MODEL_DIR, VISUALISE_LATENT_ACTIVATIONS, VISUALISE_TSNE, VISUALISE_TSNE_ORIGINAL_DATA
+from options_anal_hidd_repr import LOG_PATH, EPOCH_VERSION, ONLY_LAST_PREDICTION_FROM_TIME_WINDOW, SAVE_ENCODINGS, AUTO_REGRESSOR_AFTER_MODULE, ENCODER_MODEL_DIR, VISUALISE_LATENT_ACTIVATIONS, VISUALISE_TSNE, VISUALISE_TSNE_ORIGINAL_DATA
 
 from arg_parser import arg_parser
 from data import get_dataloader
@@ -59,6 +59,14 @@ def _save_encodings(root_dir, data_type, encoder: GIM_Encoder, data_loader):
         batch_enc_audio_per_module = encoder(batch_org_audio)
 
         for module_idx, batch_enc_audio in enumerate(batch_enc_audio_per_module):
+            # eg: batch_enc_audio.shape = (96, 55, 256)
+
+            if ONLY_LAST_PREDICTION_FROM_TIME_WINDOW:
+                batch_enc_audio = batch_enc_audio[:, -1, :]
+                # eg: batch_enc_audio.shape = (96, 256)
+                # Expand, eg: batch_enc_audio.shape = (96, 1, 256)
+                batch_enc_audio = batch_enc_audio.unsqueeze(1)
+
             # eg: 01GIM_L{layer_depth}/module=1/train/
             target_dir = f"{root_dir}/module={module_idx + 1}/{data_type}/"
             create_log_dir(target_dir)
@@ -137,13 +145,15 @@ def generate_tsne_visualisations_original_data(train_or_test):
     all_audios = None
     all_syllables = np.array([])  # indicies
 
-    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(opt, shuffle=False, split_and_pad=True, train_noise=False)
+    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(
+        opt, shuffle=False, split_and_pad=True, train_noise=False)
 
     for idx, (batch_org_audio, filenames, syllable_idxs, _) in enumerate(iter(train_loader if train_or_test == "train" else test_loader)):
         # eg: batch_org_audio.shape = (96, 1, 8800)
         if idx == 0:  # obtain intial shape from first batch.
             # (batch_size, length, nb_channels)
-            all_audios = torch.empty(0, batch_org_audio.size(1), batch_org_audio.size(2)).cpu()
+            all_audios = torch.empty(0, batch_org_audio.size(
+                1), batch_org_audio.size(2)).cpu()
 
         all_audios = torch.cat((all_audios, batch_org_audio), dim=0).cpu()
         all_syllables = np.concatenate((all_syllables, syllable_idxs))
@@ -152,7 +162,6 @@ def generate_tsne_visualisations_original_data(train_or_test):
     batch_size = all_audios.shape[0]
     all_audios = np.reshape(all_audios, (batch_size, -1))
     plot_tsne(all_audios, all_syllables, "Original data", target_dir)
-
 
 
 def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
@@ -201,8 +210,8 @@ def generate_visualisations():
         nb_modules = len(os.listdir(saved_modules_dir))  # module=1, ...
 
         # only visualise last 3 modules. The earlier latents are too high dimension and cannot be stored in memory
-        first_module = max(nb_modules - 3, 1) 
-        
+        first_module = max(nb_modules - 3, 1)
+
         for module_idx in range(first_module, nb_modules + 1):
             saved_files_dir = f"{LOG_PATH}/hidden_repr/{split}/module={module_idx}/"
 
@@ -241,7 +250,6 @@ if __name__ == "__main__":
     if SAVE_ENCODINGS:
         generate_and_save_encodings(ENCODER_MODEL_PATH)
 
-    # todo: THEN GENERATE T-sne visualisations on larger samples.
     if VISUALISE_TSNE or VISUALISE_LATENT_ACTIVATIONS:
         generate_visualisations()
 
