@@ -4,8 +4,6 @@ This file is used to analyse the hidden representation of the audio signal.
 - It stores the hidden representation of the audio signal for each batch in a tensor.
 - The tensor is then visualised using a scatter plot.
 """
-import librosa
-import glob
 import importlib
 import random
 import numpy as np
@@ -202,7 +200,10 @@ def generate_visualisations():
         saved_modules_dir = f"{LOG_PATH}/hidden_repr/{split}/"
         nb_modules = len(os.listdir(saved_modules_dir))  # module=1, ...
 
-        for module_idx in range(1, nb_modules + 1):
+        # only visualise last 3 modules. The earlier latents are too high dimension and cannot be stored in memory
+        first_module = max(nb_modules - 3, 1) 
+        
+        for module_idx in range(first_module, nb_modules + 1):
             saved_files_dir = f"{LOG_PATH}/hidden_repr/{split}/module={module_idx}/"
 
             train_dir = f"{saved_files_dir}/train/"

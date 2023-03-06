@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from models import independent_module
+from models import independent_module, independent_module_regressor
 from utils import utils
 
 
@@ -40,8 +40,9 @@ class FullModel(nn.Module):
                 )
             )
         elif (
-            self.opt["model_splits"] == 5
+            self.opt["model_splits"] == 6
         ):  # GIM model in which the last autoregressive layer is trained independently
+            assert opt['auto_regressor_after_module'] is False, "This option is not supported for model_splits == 6"
             enc_input = 1
             for i, _ in enumerate(kernel_sizes):
                 self.fullmodel.append(
@@ -54,11 +55,20 @@ class FullModel(nn.Module):
                         enc_padding=[padding[i]],
                         nb_channels_cnn=cnn_hidden_dim,
                         nb_channels_regress=regressor_hidden_dim,
-
                         calc_accuracy=calc_accuracy,
                     )
                 )
                 enc_input = cnn_hidden_dim
+
+            # Just regressor layer
+            self.fullmodel.append(
+                independent_module_regressor.AutoregressorIndependentModule(
+                    opt,
+                    nb_channels_cnn=cnn_hidden_dim,
+                    nb_channels_regress=regressor_hidden_dim,
+                    calc_accuracy=calc_accuracy,
+                )
+            )
         else:
             raise Exception("Invalid option for opt['model_splits']")
 

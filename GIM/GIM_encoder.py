@@ -41,10 +41,6 @@ class GIM_Encoder():
                 calc_accuracy=calc_accuracy,
             )
 
-        # Run on only one GPU for supervised losses.
-        if self.opt["loss"] == 2 or self.opt["loss"] == 1:
-            num_GPU = 1
-
         model, num_GPU = model_utils.distribute_over_GPUs(
             self.opt, model, num_GPU=num_GPU)
 
