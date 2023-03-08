@@ -4,25 +4,21 @@ This file is used to analyse the hidden representation of the audio signal.
 - It stores the hidden representation of the audio signal for each batch in a tensor.
 - The tensor is then visualised using a scatter plot.
 """
-import importlib
+import os
 import random
 import numpy as np
 from sklearn.manifold import TSNE
 import torch
 from GIM_encoder import GIM_Encoder
-import helper_functions
-from options import OPTIONS as opt
-from options_anal_hidd_repr import LOG_PATH, EPOCH_VERSION, ONLY_LAST_PREDICTION_FROM_TIME_WINDOW, SAVE_ENCODINGS, AUTO_REGRESSOR_AFTER_MODULE, ENCODER_MODEL_DIR, VISUALISE_LATENT_ACTIVATIONS, VISUALISE_TSNE, VISUALISE_TSNE_ORIGINAL_DATA
-
+from helper_functions import *
+from options import OPTIONS as OPT
+from options_anal_hidd_repr import OPTIONS as OPT_ANAL
 from arg_parser import arg_parser
 from data import get_dataloader
 
 
 random.seed(0)
 
-if(True):
-    importlib.reload(helper_functions)
-    from helper_functions import *
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -50,7 +46,7 @@ def visualise_2d_tensor(tensor, GIM_model_name, target_dir, name):
     # plt.show()
 
 
-def _save_encodings(root_dir, data_type, encoder: GIM_Encoder, data_loader):
+def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_loader):
     assert data_type in ["train", "test"]
 
     # audio, filename, pronounced_syllable, full_word
@@ -61,7 +57,7 @@ def _save_encodings(root_dir, data_type, encoder: GIM_Encoder, data_loader):
         for module_idx, batch_enc_audio in enumerate(batch_enc_audio_per_module):
             # eg: batch_enc_audio.shape = (96, 55, 256)
 
-            if ONLY_LAST_PREDICTION_FROM_TIME_WINDOW:
+            if opt_anal['ONLY_LAST_PREDICTION_FROM_TIME_WINDOW']:
                 batch_enc_audio = batch_enc_audio[:, -1, :]
                 # eg: batch_enc_audio.shape = (96, 256)
                 # Expand, eg: batch_enc_audio.shape = (96, 1, 256)
@@ -81,16 +77,16 @@ def _save_encodings(root_dir, data_type, encoder: GIM_Encoder, data_loader):
                        f"{target_dir}/batch_pronounced_syllable_{idx}.pt")
 
 
-def generate_and_save_encodings(encoder_model_path):
+def generate_and_save_encodings(opt_anal, encoder_model_path):
     encoder: GIM_Encoder = GIM_Encoder(opt, path=encoder_model_path)
     split = True
     train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(
         opt, shuffle=False, split_and_pad=split, train_noise=False)
 
-    target_dir = f"{LOG_PATH}/hidden_repr/{'split' if split else 'full'}"
+    target_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{'split' if split else 'full'}"
 
-    _save_encodings(target_dir, "train", encoder, train_loader)
-    _save_encodings(target_dir, "test", encoder, test_loader)
+    _save_encodings(opt_anal, target_dir, "train", encoder, train_loader)
+    _save_encodings(opt_anal, target_dir, "test", encoder, test_loader)
 
 
 def _generate_visualisations(data_dir, GIM_model_name, target_dir):
@@ -200,61 +196,67 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
               gim_name, target_dir)
 
 
-def generate_visualisations():
+def generate_visualisations(opt_anal):
     # eg LOG_PATH = ./GIM\logs\audio_experiment_3_lr_noise\analyse_hidden_repr\
     for split in ['split', 'full']:
         if split == 'full':  # TODO: temporary disabled as full is not yet implemented
             continue
 
-        saved_modules_dir = f"{LOG_PATH}/hidden_repr/{split}/"
+        saved_modules_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{split}/"
         nb_modules = len(os.listdir(saved_modules_dir))  # module=1, ...
 
         # only visualise last 3 modules. The earlier latents are too high dimension and cannot be stored in memory
         first_module = max(nb_modules - 3, 1)
 
         for module_idx in range(first_module, nb_modules + 1):
-            saved_files_dir = f"{LOG_PATH}/hidden_repr/{split}/module={module_idx}/"
+            saved_files_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{split}/module={module_idx}/"
 
             train_dir = f"{saved_files_dir}/train/"
             test_dir = f"{saved_files_dir}/test/"
 
-            target_dir = f"{LOG_PATH}/hidden_repr_vis/{split}/module={module_idx}/"
+            target_dir = f"{opt_anal['LOG_PATH']}/hidden_repr_vis/{split}/module={module_idx}/"
             train_vis_dir = f"{target_dir}/train"
             test_vis_dir = f"{target_dir}/test/"
             create_log_dir(train_vis_dir)
             create_log_dir(test_vis_dir)
 
-            if VISUALISE_LATENT_ACTIVATIONS:
+            if opt_anal['VISUALISE_LATENT_ACTIVATIONS']:
                 _generate_visualisations(train_dir, "GIM", train_vis_dir)
                 _generate_visualisations(test_dir, "GIM", test_vis_dir)
 
-            if VISUALISE_TSNE and split == 'split':
+            if opt_anal['VISUALISE_TSNE'] and split == 'split':
                 _visualise_latent_space_tsne(test_dir, "GIM", test_vis_dir)
                 _visualise_latent_space_tsne(train_dir, "GIM", train_vis_dir)
 
 
-if __name__ == "__main__":
-    assert SAVE_ENCODINGS or VISUALISE_LATENT_ACTIVATIONS or VISUALISE_TSNE or VISUALISE_TSNE_ORIGINAL_DATA, "Nothing to do"
+def run_visualisations(opt, opt_anal):
 
-    torch.cuda.empty_cache()
     arg_parser.create_log_path(opt)
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
-    opt['auto_regressor_after_module'] = AUTO_REGRESSOR_AFTER_MODULE
+    opt['auto_regressor_after_module'] = opt_anal['AUTO_REGRESSOR_AFTER_MODULE']
 
     logs = logger.Logger(opt)
 
-    ENCODER_NAME = f"model_{EPOCH_VERSION}.ckpt"
-    ENCODER_MODEL_PATH = f"{ENCODER_MODEL_DIR}/{ENCODER_NAME}"
+    ENCODER_NAME = f"model_{opt_anal['EPOCH_VERSION']}.ckpt"
+    ENCODER_MODEL_PATH = f"{opt_anal['ENCODER_MODEL_DIR']}/{ENCODER_NAME}"
 
-    if SAVE_ENCODINGS:
-        generate_and_save_encodings(ENCODER_MODEL_PATH)
+    if opt_anal['SAVE_ENCODINGS']:
+        generate_and_save_encodings(opt_anal, ENCODER_MODEL_PATH)
 
-    if VISUALISE_TSNE or VISUALISE_LATENT_ACTIVATIONS:
-        generate_visualisations()
+    if opt_anal['VISUALISE_TSNE'] or opt_anal['VISUALISE_LATENT_ACTIVATIONS']:
+        generate_visualisations(opt_anal)
 
-    if VISUALISE_TSNE_ORIGINAL_DATA:
+    if opt_anal['VISUALISE_TSNE_ORIGINAL_DATA']:
         generate_tsne_visualisations_original_data("train")
         generate_tsne_visualisations_original_data("test")
+
+
+if __name__ == "__main__":
+    torch.cuda.empty_cache()
+    assert OPT_ANAL['SAVE_ENCODINGS'] or OPT_ANAL['VISUALISE_LATENT_ACTIVATIONS'] or \
+        OPT_ANAL['VISUALISE_TSNE'] or OPT_ANAL['VISUALISE_TSNE_ORIGINAL_DATA'], "Nothing to do"
+
+    run_visualisations(OPT, OPT_ANAL)
 
     torch.cuda.empty_cache()

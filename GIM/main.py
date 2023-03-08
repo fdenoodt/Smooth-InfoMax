@@ -4,6 +4,7 @@ import time
 import numpy as np
 import random
 import gc
+from main_anal_hidd_repr import run_visualisations
 from options import OPTIONS
 
 # own modules
@@ -76,6 +77,23 @@ def train(opt, model, optimizer, train_loader, test_loader):
             logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
+def save_latents_and_generate_visualisations(opt):
+    if opt['perform_analysis']:
+        options_anal = {
+            'LOG_PATH': opt['ANAL_LOG_PATH'],
+            'EPOCH_VERSION': opt['ANAL_EPOCH_VERSION'],
+            'ONLY_LAST_PREDICTION_FROM_TIME_WINDOW': opt['ANAL_ONLY_LAST_PREDICTION_FROM_TIME_WINDOW'],
+            'SAVE_ENCODINGS': opt['ANAL_SAVE_ENCODINGS'],
+            'AUTO_REGRESSOR_AFTER_MODULE': opt['ANAL_AUTO_REGRESSOR_AFTER_MODULE'],
+            'ENCODER_MODEL_DIR': opt['ANAL_ENCODER_MODEL_DIR'],
+            'VISUALISE_LATENT_ACTIVATIONS': opt['ANAL_VISUALISE_LATENT_ACTIVATIONS'],
+            'VISUALISE_TSNE': opt['ANAL_VISUALISE_TSNE'],
+            'VISUALISE_TSNE_ORIGINAL_DATA': opt['ANAL_VISUALISE_TSNE_ORIGINAL_DATA']
+        }
+
+        run_visualisations(opt, options_anal)
+
+
 if __name__ == "__main__":
     torch.cuda.empty_cache()
     gc.collect()
@@ -108,3 +126,4 @@ if __name__ == "__main__":
 
     logs.create_log(MODEL)
 
+    save_latents_and_generate_visualisations(OPTIONS)
