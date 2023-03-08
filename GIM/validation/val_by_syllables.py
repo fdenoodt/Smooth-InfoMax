@@ -24,7 +24,16 @@ def val_by_latent_syllables(opt, dataloader, model, epoch, step):
 
         # iterate over layers
         for idx, layer in enumerate(model.module.fullmodel):
-            context, z = layer.get_latents(model_input)
+            # old: context, z = layer.get_latents(model_input)
+
+            # TODO: finish
+
+            # B x L x C
+            (c_mu, c_log_var), (z_mu, z_log_var) = layer.get_latents(model_input)
+
+            context = layer.reparameterize(c_mu, c_log_var)
+            z = layer.reparameterize(z_mu, z_log_var)
+
             model_input = z.permute(0, 2, 1)
 
             latent_rep = context.permute(0, 2, 1).cpu().numpy()

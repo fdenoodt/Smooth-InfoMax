@@ -22,24 +22,23 @@ class GIM_Encoder():
         kernel_sizes = [10, 8, 4, 4, 4]
         strides = [5, 4, 2, 2, 2]
         padding = [2, 2, 2, 2, 1]
-        
+
         cnn_hidden = 512
         regressor_hidden = 256
-
 
         calc_accuracy = False
         num_GPU = None
 
         # Initialize model.
         model: full_model.FullModel = full_model.FullModel(
-                self.opt,
-                kernel_sizes=kernel_sizes,
-                strides=strides,
-                padding=padding,
-                cnn_hidden_dim=cnn_hidden,
-                regressor_hidden_dim=regressor_hidden,
-                calc_accuracy=calc_accuracy,
-            )
+            self.opt,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            padding=padding,
+            cnn_hidden_dim=cnn_hidden,
+            regressor_hidden_dim=regressor_hidden,
+            calc_accuracy=calc_accuracy,
+        )
 
         model, num_GPU = model_utils.distribute_over_GPUs(
             self.opt, model, num_GPU=num_GPU)
@@ -58,7 +57,10 @@ class GIM_Encoder():
         model_input = audio_batch.to(device)
 
         for idx, module in enumerate(self.encoder.module.fullmodel):
-            latent, _ = module.get_latents(model_input)
+            # latent, _ = module.get_latents(model_input)
+            (c_mu, c_log_var), _ = module.get_latents(model_input)
+
+            latent = module.reparameterize(c_mu, c_log_var)
             latent_per_module.append(latent)
 
             model_input = latent.permute(0, 2, 1)
@@ -67,18 +69,17 @@ class GIM_Encoder():
 
 # %%
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
 
     from options import OPTIONS as opt
     # from data.de_boer_decoder_sounds import DeBoerDecoderDataset
     # import os
 
-
     encoder = GIM_Encoder(opt)
-    org_batch  = torch.rand((64, 1, 10240))
+    org_batch = torch.rand((64, 1, 10240))
     enc = encoder(org_batch)
     # enc = encoder.encode(org_batch)
-
 
 
 #     print("Using Train+Val / Test Split")
