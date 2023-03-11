@@ -41,21 +41,13 @@ def parse_args():
 def create_log_path(opt, add_path_var=None):
     unique_path = False
 
-    if opt['save_dir'] != "":
-
-        opt["log_path"] = os.path.join(opt["data_output_dir"], "logs", opt["save_dir"])
-
-        unique_path = True
-    elif add_path_var is not None:
-        opt["log_path"] = os.path.join(
-            opt["data_output_dir"], "logs", add_path_var, opt["time"]
-        )
-    else:
-        opt["log_path"] = os.path.join(opt["data_output_dir"], "logs", opt["time"])
+    assert opt['save_dir'] != "", "save_dir must not be empty"
+    assert opt['log_path'] != "", "log_path must not be empty"
+    unique_path = True
 
 
     # remove ":" from name as windows can't handle it
-    opt["log_path"] = opt["log_path"].replace(":", "_")
+    # opt["log_path"] = opt["log_path"].replace(":", "_")
 
     ### very hacky way to avoid overwriting of log-files in case scripts are started at the same time
     while os.path.exists(opt["log_path"]) and not unique_path:
