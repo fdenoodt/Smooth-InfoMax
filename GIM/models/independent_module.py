@@ -88,8 +88,8 @@ class IndependentModule(nn.Module):
         eps = torch.randn_like(std)
         return eps * std + mu
 
-
     # FROM VAE
+
     def VAE_LOSS_FROM_OTHER_PROJECT(self, recons, input, mu, log_var, kld_weight=0.0025) -> List[Tensor]:
         """
         Computes the VAE loss function.
@@ -102,10 +102,11 @@ class IndependentModule(nn.Module):
         # Account for the minibatch samples from the dataset
         recons_loss = F.mse_loss(recons, input)
 
-        kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+        kld_loss = torch.mean(-0.5 * torch.sum(1 +
+                              log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
 
-        loss = recons_loss + kld_weight * kld_loss # shape: (3, 3)
-        loss = loss.mean() # shape: (1)
+        loss = recons_loss + kld_weight * kld_loss  # shape: (3, 3)
+        loss = loss.mean()  # shape: (1)
         return [loss, recons_loss.detach(), -kld_loss.detach()]
 
     def forward(self, x):
@@ -124,19 +125,20 @@ class IndependentModule(nn.Module):
         # !! all of a sudden the c that was equal to z is now a different value.
         # TODO: THINK ABOUT THIS, it could have implications for the loss function if not done correctly
 
-        c = self.reparameterize(c_mu, c_log_var) # (B, L, 512)
+        c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
         z = self.reparameterize(z_mu, z_log_var)
 
         log_var = c_log_var
         mu = c_mu
 
-        kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-        kld_loss = kld_loss.mean() # shape: (1)
+        kld_loss = torch.mean(-0.5 * torch.sum(1 +
+                              log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+        kld_loss = kld_loss.mean()  # shape: (1)
 
         # reconstruction loss
         total_loss, accuracies = self.loss.get_loss(z, c)
-        
-        kld_weight=0.0025
+
+        kld_weight = 0  # 0.0025
 
         total_loss = total_loss + kld_weight * kld_loss
 

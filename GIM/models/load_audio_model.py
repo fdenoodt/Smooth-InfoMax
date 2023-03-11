@@ -5,7 +5,7 @@ from utils import model_utils
 
 
 def load_model_and_optimizer(
-    opt, reload_model=False, calc_accuracy=False, num_GPU=None
+    opt, lr, reload_model=False, calc_accuracy=False, num_GPU=None
 ):
 
     # Original dimensions given in CPC paper (Oord et al.).
@@ -39,7 +39,7 @@ def load_model_and_optimizer(
     model, num_GPU = model_utils.distribute_over_GPUs(
         opt, model, num_GPU=num_GPU)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt['learning_rate'])
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     model, optimizer = model_utils.reload_weights(
         opt, model, optimizer, reload_model)

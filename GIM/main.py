@@ -27,14 +27,13 @@ def train(opt, model, optimizer, train_loader, test_loader):
 
     starttime = time.time()
 
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
+
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
         loss_epoch = [0 for _ in range(opt["model_splits"])]
 
         for step, (audio, _, _, _) in enumerate(train_loader):
-            if(opt["dont_train"]):
-                if step == 400:
-                    break
 
             # validate training progress by plotting latent representation of various speakers
             if step % latent_val_idx == 0:
@@ -66,6 +65,9 @@ def train(opt, model, optimizer, train_loader, test_loader):
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
+        scheduler.step()
+        print(f"LR: {scheduler.get_lr()}")
+
         logs.append_train_loss([x / total_step for x in loss_epoch])
 
         # validate by testing the CPC performance on the validation set
@@ -94,6 +96,30 @@ def save_latents_and_generate_visualisations(opt):
         run_visualisations(opt, options_anal)
 
 
+def main():
+    learning_rate = OPTIONS["learning_rate"]
+
+    # load model
+    model, optimizer = load_audio_model.load_model_and_optimizer(
+        OPTIONS, learning_rate)
+
+    # get datasets and dataloaders
+    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
+        OPTIONS
+    )
+
+    try:
+        # Train the model
+        train(OPTIONS, model, optimizer, train_loader, test_loader)
+
+    except KeyboardInterrupt:
+        print("Training got interrupted, saving log-files now.")
+
+    logs.create_log(model)
+
+    save_latents_and_generate_visualisations(OPTIONS)
+
+
 if __name__ == "__main__":
     torch.cuda.empty_cache()
     gc.collect()
@@ -106,24 +132,13 @@ if __name__ == "__main__":
     np.random.seed(OPTIONS["seed"])
     random.seed(OPTIONS["seed"])
 
-    # load model
-    MODEL, OPTIMIZER = load_audio_model.load_model_and_optimizer(OPTIONS)
+    LEARNING_RATE = OPTIONS["learning_rate"]
+    DECAY_RATE = 0.5
 
+    # EXPERIMENT = f"{OPTIONS['EXPERIMENT_NAME']}_lr={LEARNING_RATE}_decay={DECAY_RATE}"
+    
     # initialize logger
     logs = logger.Logger(OPTIONS)
 
-    # get datasets and dataloaders
-    TRAIN_LOADER, TRAIN_DATASET, TEST_LOADER, TEST_DATASET = get_dataloader.get_de_boer_sounds_data_loaders(
-        OPTIONS
-    )
 
-    try:
-        # Train the model
-        train(OPTIONS, MODEL, OPTIMIZER, TRAIN_LOADER, TEST_LOADER)
-
-    except KeyboardInterrupt:
-        print("Training got interrupted, saving log-files now.")
-
-    logs.create_log(MODEL)
-
-    save_latents_and_generate_visualisations(OPTIONS)
+    main()
