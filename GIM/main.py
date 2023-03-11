@@ -66,7 +66,7 @@ def train(opt, model, optimizer, train_loader, test_loader):
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
         scheduler.step()
-        print(f"LR: {scheduler.get_lr()}")
+        print(f"LR: {scheduler.get_last_lr()}")
 
         logs.append_train_loss([x / total_step for x in loss_epoch])
 
