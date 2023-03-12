@@ -27,7 +27,7 @@ def train(opt, model, optimizer, train_loader, test_loader):
 
     starttime = time.time()
 
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=DECAY_RATE)
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     random.seed(OPTIONS["seed"])
 
     LEARNING_RATE = OPTIONS["learning_rate"]
-    DECAY_RATE = 0.5
+    DECAY_RATE = 0.99
 
     # EXPERIMENT = f"{OPTIONS['EXPERIMENT_NAME']}_lr={LEARNING_RATE}_decay={DECAY_RATE}"
     

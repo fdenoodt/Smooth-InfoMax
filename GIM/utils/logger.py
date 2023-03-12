@@ -18,7 +18,7 @@ class Logger:
 
         if opt["start_epoch"] > 0:
             self.loss_last_training = np.load(
-                os.path.join(opt['model_path'], "train_loss.npy")
+                os.path.join(opt['model_path'], "train_loss.npy"), allow_pickle=True
             ).tolist()
             self.train_loss[: len(self.loss_last_training)] = copy.deepcopy(
                 self.loss_last_training
@@ -26,7 +26,7 @@ class Logger:
 
             if opt["validate"]:
                 self.val_loss_last_training = np.load(
-                    os.path.join(opt['model_path'], "val_loss.npy")
+                    os.path.join(opt['model_path'], "val_loss.npy"), allow_pickle=True
                 ).tolist()
                 self.val_loss[: len(self.val_loss_last_training)] = copy.deepcopy(
                     self.val_loss_last_training
