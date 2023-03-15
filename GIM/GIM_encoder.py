@@ -18,13 +18,15 @@ class GIM_Encoder():
             return self.encode(xs_batch)
 
     def load_model(self, path):
-        # Origins comes from: def load_model_and_optimizer()
-        kernel_sizes = [10, 8, 4, 4, 4]
-        strides = [5, 4, 2, 2, 2]
-        padding = [2, 2, 2, 2, 1]
+        # Originates from: def load_model_and_optimizer()
+        
+        architecture = self.opt["architecture"]
+        kernel_sizes = architecture["kernel_sizes"]
+        strides = architecture["strides"]
+        padding = architecture["padding"]
 
-        cnn_hidden = 512
-        regressor_hidden = 256
+        cnn_hidden = architecture["cnn_hidden_dim"]
+        regressor_hidden = architecture["regressor_hidden_dim"]
 
         calc_accuracy = False
         num_GPU = None

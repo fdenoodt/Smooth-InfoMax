@@ -27,6 +27,7 @@ class IndependentModule(nn.Module):
 
         # encoder, out: B x L x C = (22, 55, 512)
         self.encoder = cnn_encoder.CNNEncoder(
+            opt=opt,
             inp_nb_channels=enc_input,
             out_nb_channels=nb_channels_cnn,
             kernel_sizes=enc_kernel_sizes,

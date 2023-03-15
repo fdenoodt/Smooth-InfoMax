@@ -25,17 +25,17 @@ class FullModel(nn.Module):
 
         # load model
         self.fullmodel = nn.ModuleList([])
-
+    
         if self.opt["model_splits"] == 1:
             # CPC model
             self.fullmodel.append(
                 independent_module.IndependentModule(
                     opt,
-                    enc_kernel_sizes=kernel_sizes,
-                    enc_strides=strides,
-                    enc_padding=padding,
-                    nb_channels_cnn=cnn_hidden_dim,
-                    nb_channels_regress=regressor_hidden_dim,
+                    enc_kernel_sizes=kernel_sizes, # [10, 8, 4, 4, 4]
+                    enc_strides=strides, # [5, 4, 2, 2, 2]
+                    enc_padding=padding, # [2, 2, 2, 2, 1]
+                    nb_channels_cnn=cnn_hidden_dim, # 512
+                    nb_channels_regress=regressor_hidden_dim, # 256
                     calc_accuracy=calc_accuracy,
                 )
             )

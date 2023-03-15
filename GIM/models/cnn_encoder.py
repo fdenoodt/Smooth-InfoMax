@@ -4,9 +4,10 @@ import torch.nn as nn
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding):
+    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding):
         super(CNNEncoder, self).__init__()
 
+        self.opt = opt
         self.nb_channels = out_nb_channels
 
         assert (
@@ -38,6 +39,10 @@ class CNNEncoder(nn.Module):
                     ),
                 )
 
+                if self.opt['architecture']['max_pool']:
+                    # add maxpool to encoder
+                    self.encoder.add_module(f"maxpool {idx}", nn.MaxPool1d(8, 4))
+
             inp_nb_channels = self.nb_channels
 
     def new_block(self, in_dim, out_dim, kernel_size, stride, padding):
@@ -45,49 +50,14 @@ class CNNEncoder(nn.Module):
             nn.Conv1d(
                 in_dim, out_dim, kernel_size=kernel_size, stride=stride, padding=padding
             ),
-            nn.ReLU(),
+            nn.ReLU()
         )
         return new_block
 
-    # from vae:
-    # self.encoder_cnn = nn.Sequential(
-    #     nn.Conv2d(1, 8, 3, stride=2, padding=1),
-    #     nn.ReLU(True),
-    #     nn.Conv2d(8, 16, 3, stride=2, padding=1),
-    #     nn.BatchNorm2d(16),
-    #     nn.ReLU(True),
-    #     nn.Conv2d(16, 32, 3, stride=2, padding=0),
-    #     nn.ReLU(True)
-    # )
-
-    # # In: [b, 32, 3, 3]
-    # # Out: [b, latent_dim, 3, 3]
-    #
-    # self.cnn_mu = nn.Sequential(
-    #     nn.Conv2d(32, latent_dim, 3, stride=1, padding=1),
-    #     nn.ReLU(True))
-
-    # self.cnn_var = nn.Sequential(
-    #     nn.Conv2d(32, latent_dim, 3, stride=1, padding=1),
-    #     nn.ReLU(True))
-    # def encode(self, input: Tensor) -> List[Tensor]:
-    #     """
-    #     Encodes the input by passing through the encoder network
-    #     and returns the latent codes.
-    #     :param input: (Tensor) Input tensor to encoder [N x C x H x W]
-    #     :return: (Tensor) List of latent codes
-    #     """
-    #     result = self.encoder_cnn(input)
-    #     # out: [b x 32 x 3 x 3] = b x c x h x w
-
-    #     # Split the result into mu and var components
-    #     # of the latent Gaussian distribution
-    #     mu = self.cnn_mu(result) # out: [b x latent_dim x 3 x 3]
-    #     log_var = self.cnn_var(result)
-
-    #     return [mu, log_var]
-
     def forward(self, x) -> List[Tensor]:
+
+        # x is batch of audio files of shape [N x C x L]
+        # save first.wav to disk
         result = self.encoder(x)
         mu = self.encoder_mu(result)
         log_var = self.encoder_var(result)

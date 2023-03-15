@@ -7,14 +7,13 @@ from utils import model_utils
 def load_model_and_optimizer(
     opt, lr, reload_model=False, calc_accuracy=False, num_GPU=None
 ):
+    architecture = opt["architecture"]
+    kernel_sizes = architecture["kernel_sizes"]
+    strides = architecture["strides"]
+    padding = architecture["padding"]
 
-    # Original dimensions given in CPC paper (Oord et al.).
-    kernel_sizes = [10, 8, 4, 4, 4]
-    strides = [5, 4, 2, 2, 2]
-    padding = [2, 2, 2, 2, 1]
-
-    cnn_hidden = 512
-    regressor_hidden = 256
+    cnn_hidden = architecture["cnn_hidden_dim"]
+    regressor_hidden = architecture["regressor_hidden_dim"]
 
     if opt["model_splits"] > 1:
         assert len(kernel_sizes) == len(strides) == len(padding) == opt["model_splits"], (
