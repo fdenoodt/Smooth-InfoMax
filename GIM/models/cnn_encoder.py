@@ -22,10 +22,13 @@ class CNNEncoder(nn.Module):
         for idx, _ in enumerate(kernel_sizes):
             # if at last layer add the mu and var layers
             if idx == len(kernel_sizes) - 1:
-                self.encoder_mu = self.new_block(
-                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx],)
+                # self.encoder_mu = self.new_block(
+                #     inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx],)
 
-                self.encoder_var = self.new_block(
+                self.encoder_mu = nn.Conv1d(
+                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
+
+                self.encoder_var = nn.Conv1d(
                     inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
             else:
                 self.encoder.add_module(
@@ -44,7 +47,8 @@ class CNNEncoder(nn.Module):
                     assert architecture['max_pool_stride'], "max_pool_stride must be set if max_pool_k_size is set"
 
                     # add maxpool to encoder
-                    self.encoder.add_module(f"maxpool {idx}", nn.MaxPool1d(8, 4))
+                    self.encoder.add_module(
+                        f"maxpool {idx}", nn.MaxPool1d(8, 4))
 
             inp_nb_channels = self.nb_channels
 
@@ -53,16 +57,15 @@ class CNNEncoder(nn.Module):
             nn.Conv1d(
                 in_dim, out_dim, kernel_size=kernel_size, stride=stride, padding=padding
             ),
-            # nn.ReLU()
-            nn.Sigmoid()
+            nn.ReLU()
+            # nn.Sigmoid()
         )
         return new_block
 
     def forward(self, x) -> List[Tensor]:
-
         # x is batch of audio files of shape [N x C x L]
-        # save first.wav to disk
         result = self.encoder(x)
+
         mu = self.encoder_mu(result)
         log_var = self.encoder_var(result)
         return [mu, log_var]
