@@ -8,7 +8,7 @@ from helper_functions import resample
 
 
 class GuassianNoise:
-    def add_random_noise(self, waveform, noise_level=0.05):
+    def add_random_noise(self, waveform, noise_level):
         '''
         Generated via Chat gpt: Gaussian white noise
         The noise_level parameter in the add_noise_torch function corresponds to the amplitude of the random noise that will be added to the audio waveform. It is a value between 0 and 1, with a default value of 0.01. The higher the value, the more noise will be added to the waveform.
@@ -23,7 +23,7 @@ class GuassianNoise:
         return waveform + noise
 
     def __call__(self, audio_signal):
-        noise = self.add_random_noise(audio_signal, noise_level=0.05)
+        noise = self.add_random_noise(audio_signal, noise_level=0.005)
         return noise
 
 
