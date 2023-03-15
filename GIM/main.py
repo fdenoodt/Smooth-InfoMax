@@ -16,7 +16,7 @@ from validation.val_by_syllables import val_by_latent_syllables
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
 
-def train(opt, model, optimizer, train_loader, test_loader):
+def train(opt, logs, model, optimizer, train_loader, test_loader):
     '''Train the model'''
     total_step = len(train_loader)
 
@@ -27,7 +27,9 @@ def train(opt, model, optimizer, train_loader, test_loader):
 
     starttime = time.time()
 
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=DECAY_RATE)
+    decay_rate = opt["decay_rate"]
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(
+        optimizer, gamma=decay_rate)
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
@@ -96,49 +98,48 @@ def save_latents_and_generate_visualisations(opt):
         run_visualisations(opt, options_anal)
 
 
-def main():
-    learning_rate = OPTIONS["learning_rate"]
+def main(options):
+    logs = logger.Logger(options)
+
+    learning_rate = options["learning_rate"]
 
     # load model
     model, optimizer = load_audio_model.load_model_and_optimizer(
-        OPTIONS, learning_rate)
+        options, learning_rate)
 
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
-        OPTIONS, train_noise=OPTIONS["train_w_noise"]
+        options, train_noise=options["train_w_noise"]
     )
 
     try:
         # Train the model
-        train(OPTIONS, model, optimizer, train_loader, test_loader)
+        train(options, logs, model, optimizer, train_loader, test_loader)
 
     except KeyboardInterrupt:
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
 
-    save_latents_and_generate_visualisations(OPTIONS)
+    save_latents_and_generate_visualisations(options)
 
 
-if __name__ == "__main__":
+def init(options):
     torch.cuda.empty_cache()
     gc.collect()
 
-    arg_parser.create_log_path(OPTIONS)
+    arg_parser.create_log_path(options)
 
     # set random seeds
-    torch.manual_seed(OPTIONS["seed"])
-    torch.cuda.manual_seed(OPTIONS["seed"])
-    np.random.seed(OPTIONS["seed"])
-    random.seed(OPTIONS["seed"])
+    torch.manual_seed(options["seed"])
+    torch.cuda.manual_seed(options["seed"])
+    np.random.seed(options["seed"])
+    random.seed(options["seed"])
 
-    LEARNING_RATE = OPTIONS["learning_rate"]
-    DECAY_RATE = OPTIONS["decay_rate"]
-
-    # EXPERIMENT = f"{OPTIONS['EXPERIMENT_NAME']}_lr={LEARNING_RATE}_decay={DECAY_RATE}"
-    
-    # initialize logger
-    logs = logger.Logger(OPTIONS)
+def run_configuration(options):
+    init(options)
+    main(options)
 
 
-    main()
+if __name__ == "__main__":
+    run_configuration(OPTIONS)
