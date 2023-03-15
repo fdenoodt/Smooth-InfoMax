@@ -70,13 +70,6 @@ class IndependentModule(nn.Module):
         # return z, z
         return [(mu, log_var), (mu, log_var)]
 
-    # def forward(self, input: Tensor) -> List[Tensor]:
-    #     mu, log_var = self.encode(input)
-    #     z = self.reparameterize(mu, log_var) # (batch, latent_dim, 3, 3)
-
-    #     x_hat = self.decode(z) # not used
-    #     return [x_hat, input, mu, log_var]
-
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
         """
         Reparameterization trick to sample from N(mu, var) from
@@ -123,29 +116,32 @@ class IndependentModule(nn.Module):
         # B x L x C = Batch size x #channels x length
         (c_mu, c_log_var), (z_mu, z_log_var) = self.get_latents(x)  # B x L x C
 
-        # !! all of a sudden the c that was equal to z is now a different value.
-        # TODO: THINK ABOUT THIS, it could have implications for the loss function if not done correctly
+        if self.opt['architecture']['predict_distributions']:
+            c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
+            z = self.reparameterize(z_mu, z_log_var) # TODO: Maybe we should use the same distribution for z and c
 
-        c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
-        z = self.reparameterize(z_mu, z_log_var)
+            log_var = c_log_var
+            mu = c_mu
 
-        log_var = c_log_var
-        mu = c_mu
+            # KL-divergence loss
+            kld_loss = torch.mean(-0.5 * torch.sum(1 +
+                                log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+            kld_loss = kld_loss.mean()  # shape: (1)
 
-        kld_loss = torch.mean(-0.5 * torch.sum(1 +
-                              log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-        kld_loss = kld_loss.mean()  # shape: (1)
+            # reconstruction loss
+            total_loss, accuracies = self.loss.get_loss(z, c)
 
-        # reconstruction loss
-        total_loss, accuracies = self.loss.get_loss(z, c)
+            kld_weight = self.opt['kld_weight']
 
-        kld_weight = 0  # 0.0025
+            # Combine the losses
+            total_loss = total_loss + kld_weight * kld_loss
+        
+        else:
+            # consider the mean of the distribution as the latent representation, we ignore the variance
+            c = c_mu 
+            z = z_mu
 
-        total_loss = total_loss + kld_weight * kld_loss
-
-        # KL-divergence loss
-        # if self.opt["use_kl_divergence"]:
-        # kl_loss = self.loss.get_kl_loss(z)
+            total_loss, accuracies = self.loss.get_loss(z, c)
 
         # for multi-GPU training
         total_loss = total_loss.unsqueeze(0)

@@ -105,7 +105,7 @@ def main():
 
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
-        OPTIONS
+        OPTIONS, train_noise=OPTIONS["train_w_noise"]
     )
 
     try:
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     random.seed(OPTIONS["seed"])
 
     LEARNING_RATE = OPTIONS["learning_rate"]
-    DECAY_RATE = 0.99
+    DECAY_RATE = OPTIONS["decay_rate"]
 
     # EXPERIMENT = f"{OPTIONS['EXPERIMENT_NAME']}_lr={LEARNING_RATE}_decay={DECAY_RATE}"
     

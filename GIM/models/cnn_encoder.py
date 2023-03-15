@@ -39,7 +39,10 @@ class CNNEncoder(nn.Module):
                     ),
                 )
 
-                if self.opt['architecture']['max_pool']:
+                architecture = self.opt['architecture']
+                if architecture['max_pool_k_size']:
+                    assert architecture['max_pool_stride'], "max_pool_stride must be set if max_pool_k_size is set"
+
                     # add maxpool to encoder
                     self.encoder.add_module(f"maxpool {idx}", nn.MaxPool1d(8, 4))
 
@@ -50,7 +53,8 @@ class CNNEncoder(nn.Module):
             nn.Conv1d(
                 in_dim, out_dim, kernel_size=kernel_size, stride=stride, padding=padding
             ),
-            nn.ReLU()
+            # nn.ReLU()
+            nn.Sigmoid()
         )
         return new_block
 

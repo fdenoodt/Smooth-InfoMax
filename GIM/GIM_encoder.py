@@ -62,7 +62,11 @@ class GIM_Encoder():
             # latent, _ = module.get_latents(model_input)
             (c_mu, c_log_var), _ = module.get_latents(model_input)
 
-            latent = module.reparameterize(c_mu, c_log_var)
+            if self.opt['architecture']['predict_distributions']:
+                latent = module.reparameterize(c_mu, c_log_var)
+            else:
+                latent = c_mu
+                
             latent_per_module.append(latent)
 
             model_input = latent.permute(0, 2, 1)
