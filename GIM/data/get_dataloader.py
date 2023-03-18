@@ -109,10 +109,10 @@ def _get_libri_dataloaders(opt):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_dataloader(opt, **kwargs):
-    if opt["data_set"] == "de_boer_sounds":
+def get_dataloader(opt, dataset, **kwargs):
+    if dataset == "de_boer_sounds":
         return _get_de_boer_sounds_data_loaders(opt, **kwargs)
-    elif opt["data_set"] == "librispeech":
+    elif dataset == "librispeech":
         return _get_libri_dataloaders(opt)
     else:
         raise ValueError("Unknown dataset")

@@ -63,11 +63,8 @@ class IndependentModule(nn.Module):
         mu = mu.permute(0, 2, 1)  # (b, 55, 512)
         log_var = log_var.permute(0, 2, 1)
 
-        # if self.opt["auto_regressor_after_module"]:
-        #     c = self.autoregressor(z)
-        #     return c, z
-        # else:
-        # return z, z
+        assert self.opt["auto_regressor_after_module"] == False, "Not implemented yet"
+        
         return [(mu, log_var), (mu, log_var)]
 
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:

@@ -80,8 +80,8 @@ def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_lo
 def generate_and_save_encodings(opt_anal, encoder_model_path):
     encoder: GIM_Encoder = GIM_Encoder(opt, path=encoder_model_path)
     split = True
-    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(
-        opt, shuffle=False, split_and_pad=split, train_noise=False)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
+        opt, dataset="de_boer_sounds", shuffle=False, split_and_pad=split, train_noise=False)
 
     target_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{'split' if split else 'full'}"
 
@@ -141,8 +141,8 @@ def generate_tsne_visualisations_original_data(train_or_test):
     all_audios = None
     all_syllables = np.array([])  # indicies
 
-    train_loader, _, test_loader, _ = get_dataloader.get_de_boer_sounds_data_loaders(
-        opt, shuffle=False, split_and_pad=True, train_noise=False)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
+        opt, dataset="de_boer_sounds", shuffle=False, split_and_pad=True, train_noise=False)
 
     for idx, (batch_org_audio, filenames, syllable_idxs, _) in enumerate(iter(train_loader if train_or_test == "train" else test_loader)):
         # eg: batch_org_audio.shape = (96, 1, 8800)

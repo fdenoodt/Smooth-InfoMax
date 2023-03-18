@@ -43,12 +43,14 @@ class CNNEncoder(nn.Module):
                 )
 
                 architecture = self.opt['architecture']
-                if architecture['max_pool_k_size']:
-                    assert architecture['max_pool_stride'], "max_pool_stride must be set if max_pool_k_size is set"
+                max_pool_k_size = architecture['max_pool_k_size']
+                max_pool_stride = architecture['max_pool_stride']
+                if max_pool_k_size:
+                    assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
 
                     # add maxpool to encoder
                     self.encoder.add_module(
-                        f"maxpool {idx}", nn.MaxPool1d(8, 4))
+                        f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
 
             inp_nb_channels = self.nb_channels
 

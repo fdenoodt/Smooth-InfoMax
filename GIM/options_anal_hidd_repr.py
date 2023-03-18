@@ -3,10 +3,13 @@
 
 # ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_test_w_ar"
 # ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise_no_autoreg" # w/o auto reg
+# ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
 ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
+ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\temp"  # w/ auto reg
+
 LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
-EPOCH_VERSION = 199
-AUTO_REGRESSOR_AFTER_MODULE = True
+EPOCH_VERSION = 0
+AUTO_REGRESSOR_AFTER_MODULE = False
 
 # Actions
 SAVE_ENCODINGS = True
