@@ -38,7 +38,7 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
         for step, (audio, _, _, _) in enumerate(train_loader):
 
             # validate training progress by plotting latent representation of various speakers
-            if step % latent_val_idx == 0:
+            if step % latent_val_idx == 0 and opt["data_set"] == "de_boer_sounds":
                 val_by_latent_syllables(opt, test_loader, model, epoch, step)
 
             if step % print_idx == 0:
@@ -108,7 +108,7 @@ def main(options):
         options, learning_rate)
 
     # get datasets and dataloaders
-    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_de_boer_sounds_data_loaders(
+    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
         options, train_noise=options["train_w_noise"]
     )
 

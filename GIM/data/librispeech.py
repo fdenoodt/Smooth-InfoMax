@@ -9,9 +9,7 @@ import random
 
 
 def default_loader(path):
-    return torchaudio.load(path,
-                           # normalization=False todo
-                           )
+    return torchaudio.load(path)
 
 
 def default_flist_reader(flist):
@@ -40,21 +38,18 @@ class LibriDataset(Dataset):
     ):
         self.root = root
         self.opt = opt
+        './datasets/LibriSpeech100_labels_split/train_val_train.txt'
 
         self.file_list, self.speaker_dict = flist_reader(flist)
 
         self.loader = loader
         self.audio_length = audio_length
 
-        self.mean = -1456218.7500
-        self.std = 135303504.0
-
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
-        filename = "{}-{}-{}".format(speaker_id, dir_id, sample_id)
+        filename = f"{speaker_id}-{dir_id}-{sample_id}"
         audio, samplerate = self.loader(
-            os.path.join(self.root, speaker_id, dir_id,
-                         "{}.flac".format(filename))
+            os.path.join(self.root, speaker_id, dir_id, f"{filename}.flac")
         )
 
         assert (
@@ -68,13 +63,10 @@ class LibriDataset(Dataset):
             np.arange(160, max_length - self.audio_length - 0, 160)
         )
 
-        # don't care about first dim
-        # audio = [start_idx, start_idx + audio_length]
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
-        audio = (audio - self.mean) / self.std
-
-        return audio, filename, speaker_id, start_idx
+        return audio, filename, speaker_id, 0
+        # return audio, filename, pronounced_syllable, full_word
 
     def __len__(self):
         return len(self.file_list)
@@ -113,7 +105,5 @@ class LibriDataset(Dataset):
         # discard last part that is not a full 10ms
         max_length = audio.size(1) // 160 * 160
         audio = audio[:max_length]
-
-        audio = (audio - self.mean) / self.std
 
         return audio, filename
