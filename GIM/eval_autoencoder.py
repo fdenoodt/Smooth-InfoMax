@@ -1,4 +1,6 @@
 # %%
+from helper_functions import *
+from decoder_architectures import *
 import importlib
 import torch
 from options import OPTIONS as opt
@@ -17,9 +19,6 @@ random.seed(0)
 #     importlib.reload(decoder_architectures)
 #     importlib.reload(helper_functions)
 
-from decoder_architectures import *
-from helper_functions import *
-
 
 def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=29):
     '''Generate predictions for the test set and save them to disk.'''
@@ -33,14 +32,18 @@ def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=
     logs = logger.Logger(opt)
 
     # load the data
-    train_loader, _, test_loader, _ = get_dataloader.\
-        get_de_boer_sounds_decoder_data_loaders(opt)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
+        opt, dataset="de_boer_sounds", split_and_pad=False, train_noise=False, shuffle=False)
 
     normalize_func = compute_normalizer(train_loader, encoder)
 
     for idx, (batch_org_audio, batch_filenames, _, _) in enumerate(test_loader):
         batch_org_audio = batch_org_audio.to(device)
-        batch_enc_audio = normalize_func(encoder(batch_org_audio).to(device))
+        batch_per_module = encoder(batch_org_audio)
+        batch_enc_audio = batch_per_module[-1].to(device)
+        batch_enc_audio = batch_enc_audio.permute(0, 2, 1)  # (b, c, l)
+
+        batch_enc_audio = normalize_func(batch_enc_audio)
         batch_outp = decoder(batch_enc_audio)
 
         # to numpy
@@ -48,33 +51,22 @@ def generate_predictions(encoder, criterion, lr, layer_depth, decoder, model_nb=
         batch_outp = det_np(batch_outp)
 
         for (org_audio, filename, outp) in zip(batch_org_audio, batch_filenames, batch_outp):
-            org_audio, outp = org_audio[0], outp[0] # remove channel dimension
-            # time domain
-            # plot_two_graphs_side_by_side(
-            #     org_audio, outp, 
-            #     title=f"{filename}_td, model={model_nb}, True vs Predicted",
-            #     dir=f"{path}/predictions_model={model_nb}/test/",
-            #     file=f"{filename}_td, model={model_nb}, True vs Predicted", show=False)
-            
+            org_audio, outp = org_audio[0], outp[0]  # remove channel dimension
+
             # frequency domain
             org_mag, outp_mag = fft_magnitude(org_audio), fft_magnitude(outp)
-            # plot_two_graphs_side_by_side(
-            #     org_mag, outp_mag, 
-            #     title=f"{filename}_fd, model={model_nb}, True vs Predicted",
-            #     dir=f"{path}/predictions_model={model_nb}/test/",
-            #     file=f"{filename}_fd, model={model_nb}, True vs Predicted", show=False)
-            
+
             plot_four_graphs_side_by_side(
                 org_audio, outp, org_mag, outp_mag,
                 title=f"{filename}, model={model_nb}, True vs Predicted",
                 dir=f"{path}/predictions_model={model_nb}/test/",
                 file=f"{filename}, model={model_nb}, True vs Predicted", show=False)
-            
+
             save_audio(outp,
                        f"{path}/predictions_model={model_nb}/test/",
                        file=f"{filename}, model={model_nb}, True vs Predicted", sample_rate=16000)
-            
-        break # only do a single batch!
+
+        break  # only do a single batch!
 
 
 if __name__ == "__main__":
@@ -91,9 +83,12 @@ if __name__ == "__main__":
     # did best: lr_0.0001/GIM_L{layer_depth}/model_29.pt"
     # works well too lr_1e-05/GIM_L{layer_depth}/model_29.pt"
 
-    ENCODER = GIM_Encoder(opt, layer_depth=LAYER_DEPTH,
-                          path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    generate_predictions(ENCODER, CRITERION, LR, LAYER_DEPTH, decoder, model_nb=4)
+    # "DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt
+    GIM_MODEL_PATH = r"D:\thesis_logs\logs\audio_noise=F_dim=32_distr_wo_nonlin_kld_weight=0.032 !!/model_799.ckpt"
+
+    ENCODER = GIM_Encoder(opt, path=GIM_MODEL_PATH)
+    generate_predictions(ENCODER, CRITERION, LR,
+                         LAYER_DEPTH, decoder, model_nb=4)
 
     # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
     # so huh? that means that a lot of info is already in first channel? what do other 511 channels then contain?

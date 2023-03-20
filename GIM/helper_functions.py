@@ -26,12 +26,12 @@ class LogHandler():
     This class handles the logging of the training process.
     '''
 
-    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate) -> None:
+    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate, layer_depth = 1) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
         self.criterion = criterion
-        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{gim_encoder.layer_depth}"
+        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{layer_depth}"
         create_log_dir(self.logging_path)
 
     def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
@@ -67,7 +67,7 @@ class LogHandler():
 
 
 class EpochPrinter():
-    def __init__(self, train_loader, learning_rate, criterion, decoder_depth) -> None:
+    def __init__(self, train_loader, learning_rate, criterion, decoder_depth=1) -> None:
         self.starttime = time.time()
 
         self.print_idx = 100
@@ -124,8 +124,8 @@ def compute_normalizer(train_loader, encoder):
     # Iterate through the data using the data loader
     for step, (batch_audio_signals, _, _, _) in enumerate(train_loader):
         batch_audio_signals = batch_audio_signals.to(device)
-        enc_audios = encoder(batch_audio_signals).to(
-            device)  # (batch_size, 512, 256)
+        enc_audios_at_each_module = encoder(batch_audio_signals)
+        enc_audios = enc_audios_at_each_module[0].to(device)  # (batch_size, 512, 256)
 
         b, c, l = enc_audios.shape
         enc_audios = enc_audios.reshape(b * l * c)
@@ -167,6 +167,7 @@ def fft_magnitude(sequence):
     # return np.fft.fft(sequence)
     x = np.fft.fft(sequence)
     x_mag = np.absolute(x)
+    x_mag = x_mag[:int(len(x_mag) / 2)]
     return x_mag
 
 # if 16khz, only 8000 frequencies possible -> sample rate should be twice as large as the highest frequency

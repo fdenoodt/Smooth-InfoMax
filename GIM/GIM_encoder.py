@@ -71,7 +71,7 @@ class GIM_Encoder():
 
             model_input = latent.permute(0, 2, 1)
 
-        return latent_per_module
+        return latent_per_module # out: b, l, c
 
 # %%
 
