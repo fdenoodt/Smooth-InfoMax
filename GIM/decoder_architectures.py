@@ -117,6 +117,66 @@ class GimL1Decoder(GimDecoder):
         return x
 
 
+class SimpleV1Decoder(GimDecoder):
+    def __init__(self, hidd_channels=32, out_channels=1):
+        super().__init__("Simple_v1_DECODER")
+
+        # Encoder architecture (Simple v1)
+        kernel_sizes = [10, 10, 3]
+        strides = [5, 5, 1]
+        padding = [0, 0, 1]
+        output_padding = [0, 0, 0]
+        max_unpool_k_size = 8
+        max_unpool_stride = 4
+
+        # Decoder architecture
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[2], stride=strides[2], padding=padding[2]),
+            nn.ReLU(),
+            
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=1),
+            nn.ReLU(),
+            
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[1], stride=strides[1], padding=padding[1]),
+            nn.ReLU(),
+            
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=3),
+            nn.ReLU(),
+            
+            nn.ConvTranspose1d(hidd_channels, out_channels, kernel_sizes[0], stride=strides[0], padding=padding[0]),
+        )
+
+
+    def forward(self, x):
+        return self.decoder(x)
+
+
+# x = torch.randn(96, 1, 10240) # = objective
+# z = torch.randn(96, 24, 32) # (b, l, c)
+# # z = torch.randn(96, 2047, 32)
+# # z = torch.randn(96, 510, 32)
+# # z = torch.randn(96, 101, 32)
+# # z = torch.randn(96, 24, 32)
+# z = z.permute(0, 2, 1) # (b, c, l)
+
+# decoder = SimpleV1Decoder()
+# y = decoder(z)
+# print(y.shape)
+
+
+# %%
+
+# c1 = nn.Conv1d(1, 32, 10, 5, 0)(x) # 10240 -> 2047
+# p1 = nn.MaxPool1d(8, 4)(c1) # 2047 -> 510
+# c2 = nn.Conv1d(32, 32, 10, 5, 0)(p1) # 510 -> 101
+# p2 = nn.MaxPool1d(8, 4)(c2) # 101 -> 24
+# p2.shape
+
+
+# %%
+
 class SpectralLoss(nn.Module):
     # aided by ChatGPT
     def __init__(self, n_fft=1024):  # should be higher than signal length
@@ -229,7 +289,7 @@ class MEL_LOSS(nn.Module):
             onesided=True,
             n_mels=n_mels,
             mel_scale="htk",
-        )
+        ).to(device)
 
     def power_to_db(self, melspec):
         # todo: check if can just call librosa.power_to_db(melspec, ref=1.0, amin=1e-10, top_db=80.0)
