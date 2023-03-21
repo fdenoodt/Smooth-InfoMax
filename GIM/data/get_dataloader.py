@@ -5,11 +5,17 @@ from data import de_boer_sounds, librispeech
 NUM_WORKERS = 1
 
 
-def _get_de_boer_sounds_data_loaders(opt, split_and_pad=True, train_noise=True, shuffle=True):
+def _get_de_boer_sounds_data_loaders(opt, reshuffled=False, split_and_pad=True, train_noise=True, shuffle=True):
     ''' Retrieve dataloaders where audio signals are split into syllables '''
     print("Loading De Boer Sounds dataset...")
 
-    specific_directory = "split up data padded" if split_and_pad else ""
+    if split_and_pad:
+        specific_directory = "split up data padded"
+    elif reshuffled:
+        specific_directory = "reshuffled"
+    else:
+        specific_directory = ""
+
 
     train_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
@@ -112,6 +118,8 @@ def _get_libri_dataloaders(opt):
 def get_dataloader(opt, dataset, **kwargs):
     if dataset == "de_boer_sounds":
         return _get_de_boer_sounds_data_loaders(opt, **kwargs)
+    elif dataset == "de_boer_sounds_reshuffled":
+        return _get_de_boer_sounds_data_loaders(opt, reshuffled=True, **kwargs)
     elif dataset == "librispeech":
         return _get_libri_dataloaders(opt)
     else:
