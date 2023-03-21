@@ -7,13 +7,16 @@
 ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
 ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\temp"  # w/ auto reg
 
+# ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_simple_v2_kld_weight=0.00"  # w/ auto reg
+ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_cpc_kld_weight=0.00"  # w/ auto reg
+
 LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
-EPOCH_VERSION = 0
+EPOCH_VERSION = 19
 AUTO_REGRESSOR_AFTER_MODULE = False
 
 # Actions
 SAVE_ENCODINGS = True
-VISUALISE_LATENT_ACTIVATIONS = True
+VISUALISE_LATENT_ACTIVATIONS = False
 VISUALISE_TSNE = True
 VISUALISE_TSNE_ORIGINAL_DATA = False
 

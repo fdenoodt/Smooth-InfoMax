@@ -244,7 +244,7 @@ def run_visualisations(opt, opt_anal):
     if opt_anal['SAVE_ENCODINGS']:
         generate_and_save_encodings(opt_anal, ENCODER_MODEL_PATH)
 
-    if opt_anal['VISUALISE_TSNE'] or opt_anal['VISUALISE_LATENT_ACTIVATIONS']:
+    if opt_anal['VISUALISE_LATENT_ACTIVATIONS'] or opt_anal['VISUALISE_TSNE']:
         generate_visualisations(opt_anal)
 
     if opt_anal['VISUALISE_TSNE_ORIGINAL_DATA']:
