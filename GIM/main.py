@@ -109,8 +109,7 @@ def main(options):
 
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        options, dataset=options["data_set"], train_noise=options["train_w_noise"]
-    )
+        options, dataset=options["data_set"], train_noise=options["train_w_noise"], split_and_pad=options["split_in_syllables"])
 
     try:
         # Train the model
