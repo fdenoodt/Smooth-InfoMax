@@ -1,4 +1,5 @@
 # %%
+import torchaudio.transforms as T
 from helper_functions import *
 from decoder_architectures import *
 import torch.nn.functional as F
@@ -116,9 +117,69 @@ class GimL1Decoder(GimDecoder):
         return x
 
 
+class SimpleV1Decoder(GimDecoder):
+    def __init__(self, hidd_channels=32, out_channels=1):
+        super().__init__("Simple_v1_DECODER")
+
+        # Encoder architecture (Simple v1)
+        kernel_sizes = [10, 10, 3]
+        strides = [5, 5, 1]
+        padding = [0, 0, 1]
+        output_padding = [0, 0, 0]
+        max_unpool_k_size = 8
+        max_unpool_stride = 4
+
+        # Decoder architecture
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[2], stride=strides[2], padding=padding[2]),
+            nn.ReLU(),
+            
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=1),
+            nn.ReLU(),
+            
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[1], stride=strides[1], padding=padding[1]),
+            nn.ReLU(),
+            
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=3),
+            nn.ReLU(),
+            
+            nn.ConvTranspose1d(hidd_channels, out_channels, kernel_sizes[0], stride=strides[0], padding=padding[0]),
+        )
+
+
+    def forward(self, x):
+        return self.decoder(x)
+
+
+# x = torch.randn(96, 1, 10240) # = objective
+# z = torch.randn(96, 24, 32) # (b, l, c)
+# # z = torch.randn(96, 2047, 32)
+# # z = torch.randn(96, 510, 32)
+# # z = torch.randn(96, 101, 32)
+# # z = torch.randn(96, 24, 32)
+# z = z.permute(0, 2, 1) # (b, c, l)
+
+# decoder = SimpleV1Decoder()
+# y = decoder(z)
+# print(y.shape)
+
+
+# %%
+
+# c1 = nn.Conv1d(1, 32, 10, 5, 0)(x) # 10240 -> 2047
+# p1 = nn.MaxPool1d(8, 4)(c1) # 2047 -> 510
+# c2 = nn.Conv1d(32, 32, 10, 5, 0)(p1) # 510 -> 101
+# p2 = nn.MaxPool1d(8, 4)(c2) # 101 -> 24
+# p2.shape
+
+
+# %%
+
 class SpectralLoss(nn.Module):
     # aided by ChatGPT
-    def __init__(self, n_fft=1024): # should be higher than signal length
+    def __init__(self, n_fft=1024):  # should be higher than signal length
         super(SpectralLoss, self).__init__()
         self.name = f"Spectral Loss FFT={n_fft}"
         self.n_fft = n_fft
@@ -140,6 +201,7 @@ class SpectralLoss(nn.Module):
         target_spectograms = target_spectograms.pow(2).sum(-1)
 
         return self.loss(input_spectograms, target_spectograms)
+
 
 class MSE_Loss(nn.Module):
     def __init__(self):
@@ -183,8 +245,10 @@ class FFTLoss(nn.Module):
         target_fft = fft.rfft(target * self.window)
 
         # Compute magnitude and phase of FFT coefficients
-        output_mag, output_phase = torch.abs(output_fft), torch.angle(output_fft)
-        target_mag, target_phase = torch.abs(target_fft), torch.angle(target_fft)
+        output_mag, output_phase = torch.abs(
+            output_fft), torch.angle(output_fft)
+        target_mag, target_phase = torch.abs(
+            target_fft), torch.angle(target_fft)
 
         # Compute FFT loss based on magnitude and phase differences
         mag_loss = torch.mean(torch.abs(output_mag - target_mag))
@@ -192,6 +256,7 @@ class FFTLoss(nn.Module):
         fft_loss = mag_loss + phase_loss
 
         return fft_loss
+
 
 class MSE_AND_FFT_LOSS(nn.Module):
     def __init__(self, fft_size=10240, lambd=1):
@@ -206,17 +271,81 @@ class MSE_AND_FFT_LOSS(nn.Module):
         return self.mse_loss(batch_inputs, batch_targets) + (self.lambd * self.fft_loss(batch_inputs, batch_targets))
 
 
+class MEL_LOSS(nn.Module):
+    # https://pytorch.org/audio/main/tutorials/audio_feature_extractions_tutorial.html#melspectrogram
+    def __init__(self, sr=16000, n_fft=2048, win_length=1024, hop_length=512, n_mels=128):
+        super(MEL_LOSS, self).__init__()
+        self.name = "MEL_SPECTR"
+        self.criterion = nn.MSELoss()
+        self.compute_mel_spectr = T.MelSpectrogram(
+            sample_rate=sr,
+            n_fft=n_fft,
+            win_length=win_length,
+            hop_length=hop_length,
+            center=True,
+            pad_mode="reflect",
+            power=2.0,
+            norm="slaney",
+            onesided=True,
+            n_mels=n_mels,
+            mel_scale="htk",
+        ).to(device)
+
+    def power_to_db(self, melspec):
+        # todo: check if can just call librosa.power_to_db(melspec, ref=1.0, amin=1e-10, top_db=80.0)
+        # Alternative
+        # inp_mel = 10 * torch.log10(inp_mel)
+
+        amin = 1e-10 * torch.ones_like(melspec)
+        ref_value = torch.ones_like(melspec)
+
+        log_spec = 10.0 * torch.log10(torch.maximum(amin, melspec))
+        log_spec -= 10.0 * torch.log10(torch.maximum(amin, ref_value))
+        return log_spec
+
+    def forward(self, batch_inputs, batch_targets):
+        assert batch_inputs.shape == batch_targets.shape
+        inp_mel = self.compute_mel_spectr(batch_inputs)
+        tar_mel = self.compute_mel_spectr(batch_targets)
+
+        # to decibel scale
+        inp_mel = self.power_to_db(inp_mel)
+        tar_mel = self.power_to_db(tar_mel)
+        # tar_mel = 10 * torch.log10(tar_mel)
+
+        return self.criterion(inp_mel, tar_mel)
+
+
 if __name__ == "__main__":
+    directory = r"C:\GitHub\thesis-fabian-denoodt\GIM\datasets\corpus\train"
+    file1 = "bababi_1.wav"
+    file2 = "bababu_1.wav"
+
+    signal1, sr = librosa.load(f"{directory}/{file1}", sr=16000)
+    signal2, sr = librosa.load(f"{directory}/{file2}", sr=16000)
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    signal1 = torch.from_numpy(signal1).unsqueeze(0).unsqueeze(0).to(device)
+    signal2 = torch.from_numpy(signal2).unsqueeze(0).unsqueeze(0).to(device)
+
+    print(signal1.shape)
+
+    criterion = MEL_LOSS().to(device)
+    loss1 = criterion(signal1, signal2).item()
+    loss2 = criterion(signal2, signal1).item()
+    loss3 = criterion(signal1, signal1).item()
+
+    print(loss1, loss2, loss3)
+
     # (batch_size, 1, 10240)
-    rnd = torch.rand((2, 512, 2047)).to(device)  # layer 1
+    # rnd = torch.rand((2, 512, 2047)).to(device)  # layer 1
 
     # %%
-    signal1 = torch.rand((5, 1, 10240)).to(device)
-    signal2 = torch.rand((5, 1, 10240)).to(device)
+    # signal1 = torch.rand((5, 1, 10240)).to(device)
+    # signal2 = torch.rand((5, 1, 10240)).to(device)
 
-    criterion = FFTLoss(10240).to(device)  # must be power
-    loss = criterion(signal1, signal2)
-
+    # criterion = FFTLoss(10240).to(device)  # must be power
+    # loss = criterion(signal1, signal2)
 
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # decoder = GimL1Decoder().to(device)
@@ -305,6 +434,3 @@ if __name__ == "__main__":
 
 
 # %%
-
-
-
