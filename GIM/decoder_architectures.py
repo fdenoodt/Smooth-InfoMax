@@ -339,21 +339,28 @@ class MSE_AND_FFT_LOSS(nn.Module):
 
 class MEL_LOSS(nn.Module):
     # https://pytorch.org/audio/main/tutorials/audio_feature_extractions_tutorial.html#melspectrogram
-    def __init__(self, sr=16000, n_fft=2048, win_length=1024, hop_length=512, n_mels=128):
+    def __init__(self, n_fft=2048, sr=16000):
         super(MEL_LOSS, self).__init__()
-        self.name = "MEL_SPECTR"
+        
+        win_length= None #1024
+        hop_length= n_fft // 2 #512
+        n_mels= None #128
+        
+        self.name = f"MEL_SPECTR_n_fft={n_fft}"
+
+
         self.criterion = nn.MSELoss()
         self.compute_mel_spectr = T.MelSpectrogram(
             sample_rate=sr,
             n_fft=n_fft,
-            win_length=win_length,
+            # win_length=win_length,
             hop_length=hop_length,
             center=True,
             pad_mode="reflect",
             power=2.0,
             norm="slaney",
             onesided=True,
-            n_mels=n_mels,
+            # n_mels=n_mels,
             mel_scale="htk",
         ).to(device)
 

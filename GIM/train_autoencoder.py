@@ -151,18 +151,18 @@ if __name__ == "__main__":
     # generate_predictions(encoder, criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     # MSE + SPECTRAL LOSS
-    for lr in [1e-1]:
-    # for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
+    for lr in [1e-2]:
+        for n_fft in [2048, 2048 * 2]:
+            # for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
+            # n_fft = 2048 # sample rate = 16000, so 2048 samples is 0.128 seconds
+            criterion = MEL_LOSS(n_fft=n_fft)
+            encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
+            decoder = SimpleV2Decoder()
+            decoder = train(decoder, logs, train_loader,
+                            test_loader, lr, criterion)
 
-        # lr = 0.001
-        criterion = MEL_LOSS()
-        encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-        decoder = SimpleV2Decoder()
-        decoder = train(decoder, logs, train_loader,
-                        test_loader, lr, criterion)
-
-        generate_predictions(f"{experiment_name}_experiment", encoder,
-                             criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
+            generate_predictions(f"{experiment_name}_experiment", encoder,
+                                criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     # criterion = MSE_Loss()
     # criterion = FFTLoss()
