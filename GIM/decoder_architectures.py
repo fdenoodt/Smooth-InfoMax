@@ -316,6 +316,21 @@ class MEL_LOSS(nn.Module):
         return self.criterion(inp_mel, tar_mel)
 
 
+class MSE_AND_MEL_LOSS(nn.Module):
+    def __init__(self, lambd=1):
+        super(MSE_AND_MEL_LOSS, self).__init__()
+        self.name = f"MSE + scMEL Loss Lambda={lambd:.7f}"
+        self.mse_loss = nn.MSELoss()
+        self.mel_loss = MEL_LOSS()
+        self.lambd = lambd
+
+    def forward(self, batch_inputs, batch_targets):
+        assert batch_inputs.shape == batch_targets.shape
+        mse = self.mse_loss(batch_inputs, batch_targets) 
+        mel = self.mel_loss(batch_inputs, batch_targets)
+        return mse + (self.lambd * mel)
+
+
 if __name__ == "__main__":
     directory = r"C:\GitHub\thesis-fabian-denoodt\GIM\datasets\corpus\train"
     file1 = "bababi_1.wav"
