@@ -8,20 +8,21 @@ ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_
 ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\temp"  # w/ auto reg
 
 # ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_simple_v2_kld_weight=0.00"  # w/ auto reg
-ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_cpc_kld_weight=0.00"  # w/ auto reg
+# ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_cpc_kld_weight=0.00"  # w/ auto reg
+ENCODER_MODEL_DIR = r"D:\\thesis_logs\\logs//de_boer_reshuf_simple_v2_kld_weight=0.0033 !!"
 
 LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
-EPOCH_VERSION = 19
+EPOCH_VERSION = 49
 AUTO_REGRESSOR_AFTER_MODULE = False
 
 # Actions
-SAVE_ENCODINGS = True
+SAVE_ENCODINGS = False
 VISUALISE_LATENT_ACTIVATIONS = False
 VISUALISE_TSNE = True
 VISUALISE_TSNE_ORIGINAL_DATA = False
 
 # warning: only makes sense for outputs of GRU
-ONLY_LAST_PREDICTION_FROM_TIME_WINDOW = True
+ONLY_LAST_PREDICTION_FROM_TIME_WINDOW = False
 
 # warning for the old gim model, set in options.py:
 # 'train_layer': 6,

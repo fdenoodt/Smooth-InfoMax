@@ -67,7 +67,7 @@ def generate_predictions(experiment_name, encoder, criterion, lr, layer_depth, d
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds", split_and_pad=False, train_noise=False, shuffle=False)
+        opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=False)
 
     normalize_func = compute_normalizer(train_loader, encoder)
 
@@ -90,11 +90,12 @@ if __name__ == "__main__":
     # works well too lr_1e-05/GIM_L{layer_depth}/model_29.pt"
 
     # "DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt
-    GIM_MODEL_PATH = r"D:\thesis_logs\logs\audio_noise=F_dim=32_distr_wo_nonlin_kld_weight=0.032 !!/model_799.ckpt"
+    # GIM_MODEL_PATH = r"D:\thesis_logs\logs\audio_noise=F_dim=32_distr_wo_nonlin_kld_weight=0.032 !!/model_799.ckpt"
+    GIM_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
 
     ENCODER = GIM_Encoder(opt, path=GIM_MODEL_PATH)
     generate_predictions("GIM_DECODER_experiment", ENCODER, CRITERION, LR,
-                         LAYER_DEPTH, decoder, model_nb=19)
+                         LAYER_DEPTH, decoder, model_nb=29)
 
     # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
     # so huh? that means that a lot of info is already in first channel? what do other 511 channels then contain?

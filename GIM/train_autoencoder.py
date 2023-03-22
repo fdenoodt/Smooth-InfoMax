@@ -115,17 +115,18 @@ if __name__ == "__main__":
 
     arg_parser.create_log_path(opt)
 
-    experiment_name = 'GIM_DECODER_simple_v1'
+    experiment_name = 'GIM_DECODER_simple_v2'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
     opt['num_epochs'] = 15  # 30
-    opt['batch_size'] = 64 + 32
+    opt['batch_size'] = 171
     opt['batch_size_multiGPU'] = opt['batch_size']
 
     # "DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt"
-    GIM_MODEL_PATH = r"D:\thesis_logs\logs\audio_noise=F_dim=32_distr_wo_nonlin_kld_weight=0.032 !!/model_799.ckpt"
+    GIM_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
+
 
     create_log_dir(opt['log_path'])
 
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 
     # load the data
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds", split_and_pad=False, train_noise=False, shuffle=True)
+        opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
 
     # MEL SPECTOGRAM LOSS
     # lambds = [0.1, 0.001, 0.0001]
@@ -150,12 +151,13 @@ if __name__ == "__main__":
     # generate_predictions(encoder, criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     # MSE + SPECTRAL LOSS
-    for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
+    for lr in [1e-1]:
+    # for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
 
         # lr = 0.001
-        criterion = MSE_AND_SPECTRAL_LOSS(8192, lambd=1)
+        criterion = MEL_LOSS()
         encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-        decoder = SimpleV1Decoder()
+        decoder = SimpleV2Decoder()
         decoder = train(decoder, logs, train_loader,
                         test_loader, lr, criterion)
 

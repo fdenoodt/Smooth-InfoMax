@@ -5,17 +5,18 @@ from data import de_boer_sounds, librispeech
 NUM_WORKERS = 1
 
 
-def _get_de_boer_sounds_data_loaders(opt, reshuffled=False, split_and_pad=True, train_noise=True, shuffle=True):
+def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, train_noise=True, shuffle=True):
     ''' Retrieve dataloaders where audio signals are split into syllables '''
     print("Loading De Boer Sounds dataset...")
 
     if split_and_pad:
         specific_directory = "split up data padded"
-    elif reshuffled:
+    elif reshuffled == "v1":
         specific_directory = "reshuffled"
+    elif reshuffled == "v2":
+        specific_directory = "reshuffledv2"
     else:
         specific_directory = ""
-
 
     train_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
@@ -94,8 +95,6 @@ def _get_libri_dataloaders(opt):
         ),
     )
 
-
-
     train_loader = torch.utils.data.DataLoader(
         dataset=train_dataset,
         batch_size=opt['batch_size_multiGPU'],
@@ -118,8 +117,10 @@ def _get_libri_dataloaders(opt):
 def get_dataloader(opt, dataset, **kwargs):
     if dataset == "de_boer_sounds":
         return _get_de_boer_sounds_data_loaders(opt, **kwargs)
-    elif dataset == "de_boer_sounds_reshuffled":
-        return _get_de_boer_sounds_data_loaders(opt, reshuffled=True, **kwargs)
+    elif dataset == "de_boer_sounds_reshuffled": # used for training CPC
+        return _get_de_boer_sounds_data_loaders(opt, reshuffled="v1", **kwargs)
+    elif dataset == "de_boer_sounds_reshuffledv2": # used for training CPC Decoder
+        return _get_de_boer_sounds_data_loaders(opt, reshuffled="v2", **kwargs)
     elif dataset == "librispeech":
         return _get_libri_dataloaders(opt)
     else:
