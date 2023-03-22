@@ -131,23 +131,27 @@ class SimpleV1Decoder(GimDecoder):
 
         # Decoder architecture
         self.decoder = nn.Sequential(
-            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[2], stride=strides[2], padding=padding[2]),
+            nn.ConvTranspose1d(hidd_channels, hidd_channels,
+                               kernel_sizes[2], stride=strides[2], padding=padding[2]),
             nn.ReLU(),
-            
-            # # Replaces maxpooling
-            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=1),
-            nn.ReLU(),
-            
-            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[1], stride=strides[1], padding=padding[1]),
-            nn.ReLU(),
-            
-            # # Replaces maxpooling
-            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size, stride=max_unpool_stride, padding=0, output_padding=3),
-            nn.ReLU(),
-            
-            nn.ConvTranspose1d(hidd_channels, out_channels, kernel_sizes[0], stride=strides[0], padding=padding[0]),
-        )
 
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size,
+                               stride=max_unpool_stride, padding=0, output_padding=1),
+            nn.ReLU(),
+
+            nn.ConvTranspose1d(hidd_channels, hidd_channels,
+                               kernel_sizes[1], stride=strides[1], padding=padding[1]),
+            nn.ReLU(),
+
+            # # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size,
+                               stride=max_unpool_stride, padding=0, output_padding=3),
+            nn.ReLU(),
+
+            nn.ConvTranspose1d(hidd_channels, out_channels,
+                               kernel_sizes[0], stride=strides[0], padding=padding[0]),
+        )
 
     def forward(self, x):
         return self.decoder(x)
@@ -165,14 +169,76 @@ class SimpleV1Decoder(GimDecoder):
 # y = decoder(z)
 # print(y.shape)
 
-
-# %%
-
 # c1 = nn.Conv1d(1, 32, 10, 5, 0)(x) # 10240 -> 2047
 # p1 = nn.MaxPool1d(8, 4)(c1) # 2047 -> 510
 # c2 = nn.Conv1d(32, 32, 10, 5, 0)(p1) # 510 -> 101
 # p2 = nn.MaxPool1d(8, 4)(c2) # 101 -> 24
 # p2.shape
+
+class SimpleV2Decoder(GimDecoder):
+    def __init__(self, hidd_channels=32, out_channels=1):
+        super().__init__("Simple_v2_DECODER")
+
+        # Encoder architecture (Simple v2)
+        kernel_sizes = [10, 8, 3]
+        strides = [4, 3, 1]
+        padding = [2, 2, 1]
+        max_unpool_k_size = 8
+        max_unpool_stride = 4
+
+        # Decoder architecture
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose1d(hidd_channels, hidd_channels,
+                               kernel_sizes[2], stride=strides[2], padding=padding[2]),
+            nn.ReLU(),
+
+            # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size,
+                               stride=max_unpool_stride, padding=0, output_padding=0),
+            nn.ReLU(),
+
+            nn.ConvTranspose1d(hidd_channels, hidd_channels,
+                               kernel_sizes[1], stride=strides[1], padding=padding[1], output_padding=1),
+            nn.ReLU(),
+
+            # Replaces maxpooling
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, max_unpool_k_size,
+                               stride=max_unpool_stride, padding=0, output_padding=3),
+            nn.ReLU(),
+
+            nn.ConvTranspose1d(hidd_channels, out_channels,
+                               kernel_sizes[0], stride=strides[0], padding=padding[0], output_padding=2),
+        )
+
+    def forward(self, x):
+        return self.decoder(x)
+
+
+
+# # 52 --> 10240
+# x = torch.randn(96, 1, 10240) # = objective
+# z = torch.randn(96, 52, 32)  # (b, l, c)
+
+
+# z = torch.randn(96, 2559, 32)  # (b, l, c)
+# z = torch.randn(96, 638, 32)  # (b, l, c)
+# z = torch.randn(96, 212, 32)  # (b, l, c)
+# z = torch.randn(96, 52, 32)  # (b, l, c)
+# z = z.permute(0, 2, 1) # (b, c, l)
+
+# decoder = SimpleV2Decoder()
+# y = decoder(z)
+# print(y.shape)
+
+
+# %%
+
+# c1 = nn.Conv1d(1, 32, 10, 4, 2)(x) # 10240 -> 2559
+# p1 = nn.MaxPool1d(8, 4)(c1) # --> 638
+# c2 = nn.Conv1d(32, 32, 8, 3, 2)(p1) # --> 212
+# p2 = nn.MaxPool1d(8, 4)(c2) # 52
+# p2.shape  
+# # p2.shape
 
 
 # %%
@@ -326,7 +392,7 @@ class MSE_AND_MEL_LOSS(nn.Module):
 
     def forward(self, batch_inputs, batch_targets):
         assert batch_inputs.shape == batch_targets.shape
-        mse = self.mse_loss(batch_inputs, batch_targets) 
+        mse = self.mse_loss(batch_inputs, batch_targets)
         mel = self.mel_loss(batch_inputs, batch_targets)
         return mse + (self.lambd * mel)
 
