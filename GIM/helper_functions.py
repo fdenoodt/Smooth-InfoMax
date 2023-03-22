@@ -26,7 +26,7 @@ class LogHandler():
     This class handles the logging of the training process.
     '''
 
-    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate, layer_depth = 1) -> None:
+    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate, layer_depth=1) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
@@ -125,7 +125,8 @@ def compute_normalizer(train_loader, encoder):
     for step, (batch_audio_signals, _, _, _) in enumerate(train_loader):
         batch_audio_signals = batch_audio_signals.to(device)
         enc_audios_at_each_module = encoder(batch_audio_signals)
-        enc_audios = enc_audios_at_each_module[0].to(device)  # (batch_size, 512, 256)
+        enc_audios = enc_audios_at_each_module[0].to(
+            device)  # (batch_size, 512, 256)
 
         b, c, l = enc_audios.shape
         enc_audios = enc_audios.reshape(b * l * c)
@@ -214,7 +215,34 @@ def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, ti
     plt.close(fig)
 
 
-def scatter(x, syllable_indices, title, dir=None, file=None, show=True):
+def colour_palette():
+    return np.array([np.array([1, 0.3712, 0.34]),  # ba
+                     np.array([0.34, 0.34, 1]),    # bi
+                     np.array([0.34, 1, 0.34]),    # bu
+                     np.array([0.86, 0.34, 0.34]),  # da
+                     np.array([0.34, 0.34, 0.86]),  # di
+                     np.array([0.34, 0.86, 0.34]),  # du
+                     np.array([0.7, 0.34, 0.34]),  # ga
+                     np.array([0.34, 0.34, 0.7]),  # gi
+                     np.array([0.34, 0.7, 0.34]),  # gu
+                     ])
+
+
+def markers():
+    return np.array([
+        '$b$',  # ba
+        '$b$',  # bi
+        '$b$',  # bu
+        '$d$',  # da
+        '$d$',  # di
+        '$d$',  # du
+        '$g$',  # ga
+        '$g$',  # gi
+        '$g$',  # gu
+    ])
+
+
+def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     """
     creates scatter plot for t-SNE visualization
     :param x: 2-D latent space as output by t-SNE
@@ -225,7 +253,8 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True):
     :param show: whether to show the plot or not
     """
     # We choose a color palette with seaborn.
-    palette = np.array(sns.color_palette("hls", 10))
+    palette = colour_palette()
+    marks = markers()
 
     # We create a scatter plot.
     plt.figure(figsize=(8, 8))
@@ -233,11 +262,16 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True):
 
     # for each loop created by chat gpt
     for i, syllable_idx in enumerate(np.unique(syllable_indices)):
-        color = np.tile(palette[i], (x[syllable_indices==syllable_idx, 0].size, 1))
-        ax.scatter(x[syllable_indices==syllable_idx, 0], x[syllable_indices==syllable_idx, 1], 
-                   lw=0, 
+        indices = np.where(syllable_indices == syllable_idx)[0]
+        if len(indices) > n:
+            indices = np.random.choice(indices, size=n, replace=False)
+        color = np.tile(palette[i], (len(indices), 1))
+        m = marks[i]
+        ax.scatter(x[indices, 0], x[indices, 1],
+                   lw=0,
                    s=40,
                    color=color,
+                   marker=m,
                    label=translate_number_to_syllable(syllable_idx))
 
     plt.legend()
@@ -258,9 +292,6 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True):
 
     plt.clf()
     plt.cla()
-
-
-
 
 
 def save_audio(audio, dir, file, sample_rate=16000):
