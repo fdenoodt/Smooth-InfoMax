@@ -37,13 +37,12 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
         org_audio = org_audio.to(device)
         enc_audio_per_module = GIM_encoder(org_audio)
         enc_audio = enc_audio_per_module[-1].to(device)
-        enc_audio = enc_audio.permute(0, 2, 1) # (b, c, l)
-
+        enc_audio = enc_audio.permute(0, 2, 1)  # (b, c, l)
 
         with torch.no_grad():
             outputs = model(enc_audio)
-            loss = criterion(outputs, org_audio)
-            loss = torch.mean(loss, 0)
+            loss = criterion(outputs, org_audio) * \
+                (1/org_audio.size(0))  # multiply by batch size
 
             loss_epoch.append(loss.data.cpu().numpy())
 
@@ -79,10 +78,10 @@ def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
             gt_audio_batch = gt_audio_batch.to(device)
 
             encoding_per_module = encoder(gt_audio_batch)
-            
+
             # (batch_size, l, c)
             enc_audios = normalize_func(encoding_per_module[-1].to(device))
-            enc_audios = enc_audios.permute(0, 2, 1) # (b, c, l)
+            enc_audios = enc_audios.permute(0, 2, 1)  # (b, c, l)
 
             # zero the gradients
             optimizer.zero_grad()
@@ -116,12 +115,12 @@ if __name__ == "__main__":
 
     arg_parser.create_log_path(opt)
 
-    experiment_name = 'GIM_DECODER'
+    experiment_name = 'GIM_DECODER_simple_v1'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 20  # 30
+    opt['num_epochs'] = 15  # 30
     opt['batch_size'] = 64 + 32
     opt['batch_size_multiGPU'] = opt['batch_size']
 
@@ -136,14 +135,32 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         opt, dataset="de_boer_sounds", split_and_pad=False, train_noise=False, shuffle=True)
 
-    criterion = MEL_LOSS()
-    lr = 1e-3
-    encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    decoder = SimpleV1Decoder()
-    decoder = train(decoder, logs, train_loader,
-                    test_loader, lr, criterion)
+    # MEL SPECTOGRAM LOSS
+    # lambds = [0.1, 0.001, 0.0001]
+    # for lambd in lambds:
+    # lambd = 0.001
+    # # for lr in [1e-2, 1e-3, 1e-4, 1e-5]:
+    # criterion = MEL_LOSS() #MSE_AND_MEL_LOSS(lambd=lambd)
+    # lr = 1e-3
+    # encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
+    # decoder = SimpleV1Decoder()
+    # decoder = train(decoder, logs, train_loader,
+    #                 test_loader, lr, criterion)
 
-    generate_predictions(encoder, criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
+    # generate_predictions(encoder, criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
+
+    # MSE + SPECTRAL LOSS
+    for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
+
+        # lr = 0.001
+        criterion = MSE_AND_SPECTRAL_LOSS(8192, lambd=1)
+        encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
+        decoder = SimpleV1Decoder()
+        decoder = train(decoder, logs, train_loader,
+                        test_loader, lr, criterion)
+
+        generate_predictions(f"{experiment_name}_experiment", encoder,
+                             criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     # criterion = MSE_Loss()
     # criterion = FFTLoss()
