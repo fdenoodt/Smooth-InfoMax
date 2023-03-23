@@ -174,7 +174,7 @@ def fft_magnitude(sequence):
 # if 16khz, only 8000 frequencies possible -> sample rate should be twice as large as the highest frequency
 
 
-def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True):
+def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True, fig_size=None, y_lims=None):
     ''' Plot two graphs side by side '''
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle(title)
@@ -182,9 +182,18 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
     ax1.plot(sequence1)
     ax2.plot(sequence2)
 
+    # set y axis limit
+    if y_lims is not None:
+        ax1.set_ylim(y_lims[0][0], y_lims[0][1])
+        ax2.set_ylim(y_lims[1][0], y_lims[1][1])
+
+
     if file is not None:
         create_log_dir(dir)
         plt.savefig(f"{dir}/{file}")
+
+    if fig_size is not None:
+        fig.set_size_inches(fig_size[0], fig_size[1])
 
     if show:
         plt.show()
