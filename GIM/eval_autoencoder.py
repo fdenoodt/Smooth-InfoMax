@@ -1,11 +1,8 @@
 # %%
 from helper_functions import *
 from decoder_architectures import *
-import importlib
 import torch
 from options import OPTIONS as opt
-import helper_functions
-import decoder_architectures
 from GIM_encoder import GIM_Encoder
 from utils import logger
 from data import get_dataloader
@@ -15,18 +12,13 @@ from options import OPTIONS as opt
 random.seed(0)
 
 
-# if(True):
-#     importlib.reload(decoder_architectures)
-#     importlib.reload(helper_functions)
-
-def _generate_predictions(decoder, data_loader, encoder, normalize_func, model_nb, path, train_or_test="test"):
+def _generate_predictions(decoder, data_loader, encoder, model_nb, path, train_or_test="test"):
     for idx, (batch_org_audio, batch_filenames, _, _) in enumerate(data_loader):
         batch_org_audio = batch_org_audio.to(device)
         batch_per_module = encoder(batch_org_audio)
         batch_enc_audio = batch_per_module[-1].to(device)
         batch_enc_audio = batch_enc_audio.permute(0, 2, 1)  # (b, c, l)
 
-        batch_enc_audio = normalize_func(batch_enc_audio)
         batch_outp = decoder(batch_enc_audio)
 
         # to numpy
@@ -69,10 +61,10 @@ def generate_predictions(experiment_name, encoder, criterion, lr, layer_depth, d
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=False)
 
-    normalize_func = compute_normalizer(train_loader, encoder)
-
-    _generate_predictions(decoder, test_loader, encoder, normalize_func, model_nb, path, train_or_test="test")
-    _generate_predictions(decoder, train_loader, encoder, normalize_func, model_nb, path, train_or_test="train")
+    _generate_predictions(decoder, test_loader, encoder,
+                          model_nb, path, train_or_test="test")
+    _generate_predictions(decoder, train_loader, encoder,
+                          model_nb, path, train_or_test="train")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from GIM_encoder import GIM_Encoder
 import decoder_architectures
 import helper_functions
 from options import OPTIONS as opt
+from options_autoencoder import OPTIONS as options_autoencoder
 import torch
 
 from arg_parser import arg_parser
@@ -13,6 +14,7 @@ import numpy as np
 import random
 
 from eval_autoencoder import generate_predictions
+
 
 random.seed(0)
 
@@ -53,12 +55,10 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
     return validation_loss
 
 
-def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
+def train(encoder, decoder, logs, train_loader, test_loader, learning_rate, criterion, decay_rate):
     epoch_printer = EpochPrinter(train_loader, learning_rate, criterion)
     log_handler = LogHandler(opt, logs, train_loader,
                              criterion, encoder, learning_rate)
-
-    normalize_func = compute_normalizer(train_loader, encoder)
 
     decoder.to(device)
     decoder.train()
@@ -70,6 +70,9 @@ def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
     validation_losses = []
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(
+            optimizer, gamma=decay_rate)
+
         training_losses_epoch = []
         for step, (gt_audio_batch, _, _, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
@@ -78,9 +81,9 @@ def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
             gt_audio_batch = gt_audio_batch.to(device)
 
             encoding_per_module = encoder(gt_audio_batch)
+            enc_audios = encoding_per_module[-1].to(device)
 
             # (batch_size, l, c)
-            enc_audios = normalize_func(encoding_per_module[-1].to(device))
             enc_audios = enc_audios.permute(0, 2, 1)  # (b, c, l)
 
             # zero the gradients
@@ -102,6 +105,9 @@ def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
         validation_losses.append(validation_loss(
             encoder, decoder, test_loader, criterion))
 
+        scheduler.step()
+        print(f"LR: {scheduler.get_last_lr()}")
+
         log_handler(decoder, epoch, optimizer,
                     training_losses, validation_losses)
 
@@ -110,23 +116,17 @@ def train(decoder, logs, train_loader, test_loader, learning_rate, criterion):
     return decoder
 
 
-if __name__ == "__main__":
+def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, criterion, decoder, num_epochs):
     torch.cuda.empty_cache()
 
     arg_parser.create_log_path(opt)
-
-    experiment_name = 'GIM_DECODER_simple_v2'
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
     opt['log_path'] = f'./logs/{experiment_name}_experiment'
     opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = 15  # 30
+    opt['num_epochs'] = num_epochs
     opt['batch_size'] = 171
     opt['batch_size_multiGPU'] = opt['batch_size']
-
-    # "DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt"
-    GIM_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
-
 
     create_log_dir(opt['log_path'])
 
@@ -136,78 +136,24 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
 
-    # MEL SPECTOGRAM LOSS
-    # lambds = [0.1, 0.001, 0.0001]
-    # for lambd in lambds:
-    # lambd = 0.001
-    # # for lr in [1e-2, 1e-3, 1e-4, 1e-5]:
-    # criterion = MEL_LOSS() #MSE_AND_MEL_LOSS(lambd=lambd)
-    # lr = 1e-3
-    # encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    # decoder = SimpleV1Decoder()
-    # decoder = train(decoder, logs, train_loader,
-    #                 test_loader, lr, criterion)
+    encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
+    decoder = train(encoder, decoder, logs, train_loader,
+                    test_loader, lr, criterion, decay_rate)
 
-    # generate_predictions(encoder, criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
-
-    # MSE + SPECTRAL LOSS
-    for lr in [1e-2]:
-        for n_fft in [2048, 2048 * 2]:
-            # for lr in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
-            # n_fft = 2048 # sample rate = 16000, so 2048 samples is 0.128 seconds
-            criterion = MEL_LOSS(n_fft=n_fft)
-            encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-            decoder = SimpleV2Decoder()
-            decoder = train(decoder, logs, train_loader,
-                            test_loader, lr, criterion)
-
-            generate_predictions(f"{experiment_name}_experiment", encoder,
-                                criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
-
-    # criterion = MSE_Loss()
-    # criterion = FFTLoss()
-    # for criterion in [MSE_Loss(), MSE_AND_SPECTRAL_LOSS(128), MSE_AND_SPECTRAL_LOSS(8192)]:
-        # for lr in [1e-3, 1e-2, 1e-4, 1e-5]:
-    # for lr in [1e-3, 1e-4, 1e-5]:
-    #     # for layer_depth, Decoder in zip([1, 2, 3, 4], [GimL1Decoder, GimL2Decoder, GimL3Decoder, GimL4Decoder]):
-    #     for layer_depth, Decoder in zip([4], [GimL4Decoder]):
-    #         encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    #         decoder = Decoder()
-    #         decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
-
-    # SOLEY FFT
-    # criterion = FFTLoss(fft_size=10240)
-    # for lr in [1e-3, 1e-2, 1e-5, 1e-4]:
-    #     for layer_depth, Decoder in zip([4], [GimL4Decoder]):
-    #         encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    #         decoder = Decoder()
-    #         decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
-    #         generate_predictions(encoder, criterion.name, lr, layer_depth, decoder, model_nb=opt['num_epochs'] - 1)
-
-    # mse + sft
-    # for lambd in [10, 1, 0.1, 0.01]:
-    #     bin_size = 8192
-    #     criterion = MSE_AND_FFT_LOSS(fft_size=10240, lambd=lambd)
-    #     for lr in [1e-5, 1e-4, 1e-3, 1e-2]:
-    #         for layer_depth, Decoder in zip([4], [GimL4Decoder]):
-    #             encoder = GIM_Encoder(opt, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    #             decoder = Decoder()
-    #             decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
-
-    #             generate_predictions(encoder, criterion.name, lr, layer_depth, decoder, model_nb=opt['num_epochs'] - 1)
-
-    # for lambd in [10, 1, 0.1, 0.01]:
-    #     criterion = MSE_AND_SPECTRAL_LOSS(bin_size, lambd)
-    #     # for criterion in [MSE_Loss(), MSE_AND_SPECTRAL_LOSS(128), MSE_AND_SPECTRAL_LOSS(8192)]:
-    #     for lr in [1e-5, 1e-4, 1e-3, 1e-2]:
-    #         # for layer_depth, Decoder in zip([1, 2, 3, 4], [GimL1Decoder, GimL2Decoder, GimL3Decoder, GimL4Decoder]):
-    #         for layer_depth, Decoder in zip([4], [GimL4Decoder]):
-    #             encoder = GIM_Encoder(opt, layer_depth=layer_depth, path="DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt")
-    #             decoder = Decoder()
-    #             decoder = train(decoder, logs, train_loader, test_loader, lr, criterion)
-
-    #             generate_predictions(encoder, criterion.name, lr, layer_depth, decoder, model_nb=opt['num_epochs'] - 1)
+    generate_predictions(f"{experiment_name}_experiment", encoder,
+                         criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     torch.cuda.empty_cache()
 
-    # %%
+
+if __name__ == "__main__":
+    experiment_name = options_autoencoder["experiment_name"]
+    GIM_MODEL_PATH = options_autoencoder["gim_model_path"]
+    lr = options_autoencoder["lr"]
+    decay_rate = options_autoencoder["decay_rate"]
+    criterion = options_autoencoder["criterion"]
+    decoder = options_autoencoder["decoder"]
+    num_epochs = options_autoencoder["num_epochs"]
+
+    run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr,
+                      decay_rate, criterion, decoder, num_epochs)

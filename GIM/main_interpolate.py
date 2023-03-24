@@ -3,7 +3,7 @@ import torch
 from GIM_encoder import GIM_Encoder
 from data import get_dataloader
 from decoder_architectures import SimpleV2Decoder
-from helper_functions import compute_normalizer, create_log_dir
+from helper_functions import create_log_dir
 from options_interpolate import get_options
 from IPython.display import Audio
 import numpy as np
@@ -60,12 +60,9 @@ if __name__ == "__main__":
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         OPTIONS, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
 
-    # Maybe I should better not have added a normalizer
-    normalize_func = compute_normalizer(train_loader, ENCODER)
 
     batch_enc_audio = invent_latent_rnd(DEVICE)
 
-    batch_enc_audio = normalize_func(batch_enc_audio)
     batch_outp = DECODER(batch_enc_audio)
 
     target_dir = "invented_audios"
