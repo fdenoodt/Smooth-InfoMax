@@ -19,14 +19,6 @@ class GIM_Encoder():
 
     def load_model(self, path):
         # Originates from: def load_model_and_optimizer()
-        
-        architecture = self.opt["architecture"]
-        kernel_sizes = architecture["kernel_sizes"]
-        strides = architecture["strides"]
-        padding = architecture["padding"]
-
-        cnn_hidden = architecture["cnn_hidden_dim"]
-        regressor_hidden = architecture["regressor_hidden_dim"]
 
         calc_accuracy = False
         num_GPU = None
@@ -34,11 +26,6 @@ class GIM_Encoder():
         # Initialize model.
         model: full_model.FullModel = full_model.FullModel(
             self.opt,
-            kernel_sizes=kernel_sizes,
-            strides=strides,
-            padding=padding,
-            cnn_hidden_dim=cnn_hidden,
-            regressor_hidden_dim=regressor_hidden,
             calc_accuracy=calc_accuracy,
         )
 
@@ -62,16 +49,16 @@ class GIM_Encoder():
             # latent, _ = module.get_latents(model_input)
             (c_mu, c_log_var), _ = module.get_latents(model_input)
 
-            if self.opt['architecture']['predict_distributions']:
+            if self.opt['predict_distributions']:
                 latent = module.reparameterize(c_mu, c_log_var)
             else:
                 latent = c_mu
-                
+
             latent_per_module.append(latent)
 
             model_input = latent.permute(0, 2, 1)
 
-        return latent_per_module # out: b, l, c
+        return latent_per_module  # out: b, l, c
 
 # %%
 

@@ -16,7 +16,7 @@ from models import (
 class IndependentModule(nn.Module):
     def __init__(
         self, opt,
-        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, enc_input=1, calc_accuracy=False,
+        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12
     ):
         super(IndependentModule, self).__init__()
 
@@ -33,6 +33,8 @@ class IndependentModule(nn.Module):
             kernel_sizes=enc_kernel_sizes,
             strides=enc_strides,
             padding=enc_padding,
+            max_pool_k_size=max_pool_k_size,
+            max_pool_stride=max_pool_stride,
         )
 
         if self.opt["auto_regressor_after_module"]:
@@ -42,11 +44,11 @@ class IndependentModule(nn.Module):
 
             # hidden dim of the autoregressor is the input dim of the loss
             self.loss = loss_InfoNCE.InfoNCE_Loss(
-                opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
+                opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
         else:
             # hidden dim of the encoder is the input dim of the loss
             self.loss = loss_InfoNCE.InfoNCE_Loss(
-                opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy)
+                opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
 
     def get_latents(self, x):  # Latents now return distribution parameters
         """
@@ -64,7 +66,7 @@ class IndependentModule(nn.Module):
         log_var = log_var.permute(0, 2, 1)
 
         assert self.opt["auto_regressor_after_module"] == False, "Not implemented yet"
-        
+
         return [(mu, log_var), (mu, log_var)]
 
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
@@ -79,27 +81,6 @@ class IndependentModule(nn.Module):
         eps = torch.randn_like(std)
         return eps * std + mu
 
-    # FROM VAE
-
-    def VAE_LOSS_FROM_OTHER_PROJECT(self, recons, input, mu, log_var, kld_weight=0.0025) -> List[Tensor]:
-        """
-        Computes the VAE loss function.
-        KL(N(\mu, \sigma), N(0, 1)) = \log \frac{1}{\sigma} + \frac{\sigma^2 + \mu^2}{2} - \frac{1}{2}
-        :param args:
-        :param kwargs:
-        :return:
-        """
-
-        # Account for the minibatch samples from the dataset
-        recons_loss = F.mse_loss(recons, input)
-
-        kld_loss = torch.mean(-0.5 * torch.sum(1 +
-                              log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-
-        loss = recons_loss + kld_weight * kld_loss  # shape: (3, 3)
-        loss = loss.mean()  # shape: (1)
-        return [loss, recons_loss.detach(), -kld_loss.detach()]
-
     def forward(self, x):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
@@ -113,16 +94,16 @@ class IndependentModule(nn.Module):
         # B x L x C = Batch size x #channels x length
         (c_mu, c_log_var), (z_mu, z_log_var) = self.get_latents(x)  # B x L x C
 
-        if self.opt['architecture']['predict_distributions']:
+        if self.opt['predict_distributions']:
             c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
-            z = self.reparameterize(z_mu, z_log_var) # TODO: Maybe we should use the same distribution for z and c
+            z = self.reparameterize(z_mu, z_log_var)
 
             log_var = c_log_var
             mu = c_mu
 
             # KL-divergence loss
             kld_loss = torch.mean(-0.5 * torch.sum(1 +
-                                log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+                                  log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
             kld_loss = kld_loss.mean()  # shape: (1)
 
             # reconstruction loss
@@ -132,10 +113,10 @@ class IndependentModule(nn.Module):
 
             # Combine the losses
             total_loss = total_loss + kld_weight * kld_loss
-        
+
         else:
             # consider the mean of the distribution as the latent representation, we ignore the variance
-            c = c_mu 
+            c = c_mu
             z = z_mu
 
             total_loss, accuracies = self.loss.get_loss(z, c)

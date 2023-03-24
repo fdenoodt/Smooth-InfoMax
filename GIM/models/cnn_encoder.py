@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding):
+    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, max_pool_k_size=None, max_pool_stride=None):
         super(CNNEncoder, self).__init__()
 
         self.opt = opt
@@ -42,9 +42,6 @@ class CNNEncoder(nn.Module):
                     ),
                 )
 
-                architecture = self.opt['architecture']
-                max_pool_k_size = architecture['max_pool_k_size']
-                max_pool_stride = architecture['max_pool_stride']
                 if max_pool_k_size:
                     assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
 

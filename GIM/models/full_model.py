@@ -9,11 +9,6 @@ class FullModel(nn.Module):
     def __init__(
         self,
         opt,
-        kernel_sizes,
-        strides,
-        padding,
-        cnn_hidden_dim,
-        regressor_hidden_dim,
         calc_accuracy=False,
     ):
         """
@@ -23,50 +18,61 @@ class FullModel(nn.Module):
 
         self.opt = opt
 
+        architecture = opt["architecture_module_1"]
+        kernel_sizes = architecture["kernel_sizes"]
+        strides = architecture["strides"]
+        padding = architecture["padding"]
+        cnn_hidden_dim = architecture["cnn_hidden_dim"]
+        regressor_hidden_dim = architecture["regressor_hidden_dim"]
+        max_pool_k_size = architecture["max_pool_k_size"]
+        max_pool_stride = architecture["max_pool_stride"]
+        prediction_step = architecture["prediction_step"]
+
         # load model
         self.fullmodel = nn.ModuleList([])
-    
-        if self.opt["model_splits"] == 1:
-            # CPC model
+
+        self.fullmodel.append(
+            independent_module.IndependentModule(
+                opt,
+                enc_kernel_sizes=kernel_sizes,  # [10, 8, 4, 4, 4]
+                enc_strides=strides,  # [5, 4, 2, 2, 2]
+                enc_padding=padding,  # [2, 2, 2, 2, 1]
+                nb_channels_cnn=cnn_hidden_dim,  # 512
+                nb_channels_regress=regressor_hidden_dim,  # 256
+                max_pool_k_size=max_pool_k_size,
+                max_pool_stride=max_pool_stride,
+                calc_accuracy=calc_accuracy,
+                prediction_step=prediction_step,
+            )
+        )
+
+        if self.opt["model_splits"] == 2:
+            assert opt['auto_regressor_after_module'] is False, "This option is not supported for model_splits == 6"
+            enc_input = cnn_hidden_dim
+
+            architecture = opt["architecture_module_2"]
+            kernel_sizes = architecture["kernel_sizes"]
+            strides = architecture["strides"]
+            padding = architecture["padding"]
+            cnn_hidden_dim = architecture["cnn_hidden_dim"]
+            regressor_hidden_dim = architecture["regressor_hidden_dim"]
+            max_pool_k_size = architecture["max_pool_k_size"]
+            max_pool_stride = architecture["max_pool_stride"]
+            prediction_step = architecture["prediction_step"]
+
             self.fullmodel.append(
                 independent_module.IndependentModule(
                     opt,
-                    enc_kernel_sizes=kernel_sizes, # [10, 8, 4, 4, 4]
-                    enc_strides=strides, # [5, 4, 2, 2, 2]
-                    enc_padding=padding, # [2, 2, 2, 2, 1]
-                    nb_channels_cnn=cnn_hidden_dim, # 512
-                    nb_channels_regress=regressor_hidden_dim, # 256
-                    calc_accuracy=calc_accuracy,
-                )
-            )
-        elif (
-            self.opt["model_splits"] == 6
-        ):  # GIM model in which the last autoregressive layer is trained independently
-            assert opt['auto_regressor_after_module'] is False, "This option is not supported for model_splits == 6"
-            enc_input = 1
-            for i, _ in enumerate(kernel_sizes):
-                self.fullmodel.append(
-                    # enc_padding, hidden_dim, calc_accuracy=False,
-                    independent_module.IndependentModule(
-                        opt,
-                        enc_input=enc_input,
-                        enc_kernel_sizes=[kernel_sizes[i]],
-                        enc_strides=[strides[i]],
-                        enc_padding=[padding[i]],
-                        nb_channels_cnn=cnn_hidden_dim,
-                        nb_channels_regress=regressor_hidden_dim,
-                        calc_accuracy=calc_accuracy,
-                    )
-                )
-                enc_input = cnn_hidden_dim
-
-            # Just regressor layer
-            self.fullmodel.append(
-                independent_module_regressor.AutoregressorIndependentModule(
-                    opt,
+                    enc_input=enc_input,
+                    enc_kernel_sizes=kernel_sizes,
+                    enc_strides=strides,
+                    enc_padding=padding,
                     nb_channels_cnn=cnn_hidden_dim,
                     nb_channels_regress=regressor_hidden_dim,
+                    max_pool_k_size=max_pool_k_size,
+                    max_pool_stride=max_pool_stride,
                     calc_accuracy=calc_accuracy,
+                    prediction_step=prediction_step,
                 )
             )
         else:

@@ -7,7 +7,7 @@ from utils import utils
 
 
 class InfoNCE_Loss(loss.Loss):
-    def __init__(self, opt, hidden_dim, enc_hidden, calc_accuracy):
+    def __init__(self, opt, hidden_dim, enc_hidden, calc_accuracy, prediction_step):
         super(InfoNCE_Loss, self).__init__()
 
         self.opt = opt
@@ -15,10 +15,10 @@ class InfoNCE_Loss(loss.Loss):
         self.enc_hidden = enc_hidden
         self.neg_samples = self.opt['negative_samples']
         self.calc_accuracy = calc_accuracy
+        self.prediction_step = prediction_step
 
-        # predict self.opt['prediction_step'] timesteps into the future
         self.predictor = nn.Linear(
-            self.hidden_dim, self.enc_hidden * self.opt['prediction_step'], bias=False
+            self.hidden_dim, self.enc_hidden * self.prediction_step, bias=False
         )
 
         if self.opt['subsample']:
@@ -126,7 +126,7 @@ class InfoNCE_Loss(loss.Loss):
         calculate the loss based on the model outputs Wc (the prediction) and z (the encoded future)
         :param Wc: output of the predictor, where W are the weights for the different timesteps and
         c the latent representation (either from the autoregressor, if use_autoregressor=True,
-        or from the encoder otherwise) - dimensions: (B, L, C*self.opt['prediction_step'])
+        or from the encoder otherwise) - dimensions: (B, L, C*self.prediction_step)
         :param z: encoded future - output of the encoder - dimensions: (B, L, C)
         :return: total_loss - average loss over all samples, timesteps and prediction steps in the batch
                     accuracies - average accuracies over all samples, timesteps and predictions steps in the batch
@@ -137,14 +137,14 @@ class InfoNCE_Loss(loss.Loss):
 
         total_loss = 0
 
-        accuracies = torch.zeros(self.opt['prediction_step'], 1)
+        accuracies = torch.zeros(self.prediction_step, 1)
         true_labels = torch.zeros(
             (seq_len * self.opt['batch_size'],), device=cur_device
         ).long()
 
         z_neg, _, _ = self.get_neg_z(full_z, cur_device)
 
-        for k in range(1, self.opt['prediction_step'] + 1):
+        for k in range(1, self.prediction_step + 1):
             z_k = z[:, k:, :]
             Wc_k = Wc[:, :-k, (k - 1) * self.enc_hidden: k * self.enc_hidden]
 
@@ -172,7 +172,7 @@ class InfoNCE_Loss(loss.Loss):
                 )
                 accuracies[k - 1] = correct / total_samples
 
-        total_loss /= self.opt['prediction_step']
+        total_loss /= self.prediction_step
         accuracies = torch.mean(accuracies)
 
         return total_loss, accuracies
