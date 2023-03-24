@@ -46,10 +46,11 @@ class Logger:
 
     def np_save(self, path, data):
         np.save(path, data)
-        try: # just for the decoder
-            np.savetxt(f"{path}.csv", data[0], delimiter=",")
-        except:
-            pass
+        for idx, item in enumerate(data):
+            try: # just for the decoder
+                np.savetxt(f"{path}_{idx}.csv", item, delimiter=",")
+            except:
+                pass
 
     def create_log(
         self,
