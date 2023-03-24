@@ -266,7 +266,7 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     marks = markers()
 
     # We create a scatter plot.
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(6, 6)) # was 8, 8, i havent tested yet
     ax = plt.subplot(aspect="equal")
 
     # for each loop created by chat gpt
@@ -301,6 +301,67 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
 
     plt.clf()
     plt.cla()
+
+
+
+def histogram(sequence, title, dir=None, file=None, show=True):
+    # aided by ChatGPT
+    # Set up the figure and color palette
+    sns.set_style('whitegrid')
+    fig, ax = plt.subplots(figsize=(6, 4))
+    colors = sns.color_palette('bright', n_colors=1)
+
+    # Plot the histogram
+    ax.hist(sequence, bins=100, color=colors[0], alpha=0.8, density=True, edgecolor='k', linewidth=1.2)
+
+    # Compute the PDF of a standard normal distribution
+    x = np.linspace(-4, 4, 1000)
+    pdf = np.exp(-0.5 * x**2) / np.sqrt(2 * np.pi)
+
+    # Plot the standard normal PDF
+    ax.plot(x, pdf, color='r', linewidth=2)
+
+    # Set axis labels and title
+    ax.set_xlabel('Value')
+    ax.set_ylabel('Frequency')
+    ax.set_title(title)
+
+    # Save or show the plot
+    if file is not None:
+        create_log_dir(dir)
+        plt.savefig(f"{dir}/{file}", dpi=120)
+
+    if show:
+        plt.show()
+
+    plt.clf()
+    plt.cla()
+
+# def histogram(sequence, title, dir=None, file=None, show=True):
+#     # We choose a color palette with seaborn.
+#     plt.figure(figsize=(8, 8))
+#     plt.hist(sequence, bins=100)
+
+
+#     plt.title(title)
+
+#     if file is not None:
+#         create_log_dir(dir)
+#         plt.savefig(f"{dir}/{file}", dpi=120)
+
+#     if show:
+#         plt.show()
+
+#     plt.clf()
+#     plt.cla()
+
+    # ax = plt.subplot(aspect="equal")
+
+    # plt.xlim(-25, 25)
+    # plt.ylim(-25, 25)
+    # ax.axis("off")
+    # ax.axis("tight")
+
 
 
 def save_audio(audio, dir, file, sample_rate=16000):

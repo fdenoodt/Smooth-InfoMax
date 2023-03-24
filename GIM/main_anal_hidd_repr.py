@@ -134,6 +134,16 @@ def plot_tsne(feature_space, label_indices, gim_name, target_dir):
     print(f"Saved t-SNE plot to {target_dir}/{file}.png")
 
 
+def plot_histograms(feature_space_per_channel, gim_name, target_dir):
+    for idx, feature_space in enumerate(feature_space_per_channel):
+        file = f"_ distribution_latent_space_{gim_name}_dim={idx}"
+
+        histogram(feature_space,
+                title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir, file=file, show=False)
+
+        print(f"Saved t-SNE plot to {target_dir}/{file}.png")
+
+
 def generate_tsne_visualisations_original_data(train_or_test):
     assert train_or_test in ["train", "test"]
     target_dir = rf"./datasets\corpus\split up graphs\{train_or_test}"
@@ -196,6 +206,34 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
               gim_name, target_dir)
 
 
+def _visualise_latent_space_histograms(data_dir, gim_name, target_dir):
+
+    all_encs = None
+
+    # iterate over files in train_dir
+    for idx, file in enumerate(os.listdir(data_dir)):
+        if file.endswith(".pt") and file.startswith("batch_encodings"):
+            # load the file
+
+            # (b, l, c)
+            encs = torch.load(f"{data_dir}/{file}").cpu()
+
+            if idx == 0:  # obtain intial shape from first batch.
+                all_encs = torch.empty(0, encs.size(1), encs.size(2)).cpu()
+
+            # merge the batch to a single tensor
+            all_encs = torch.cat((all_encs, encs), dim=0)
+
+    all_encs = encs.permute(2, 0, 1)  # (b, c, l) --> (c, b, l)
+    all_encs = all_encs.numpy()
+
+    nb_channels = all_encs.shape[0]  # 32
+    assert nb_channels == 32 or nb_channels == 8
+    all_encs = np.reshape(all_encs, (nb_channels, -1))  # (32, b*l)
+
+    plot_histograms(all_encs, gim_name, target_dir)
+
+
 def generate_visualisations(opt_anal):
     # eg LOG_PATH = ./GIM\logs\audio_experiment_3_lr_noise\analyse_hidden_repr\
     for split in ['split', 'full']:
@@ -228,6 +266,11 @@ def generate_visualisations(opt_anal):
                 _visualise_latent_space_tsne(test_dir, "GIM", test_vis_dir)
                 _visualise_latent_space_tsne(train_dir, "GIM", train_vis_dir)
 
+            if opt_anal['VISUALISE_HISTOGRAMS']:
+                _visualise_latent_space_histograms(
+                    test_dir, "GIM", test_vis_dir)
+                _visualise_latent_space_histograms(train_dir, "GIM", train_vis_dir)
+
 
 def run_visualisations(opt, opt_anal):
 
@@ -244,7 +287,7 @@ def run_visualisations(opt, opt_anal):
     if opt_anal['SAVE_ENCODINGS']:
         generate_and_save_encodings(opt_anal, ENCODER_MODEL_PATH)
 
-    if opt_anal['VISUALISE_LATENT_ACTIVATIONS'] or opt_anal['VISUALISE_TSNE']:
+    if opt_anal['VISUALISE_LATENT_ACTIVATIONS'] or opt_anal['VISUALISE_TSNE'] or opt_anal['VISUALISE_HISTOGRAMS']:
         generate_visualisations(opt_anal)
 
     if opt_anal['VISUALISE_TSNE_ORIGINAL_DATA']:
@@ -255,7 +298,8 @@ def run_visualisations(opt, opt_anal):
 if __name__ == "__main__":
     torch.cuda.empty_cache()
     assert OPT_ANAL['SAVE_ENCODINGS'] or OPT_ANAL['VISUALISE_LATENT_ACTIVATIONS'] or \
-        OPT_ANAL['VISUALISE_TSNE'] or OPT_ANAL['VISUALISE_TSNE_ORIGINAL_DATA'], "Nothing to do"
+        OPT_ANAL['VISUALISE_TSNE'] or OPT_ANAL['VISUALISE_TSNE_ORIGINAL_DATA'] or \
+        OPT_ANAL['VISUALISE_HISTOGRAMS'], "Nothing to do"
 
     run_visualisations(OPT, OPT_ANAL)
 

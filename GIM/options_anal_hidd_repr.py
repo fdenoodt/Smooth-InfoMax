@@ -9,17 +9,20 @@ ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\temp"  # w/ auto reg
 
 # ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_simple_v2_kld_weight=0.00"  # w/ auto reg
 # ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_cpc_kld_weight=0.00"  # w/ auto reg
-# ENCODER_MODEL_DIR = r"D:\\thesis_logs\\logs//de_boer_reshuf_simple_v2_kld_weight=0.0033 !!"
+ENCODER_MODEL_DIR = r"D:\\thesis_logs\\logs//de_boer_reshuf_simple_v2_kld_weight=0.0033 !!"
+ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0000_latent_dim=32 !!"
+ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!"
 
 LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
-EPOCH_VERSION = 3
+EPOCH_VERSION = 799
 AUTO_REGRESSOR_AFTER_MODULE = False
 
 # Actions
 SAVE_ENCODINGS = True
 VISUALISE_LATENT_ACTIVATIONS = False
-VISUALISE_TSNE = True
+VISUALISE_TSNE = False
 VISUALISE_TSNE_ORIGINAL_DATA = False
+VISUALISE_HISTOGRAMS = True # TODO: ADDED
 
 # warning: only makes sense for outputs of GRU
 ONLY_LAST_PREDICTION_FROM_TIME_WINDOW = False
@@ -39,5 +42,6 @@ OPTIONS = {
     'ENCODER_MODEL_DIR': ENCODER_MODEL_DIR,
     'VISUALISE_LATENT_ACTIVATIONS': VISUALISE_LATENT_ACTIVATIONS,
     'VISUALISE_TSNE': VISUALISE_TSNE,
-    'VISUALISE_TSNE_ORIGINAL_DATA': VISUALISE_TSNE_ORIGINAL_DATA
+    'VISUALISE_TSNE_ORIGINAL_DATA': VISUALISE_TSNE_ORIGINAL_DATA,
+    'VISUALISE_HISTOGRAMS': VISUALISE_HISTOGRAMS, # TODO: ADDED
 }

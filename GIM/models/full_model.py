@@ -17,6 +17,8 @@ class FullModel(nn.Module):
         super(FullModel, self).__init__()
 
         self.opt = opt
+        assert self.opt["model_splits"] in [1, 2], "Invalid option for opt['model_splits']"
+
 
         architecture = opt["architecture_module_1"]
         kernel_sizes = architecture["kernel_sizes"]
@@ -75,8 +77,7 @@ class FullModel(nn.Module):
                     prediction_step=prediction_step,
                 )
             )
-        else:
-            raise Exception("Invalid option for opt['model_splits']")
+
 
     def forward(self, x):
         model_input = x
