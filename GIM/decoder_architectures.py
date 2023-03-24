@@ -214,31 +214,58 @@ class SimpleV2Decoder(GimDecoder):
         return self.decoder(x)
 
 
+class SimpleV2DecoderTwoModules(GimDecoder):
+    def __init__(self, hidd_channels=32, out_channels=1):
+        super().__init__("Simple_v2_2Module_DECODER")
 
-# # 52 --> 10240
-# x = torch.randn(96, 1, 10240) # = objective
-# z = torch.randn(96, 52, 32)  # (b, l, c)
+        kernel_sizes = [8, 8, 3]
+        strides = [3, 3, 1]
+        padding = [2, 2, 1]
+
+        self.module2 = nn.Sequential(
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[2], stride=strides[2], padding=padding[2]),
+            nn.ReLU(),
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[1], stride=strides[1], padding=padding[1], output_padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose1d(hidd_channels, hidd_channels, kernel_sizes[0], stride=strides[0], padding=padding[0], output_padding=0),
+        )
+        self.module1 = SimpleV2Decoder(hidd_channels, out_channels)
+
+    def forward(self, z):
+        z = self.module2(z)
+        x = self.module1(z) # SimpleV2Decoder
+        return x
 
 
-# z = torch.randn(96, 2559, 32)  # (b, l, c)
-# z = torch.randn(96, 638, 32)  # (b, l, c)
-# z = torch.randn(96, 212, 32)  # (b, l, c)
-# z = torch.randn(96, 52, 32)  # (b, l, c)
-# z = z.permute(0, 2, 1) # (b, c, l)
+# # # 52 --> 10240
+# z = torch.randn(96, 5, 32)  # (b, l, c)
+# # z = torch.randn(96, 52, 32)  # (b, l, c)
 
-# decoder = SimpleV2Decoder()
+
+# # z = torch.randn(96, 2559, 32)  # (b, l, c)
+# # z = torch.randn(96, 638, 32)  # (b, l, c)
+# # z = torch.randn(96, 212, 32)  # (b, l, c)
+# # z = torch.randn(96, 52, 32)  # (b, l, c)
+# z = z.permute(0, 2, 1)  # (b, c, l)
+
+# decoder = SimpleV2DecoderTwoModules()
 # y = decoder(z)
 # print(y.shape)
 
-
 # %%
+# x = torch.randn(96, 1, 10240)  # = objective
 
-# c1 = nn.Conv1d(1, 32, 10, 4, 2)(x) # 10240 -> 2559
-# p1 = nn.MaxPool1d(8, 4)(c1) # --> 638
-# c2 = nn.Conv1d(32, 32, 8, 3, 2)(p1) # --> 212
-# p2 = nn.MaxPool1d(8, 4)(c2) # 52
-# p2.shape  
-# # p2.shape
+# c1 = nn.Conv1d(1, 32, 10, 4, 2)(x)  # 10240 -> 2559
+# p1 = nn.MaxPool1d(8, 4)(c1)  # --> 638
+# c2 = nn.Conv1d(32, 32, 8, 3, 2)(p1)  # --> 212
+# p2 = nn.MaxPool1d(8, 4)(c2)  # 52
+# p2.shape  # --> 10240 --> 52
+# print(p2.shape)
+
+# x = p2
+# c1 = nn.Conv1d(32, 32, 8, 3, 2)(x)
+# c2 = nn.Conv1d(32, 32, 8, 3, 2)(c1)
+# c2.shape
 
 
 # %%
@@ -341,13 +368,12 @@ class MEL_LOSS(nn.Module):
     # https://pytorch.org/audio/main/tutorials/audio_feature_extractions_tutorial.html#melspectrogram
     def __init__(self, n_fft=2048, sr=16000):
         super(MEL_LOSS, self).__init__()
-        
-        win_length= None #1024
-        hop_length= n_fft // 2 #512
-        n_mels= None #128
-        
-        self.name = f"MEL_SPECTR_n_fft={n_fft}"
 
+        win_length = None  # 1024
+        hop_length = n_fft // 2  # 512
+        n_mels = None  # 128
+
+        self.name = f"MEL_SPECTR_n_fft={n_fft}"
 
         self.criterion = nn.MSELoss()
         self.compute_mel_spectr = T.MelSpectrogram(
