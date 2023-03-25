@@ -55,7 +55,7 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
     return validation_loss
 
 
-def train(encoder, decoder, logs, train_loader, test_loader, learning_rate, criterion, decay_rate):
+def train(opt, encoder, decoder, logs, train_loader, test_loader, learning_rate, criterion, decay_rate):
     epoch_printer = EpochPrinter(train_loader, learning_rate, criterion)
     log_handler = LogHandler(opt, logs, train_loader,
                              criterion, encoder, learning_rate)
@@ -137,7 +137,7 @@ def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, crit
         opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
 
     encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    decoder = train(encoder, decoder, logs, train_loader,
+    decoder = train(opt, encoder, decoder, logs, train_loader,
                     test_loader, lr, criterion, decay_rate)
 
     generate_predictions(f"{experiment_name}_experiment", encoder,

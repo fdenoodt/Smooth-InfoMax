@@ -7,7 +7,7 @@ def get_options(experiment_name):
     lr = 0.005
     decay_rate = 0.995
     n_fft = 4096
-    num_epochs = 3
+    num_epochs = 500
     options = {
         'experiment_name': experiment_name,
         'lr': lr,

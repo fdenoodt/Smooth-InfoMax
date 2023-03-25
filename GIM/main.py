@@ -92,7 +92,8 @@ def save_latents_and_generate_visualisations(opt):
             'ENCODER_MODEL_DIR': opt['ANAL_ENCODER_MODEL_DIR'],
             'VISUALISE_LATENT_ACTIVATIONS': opt['ANAL_VISUALISE_LATENT_ACTIVATIONS'],
             'VISUALISE_TSNE': opt['ANAL_VISUALISE_TSNE'],
-            'VISUALISE_TSNE_ORIGINAL_DATA': opt['ANAL_VISUALISE_TSNE_ORIGINAL_DATA']
+            'VISUALISE_TSNE_ORIGINAL_DATA': opt['ANAL_VISUALISE_TSNE_ORIGINAL_DATA'],
+            'VISUALISE_HISTOGRAMS': opt['ANAL_VISUALISE_HISTOGRAMS']
         }
 
         run_visualisations(opt, options_anal)
