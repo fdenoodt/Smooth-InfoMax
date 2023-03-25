@@ -122,8 +122,11 @@ def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, crit
     arg_parser.create_log_path(opt)
     opt['experiment'] = experiment_name
     opt['save_dir'] = f'{experiment_name}_experiment'
-    opt['log_path'] = f'./logs/{experiment_name}_experiment'
-    opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
+    opt['log_path'] = opt['log_path'] + "/DECODER"
+    opt['log_path_latent'] = opt['log_path'] + "/latent_space"
+
+    # opt['log_path'] = f'./logs/{experiment_name}_experiment'
+    # opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
     opt['num_epochs'] = num_epochs
     opt['batch_size'] = 171
     opt['batch_size_multiGPU'] = opt['batch_size']
@@ -140,7 +143,7 @@ def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, crit
     decoder = train(opt, encoder, decoder, logs, train_loader,
                     test_loader, lr, criterion, decay_rate)
 
-    generate_predictions(f"{experiment_name}_experiment", encoder,
+    generate_predictions(opt, f"{experiment_name}_experiment", encoder,
                          criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
 
     torch.cuda.empty_cache()

@@ -46,10 +46,10 @@ def _generate_predictions(decoder, data_loader, encoder, model_nb, path, train_o
         break  # only do a single batch!
 
 
-def generate_predictions(experiment_name, encoder, criterion, lr, layer_depth, decoder, model_nb=29):
+def generate_predictions(options, experiment_name, encoder, criterion, lr, layer_depth, decoder, model_nb=29):
     '''Generate predictions for the test set and save them to disk.'''
 
-    path = f"./logs/{experiment_name}/{criterion}/lr_{lr:.7f}/GIM_L{layer_depth}/"
+    path = f"{options['log_path']}/{criterion}/lr_{lr:.7f}/GIM_L{layer_depth}/"
     model_path = f"{path}/model_{model_nb}.pt"
 
     decoder.load_state_dict(torch.load(model_path, map_location=device))

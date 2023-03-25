@@ -41,7 +41,7 @@ if __name__ == "__main__":
         # run_cpc_train_configuration(OPTIONS)
 
         options_autoencoder = get_autoencoder_options(
-            f"DECODER_{final_name}", final_name, OPTIONS['num_epochs'] - 1)
+            f"{final_name}", final_name, OPTIONS['num_epochs'] - 1)
 
         experiment_name = options_autoencoder["experiment_name"]
         GIM_MODEL_PATH = options_autoencoder["gim_model_path"]
