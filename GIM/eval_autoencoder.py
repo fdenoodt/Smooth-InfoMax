@@ -86,7 +86,7 @@ if __name__ == "__main__":
     GIM_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
 
     ENCODER = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    generate_predictions("GIM_DECODER_experiment", ENCODER, CRITERION, LR,
+    generate_predictions(opt, "GIM_DECODER_experiment", ENCODER, CRITERION, LR,
                          LAYER_DEPTH, decoder, model_nb=29)
 
     # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
