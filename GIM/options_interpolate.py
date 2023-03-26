@@ -1,11 +1,15 @@
 import torch
 
-from decoder_architectures import SimpleV2DecoderTwoModules
-# CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
-CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!/model_799.ckpt"
+from decoder_architectures import SimpleV2Decoder, SimpleV2DecoderTwoModules
 
-# DECODER_MODEL_PATH = r"D:\thesis_logs\logs\GIM_DECODER_simple_v2_experiment\MEL_SPECTR_n_fft=4096 !!\lr_0.0050000\GIM_L1\model_99.pt"
-DECODER_MODEL_PATH = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\GIM_DECODER_simple_v2_TWO_MODULES_experiment\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1\model_2.pt"
+# Pair w/ split = 1, architecture v2
+CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
+DECODER_MODEL_PATH = r"D:\thesis_logs\logs\GIM_DECODER_simple_v2_experiment\MEL_SPECTR_n_fft=4096 !!\lr_0.0050000\GIM_L1\model_99.pt"
+
+
+# idk
+# CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!/model_799.ckpt"
+# DECODER_MODEL_PATH = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\GIM_DECODER_simple_v2_TWO_MODULES_experiment\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1\model_2.pt"
 
 # Simple architecture v2 # 20480 -> 105
 kernel_sizes = [10, 8, 3]
@@ -60,9 +64,9 @@ def get_options():
         'predict_distributions': predict_distributions,
         'architecture_module_1': ARCHITECTURE,
         'architecture_module_2': ARCHITECTURE2,
-        'decoder': SimpleV2DecoderTwoModules(),
-        'train_layer': 2,
-        'model_splits': 2,
+        'decoder': SimpleV2Decoder(),  #SimpleV2DecoderTwoModules(),
+        'train_layer': 1, #2,
+        'model_splits': 1, #2,
         'auto_regressor_after_module': AUTO_REGRESSOR_AFTER_MODULE,
 
 
