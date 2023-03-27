@@ -240,7 +240,7 @@ class SimpleV2DecoderTwoModules(GimDecoder):
 
 
 class SimpleV3DecoderTwoModules(GimDecoder):
-    def __init__(self, hidd_channels=8, out_channels=1):
+    def __init__(self, hidd_channels=32, out_channels=1):
         super().__init__("Simple_v3_2Module_DECODER")
 
         kernel_sizes = [6, 6, 3]
