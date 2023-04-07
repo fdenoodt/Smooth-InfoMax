@@ -1,0 +1,80 @@
+\chapter{Variational contrastive predictive coding}
+Learned latent representations are meaningful to a computer. However, the meaning of the latent representations is unknown to humans. While variational auto-encoders can omit this challenge by constraining the latent space in such a way that makes it more interpreteable, similar to the autoanecoder, they "merely" learn to reconstruct image. Hence, all "information" that is considered important to reconstruct the data will be kept in the latent representation, whether the information is useful or not. TOTOOT: CPC DOET EFFECTIEF DINGEN WEG DIE WE USELESS VINDEN, MAAR LESS EXPLAINABLE.
+
+We introduce Variational Contrastive Predictive coding, which uses the InfoNCE loss function to obtain latent space, however, by taking inspiration from variational autoencoders, we constrain the obtained latent space to be Gaussian. Doing so allows for obtaining meaninful representations from interpolating between two variables.
+We argue that these Gaussian distributed latent representations are more explainable. We develop a decoder to reconstruct the original data. By doing so, we can apply meaningful interpolated latent representations to the decoder, to observe what the effect is on different dimensions from the latent representations.
+
+\section{Loss function}
+\begin{equation} % generated with chatGPT
+	\mathcal{L}_{N+KL} = - \sum_{k} \mathbb{E}_{\textsubscript{X}} \left[ \log \frac{f_k(z_{t+k}, c_t)}{\sum_{z_j \in X} f_k(z_j, c_t)} \right] + \lambda \text{KL}(q(z|X) || \mathcal{N}(0, I))
+\end{equation}
+
+Where the KL divergence for a single sample $x^{(i)}$ is approximated as follows:
+% https://arxiv.org/pdf/1312.6114.pdf, from example
+\begin{equation}
+	\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) 
+\end{equation}
+
+
+%\begin{equation}
+%	\mathcal{L} \approx 
+%	\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) + \frac{1}{L} \left( \sum_{l=1}^L \log p_\theta (x^{(i)} | z^{(i, l)}) \right)
+%\end{equation}
+
+
+%- \sum_{k} \mathbb{E}_{\textsubscript{X}} \left[ \log \frac{f_k(z_{t+k}, c_t)}{\sum_{z_j \in X} f_k(z_j, c_t)} \right]
+
+
+%\begin{equation}
+%\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) + \frac{1}{L} \left( \sum_{l=1}^L \log p_\theta (x^{(i)} | z^{(i, l)}) \right)
+%\end{equation}
+
+idk what the right part of the equation means, i did not have it in the code. L is number of samples per data point, so could be the reconstruction error. (In our case L is always 1)
+
+where $z^(i,l) = \sigma ^{(i)} \odot \epsilon^{(l)}$ and $\epsilon^(l) \mathcal{N}(0, I)$
+\textbf{todo: variables should maybe be bold.}
+
+
+%def loss_function(self, recons, input, mu, log_var, kld_weight=0.0025) -> List[Tensor]:
+%"""
+%Computes the VAE loss function.
+%KL(N(\mu, \sigma), N(0, 1)) = \log \frac{1}{\sigma} + \frac{\sigma^2 + \mu^2}{2} - \frac{1}{2}
+%:param args:
+%:param kwargs:
+%:return:
+%"""
+%
+%# Account for the minibatch samples from the dataset
+%recons_loss = F.mse_loss(recons, input)
+%
+%kld_loss = torch.mean(
+%-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1)
+%, dim=0)
+
+
+%loss = recons_loss + kld_weight * kld_loss # shape: (3, 3)
+%loss = loss.mean() # shape: (1)
+%return [loss, recons_loss.detach(), -kld_loss.detach()]
+
+
+%def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
+%"""
+%Reparameterization trick to sample from N(mu, var) from
+%N(0,1).
+%:param mu: (Tensor) Mean of the latent Gaussian [B x D]
+%:param logvar: (Tensor) Standard deviation of the latent Gaussian [B x D]
+%:return: (Tensor) [B x D]
+%"""
+%std = torch.exp(0.5 * logvar)
+%eps = torch.randn_like(std)
+%return eps * std + mu
+
+
+\section{Learning benefits}
+Overfitting during inference:
+- The same datapoint has multiple (similar) representations, such that learning techniques for downstream tasks will not be able to "memorise" the latent space as easily.
+- Holes: more predictable inference, such that unseen data is more likely to be near clusters. And thus downstream tasks receive latents that are more similar to what is seen before.
+- Independent latent dimensions
+- During training similar behaviour to batch normalization in-between layers
+
+

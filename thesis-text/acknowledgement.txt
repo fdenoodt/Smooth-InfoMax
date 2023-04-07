@@ -1,0 +1,1 @@
+Based on the template provided by Ruben De Smet: https://gitlab.com/rubdos/texlive-vub

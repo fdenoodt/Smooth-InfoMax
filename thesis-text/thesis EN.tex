@@ -1,0 +1,207 @@
+\documentclass[]{book}
+\usepackage{vub}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\includeonly{background}
+
+
+
+\title{Variational Greedy InfoMax}
+\subtitle{Towards indepdenent and interpratable representations}
+\author{Fabian Denoodt}
+\faculty{Science and Bio-Engineering Sciences}
+\promotors{Promotor(s):~Prof. Dr. Bart de Boer}
+\pretitle{Master thesis submitted in partial fulfilment of the requirements for the degree of Master of Science In de Ingenieurswetenschappen: Computerwetenschappen}
+\date{2022-2023}
+
+
+\begin{document}
+\maketitle
+\title{[Dutch] Variational Greedy InfoMax}
+\subtitle{[Dutch] Towards indepdenent and interpratable representations}
+\pretitle{Proefschrift ingediend met het oog op het behalen van de graad van Master of Science In de Ingenieurswetenschappen: Computerwetenschappen}
+\faculty{Wetenschappen en Bio-ingenieurswetenschappen}
+\maketitle
+
+\tableofcontents
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX Overlay Generator - Annotated Figures v0.0.1
+% Created with http://ff.cx/latex-overlay-generator/
+% If this generator saves you time, consider donating 5,- EUR! :-)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\annotatedFigureBoxCustom{bottom-left}{top-right}{label}{label-position}{box-color}{label-color}{border-color}{text-color}
+\newcommand*\annotatedFigureBoxCustom[8]{\draw[#5,thick,rounded corners] (#1) rectangle (#2);\node at (#4) [fill=#6,thick,shape=circle,draw=#7,inner sep=2pt,font=\sffamily,text=#8] {\textbf{#3}};}
+
+%\annotatedFigureBox{bottom-left}{top-right}{label}{label-position}
+\newcommand*\annotatedFigureBox[4]{\annotatedFigureBoxCustom{#1}{#2}{#3}{#4}{white}{white}{black}{black}}
+
+%\newcommand*\annotatedFigureText[4]{\node[draw=none, anchor=south west, text=#2, inner sep=0, text width=#3\linewidth,font=\sffamily] at (#1){#4};}
+
+\newcommand*\annotatedFigureText[5]{\node[draw=none, anchor=south west, text=#2, inner sep=0, text width=#3\linewidth,font=\sffamily\fontsize{#5}{14}\selectfont] at (#1){#4};}
+
+
+\newenvironment {annotatedFigure}[1]{\centering\begin{tikzpicture}
+		\node[anchor=south west,inner sep=0] (image) at (0,0) { #1};\begin{scope}[x={(image.south east)},y={(image.north west)}]}{\end{scope}\end{tikzpicture}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\vecti}[1]{\mathbf{#1}^{(i)}}
+\newcommand{\kl}[2]{D_{KL} \left( #1 \mid \mid #2 \right)}
+\newcommand{\condp}[2]{p(#1 \mid #2)} % conditional probability
+\newcommand{\condq}[2]{q(#1 \mid #2)} % conditional probability
+\newcommand{\probzx}[0]{\condp{\vect{z}}{\vecti{x}}} % conditional probability
+\newcommand{\probxz}[0]{\condp{\vecti{x}}{\vect{z}}} % conditional probability
+\newcommand{\qprobzx}[0]{\condq{\vect{z}}{\vecti{x}}} % conditional probability
+\newcommand{\qprobqxz}[0]{\condq{\vecti{x}}{\vect{z}}} % conditional probability
+\newcommand{\expected}[1]{\mathbb{E}_{#1}}
+\newcommand{\sample}[2]{#1 \sim #2}
+\newcommand{\expectedsample}[2]{\expected{\sample{#1}{#2}}}
+\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\vect{Z} \mid \vecti{x})}}
+
+\newcommand{\pzx}[0]{\probzx}
+\newcommand{\pxz}[0]{\probxz}
+
+\newcommand{\qzx}[0]{\qprobzx}
+\newcommand{\qxz}[0]{\qprobxz}
+
+
+
+
+% p_theta(z|x)
+
+
+
+
+
+\newcommand{\qz}[0]{p(\vect{z})}
+\newcommand{\pz}[0]{p_\theta(\vect{Z})}
+
+\newcommand{\px}[0]{p( \vecti{x} )}
+
+\newcommand{\elbo}[0]{  \expectedsamplezq \left[ \log p(\vect{Z}, \vecti{x}) - \log \qzx \right]  }
+\newcommand{\logevidence}[0]{\log \px}
+
+\newcommand{\lelbo}[0]{\mathcal{L}_{\textit{ELBO}}}
+
+\newcommand{\klapproxposterior}[0]{\kl{\qprobzx}{\probzx}}
+
+
+\newcommand{\reconstr}[0]{\expectedsamplezq \left[ -\log \pthetaxz \right]}
+
+
+\newcommand{\latentspaceconstraint}[0]{\kl{ \qphizx }{ \pz } }
+
+\newcommand{\latentspaceconstraintstandardgaussian}[0]{\kl{ \qphizx }{ \standardnormal } }
+
+\newcommand{\latentspaceconstraintclosedform}[0]{ \frac{1}{2} \sum_{k=1}^{D} \left( -\log (\sigma_k^{(i)})^2 - 1 + (\sigma_k^{(i)})^2 +  (\mu_k^{(i)})^2 \right) }
+
+
+\newcommand{\elboexplicit}[0]{ \reconstr + \latentspaceconstraint }
+
+\newcommand{\mui}[0]{\bm{\mu}^{(i)}}
+\newcommand{\sigmai}[0]{\bm{\sigma}^{(i)}}
+\newcommand{\epiloni}[0]{\bm{\epsilon}^{(i)}}
+
+
+\newcommand{\identitymtx}[0]{\mathbf{I}}
+\newcommand{\covariancemtx}[0]{\mathbf{\Sigma}}
+
+%\newcommand{\sigmaisq}[0]{(\bm{\sigma}^{(i)})^2 }
+\newcommand{\diagsigmai}[0]{\text{diag}(\sigmai)} % maybe should be sigmaisq
+\newcommand{\normal}[0]{\mathcal{N}(\mui, \diagsigmai)}
+\newcommand{\standardnormal}[0]{\mathcal{N}(\bm{\vect{0}}, \identitymtx)}
+
+\newcommand{\qphizx}[0]{q_\phi (\vect{Z} \mid \vecti{x})}
+
+\newcommand{\pthetaxz}[0]{p_\theta (\vecti{X} \mid \vect{z})} % todo: in the future it should be large X
+
+\newcommand{\tildexi}[0]{\widetilde{\mathbf{x}} ^ {(i)}}
+\newcommand{\tildex}[0]{\widetilde{\mathbf{x}}}
+
+\newcommand{\samplestandardnormal}[1]{\sample{#1}{\standardnormal}}
+	
+	
+
+%cpc
+
+\newcommand{\fzc}[0]{f_k(\ztk, \ct)}
+\newcommand{\pztk}[0]{p(\ztk)}
+\newcommand{\pzcdivpz}[0]{\frac{p(\ztk \mid \ct)}{\pztk}}
+
+\newcommand{\mutinfztkct}[0]{I(z_{t+k}, c_t)}
+
+
+\newcommand{\x}[0]{\vect{x}}
+\newcommand{\xt}[0]{\x_t}
+\newcommand{\xtk}[0]{\vect{x}_{t+k}}
+\newcommand{\xtone}[0]{\vect{x}_{t+1}}
+
+\newcommand{\z}[0]{\vect{z}}
+\newcommand{\zt}[0]{\z_t}
+\newcommand{\zi}[0]{\z_i}
+\newcommand{\zj}[0]{\z_j}
+\newcommand{\ztk}[0]{\vect{z}_{t+k}}
+\newcommand{\ztone}[0]{\vect{z}_{t+1}}
+
+\newcommand{\ct}[0]{\vect{c}_t}
+\newcommand{\ctk}[0]{\vect{c}_{t+k}}
+\newcommand{\ctone}[0]{\vect{c}_{t+1}}
+
+\newcommand{\fkdefinition}[0]{f_k(\z_j, \ct) = \exp(\z_j^T W_k \ct)}
+
+\newcommand{\fkzc}[0]{f_k(\z_{t+k}, \ct)}
+
+\newcommand{\nceprediction}[0]{\frac{\fkzc}{\sum_{\zj \in X} f_k(\zj, \ct)}}
+
+
+
+% GIM
+
+\newcommand{\fkm}[0]{f_k^m(\ztk^m,\zt^m)}
+
+
+
+
+
+\newcommand{\R}[0]{\mathbb{R}}
+
+
+
+
+
+
+\include{introduction}
+\include{background}
+\include{variationalcontrastivepredictivecoding}
+\include{experiments}
+\include{relatedwork}
+
+\chapter{Discussion}
+while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
+
+
+\begin{itemize}
+	\item Explainability of latents is dependent on the performance of the decoder.
+	\item Intermediate loss function with kld resulted in similar behaviour as batch normalisation. Resulting in faster convergence than without kld.
+	\item We observed no quality loss in the learned representations. Data was equally easily separable.
+\end{itemize}
+
+
+xx does what \cite{lowePuttingEndEndtoEnd2020} yes!
+idk \cite{coverELEMENTSINFORMATIONTHEORY} cool
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{ThesisSync}
+
+
+\end{document}

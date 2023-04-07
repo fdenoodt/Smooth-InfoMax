@@ -1,0 +1,50 @@
+\ProvidesPackage{vubprivate}
+\RequirePackage{color}
+\RequirePackage{ifxetex}
+
+\RequirePackage{kvoptions}
+\DeclareBoolOption[false]{spotcolors}
+\DeclareComplementaryOption{nospotcolors}{spotcolors}
+\ProcessKeyvalOptions*{}
+
+\ifvubprivate@spotcolors
+    \RequirePackage{colorspace}
+    % Define our lovely new colors
+    \definespotcolor{vuboranje}{PANTONE 021}{0,.78,1.,0}
+    \definespotcolor{vubbleu}{PANTONE 286}{1,.8,.16,.03}
+    \definespotcolor{ulbblue}{PANTONE 287 C}{1,.75,.02,.18}
+\else
+    \definecolor{vuboranje}{cmyk}{0,.78,1.,0}
+    \definecolor{vubbleu}{cmyk}{1,.8,.16,.03}
+    \definecolor{ulbblue}{cmyk}{1,.75,.02,.18}
+\fi
+
+\ifxetex
+\RequirePackage{fontspec}
+\newfontfamily\tgadventor{TeX Gyre Adventor}
+\fi
+
+\def\triangleH{27.7mm}%
+\newcommand\vubtriangle{%
+    % triangle w=10mm, h=27.7mm
+    \begin{tikzpicture}%
+    \fill [fill=vuboranje] (0, 0) -- (0, \triangleH) -- (-10mm, \triangleH) -- cycle;%
+    \end{tikzpicture}%
+}
+
+\newcommand\vubfont[1]{%
+    \ifxetex
+    \tgadventor{#1}
+    \else
+    \usefont{T1}{qag}{m}{n}#1%
+    \fi
+}
+
+\newcommand\vubfontbf[1]{%
+    \ifxetex
+    \textbf{\tgadventor{#1}}
+    \else
+    \usefont{T1}{qag}{b}{n}#1%
+    \fi
+}
+
