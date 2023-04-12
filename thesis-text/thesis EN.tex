@@ -8,7 +8,9 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 
-\includeonly{background}
+%\includeonly{background}
+%\includeonly{variationalcontrastivepredictivecoding}
+
 
 
 
@@ -65,7 +67,8 @@
 \newcommand{\expected}[1]{\mathbb{E}_{#1}}
 \newcommand{\sample}[2]{#1 \sim #2}
 \newcommand{\expectedsample}[2]{\expected{\sample{#1}{#2}}}
-\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\vect{Z} \mid \vecti{x})}}
+\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\cdot \mid \vecti{x})}}
+%\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\vect{Z} \mid \vecti{x})}}
 
 \newcommand{\pzx}[0]{\probzx}
 \newcommand{\pxz}[0]{\probxz}
@@ -84,6 +87,8 @@
 
 \newcommand{\qz}[0]{p(\vect{z})}
 \newcommand{\pz}[0]{p_\theta(\vect{Z})}
+\newcommand{\pzblank}[0]{p_\theta(\cdot)}
+
 
 \newcommand{\px}[0]{p( \vecti{x} )}
 
@@ -98,9 +103,9 @@
 \newcommand{\reconstr}[0]{\expectedsamplezq \left[ -\log \pthetaxz \right]}
 
 
-\newcommand{\latentspaceconstraint}[0]{\kl{ \qphizx }{ \pz } }
+\newcommand{\latentspaceconstraint}[0]{\kl{ \qphizxblank }{ \pzblank } }
 
-\newcommand{\latentspaceconstraintstandardgaussian}[0]{\kl{ \qphizx }{ \standardnormal } }
+\newcommand{\latentspaceconstraintstandardgaussian}[0]{\kl{ \qphizxblank }{ \standardnormal } }
 
 \newcommand{\latentspaceconstraintclosedform}[0]{ \frac{1}{2} \sum_{k=1}^{D} \left( -\log (\sigma_k^{(i)})^2 - 1 + (\sigma_k^{(i)})^2 +  (\mu_k^{(i)})^2 \right) }
 
@@ -120,9 +125,11 @@
 \newcommand{\normal}[0]{\mathcal{N}(\mui, \diagsigmai)}
 \newcommand{\standardnormal}[0]{\mathcal{N}(\bm{\vect{0}}, \identitymtx)}
 
-\newcommand{\qphizx}[0]{q_\phi (\vect{Z} \mid \vecti{x})}
+\newcommand{\qphizx}[0]{q_\phi (\vect{z} \mid \vecti{x})}
+\newcommand{\qphizxblank}[0]{q_\phi (\cdot \mid \vecti{x})}
 
-\newcommand{\pthetaxz}[0]{p_\theta (\vecti{X} \mid \vect{z})} % todo: in the future it should be large X
+\newcommand{\pthetaxz}[0]{p_\theta (\vecti{x} \mid \vect{z})} % todo: in the future it should be large X
+
 
 \newcommand{\tildexi}[0]{\widetilde{\mathbf{x}} ^ {(i)}}
 \newcommand{\tildex}[0]{\widetilde{\mathbf{x}}}

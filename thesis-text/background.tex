@@ -217,7 +217,7 @@ So far we have discussed how predictions of a neural network can emulate predict
 The loss function to be optimised for a single data point $\vecti{x}$ is shown in the equation below.
 
 \begin{equation}
-	\mathcal{L} = \elboexplicit \label{eq:elbo_explicit_intial}
+	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
 \end{equation} % src: ref to slides ugent
 
 % 1) reconstruction error
@@ -227,9 +227,9 @@ $$
 \reconstr
 $$
 
-The distribution $\pthetaxz$ is a distribution over $\vecti{x}$ where $\vect{z}$ is instantiated. What comes out are thus probabilities. Notice $\vect{z}$ is sampled from the Gaussian distribution $\sample{z}{\qphizx}$. So the $\vect{z}$'s close to the mean are more likely to be sampled than the onces further away. So for these $\vect{z}$'s, we'd like their probability of corresponding to an actual $\vect{x}$ to be high as well. Adding a log to this equation does not change the parameters to obtain a maximum. Finally, by adding a negative sign in front, maximising the equation is equivalent to minimising the negative. % todo: arg is not entirely clear
-%todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
-In practice this term is approximated through mini-batches with the mean squared error.
+The distribution $\pthetaxz$ is a distribution over $\vecti{x}$ where $\vect{z}$ is instantiated. What comes out are thus probabilities. Notice $\vect{z}$ is sampled from the Gaussian distribution $\sample{z}{\qphizx}$. So the $\vect{z}$'s close to the mean $\mu(\vecti{x}) = \mui$ are more likely to be sampled than those further away. So for these $\vect{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability \cite{pinheirocinelliVariationalAutoencoder2021}. % TODO: FOR SOME REASON REFERENCE NOT FOUND 
+%Additionally, minimising this term is equivalent to maximising the likelihood of the reconstructed sample $\vecti{x}$. 
+In practice this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
 
 
 Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the latent distributions $\qphizx$. Again, this metric should be minimised. As we discussed in the chapter on Entropy, the KL divergence can be considered as a (non-symmetric) distance measure between two distributions. Hence, this value is small when the two distributions are similar. As we discussed earlier $\pz$ is often replaced by $\standardnormal$ as shown below. Minimising this equation will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$.
@@ -396,7 +396,7 @@ For the equation above, gradients can easily be back propagated through machine 
 	\zt = g_{enc}(\xt) .
 	$$
 	
-	$g_{enc}( . )$ is for instance a convolutional fully connected ANN. The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any information on an historic context. This historic context is achieved through $g_{ar}( . )$, an auto-regressor, which encodes all previous $\z_1 ... \zt$ into a single representation $\ct$:
+	$g_{enc}( \cdot )$ is for instance a convolutional fully connected ANN. The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any information on an historic context. This historic context is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 ... \zt$ into a single representation $\ct$:
 	
 	$$
 	\ct = g_{ar}(\z_1 ... \zt)
@@ -417,7 +417,7 @@ For the equation above, gradients can easily be back propagated through machine 
 	% the latent representations are optimised through a similarity function f. It will turn on that optimising the similarity between two representations is equivalent to maximising their mutual information.
 	
 	
-	CPC will learn to preserve information between temporally nearby representations, by solving another task. In particular, CPC learns to discriminate subsequent \textit{positive} samples $\ztk$ from \textit{negative} random samples $\zj$. This is achieved through a similarity function $f_k(.)$, which scores the similarity between two latent representations \cite{lowePuttingEndEndtoEnd2020}. It is defined as a log bilinear model as follows:
+	CPC will learn to preserve information between temporally nearby representations, by solving another task. In particular, CPC learns to discriminate subsequent \textit{positive} samples $\ztk$ from \textit{negative} random samples $\zj$. This is achieved through a similarity function $f_k(\cdot)$, which scores the similarity between two latent representations \cite{lowePuttingEndEndtoEnd2020}. It is defined as a log bilinear model as follows:
 	\begin{equation} % f_k
 		\fkdefinition \label{eq:fk}
 	\end{equation}
@@ -441,7 +441,7 @@ For the equation above, gradients can easily be back propagated through machine 
 		\mathcal{L}_N = - \sum_{k} \expected{\textsubscript{X}} \left[ \log \nceprediction \right] \label{eq:NCE_loss}
 	\end{equation}
 	
-	where $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, ... \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample and all other $\zj \in X$ correspond to negative samples (with respect to the context $\ct$).  Hence good representations for $\z, \vect{c}$ and $f_k(.)$, will result in a large similarity score for positive samples and approximate $0$ for negative samples, resulting in a minimum fraction equal to $1$. This would then be cancelled out by the $\log(.)$ function. Meanwhile, $\mathcal{L}_n$ is large when the denomitator is large, indicating in a large high similarity score for negative samples.
+	where $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, ... \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample and all other $\zj \in X$ correspond to negative samples (with respect to the context $\ct$).  Hence good representations for $\z, \vect{c}$ and $f_k(\cdot)$, will result in a large similarity score for positive samples and approximate $0$ for negative samples, resulting in a minimum fraction equal to $1$. This would then be cancelled out by the $\log(\cdot)$ function. Meanwhile, $\mathcal{L}_n$ is large when the denomitator is large, indicating in a large high similarity score for negative samples.
 	
 \subsubsection{Ties with mutual information}
 	Earlier we argued that CPC's encodings will preserve shared information between temporally nearby patches, while discarding the local noise. Oord et al. make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, Oord et al. proof that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$ \cite{oordRepresentationLearningContrastive2019}. 
@@ -581,7 +581,7 @@ For the equation above, gradients can easily be back propagated through machine 
 By splitting up the neural network into modules and allowing them to optimise their own loss, modules can be trained asynchronously, improving upon training time when multiple GPUs are used. Note that similar to tradition neural networks, during forward propagation each module (or layer) requires the output of the previous layer as its input. Hence, modules are still dependent on previous modules for training, however, they can learn without the gradients of subsequent modules.
 
 	
-	We now revisit the function $f_k$ and NCE Loss, and describe it in the context of GIM. Instead of a single $f_k$ and $L_N$, we now have a function $f_k^m$ for each module m, each with their own respective loss $\mathcal{L_N}^m$. The attentive reader may notice $f_k^m( . )$ no longer receives as input $c_t$, but instead a second $z_t$. Löwe omits the autoregressive function \textbf{TODO: F(X) = CT OF ZO} to obtain $c_t$ and immediately applies  gives opted for this function instead, as she did not notice any improvement in her preliminary results.
+	We now revisit the function $f_k$ and NCE Loss, and describe it in the context of GIM. Instead of a single $f_k$ and $L_N$, we now have a function $f_k^m$ for each module m, each with their own respective loss $\mathcal{L_N}^m$. The attentive reader may notice $f_k^m( \cdot )$ no longer receives as input $c_t$, but instead a second $z_t$. Löwe omits the autoregressive function \textbf{TODO: F(X) = CT OF ZO} to obtain $c_t$ and immediately applies  gives opted for this function instead, as she did not notice any improvement in her preliminary results.
 	
 	$$
 	f_k^m(\ztk^m,\zt^m) = \exp({\ztk^m}^TW_k^m\zt^m)
