@@ -1,156 +1,186 @@
-# Greedy InfoMax
+# Variational Greedy InfoMax
 
-We can train a neural network **without end-to-end backpropagation** and achieve competitive performance.
-
-This repo provides the code for the experiments in our paper:
-
-Sindy Löwe*, Peter O'Connor, Bastiaan S. Veeling* - [Putting An End to End-to-End: Gradient-Isolated Learning of Representations](https://arxiv.org/abs/1905.11786)
-
-&ast;equal contribution
+Code based on Greedy Infomax GitHub repository.
 
 
-## What is Greedy InfoMax?
-
-We simply divide existing architectures into gradient-isolated modules and optimize the mutual information between cross-patch intermediate representations.
 
 
-![The Greedy InfoMax Learning Approach](media/architecture.png)
+Example options.py file
+```python
+import torch
+
+# EXPERIMENT_NAME = 'audio_experiment_test_w_ar'
+# EXPERIMENT_NAME = 'audio_experiment_vae_zero'
+# EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_kld_weight=0.00'
+# EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_kld_weight=0.0033 !!'
+
+# WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
+# if not: inconsitent results
+# (see options_autoencoder.py > `gim_model_path`) 
+EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!'
+NUM_EPOCHS = 1
+START_EPOCH = 0
+AUTO_REGRESSOR_AFTER_MODULE = False
+BATCH_SIZE = 171
+
+ROOT_LOGS = r"D:\thesis_logs\logs/"
+
+# Original dimensions given in CPC paper (Oord et al.).
+# kernel_sizes = [10, 8, 4, 4, 4] # 20480 -> 128
+# strides = [5, 4, 2, 2, 2]
+# padding = [2, 2, 2, 2, 1]
+# max_pool_stride = None
+# max_pool_k_size = None
 
 
-What we found exciting is that despite each module being trained greedily, it improves upon the representation of the previous module. This enables you to keep stacking modules until downstream performance saturates.
+# simple architecture v1 # 20480 -> 49
+# kernel_sizes = [10, 10, 3]
+# strides = [5, 5, 1]
+# padding = [0, 0, 1]
+# max_pool_k_size = 8
+# max_pool_stride = 4
 
-<p align="center"> 
-    <img src="./media/LatentClassification.png" width="700">
-</p>
+# Simple architecture v2 # 20480 -> 105
+kernel_sizes = [10, 8, 3]
+strides = [4, 3, 1]
+padding = [2, 2, 1]
+max_pool_k_size = 8
+max_pool_stride = 4
 
+cnn_hidden_dim = 32  # TODO: CHANGED FROM 32
+regressor_hidden_dim = 16  # TODO: CHANGED FROM 16
 
-## How to run the code
-
-### Dependencies
-
-- [Python and Conda](https://www.anaconda.com/)
-- Setup the conda environment `infomax` by running:
-
-    ```bash
-    bash setup_dependencies.sh
-    ```
-
-Additionally, for the audio experiments:
-- Install [torchaudio](https://github.com/pytorch/audio) in the `infomax` environment
-- Download audio datasets 
-    ```bash 
-    bash download_audio_data.sh
-    ```
-
-### Usage
-
-#### Vision Experiments
-- To replicate the vision results from our paper, run
-
-    ``` bash
-    source activate infomax
-    bash vision_traineval.sh
-    ```
-    This will train the Greedy InfoMax model as well as evaluate it by training a linear image classifiers on top of it
-    
-    
-
-- View all possible command-line options by running
-
-    ``` bash
-    python -m GreedyInfoMax.vision.main_vision --help
-    ```    
-    
-    Some of the more important options are:
-    
-    * in order to train the baseline CPC model with end-to-end backpropagation instead of the Greedy InfoMax model set: 
-    ```bash
-    --model_splits 1
-    ```
-
-    * If you want to save GPU memory, you can train layers sequentially, one at a time, by setting the module to be trained (0-2), e.g.
-    
-    ```bash 
-    --train_module 0
-    ```
-    
-
-- Download a GIM model pretrained on STL-10 [here](https://drive.google.com/file/d/1yxwVOpxlrdAFHrNtMYy4QkszsUQFrI6X/view?usp=sharing)
+predict_distributions = True
 
 
-#### Audio Experiments
-- To replicate the audio results from our paper, run
-
-    ``` bash
-    source activate infomax
-    bash audio_traineval.sh
-    ```
-    This will train the Greedy InfoMax model as well as evaluate it by training two linear classifiers on top of it - one for speaker and one for phone classification.
-    
-    
-
-- View all possible command-line options by running
-
-    ``` bash
-    python -m GreedyInfoMax.audio.main_audio --help
-    ```    
-    
-    Some of the more important options are:
-    
-    * in order to train the baseline CPC model with end-to-end backpropagation instead of the Greedy InfoMax model set: 
-    ```bash
-    --model_splits 1
-    ```
-
-    * If you want to save GPU memory, you can train layers sequentially, one at a time, by setting the layer to be trained (0-5), e.g.
-    
-    ```bash 
-    --train_layer 0
-    ```
-    
-## Want to learn more about Greedy InfoMax?
-Check out my [blog post](https://loewex.github.io/GreedyInfoMax.html) for an intuitive explanation of Greedy InfoMax. 
-
-Additionally, you can watch my [presentation at NeurIPS 2019](https://slideslive.com/38923276). My slides for this talk are available [here](media/Presentation_GreedyInfoMax_NeurIPS.pdf).
-
-
-## Cite
-
-Please cite our paper if you use this code in your own work:
-
-```
-@inproceedings{lowe2019putting,
-  title={Putting an End to End-to-End: Gradient-Isolated Learning of Representations},
-  author={L{\"o}we, Sindy and O'Connor, Peter and Veeling, Bastiaan},
-  booktitle={Advances in Neural Information Processing Systems},
-  pages={3039--3051},
-  year={2019}
+ARCHITECTURE = {
+    'max_pool_k_size': max_pool_k_size,
+    'max_pool_stride': max_pool_stride,
+    'kernel_sizes': kernel_sizes,
+    'strides': strides,
+    'padding': padding,
+    'cnn_hidden_dim': cnn_hidden_dim,
+    'regressor_hidden_dim': regressor_hidden_dim,
+    'prediction_step': 12,
 }
+
+# v2
+kernel_sizes = [8, 8, 3]
+strides = [3, 3, 1]
+padding = [2, 2, 1]
+max_pool_k_size = None
+max_pool_stride = None
+
+# v3
+# kernel_sizes = [6, 6, 3]
+# strides = [2, 2, 1]
+# padding = [2, 2, 1]
+# max_pool_k_size = None
+# max_pool_stride = None
+
+
+ARCHITECTURE2 = {  # TODO: changed
+    'max_pool_k_size': max_pool_k_size,
+    'max_pool_stride': max_pool_stride,
+    'kernel_sizes': kernel_sizes,
+    'strides': strides,
+    'padding': padding,
+    'cnn_hidden_dim': cnn_hidden_dim,
+    'regressor_hidden_dim': regressor_hidden_dim,
+    'prediction_step': 4,  # latents only have length 5 so this is the max
+}
+
+# ARCHITECTURE2 = {
+#     'max_pool_k_size': max_pool_k_size,
+#     'max_pool_stride': max_pool_stride,
+#     'kernel_sizes': kernel_sizes,
+#     'strides': strides,
+#     'padding': padding,
+#     'cnn_hidden_dim': cnn_hidden_dim,
+#     'regressor_hidden_dim': regressor_hidden_dim,
+#     'prediction_step': 4,  # latents only have length 5 so this is the max
+# }
+
+LEARNING_RATE = 0.01  # 0.003 # old: 0.0001
+DECAY_RATE = 0.99
+KLD_WEIGHT = 0.0033  # 0.0025
+TRAIN_W_NOISE = False
+
+# de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
+DATA_SET = 'de_boer_sounds_reshuffled'
+SPLIT_IN_SYLLABLES = False
+PERFORM_ANALYSIS = True
+
+
+def get_options(experiment_name):
+    options = {
+        'num_epochs': NUM_EPOCHS,
+        'seed': 2,
+        'data_input_dir': './datasets/',
+        'validate': True,
+        'negative_samples': 10,
+        'subsample': True,
+        'loss': 0,
+
+        'train_layer': 2,
+        'model_splits': 2,
+        'predict_distributions': predict_distributions,
+        'architecture_module_1': ARCHITECTURE,
+        'architecture_module_2': ARCHITECTURE2,
+        'kld_weight': KLD_WEIGHT,
+
+        'learning_rate': LEARNING_RATE,
+        'decay_rate': DECAY_RATE,
+
+        'train_w_noise': TRAIN_W_NOISE,
+        'split_in_syllables': SPLIT_IN_SYLLABLES,
+
+        # is for intermediate layers, by default this is set to false, only last layer has auto regressor
+        # (this is always the case, regardless of what this param is set to)
+        'use_autoregressive': False,
+        'remove_BPTT': False,
+        'model_num': '',
+        'model_type': 0,
+        'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+
+        'experiment': 'audio',
+        'save_dir': experiment_name,
+        'log_path': f'{ROOT_LOGS}/{experiment_name}',
+        'log_path_latent': f'{ROOT_LOGS}/{experiment_name}/latent_space',
+
+        'log_every_x_epochs': 1,
+
+        'model_path': f'{ROOT_LOGS}/{experiment_name}/',
+        'start_epoch': START_EPOCH,
+
+        'data_set': DATA_SET,
+        'batch_size_multiGPU': BATCH_SIZE,  # 22,
+        'batch_size': BATCH_SIZE,
+        'auto_regressor_after_module': AUTO_REGRESSOR_AFTER_MODULE,
+
+
+        'perform_analysis': PERFORM_ANALYSIS,
+        # options for analysis
+        'ANAL_LOG_PATH': f'{ROOT_LOGS}/{experiment_name}/analyse_hidden_repr/',
+        'ANAL_ENCODER_MODEL_DIR': f"{ROOT_LOGS}/{experiment_name}",
+        'ANAL_EPOCH_VERSION': START_EPOCH + NUM_EPOCHS - 1,
+        'ANAL_AUTO_REGRESSOR_AFTER_MODULE': AUTO_REGRESSOR_AFTER_MODULE,
+        'ANAL_ONLY_LAST_PREDICTION_FROM_TIME_WINDOW': False,
+
+        'ANAL_SAVE_ENCODINGS': True,
+        'ANAL_VISUALISE_LATENT_ACTIVATIONS': False,
+        'ANAL_VISUALISE_TSNE': True,
+        'ANAL_VISUALISE_TSNE_ORIGINAL_DATA': False,
+        'ANAL_VISUALISE_HISTOGRAMS': True
+    }
+    return options
+
+
+# simplified architecture
+OPTIONS = get_options(EXPERIMENT_NAME)
+
+if __name__ == '__main__':
+    print(f"Cuda is available: {torch.cuda.is_available()}")
+
 ```
 
-
-## References 
-- [Representation Learning with Contrastive Predictive Coding - Oord et al.](https://arxiv.org/abs/1807.03748)
-
-
-
-
-
-<!-- CV -->
-<!-- echo "Training the Greedy InfoMax Model on vision data (stl-10)" -->
-<!-- C:\Python\Python310\python.exe  -m GreedyInfoMax.vision.main_vision --grayscale --download_dataset --save_dir vision_experiment -->
-<!-- echo "Testing the Greedy InfoMax Model for image classification" -->
-<!-- python -m GreedyInfoMax.vision.downstream_classification --grayscale --model_path ./logs/vision_experiment --model_num 299 -->
-
-
-
-<!-- run -->
-<!-- Audio -->
-<!-- train on libri speech -->
-C:\Python\Python310\python.exe -m GreedyInfoMax.audio.main_audio --subsample --num_epochs 1000 --learning_rate 2e-4 --start_epoch 0 -i ./datasets/ -o . --save_dir audio_experiment --batch_size 2
-
-<!-- Testing the Greedy InfoMax Model for phone classification -->
-C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_phones --model_path ./logs/audio_experiment --model_num 2 -i ./datasets/ -o .
-
-<!-- Testing the Greedy InfoMax Model for speaker classification -->
-C:\Python\Python310\python.exe -m GreedyInfoMax.audio.linear_classifiers.logistic_regression_speaker --model_path ./logs/audio_experiment --model_num 999 -i ./datasets/ -o .

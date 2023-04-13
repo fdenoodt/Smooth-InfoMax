@@ -3,13 +3,13 @@ import torch
 from decoder_architectures import SimpleV2Decoder, SimpleV2DecoderTwoModules, SimpleV3DecoderTwoModules
 
 # Pair w/ split = 1, architecture v2
-# CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
-# DECODER_MODEL_PATH = r"D:\thesis_logs\logs\GIM_DECODER_simple_v2_experiment\MEL_SPECTR_n_fft=4096 !!\lr_0.0050000\GIM_L1\model_99.pt"
+CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
+DECODER_MODEL_PATH = r"D:\thesis_logs\logs\GIM_DECODER_simple_v2_experiment\MEL_SPECTR_n_fft=4096 !!\lr_0.0050000\GIM_L1\model_99.pt"
 
 
 # Two modules, version 3 architecture, 1.6k epochs
-CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!/model_1599.ckpt"
-DECODER_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!\DECODER\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1\model_799.pt"
+# CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!/model_1599.ckpt"
+# DECODER_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!\DECODER\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1\model_799.pt"
 
 # idk
 # CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!/model_799.ckpt"
@@ -60,7 +60,7 @@ ARCHITECTURE2 = {
     'padding': padding,
     'cnn_hidden_dim': cnn_hidden_dim,
     'regressor_hidden_dim': regressor_hidden_dim,
-    'prediction_step': 12,  # TODO
+    'prediction_step': 4,  # TODO
 }
 
 AUTO_REGRESSOR_AFTER_MODULE = False
@@ -76,9 +76,9 @@ def get_options():
         'predict_distributions': predict_distributions,
         'architecture_module_1': ARCHITECTURE,
         'architecture_module_2': ARCHITECTURE2,
-        'decoder': SimpleV3DecoderTwoModules(),  # TODO
-        'train_layer': 2,  # TODO
-        'model_splits': 2,  # TODO
+        'decoder': SimpleV2Decoder(), #SimpleV3DecoderTwoModules(),  # TODO
+        'train_layer': 1,  # TODO
+        'model_splits': 1,  # TODO
         'auto_regressor_after_module': AUTO_REGRESSOR_AFTER_MODULE,
 
 
