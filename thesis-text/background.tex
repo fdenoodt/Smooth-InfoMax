@@ -154,7 +154,7 @@ While capable of learning compressed representations, autoencoders do not pose a
 %4) can be used for latent space, or also 
 %4) link with maximising likelihood -> p(x) and how minimises kl divergence between approx and kl divergence
 
-Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information that is necessary to reconstruct the data, \textit{however}, an additional constraint is applied to the latent space \cite{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019}. The data points from the latent space are defined in such a way that they conform to a certain distribution, typically, the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. % ref book oreiley
+Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information that is necessary to reconstruct the data, \textit{however}, an additional constraint is applied to the latent space \cite{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. The data points from the latent space are defined in such a way that they conform to a certain distribution, typically, the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. % ref book oreiley
 %The standard normal distribution is a Gaussian distribution (a symmetric distribution characterised by a bell shape), with with a mean of zero and a standard deviation of one \cite{bhandariStandardNormalDistribution2020}. 
 This behaviour can be observed in the right plot of figure \ref{fig:latent_space_2d}. Since the latent representations conform a two-dimensional standard normal distribution $\standardnormal$, the data samples are more likely to be near the center at (0, 0).
 
@@ -237,6 +237,7 @@ Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the c
 $$
 \latentspaceconstraintstandardgaussian
 $$
+
 
 One can algebraically prove, that optimising this equation is equivalent to optimising the following equation \cite{kingmaAutoEncodingVariationalBayes2022}: 
 
@@ -482,7 +483,7 @@ For the equation above, gradients can easily be back propagated through machine 
 
 \subsection{Greedy InfoMax}
 	% successes
-	So far we discussed how CPC encodes latent representations by maximising the mutual information between temporally nearby patches of data. This method has shown great success in recent years and is considered state of the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. Although, backpropagation is considered effective, it still suffers from multiple constraints. Löwe et al. group the constraints in two categories: biological and computational.
+	So far we discussed how CPC encodes latent representations by maximising the mutual information between temporally nearby patches of data. This method has shown great success in recent years and is considered state-of-the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. Although, backpropagation is considered effective, it still suffers from multiple constraints. Löwe et al. group the constraints in two categories: biological and computational.
 	
 
 	\subsubsection{Biological constraints of backpropagation [TODO]}

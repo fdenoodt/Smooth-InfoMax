@@ -7,15 +7,17 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
 
 %\includeonly{background}
-%\includeonly{variationalcontrastivepredictivecoding}
+\includeonly{variationalcontrastivepredictivecoding}
 
 
 
 
 \title{Variational Greedy InfoMax}
-\subtitle{Towards indepdenent and interpratable representations}
+\subtitle{Towards indepdenent and interpretable representations}
 \author{Fabian Denoodt}
 \faculty{Science and Bio-Engineering Sciences}
 \promotors{Promotor(s):~Prof. Dr. Bart de Boer}
@@ -26,7 +28,7 @@
 \begin{document}
 \maketitle
 \title{[Dutch] Variational Greedy InfoMax}
-\subtitle{[Dutch] Towards indepdenent and interpratable representations}
+\subtitle{[Dutch] Towards indepdenent and interpretable representations}
 \pretitle{Proefschrift ingediend met het oog op het behalen van de graad van Master of Science In de Ingenieurswetenschappen: Computerwetenschappen}
 \faculty{Wetenschappen en Bio-ingenieurswetenschappen}
 \maketitle
@@ -64,7 +66,10 @@
 \newcommand{\probxz}[0]{\condp{\vecti{x}}{\vect{z}}} % conditional probability
 \newcommand{\qprobzx}[0]{\condq{\vect{z}}{\vecti{x}}} % conditional probability
 \newcommand{\qprobqxz}[0]{\condq{\vecti{x}}{\vect{z}}} % conditional probability
-\newcommand{\expected}[1]{\mathbb{E}_{#1}}
+
+%_{x \in p_{data}(x),\\ z \in p_{z}(z)}}
+\newcommand{\expected}[1]{\mathop{\mathbb{E}}_{\substack{#1}}}
+
 \newcommand{\sample}[2]{#1 \sim #2}
 \newcommand{\expectedsample}[2]{\expected{\sample{#1}{#2}}}
 \newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\cdot \mid \vecti{x})}}
@@ -176,14 +181,21 @@
 \newcommand{\fkm}[0]{f_k^m(\ztk^m,\zt^m)}
 
 
-
+\newcommand{\gim}[0]{\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)}}
 
 
 \newcommand{\R}[0]{\mathbb{R}}
 
+\newcommand{\qzzblank}[0]{q(\cdot \mid \zt^m)}
 
+\newcommand{\latentspaceconstraintgim}[0]{\kl{ \qzzblank }{ \standardnormal } }
 
-
+\newcommand{\reconstrgim}[0]{\sum_k
+	\expected{
+		\sample{\ztk^m}{q(\cdot \mid \ztk^{m-1})} \\ 
+		\sample{\zt^m}{q(\cdot \mid \zt^{m-1})} } 
+	\left[ \gim \right]
+}
 
 
 \include{introduction}
@@ -196,6 +208,17 @@
 while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
 
 
+---
+The second module in GIM clearly doesn't have as much effect. This can be explained because there may not be as much common information anymore between the patches. There may be a source that says that cpc learns low level features, but the second module is supposed to learn more high level features, which cpc may have trouble with?
+---
+
+Future work:
+ - Related work in VAE shows that gradually increasing regularisation term, results in better disentengledment, while avoiding posterior collapse. could have a kldweight scheduler.
+ 
+- not constrained solely to InfoNCE loss, the GIM architecture could work for other losses too that allow for greedy optimisation.
+----
+
+
 \begin{itemize}
 	\item Explainability of latents is dependent on the performance of the decoder.
 	\item Intermediate loss function with kld resulted in similar behaviour as batch normalisation. Resulting in faster convergence than without kld.
@@ -203,12 +226,11 @@ while GIM argues to resolve memory constraints, not entirely true. In fact we ev
 \end{itemize}
 
 
-xx does what \cite{lowePuttingEndEndtoEnd2020} yes!
-idk \cite{coverELEMENTSINFORMATIONTHEORY} cool
 
 
 \bibliographystyle{IEEEtran}
-\bibliography{ThesisSync}
+\bibliography{biblio}
+
 
 
 \end{document}

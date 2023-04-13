@@ -1,80 +1,122 @@
-\chapter{Variational contrastive predictive coding}
-Learned latent representations are meaningful to a computer. However, the meaning of the latent representations is unknown to humans. While variational auto-encoders can omit this challenge by constraining the latent space in such a way that makes it more interpreteable, similar to the autoanecoder, they "merely" learn to reconstruct image. Hence, all "information" that is considered important to reconstruct the data will be kept in the latent representation, whether the information is useful or not. TOTOOT: CPC DOET EFFECTIEF DINGEN WEG DIE WE USELESS VINDEN, MAAR LESS EXPLAINABLE.
-
-We introduce Variational Contrastive Predictive coding, which uses the InfoNCE loss function to obtain latent space, however, by taking inspiration from variational autoencoders, we constrain the obtained latent space to be Gaussian. Doing so allows for obtaining meaninful representations from interpolating between two variables.
-We argue that these Gaussian distributed latent representations are more explainable. We develop a decoder to reconstruct the original data. By doing so, we can apply meaningful interpolated latent representations to the decoder, to observe what the effect is on different dimensions from the latent representations.
-
-\section{Loss function}
-\begin{equation} % generated with chatGPT
-	\mathcal{L}_{N+KL} = - \sum_{k} \mathbb{E}_{\textsubscript{X}} \left[ \log \frac{f_k(z_{t+k}, c_t)}{\sum_{z_j \in X} f_k(z_j, c_t)} \right] + \lambda \text{KL}(q(z|X) || \mathcal{N}(0, I))
-\end{equation}
-
-Where the KL divergence for a single sample $x^{(i)}$ is approximated as follows:
-% https://arxiv.org/pdf/1312.6114.pdf, from example
-\begin{equation}
-	\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) 
-\end{equation}
+\chapter{Variational InfoNCE}
 
 
-%\begin{equation}
-%	\mathcal{L} \approx 
-%	\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) + \frac{1}{L} \left( \sum_{l=1}^L \log p_\theta (x^{(i)} | z^{(i, l)}) \right)
-%\end{equation}
+%\section{Problem setting}
+	In the previous section we discussed two categories of representation learning though deep learning. First, we discussed the autoencoder and its variational counterpart, which minimise the reconstruction error. Secondly, we discussed Contrastive Predictive Coding and Greedy InfoMax, both of which optimise the Info NCE objective. This approach seeks to maximise the mutual information between the encodings of data patches that are temporally nearby. The latent representations obtained from all four methods can then be utilised for downstream tasks \cite{bengioRepresentationLearningReview2013, weiRecentAdvancesVariational2021, oordRepresentationLearningContrastive2019, lowePuttingEndEndtoEnd2020}
+	
+	% repr learn autoenc + vae (disentenglement)
+		The autoencoder's sole objective is to define representations which allow to reconstruct the original data. As a result, the representations may serve well for data compression, however, no additional constraints are enforced, such as 'disentanglement' and thus the latent space may still be hard to work with for downstream tasks \cite{tschannenRecentAdvancesAutoencoderBased2018}. Meanwhile, VAE's additional regularisation term, results in representations which break down, or disentangle each feature into a narrowly defined variable and encode them as separate dimensions \cite{weiRecentAdvancesVariational2021}. This additional constrained may result in more suited representations for downstream tasks. % TODO: I could reformulate this, and mention meta priors such as in this paper: https://arxiv.org/pdf/1812.05069.pdf
+
+	% cpc contrasts noise -> smaller architect
+		Both, the autoencoder and variational autoencoder merely learn to reconstruct the data. Hence, all the "information" that is important to reconstruct the data will be maintained in the latent representation, whether the information is useful for downstream tasks or not. Meanwhile, optimising latent representations for the InfoNCE objective will maintain shared information between temporally nearby patches, while discarding local noise. Reconstruction is thus not needed for training. This strategy has the tremendous benefit that a decoder block is not required, resulting in a significantly simplified architecture, while maintaining state-of-the-art performance \cite{stackeEvaluationContrastivePredictive2020}. A second benefit of these models is they are directly compatible with sequential data.
+		
+	% lead to interpretabil
+		Both categories of algorithms possess the ability to obtain useful representations for various downstream tasks. However, the content of these representations may not always be intuitive to humans and their structure may be difficult to comprehend. While CPC and GIM are considered state-of-the-art, their performance comes at a cost of having the least interpretable representations. Autoencoders maintain interpretability by using a decoder to reveal the information contained in the latent representation. The same transparency can also be achieved with VAEs by using a standard Gaussian as a prior and constraining the latent distributions to be similar. This results in a space that is entirely standard Gaussian, allowing for easy interpolation between latent representations and observation of the effects through the decoder. VAEs can result in disentangled features, further enhancing interpretability \cite{grossuttiDeepLearningInfrared2022}. In contrast, CPC and GIM do contain a built in decoder mechanism, nor pose constraints on the latent space, significantly reducing interpretability.
+		
 
 
-%- \sum_{k} \mathbb{E}_{\textsubscript{X}} \left[ \log \frac{f_k(z_{t+k}, c_t)}{\sum_{z_j \in X} f_k(z_j, c_t)} \right]
+\section{How}
+	% Our contribution
+		In what follows next we introduce "Variational Greedy Infomax", maintaining the state of the art performance obtained from the InfoNCE loss, while leveraging the interpretable and disentangled benefits from VAEs.
+		
+		%	We will argue that 
+		%	
+		%	Doing so allows for obtaining meaninful representations from interpolating between two variables.
+		%	We argue that these Gaussian distributed latent representations are more explainable. We develop a decoder to reconstruct the original data. By doing so, we can apply meaningful interpolated latent representations to the decoder, to observe what the effect is on different dimensions from the latent representations.
+
+	% How: 
+		% still maximise mutual information between zt, ztk, but predictions no longer fixed datapoints.
+		% xt -> cpc model -> q( . | xt) = mui, sigmai
+
+	\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{temp_variational_gim}
+	\caption{}
+	\label{fig:tempvariationalgim}
+\end{figure}
+
+	\begin{equation} % variational_gim_loss
+		\mathcal{L}(\ztk^{m-1}, \zt^{m-1}) = 
+		\underbrace{\reconstrgim}_{\text{Maximise } I(\ztk^m, \zt^m)} + \underbrace{\beta ~ \latentspaceconstraintgim}_{\text{Regularisation}}
+		\label{eq:variational_gim_loss}
+	\end{equation}
+
+	Where the discriminator function is defined as follows:
+	
+	$$ f_k^m(\ztk^m,\zt^m) = \exp({\ztk^m}^TW_k^m\zt^m) $$
 
 
-%\begin{equation}
-%\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) + \frac{1}{L} \left( \sum_{l=1}^L \log p_\theta (x^{(i)} | z^{(i, l)}) \right)
-%\end{equation}
+	Where the KL divergence for a single sample $x^{(i)}$ is approximated as follows:
+	% https://arxiv.org/pdf/1312.6114.pdf, from example
+	\begin{equation}
+		\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) 
+	\end{equation}
+	
+	
+	where $z^(i,l) = \sigma ^{(i)} \odot \epsilon^{(l)}$ and $\epsilon^(l) \mathcal{N}(0, I)$
+	\textbf{todo: variables should maybe be bold.}
+	
+	
+	
+	
+\section{Practical benefits}
 
-idk what the right part of the equation means, i did not have it in the code. L is number of samples per data point, so could be the reconstruction error. (In our case L is always 1)
+\subsection{Latent representations}
+	Representations:
+		Interpretability of latent representations:
+			- Interpolation --> adds decoder
+	
+	Better generalisation for downstream tasks
+		- Overfitting: reduction of required labelled data needed. Similar data is similar region, the kl divergence makes regions bigger.
 
-where $z^(i,l) = \sigma ^{(i)} \odot \epsilon^{(l)}$ and $\epsilon^(l) \mathcal{N}(0, I)$
-\textbf{todo: variables should maybe be bold.}
+		Overfitting during inference:
+		- The same datapoint has multiple (similar) representations, such that learning techniques for downstream tasks will not be able to "memorise" the latent space as easily.
+		
+		- Holes: more predictable inference, such that unseen data is more likely to be near clusters. And thus downstream tasks receive latents that are more similar to what is seen before.
+		= better generalisation
+
+\subsection{Training}
+	- Batch normalisation
+	- GIM advantages remain: maintain the benefits such as smaller networks that can learn indep, ALSO NO EXPLICIT NEED FOR A DECODER. THIS REMAINS, SO ARCH CAN BE SIMPLER.
+	
+
+	- Independent latent dimensions
+	- During training similar behaviour to batch normalization in-between layers
 
 
-%def loss_function(self, recons, input, mu, log_var, kld_weight=0.0025) -> List[Tensor]:
-%"""
-%Computes the VAE loss function.
-%KL(N(\mu, \sigma), N(0, 1)) = \log \frac{1}{\sigma} + \frac{\sigma^2 + \mu^2}{2} - \frac{1}{2}
-%:param args:
-%:param kwargs:
-%:return:
-%"""
+
+
+
+\textbf{Other sources:} \\
+%!!! Abstract on VAE: The fundamental idea in VAEs is to learn the
+%distribution of data in such a way that new meaningful data with more intra-class variations can be generated
+%from the encoded distribution.
+%The ability of VAEs to synthesize new data with more representation variance
+%at state-of-art levels provides hope that the chronic scarcity of labeled data in the biomedical field can be
+%resolved.
+%--> and thus for downstream tasks, has a way of obtaining more labelled data? --> better generalisation
+
+
+%The goal of representation learning is to be useful for downstream tasks. The most important meta-prior is called ‘disentanglement’ which is an unsupervised learning technique that breaks down, or disentangles, each feature into narrowly defined variables and encodes them as separate dimensions 
+
+%Intuitively, a factorial code disentangles the individual elements that were originally mixed in the sample, just as
+%humans recognize complex things by disentangling independent elements. If the dimensions of the latent vector are
+%independent of each other, it is factorial disentangled, i.e., a
+%good representation. VAEs have made such nonlinear latent
+%variable models tractable for modeling complex distributions,
+%and efficient extraction of relevant biological information
+%from learned features for biological data sets, referred to as
+%unsupervised representation learning
+%https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9311619
+
+
+
+
+
+
+
+
+%We show that the Beta-VAE outperforms principal component analysis (PCA) and learns interpretable and independent representations of the generative factors of variance in the spectra %https://pubs.acs.org/doi/pdf/10.1021/acs.jpclett.2c01328
 %
-%# Account for the minibatch samples from the dataset
-%recons_loss = F.mse_loss(recons, input)
-%
-%kld_loss = torch.mean(
-%-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1)
-%, dim=0)
-
-
-%loss = recons_loss + kld_weight * kld_loss # shape: (3, 3)
-%loss = loss.mean() # shape: (1)
-%return [loss, recons_loss.detach(), -kld_loss.detach()]
-
-
-%def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
-%"""
-%Reparameterization trick to sample from N(mu, var) from
-%N(0,1).
-%:param mu: (Tensor) Mean of the latent Gaussian [B x D]
-%:param logvar: (Tensor) Standard deviation of the latent Gaussian [B x D]
-%:return: (Tensor) [B x D]
-%"""
-%std = torch.exp(0.5 * logvar)
-%eps = torch.randn_like(std)
-%return eps * std + mu
-
-
-\section{Learning benefits}
-Overfitting during inference:
-- The same datapoint has multiple (similar) representations, such that learning techniques for downstream tasks will not be able to "memorise" the latent space as easily.
-- Holes: more predictable inference, such that unseen data is more likely to be near clusters. And thus downstream tasks receive latents that are more similar to what is seen before.
-- Independent latent dimensions
-- During training similar behaviour to batch normalization in-between layers
 
 
