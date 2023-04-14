@@ -11,7 +11,7 @@
 
 
 %\includeonly{background}
-\includeonly{variationalcontrastivepredictivecoding}
+%\includeonly{variationalcontrastivepredictivecoding}
 
 
 
@@ -117,6 +117,9 @@
 
 \newcommand{\elboexplicit}[0]{ \reconstr + \latentspaceconstraint }
 
+\newcommand{\mufat}[0]{\bm{\mu}}
+\newcommand{\sigmafat}[0]{\bm{\sigma}}
+
 \newcommand{\mui}[0]{\bm{\mu}^{(i)}}
 \newcommand{\sigmai}[0]{\bm{\sigma}^{(i)}}
 \newcommand{\epiloni}[0]{\bm{\epsilon}^{(i)}}
@@ -190,12 +193,25 @@
 
 \newcommand{\latentspaceconstraintgim}[0]{\kl{ \qzzblank }{ \standardnormal } }
 
+\newcommand{\sampleqdot}[1]{q(~\cdot~\mid #1)}
+
+
 \newcommand{\reconstrgim}[0]{\sum_k
 	\expected{
-		\sample{\ztk^m}{q(\cdot \mid \ztk^{m-1})} \\ 
-		\sample{\zt^m}{q(\cdot \mid \zt^{m-1})} } 
+		\sample{\ztk^m}{\sampleqdot{\ztk^{m-1}} } \\ 
+		\sample{\zt^m}{q(\sampleqdot{\zt^{m-1}}} } 
 	\left[ \gim \right]
 }
+
+
+\newcommand{\genc}[0]{g_{enc}(\cdot)}
+\newcommand{\gar}[0]{g_{ar}(\cdot)}
+
+\newcommand{\Lvnce}[0]{\mathcal{L}_{\text{V-NCE}}}
+\newcommand{\Lnce}[0]{\mathcal{L}_{\text{NCE}}}
+
+
+
 
 
 \include{introduction}
@@ -216,7 +232,10 @@ Future work:
  - Related work in VAE shows that gradually increasing regularisation term, results in better disentengledment, while avoiding posterior collapse. could have a kldweight scheduler.
  
 - not constrained solely to InfoNCE loss, the GIM architecture could work for other losses too that allow for greedy optimisation.
-----
+
+
+- I didn't add an autoregressor as i didn't find a performance benefit. Potentially, with larger architecture could further improve performance.
+
 
 
 \begin{itemize}

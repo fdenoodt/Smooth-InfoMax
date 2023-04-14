@@ -81,17 +81,17 @@ Secondly, a non-linear function $\sigma: R^d \rightarrow R^d$ is applied to $z^{
 Hence, during inference, the input vector $x$ is propagated through each layer, resulting in a final output $\hat{y}^L$. The equation for the forward pass of a neural network with $L$ layers is described in equation \ref{eq:forward_pass}. 
 
 \begin{equation}
-	f_{W^1 ... W^L}(x) = \hat{y}^L = \sigma(… \sigma( \sigma( x^T W^1 )^T) W^2 …)^T W^L \label{eq:forward_pass}
+	f_{W^1 \dots W^L}(x) = \hat{y}^L = \sigma(… \sigma( \sigma( x^T W^1 )^T) W^2 …)^T W^L \label{eq:forward_pass}
 \end{equation}
 
 % [cost function, gradient descent, backpropagation]
-During training the ANN's parameters $W^1$ ... $W^L$, are optimised according to the learning problem. The viability of the parameters is quantified by the loss function $\mathcal{L}$ over a batch of $n$ training samples, as shown in equation \ref{eq:generic_loss}. $y_i$ corresponds to the ground truth label of the single data sample $x_i$, $e(y_i, \hat{y}_i)$ the error between a ground truth $y_i$ and the estimation $\hat{y}_i$ of a single sample. The error function $e$ can be replaced depending on the task, for instance by mean squared error for regression or cross entropy for classification problems.
+During training the ANN's parameters $W^1$ \dots $W^L$, are optimised according to the learning problem. The viability of the parameters is quantified by the loss function $\mathcal{L}$ over a batch of $n$ training samples, as shown in equation \ref{eq:generic_loss}. $y_i$ corresponds to the ground truth label of the single data sample $x_i$, $e(y_i, \hat{y}_i)$ the error between a ground truth $y_i$ and the estimation $\hat{y}_i$ of a single sample. The error function $e$ can be replaced depending on the task, for instance by mean squared error for regression or cross entropy for classification problems.
 
 \begin{equation}
 	\mathcal{L}(W) = \frac{1}{n}\sum_{i=1}^n e(y_i, f_{W}(x_i)) \label{eq:generic_loss}
 \end{equation}
 
-The parameters can be optimised by minimising the loss function $\mathcal{L}$ defined above. This can be done algebraically, however, it becomes difficult when the dimension of the input features is large. Gradient descent is used to find an "appropriate" minimum of the cost function, by iteratively adjusting the parameters $W^1$ ... $W^L$ via the following learning rule.
+The parameters can be optimised by minimising the loss function $\mathcal{L}$ defined above. This can be done algebraically, however, it becomes difficult when the dimension of the input features is large. Gradient descent is used to find an "appropriate" minimum of the cost function, by iteratively adjusting the parameters $W^1$ \dots $W^L$ via the following learning rule.
 
 \begin{equation}
 	W^l_{ij} \leftarrow W^l_{ij} - \alpha \frac{\partial \mathcal{L}}{\partial W^l_{ij}}
@@ -391,19 +391,19 @@ For the equation above, gradients can easily be back propagated through machine 
 
 %\textbf{[maintain information between patches by predicting the future based on the past? + architec fig + var names]} \\
 	% todo
-	CPC deals with these context issues by maximising the shared information between the extracted representations of temporally nearby patches \cite{lowePuttingEndEndtoEnd2020}. We will discuss this concept in more detail in a following section. For now, we would like to draw the readers attention to figure \ref{fig:cpc-overview}. The figure depicts a high level view of how this idea is achieved by producing two latent latent representations $\vect{z}_i$ and $\vect{c}_i$. An audio sequence of undefined length is split up into patches $\x_1...\x_n$ where each $\x_i$ is a vector of fixed length, containing for instance 10ms of speech audio. Each patch $\x_i$ is encoded into latent representation $\zt$, defined as follows:
+	CPC deals with these context issues by maximising the shared information between the extracted representations of temporally nearby patches \cite{lowePuttingEndEndtoEnd2020}. We will discuss this concept in more detail in a following section. For now, we would like to draw the readers attention to figure \ref{fig:cpc-overview}. The figure depicts a high level view of how this idea is achieved by producing two latent latent representations $\vect{z}_i$ and $\vect{c}_i$. An audio sequence of undefined length is split up into patches $\x_1 \dots \x_n$ where each $\x_i$ is a vector of fixed length, containing for instance 10ms of speech audio. Each patch $\x_i$ is encoded into latent representation $\zt$, defined as follows:
 	
 	$$
 	\zt = g_{enc}(\xt) .
 	$$
 	
-	$g_{enc}( \cdot )$ is for instance a convolutional fully connected ANN. The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any information on an historic context. This historic context is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 ... \zt$ into a single representation $\ct$:
+	$g_{enc}( \cdot )$ is for instance a convolutional fully connected ANN. The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any information on an historic context. This historic context is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 \dots \zt$ into a single representation $\ct$:
 	
 	$$
-	\ct = g_{ar}(\z_1 ... \zt)
+	\ct = g_{ar}(\z_1 \dots \zt)
 	$$
 	
-	Either $\zt$ or $\ct$ could be used as latent representation for downstream tasks. Oord et al. suggest to use $\ct$ for tasks where context about the past is useful, for instance speech recognition, and $\zt$ when historic context is not useful \cite{oordRepresentationLearningContrastive2019}. As shown in figure \ref{fig:cpc-overview}, the encodings from sequential data of undefined length, may correspond a series of latent representations $\vect{c}_1, \vect{c}_2, ... $ or $\z_1, \z_2, ... $. In the case of downstream tasks which require a single representation vector, Oord et al. propose to pool the sequence of vector representations into a single vector.
+	Either $\zt$ or $\ct$ could be used as latent representation for downstream tasks. Oord et al. suggest to use $\ct$ for tasks where context about the past is useful, for instance speech recognition, and $\zt$ when historic context is not useful \cite{oordRepresentationLearningContrastive2019}. As shown in figure \ref{fig:cpc-overview}, the encodings from sequential data of undefined length, may correspond a series of latent representations $\vect{c}_1, \vect{c}_2, \dots $ or $\z_1, \z_2, \dots $. In the case of downstream tasks which require a single representation vector, Oord et al. propose to pool the sequence of vector representations into a single vector.
 	
 
 \subsubsection{Slowly varying features}
@@ -439,10 +439,10 @@ For the equation above, gradients can easily be back propagated through machine 
 	The InfoNCE loss, used to optimise $g_{enc}$, $g_{ar}$ and $W_k$ simultaneously is shown below. 
 
 	\begin{equation} % L_N
-		\mathcal{L}_N = - \sum_{k} \expected{\textsubscript{X}} \left[ \log \nceprediction \right] \label{eq:NCE_loss}
+		\Lnce = - \sum_{k} \expected{\textsubscript{X}} \left[ \log \nceprediction \right] \label{eq:NCE_loss}
 	\end{equation}
 	
-	where $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, ... \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample and all other $\zj \in X$ correspond to negative samples (with respect to the context $\ct$).  Hence good representations for $\z, \vect{c}$ and $f_k(\cdot)$, will result in a large similarity score for positive samples and approximate $0$ for negative samples, resulting in a minimum fraction equal to $1$. This would then be cancelled out by the $\log(\cdot)$ function. Meanwhile, $\mathcal{L}_n$ is large when the denomitator is large, indicating in a large high similarity score for negative samples.
+	where $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample and all other $\zj \in X$ correspond to negative samples (with respect to the context $\ct$).  Hence good representations for $\z, \vect{c}$ and $f_k(\cdot)$, will result in a large similarity score for positive samples and approximate $0$ for negative samples, resulting in a minimum fraction equal to $1$. This would then be cancelled out by the $\log(\cdot)$ function. Meanwhile, $\mathcal{L}_n$ is large when the denomitator is large, indicating in a large high similarity score for negative samples.
 	
 \subsubsection{Ties with mutual information}
 	Earlier we argued that CPC's encodings will preserve shared information between temporally nearby patches, while discarding the local noise. Oord et al. make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, Oord et al. proof that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$ \cite{oordRepresentationLearningContrastive2019}. 
@@ -453,11 +453,11 @@ For the equation above, gradients can easily be back propagated through machine 
 	
 	This proof is available in their appendix. Although, we do not repeat the proof here, we give a high level overview.
 	
-	The first step in proving the relation between the InfoceNCE loss and mutual information is to model $\fkzc$ in a probabilistic manner. The InfoNCE loss is in fact the categorical cross-entropy of classifying the positive sample correctly with $\frac{f_k}{\sum_{X} f_k}$ as the predicted model \cite{oordRepresentationLearningContrastive2019}. Since this equation may take values between zero and one, it can be considered as a probability. In particular, the optimal probability for the loss can then be written as 
+	The first step in proving the relation between the InfoNCE loss and mutual information is to model $\fkzc$ in a probabilistic manner. The InfoNCE loss is in fact the categorical cross-entropy of classifying the positive sample correctly with $\frac{f_k}{\sum_{X} f_k}$ as the predicted model \cite{oordRepresentationLearningContrastive2019}. Since this equation may take values between zero and one, it can be considered as a probability. In particular, the optimal probability for the loss can then be written as 
 
 	$$p(i \mid X, \ct)$$
 	
-	where $X$ corresponds the set of samples  ${ \left\{ \ztk, \z_1, \z_2, ... \right\} }$  as discussed in the InfoNCE loss, and $i$ corresponds to indicator that sample $\zi$ is the "positive" sample. By doing so, one can eventually obtain a proportionality relation to the density distribution presented below. 
+	where $X$ corresponds the set of samples  ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$  as discussed in the InfoNCE loss, and $i$ corresponds to indicator that sample $\zi$ is the "positive" sample. By doing so, one can eventually obtain a proportionality relation to the density distribution presented below. 
 	
 	\begin{equation}
 		\fzc \propto \pzcdivpz \label{eq:fkproporational}
@@ -465,13 +465,13 @@ For the equation above, gradients can easily be back propagated through machine 
 	
 	% onjuist?
 	%This equation can be interpreted as follows: there exists a constant $r \in \R^+$ such that $r \times \fzc = \pzcdivpz$. Indeed, when the similarity between $x_{t+k}$ and $c_t$ is large, $f_k$ is large, and thus also $p(z_{t+k}|c_t)$, which is normalized by $\pztk$.
-	Oord et al. utilise this proportionality relation to reformulate $-\mathcal{L}_N$ as a lower bound on the mutual information between $\ztone$ and $\ct$ as follows \cite{lowePuttingEndEndtoEnd2020, oordRepresentationLearningContrastive2019}:
+	Oord et al. utilise this proportionality relation to reformulate $-\Lnce$ as a lower bound on the mutual information between $\ztone$ and $\ct$ as follows \cite{lowePuttingEndEndtoEnd2020, oordRepresentationLearningContrastive2019}:
 	
 	\begin{equation}
-		I(\ztone; \ct) \ge \log(N) - \mathcal{L}_N
+		I(\ztone; \ct) \ge \log(N) - \Lnce
 	\end{equation}
 
-	Since number of samples $N$ is a constant, the mutual information between $\ztone$ and $\ct$ becomes greater when $\mathcal{L}_N$ becomes smaller. Additionally, when the number of samples $N$ increases, the bound becomes tighter.
+	Since number of samples $N$ is a constant, the mutual information between $\ztone$ and $\ct$ becomes greater when $\Lnce$ becomes smaller. Additionally, when the number of samples $N$ increases, the bound becomes tighter.
 	
 			
 
@@ -509,12 +509,12 @@ For the equation above, gradients can easily be back propagated through machine 
 	\begin{annotatedFigure}
 		{\includegraphics[width=0.8\linewidth]{"GIM overview"}}
 		
-		\annotatedFigureText{0.282,0.99}{black}{0.31}{$\mathcal{L}_N^1$}{8}
-		\annotatedFigureText{0.61,0.99}{black}{0.31}{$\mathcal{L}_N^2$}{8}
-		\annotatedFigureText{0.82,0.99}{black}{0.31}{$\mathcal{L}_N^M$}{8}
+		\annotatedFigureText{0.282,0.99}{black}{0.31}{$\Lnce^1$}{8}
+		\annotatedFigureText{0.61,0.99}{black}{0.31}{$\Lnce^2$}{8}
+		\annotatedFigureText{0.82,0.99}{black}{0.31}{$\Lnce^M$}{8}
 		
 		
-		\annotatedFigureText{0.282,0.77}{black}{0.31}{$\mathcal{L}_N^1$}{5}
+		\annotatedFigureText{0.276,0.77}{black}{0.31}{$\Lnce^1$}{5}
 		
 		\annotatedFigureText{0.145,0.85}{black}{0.31}{$f_1$}{5}
 		\annotatedFigureText{0.145,0.7}{black}{0.31}{$f_1$}{5}
@@ -567,7 +567,7 @@ For the equation above, gradients can easily be back propagated through machine 
 
 \subsubsection{Towards greedy learning}
 	%[split up into layers]
-	Instead of optimising a single loss function (as in end-to-end backpropagation), Löwe et al. split the neural network up into "modules". Each module is optimised with its own personal instance of the InfoNCE Loss function $\mathcal{L_N}$ described in equation \ref{eq:NCE_loss}. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss. Each "module" can be considered as an instance of the CPC framework where high dimensional data goes in and a lower dimensional representation comes out. The output representations of a one module serve as the input for the next module. One can thus think of Greedy InfoMax as "stacking" multiple ANN's, which were each trained with the InfoNCE loss on top of each other. A module may consist of one or more layers of the neural network. 
+	Instead of optimising a single loss function (as in end-to-end backpropagation), Löwe et al. split the neural network up into "modules". Each module is optimised with its own personal instance of the InfoNCE Loss function $\Lnce$ described in equation \ref{eq:NCE_loss}. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss. Each "module" can be considered as an instance of the CPC framework where high dimensional data goes in and a lower dimensional representation comes out. The output representations of a one module serve as the input for the next module. One can thus think of Greedy InfoMax as "stacking" multiple ANN's, which were each trained with the InfoNCE loss on top of each other. A module may consist of one or more layers of the neural network. 
 	
 \subsubsection{Optimising Greedy InfoMax}
 
@@ -589,7 +589,7 @@ By splitting up the neural network into modules and allowing them to optimise th
 	$$
 	
 	$$
-	\mathcal{L}_N^m = -\sum_{k} \expected{\textsubscript{X}} \left[\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)} \right]
+	\Lnce^m = -\sum_{k} \expected{\textsubscript{X}} \left[\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)} \right]
 	$$
 
 
