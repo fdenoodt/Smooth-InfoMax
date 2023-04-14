@@ -49,13 +49,14 @@ class LogHandler():
         torch.save(model.state_dict(), f'{self.logging_path}/model_{epoch}.pt')
 
     def draw_loss_curve(self, train_loss, val_loss):
-        assert len(train_loss) == len(val_loss)
+        # assert len(train_loss) == len(val_loss)
 
         lst_iter = np.arange(len(train_loss))
         plt.plot(lst_iter, np.array(train_loss), "-b", label="train loss")
 
-        lst_iter = np.arange(len(val_loss))
-        plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
+        # TODO: UNDO
+        # lst_iter = np.arange(len(val_loss))
+        # plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
 
         plt.xlabel("epoch")
         plt.ylabel("loss")
