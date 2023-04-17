@@ -56,7 +56,7 @@ ARCHITECTURE2 = {
 
 AUTO_REGRESSOR_AFTER_MODULE = False
 
-BATCH_SIZE =  171 # 8
+BATCH_SIZE = 171  # 8
 
 ROOT_LOGS = r"D:\thesis_logs\logs/"
 
@@ -77,14 +77,14 @@ def get_options():
         'subsample': True,
         'loss': 0,
         'batch_size_multiGPU': BATCH_SIZE,
-        'learning_rate': 0.01, #0.005, 50 epochs ging tot 38%
+        'learning_rate': 0.01,  # 0.005, 50 epochs ging tot 38%
         'data_input_dir': './datasets/',
         'root_logs': ROOT_LOGS,
         'validate': True,
         'start_epoch': 0,
-        'num_epochs': 100,
+        'num_epochs': 150,
 
-        'batch_size': BATCH_SIZE, # only used if "all", else overwritten
-        'subset': 1 # 1, 2, .. 'all'
+        'batch_size': BATCH_SIZE,  # only used if "all", else overwritten
+        'subset': 'all'  # 1, 2, .. 'all'
     }
     return options

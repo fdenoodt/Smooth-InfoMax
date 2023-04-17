@@ -165,7 +165,7 @@ def run_configuration(options, experiment_name):
 
     options['experiment'] = experiment_name
     options['save_dir'] = f'{experiment_name}_experiment'
-    options['log_path'] = f"{options['root_logs']}/CLASSIFIER/subs={subset_size}/"
+    options['log_path'] = f"{options['root_logs']}/CLASSIFIER/{experiment_name}"
     options['log_path_latent'] = options['log_path'] + "/latent_space"
 
     arg_parser.create_log_path(options)
@@ -196,10 +196,10 @@ class CrossEntropyLoss(nn.Module):
 if __name__ == "__main__":
 
     OPTIONS = get_options()
-
-    run_configuration(OPTIONS, "linear_model")
-
     # random seeds
     torch.manual_seed(0)
     torch.cuda.manual_seed(0)
     np.random.seed(0)
+
+    run_configuration(OPTIONS, "linear_model")
+
