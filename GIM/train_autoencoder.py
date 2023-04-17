@@ -56,7 +56,7 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
 
 
 def train(opt, encoder, decoder, logs, train_loader, test_loader, learning_rate, criterion, decay_rate):
-    epoch_printer = EpochPrinter(train_loader, learning_rate, criterion)
+    epoch_printer = EpochPrinter(opt, train_loader, learning_rate, criterion)
     log_handler = LogHandler(opt, logs, train_loader,
                              criterion, encoder, learning_rate)
 

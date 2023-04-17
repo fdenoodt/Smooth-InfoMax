@@ -37,11 +37,12 @@ def setup():
     return OPTIONS, DEVICE, ENCODER, train_loader, test_loader
 
 
-def validation_loss(GIM_encoder, model, test_loader, criterion):
+def validation_loss(encoder, classifier, test_loader, criterion):
     # based on GIM/ChatGPT
     total_step = len(test_loader)
 
     val_l = 0.0
+    val_acc = 0.0
     starttime = time.time()
 
     for step, (gt_audio_batch, _, syllable_idx, _) in enumerate(test_loader):
@@ -49,11 +50,13 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
         loss, accuracy = forward_and_loss(
             encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach=True)
         val_l += loss.item() / total_step
+        val_acc += accuracy / total_step
 
-    print(f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- L: {val_l:.4f}, A: {accuracy:.2f}")
+    print(
+        f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- L: {val_l:.4f}, A: {val_acc:.2f}")
 
     # validation_l = np.mean(loss_epoch)
-    return val_l
+    return val_l, val_acc
 
 
 def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach):
@@ -78,7 +81,8 @@ def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterio
         outputs = classifier(pooled_c)
 
     # transform syllable_idx to one-hot encoding
-    targets = torch.nn.functional.one_hot(syllable_idx, num_classes=N_CLASSES).to(device)
+    targets = torch.nn.functional.one_hot(
+        syllable_idx, num_classes=N_CLASSES).to(device)
     loss = criterion(outputs, targets)
 
     accuracy, = utils.accuracy(outputs.data, syllable_idx.to(device))
@@ -89,7 +93,7 @@ def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterio
 def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_rate, criterion):
     total_step = len(train_loader)
 
-    epoch_printer = EpochPrinter(train_loader, learning_rate, criterion)
+    epoch_printer = EpochPrinter(opt, train_loader, learning_rate, criterion)
     log_handler = LogHandler(opt, logs, train_loader,
                              criterion, encoder, learning_rate)
 
@@ -102,8 +106,12 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
     training_losses = []
     validation_losses = []
 
+    training_accuracies = []
+    validation_accuracies = []
+
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
         training_l = 0.0
+        training_acc = 0.0
         for step, (gt_audio_batch, _, syllable_idx, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
 
@@ -112,30 +120,41 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
 
             # zero the gradients
             optimizer.zero_grad()
-            
+
             # backward pass and optimization step
             loss.backward()
             optimizer.step()
 
-            training_l += (loss.item() / total_step)
+            training_l += loss.item() / total_step
+            training_acc += accuracy / total_step
             # </> end for step
 
-
-
-        validation_l = validation_loss(encoder, classifier, test_loader, criterion)
+        validation_l, val_acc = validation_loss(
+            encoder, classifier, test_loader, criterion)
 
         training_losses.append(training_l)
         validation_losses.append(validation_l)
 
+        training_accuracies.append(training_acc)
+        validation_accuracies.append(val_acc)
+
         log_handler(classifier, epoch, optimizer,
-                    training_losses, validation_losses)
+                    training_losses, validation_losses, training_accuracies, validation_accuracies)
 
     # </> end epoch
 
     return classifier
 
 
-def run_configuration(options, experiment_name, lr, criterion, classifier, num_epochs):
+def run_configuration(options, experiment_name):
+
+    # create linear classifier
+    n_features = 32
+
+    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, N_CLASSES))
+    criterion = CrossEntropyLoss()
+    lr = options['learning_rate']
+
     torch.cuda.empty_cache()
 
     options['experiment'] = experiment_name
@@ -143,17 +162,13 @@ def run_configuration(options, experiment_name, lr, criterion, classifier, num_e
     options['log_path'] = options['root_logs'] + "/CLASSIFIER"
     options['log_path_latent'] = options['log_path'] + "/latent_space"
 
-    options['batch_size'] = 8
-    options['num_epochs'] = num_epochs
-
     arg_parser.create_log_path(options)
 
     create_log_dir(opt['log_path'])
 
     logs = logger.Logger(options)
 
-    classifier = train(options, encoder, classifier, logs,
-                       train_loader, test_loader, lr, criterion)
+    classifier = train(options, encoder, classifier, logs, train_loader, test_loader, lr, criterion)
 
     torch.cuda.empty_cache()
 
@@ -176,15 +191,8 @@ if __name__ == "__main__":
 
     options, device, encoder, train_loader, test_loader = setup()
 
-    # create linear classifier
     N_CLASSES = 9
-    n_features = 32
-
-    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, N_CLASSES))
-
-    criterion = CrossEntropyLoss()
-    run_configuration(options, "linear_model", 0.001,
-                      criterion, classifier, 20)
+    run_configuration(options, "linear_model")
 
     # random seeds
     torch.manual_seed(0)

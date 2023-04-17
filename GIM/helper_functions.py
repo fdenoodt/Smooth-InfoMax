@@ -34,16 +34,26 @@ class LogHandler():
         self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{layer_depth}"
         create_log_dir(self.logging_path)
 
-    def __call__(self, model, epoch, optimizer, train_loss, val_loss) -> None:
+    def __call__(self, model, epoch, optimizer, train_loss, val_loss, train_acc=None, val_acc=None) -> None:
         self.save_train_losses(train_loss, val_loss)
         self.save_model(model, epoch, optimizer)
         self.draw_loss_curve(train_loss, val_loss)
+
+        if train_acc and val_acc:
+            self.save_accuracies(train_acc, val_acc)
+            self.draw_accuracy_curve(train_acc, val_acc)
 
     def save_train_losses(self, train_loss, val_loss):
         np.savetxt(f"{self.logging_path}/training_loss.csv",
                    train_loss, delimiter=",")
         np.savetxt(f"{self.logging_path}/validation_loss.csv",
                    val_loss, delimiter=",")
+
+    def save_accuracies(self, train_acc, val_acc):
+        np.savetxt(f"{self.logging_path}/training_accuracy.csv",
+                   train_acc, delimiter=",")
+        np.savetxt(f"{self.logging_path}/validation_accuracy.csv",
+                   val_acc, delimiter=",")
 
     def save_model(self, model, epoch, optimizer) -> None:
         torch.save(model.state_dict(), f'{self.logging_path}/model_{epoch}.pt')
@@ -65,11 +75,29 @@ class LogHandler():
         plt.savefig(os.path.join(self.logging_path, "loss.png"))
         plt.close()
 
+    def draw_accuracy_curve(self, train_acc, val_acc):
+        # assert len(train_acc) == len(val_acc)
+
+        lst_iter = np.arange(len(train_acc))
+        plt.plot(lst_iter, np.array(train_acc), "-b", label="train acc")
+
+        lst_iter = np.arange(len(val_acc))
+        plt.plot(lst_iter, np.array(val_acc), "-r", label="val acc")
+
+        plt.xlabel("epoch")
+        plt.ylabel("accuracy")
+        plt.legend(loc="upper right")
+
+        # save image
+        plt.savefig(os.path.join(self.logging_path, "accuracy.png"))
+        plt.close()
+
 
 class EpochPrinter():
-    def __init__(self, train_loader, learning_rate, criterion, decoder_depth=1) -> None:
+    def __init__(self, options, train_loader, learning_rate, criterion, decoder_depth=1) -> None:
         self.starttime = time.time()
 
+        self.options = options
         self.print_idx = 100
         self.step = 0
         self.total_step = len(train_loader)
@@ -78,8 +106,10 @@ class EpochPrinter():
         self.decoder_depth = decoder_depth
 
     def __call__(self, step, epoch) -> Any:
+        opt = self.options
         if step % self.print_idx == 0:
-            print(f"Epoch[{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], Step[{step}/{self.total_step, }], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
+            max_epochs = opt['num_epochs'] + opt['start_epoch']
+            print(f"Epoch[{epoch + 1}/{max_epochs}], Step[{step}/{self.total_step }], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
 
 
 def create_log_dir(path):  # created via chat gpt
@@ -183,7 +213,7 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
         ax1.plot(sequence1)
     elif type1 == "bar":
         ax1.bar(np.arange(len(sequence1)), sequence1)
-    
+
     if type2 == "line":
         ax2.plot(sequence2)
     elif type2 == "bar":
@@ -193,7 +223,6 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
     if y_lims is not None:
         ax1.set_ylim(y_lims[0][0], y_lims[0][1])
         ax2.set_ylim(y_lims[1][0], y_lims[1][1])
-
 
     if file is not None:
         create_log_dir(dir)
@@ -273,7 +302,7 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     marks = markers()
 
     # We create a scatter plot.
-    plt.figure(figsize=(6, 6)) # was 8, 8, i havent tested yet
+    plt.figure(figsize=(6, 6))  # was 8, 8, i havent tested yet
     ax = plt.subplot(aspect="equal")
 
     # for each loop created by chat gpt
@@ -310,7 +339,6 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     plt.cla()
 
 
-
 def histogram(sequence, title, dir=None, file=None, show=True):
     # aided by ChatGPT
     # Set up the figure and color palette
@@ -319,7 +347,8 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     colors = sns.color_palette('bright', n_colors=1)
 
     # Plot the histogram
-    ax.hist(sequence, bins=100, color=colors[0], alpha=0.8, density=True, edgecolor='k', linewidth=1.2)
+    ax.hist(sequence, bins=100,
+            color=colors[0], alpha=0.8, density=True, edgecolor='k', linewidth=1.2)
 
     # Compute the PDF of a standard normal distribution
     x = np.linspace(-4, 4, 1000)
@@ -368,7 +397,6 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     # plt.ylim(-25, 25)
     # ax.axis("off")
     # ax.axis("tight")
-
 
 
 def save_audio(audio, dir, file, sample_rate=16000):
