@@ -5,25 +5,13 @@ from data import de_boer_sounds, librispeech
 NUM_WORKERS = 1
 
 
-def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, train_noise=True, shuffle=True):
-    ''' Retrieve dataloaders where audio signals are split into syllables '''
-    print("Loading De Boer Sounds dataset...")
-
-    if split_and_pad:
-        specific_directory = "split up data padded reshuffled"
-    elif reshuffled == "v1":
-        specific_directory = "reshuffled"
-    elif reshuffled == "v2":
-        specific_directory = "reshuffledv2"
-    else:
-        specific_directory = ""
-
+def _dataloaders(opt, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir, split_and_pad, train_noise, shuffle):
     train_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
         root=os.path.join(
-            opt["data_input_dir"], f"corpus/{specific_directory}"
+            opt["data_input_dir"], f"corpus/{train_specific_dir}"
         ),
-        directory="train",
+        directory=train_sub_dir,
 
         # ONLY NOISE FOR TRAINING DATASETS!
         background_noise=train_noise, white_guassian_noise=train_noise,
@@ -36,9 +24,9 @@ def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, t
     test_dataset = de_boer_sounds.DeBoerDataset(
         opt=opt,
         root=os.path.join(
-            opt["data_input_dir"], f"corpus/{specific_directory}",
+            opt["data_input_dir"], f"corpus/{test_specific_dir}",
         ),
-        directory="test",
+        directory=test_sub_dir,
         background_noise=False, white_guassian_noise=False,
         split_into_syllables=split_and_pad
     )
@@ -60,6 +48,30 @@ def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, t
     )
 
     return train_loader, train_dataset, test_loader, test_dataset
+
+
+def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, train_noise=True, shuffle=True, subset_size=None):
+    ''' Retrieve dataloaders where audio signals are split into syllables '''
+    print("Loading De Boer Sounds dataset...")
+
+    if split_and_pad:
+        if subset_size:
+            print(f"Using subset of size {subset_size} and batch size {opt['batch_size']}")
+            train_specific_directory = "subsets/"
+            train_sub_dir = f"{subset_size}" # eg: subsets/all
+            test_specific_directory = "split up data padded reshuffled"
+            return _dataloaders(opt, train_specific_directory, test_specific_directory, train_sub_dir, "test", split_and_pad, train_noise, shuffle)
+        else:
+            print("Using full dataset")
+            specific_directory = "split up data padded reshuffled"
+    elif reshuffled == "v1":
+        specific_directory = "reshuffled"
+    elif reshuffled == "v2":
+        specific_directory = "reshuffledv2"
+    else:
+        specific_directory = ""
+
+    return _dataloaders(opt, specific_directory, specific_directory, "train", "test", split_and_pad, train_noise, shuffle)
 
 
 def _get_libri_dataloaders(opt):
@@ -115,11 +127,12 @@ def _get_libri_dataloaders(opt):
 
 
 def get_dataloader(opt, dataset, **kwargs):
+
     if dataset == "de_boer_sounds":
         return _get_de_boer_sounds_data_loaders(opt, **kwargs)
-    elif dataset == "de_boer_sounds_reshuffled": # used for training CPC
+    elif dataset == "de_boer_sounds_reshuffled":  # used for training CPC
         return _get_de_boer_sounds_data_loaders(opt, reshuffled="v1", **kwargs)
-    elif dataset == "de_boer_sounds_reshuffledv2": # used for training CPC Decoder
+    elif dataset == "de_boer_sounds_reshuffledv2":  # used for training CPC Decoder
         return _get_de_boer_sounds_data_loaders(opt, reshuffled="v2", **kwargs)
     elif dataset == "librispeech":
         return _get_libri_dataloaders(opt)

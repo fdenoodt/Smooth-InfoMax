@@ -9,9 +9,7 @@ from helper_functions import resample, translate_syllable_to_number
 
 
 def default_loader(path):
-    return torchaudio.load(path,
-                           # normalization=False todo
-                           )
+    return torchaudio.load(path)
 
 
 def default_flist_reader(flist):

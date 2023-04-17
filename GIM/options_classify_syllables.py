@@ -76,7 +76,6 @@ def get_options():
         'negative_samples': 10,
         'subsample': True,
         'loss': 0,
-        'batch_size': BATCH_SIZE,
         'batch_size_multiGPU': BATCH_SIZE,
         'learning_rate': 0.01, #0.005, 50 epochs ging tot 38%
         'data_input_dir': './datasets/',
@@ -84,5 +83,8 @@ def get_options():
         'validate': True,
         'start_epoch': 0,
         'num_epochs': 100,
+
+        'batch_size': BATCH_SIZE, # only used if "all", else overwritten
+        'subset': 1 # 1, 2, .. 'all'
     }
     return options

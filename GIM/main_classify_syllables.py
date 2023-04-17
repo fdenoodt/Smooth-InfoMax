@@ -18,23 +18,22 @@ from utils import utils
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def setup():
-    OPTIONS = get_options()
-    DEVICE = OPTIONS["device"]
+def setup(OPTIONS, subset_size):
 
     CPC_MODEL_PATH = OPTIONS["cpc_model_path"]
 
     ENCODER = GIM_Encoder(OPTIONS, path=CPC_MODEL_PATH)
     ENCODER.encoder.eval()
 
+    
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        OPTIONS, dataset="de_boer_sounds", split_and_pad=True, train_noise=False, shuffle=True)
+        OPTIONS, dataset="de_boer_sounds", split_and_pad=True, train_noise=False, shuffle=True, subset_size=subset_size)
 
     ####################################
     # TODO: THE DATASET USED FOR CLASSIFICATION IS NOT YET RESHUFFLED, SO STILL OLD TRAIN/TEST
     ####################################
 
-    return OPTIONS, DEVICE, ENCODER, train_loader, test_loader
+    return ENCODER, train_loader, test_loader
 
 
 def validation_loss(encoder, classifier, test_loader, criterion):
@@ -82,7 +81,7 @@ def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterio
 
     # transform syllable_idx to one-hot encoding
     targets = torch.nn.functional.one_hot(
-        syllable_idx, num_classes=N_CLASSES).to(device)
+        syllable_idx, num_classes=9).to(device)
     loss = criterion(outputs, targets)
 
     accuracy, = utils.accuracy(outputs.data, syllable_idx.to(device))
@@ -147,19 +146,26 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
 
 
 def run_configuration(options, experiment_name):
+    subset_size = options['subset']
+    if subset_size != "all": # overwrite batch size to 9 content of subset
+        options['batch_size'] = 9 * int(subset_size) # 9 classes
 
+    encoder, train_loader, test_loader = setup(options, subset_size)
+    
     # create linear classifier
     n_features = 32
 
-    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, N_CLASSES))
+    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, 9))
     criterion = CrossEntropyLoss()
     lr = options['learning_rate']
+
+   
 
     torch.cuda.empty_cache()
 
     options['experiment'] = experiment_name
     options['save_dir'] = f'{experiment_name}_experiment'
-    options['log_path'] = options['root_logs'] + "/CLASSIFIER"
+    options['log_path'] = f"{options['root_logs']}/CLASSIFIER/subs={subset_size}/"
     options['log_path_latent'] = options['log_path'] + "/latent_space"
 
     arg_parser.create_log_path(options)
@@ -189,10 +195,9 @@ class CrossEntropyLoss(nn.Module):
 
 if __name__ == "__main__":
 
-    options, device, encoder, train_loader, test_loader = setup()
+    OPTIONS = get_options()
 
-    N_CLASSES = 9
-    run_configuration(options, "linear_model")
+    run_configuration(OPTIONS, "linear_model")
 
     # random seeds
     torch.manual_seed(0)
