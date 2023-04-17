@@ -1,28 +1,29 @@
-directory = "./test_diff_shuffle"
+import shutil
+import random
+import os
+directory = "./split up data padded reshuffled/test/"
 
 # get file list in directory
-import os
-
-old_name = '_1.wav' # replace with the old file name extension
-new_name = '_2.wav' # replace with the new file name extension
-
-def rename(directory, old_name, new_name):
-  for filename in os.listdir(directory):
-      if filename.endswith(old_name):
-          new_filename = filename.replace(old_name, new_name)
-          os.rename(os.path.join(directory, filename), os.path.join(directory, new_filename))
 
 
-import os
-import random
-import shutil
+def rename(directory):
+    for filename in os.listdir(directory):
+        # eg: filename = 'babidi_1_1_ba.wav', rename to 'babidi_2_1_ba.wav
+        newfilename = filename.split('_')
+        newfilename[1] = str(int(newfilename[1]) + 1)
+        newfilename = '_'.join(newfilename)
+        os.rename(os.path.join(directory, filename), os.path.join(directory, newfilename))
+
+# rename(directory)
+
+
 
 # Set the directory containing the .wav files
-directory = "corpus_all_data"
+directory = "all"
 
 # Set the training and testing directories
-train_dir = "train_diff_shuffle"
-test_dir = "test_diff_shuffle"
+train_dir = "./split up data padded reshuffled/train/"
+test_dir = "./split up data padded reshuffled/test/"
 
 # Set the percentage of files to use for training
 train_percent = 0.8

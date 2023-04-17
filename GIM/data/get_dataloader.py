@@ -10,7 +10,7 @@ def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, t
     print("Loading De Boer Sounds dataset...")
 
     if split_and_pad:
-        specific_directory = "split up data padded"
+        specific_directory = "split up data padded reshuffled"
     elif reshuffled == "v1":
         specific_directory = "reshuffled"
     elif reshuffled == "v2":

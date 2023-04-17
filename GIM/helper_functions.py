@@ -54,9 +54,8 @@ class LogHandler():
         lst_iter = np.arange(len(train_loss))
         plt.plot(lst_iter, np.array(train_loss), "-b", label="train loss")
 
-        # TODO: UNDO
-        # lst_iter = np.arange(len(val_loss))
-        # plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
+        lst_iter = np.arange(len(val_loss))
+        plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
 
         plt.xlabel("epoch")
         plt.ylabel("loss")

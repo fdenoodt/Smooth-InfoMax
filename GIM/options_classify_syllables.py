@@ -78,10 +78,10 @@ def get_options():
         'loss': 0,
         'batch_size': BATCH_SIZE,
         'batch_size_multiGPU': BATCH_SIZE,
-        'learning_rate': 0.01,
+        'learning_rate': 0.1, #0.01,
         'data_input_dir': './datasets/',
         'root_logs': ROOT_LOGS,
-        'validate': False,
+        'validate': True,
         'start_epoch': 0,
     }
     return options
