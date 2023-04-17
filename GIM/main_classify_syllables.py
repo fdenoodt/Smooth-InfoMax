@@ -50,8 +50,7 @@ def validation_loss(GIM_encoder, model, test_loader, criterion):
             encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach=True)
         val_l += loss.item() / total_step
 
-    print(
-        f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- L: {val_l:.4f}, A: {accuracy:.2f}")
+    print(f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- L: {val_l:.4f}, A: {accuracy:.2f}")
 
     # validation_l = np.mean(loss_epoch)
     return val_l
@@ -79,7 +78,7 @@ def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterio
         outputs = classifier(pooled_c)
 
     # transform syllable_idx to one-hot encoding
-    targets = torch.nn.functional.one_hot(syllable_idx, num_classes=10).to(device)
+    targets = torch.nn.functional.one_hot(syllable_idx, num_classes=N_CLASSES).to(device)
     loss = criterion(outputs, targets)
 
     accuracy, = utils.accuracy(outputs.data, syllable_idx.to(device))
@@ -178,10 +177,10 @@ if __name__ == "__main__":
     options, device, encoder, train_loader, test_loader = setup()
 
     # create linear classifier
-    n_classes = 10
+    N_CLASSES = 9
     n_features = 32
 
-    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes))
+    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, N_CLASSES))
 
     criterion = CrossEntropyLoss()
     run_configuration(options, "linear_model", 0.001,
