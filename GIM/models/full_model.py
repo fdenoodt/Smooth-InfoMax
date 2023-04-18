@@ -17,8 +17,8 @@ class FullModel(nn.Module):
         super(FullModel, self).__init__()
 
         self.opt = opt
-        assert self.opt["model_splits"] in [1, 2], "Invalid option for opt['model_splits']"
-
+        assert self.opt["model_splits"] in [
+            1, 2, 3], "Invalid option for opt['model_splits']"
 
         architecture = opt["architecture_module_1"]
         kernel_sizes = architecture["kernel_sizes"]
@@ -48,8 +48,7 @@ class FullModel(nn.Module):
             )
         )
 
-        if self.opt["model_splits"] == 2:
-            assert opt['auto_regressor_after_module'] is False, "This option is not supported for model_splits == 6"
+        if self.opt["model_splits"] >= 2:
             enc_input = cnn_hidden_dim
 
             architecture = opt["architecture_module_2"]
@@ -78,6 +77,14 @@ class FullModel(nn.Module):
                 )
             )
 
+        if self.opt["model_splits"] == 3:  # append auto-regressor
+            self.fullmodel.append(
+                independent_module_regressor.AutoregressorIndependentModule(
+                    opt,
+                    nb_channels_cnn=cnn_hidden_dim,
+                    nb_channels_regress=regressor_hidden_dim,
+                    calc_accuracy=calc_accuracy,
+                    prediction_step=prediction_step))
 
     def forward(self, x):
         model_input = x

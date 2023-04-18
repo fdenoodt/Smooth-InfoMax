@@ -12,6 +12,7 @@ class AutoregressorIndependentModule(nn.Module):
         nb_channels_cnn,
         nb_channels_regress,
         calc_accuracy=False,
+        prediction_step=12
     ):
         super(AutoregressorIndependentModule, self).__init__()
 
@@ -28,7 +29,9 @@ class AutoregressorIndependentModule(nn.Module):
             opt,
             hidden_dim=self.nb_channels_regressor,
             enc_hidden=self.nb_channels_cnn,
-            calc_accuracy=calc_accuracy)
+            calc_accuracy=self.calc_accuracy,
+            prediction_step=prediction_step
+        )
 
     def get_latents(self, z):
         """
@@ -41,7 +44,7 @@ class AutoregressorIndependentModule(nn.Module):
         """
         z = z.permute(0, 2, 1)
         c = self.autoregressor(z)
-        return c, z
+        return (c, z), -1 # tuple to work with interface of non regressor with distributions
 
     def forward(self, x):
         """
@@ -54,7 +57,7 @@ class AutoregressorIndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        c, z = self.get_latents(x)  # B x L x C
+        (c, z), _ = self.get_latents(x)  # B x L x C
 
         total_loss, accuracies = self.loss.get_loss(z, c)
 

@@ -46,10 +46,9 @@ class GIM_Encoder():
         model_input = audio_batch.to(device)
 
         for idx, module in enumerate(self.encoder.module.fullmodel):
-            # latent, _ = module.get_latents(model_input)
             (c_mu, c_log_var), _ = module.get_latents(model_input)
 
-            if self.opt['predict_distributions']:
+            if self.opt['predict_distributions'] and self.opt['model_splits'] <= 2: # TODO
                 latent = module.reparameterize(c_mu, c_log_var)
             else:
                 latent = c_mu
