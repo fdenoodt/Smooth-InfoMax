@@ -228,7 +228,7 @@ def _visualise_latent_space_histograms(data_dir, gim_name, target_dir):
     all_encs = all_encs.numpy()
 
     nb_channels = all_encs.shape[0]  # 32
-    assert nb_channels == 32 or nb_channels == 8
+    assert nb_channels == 32 or nb_channels == 8 or nb_channels == 16
     all_encs = np.reshape(all_encs, (nb_channels, -1))  # (32, b*l)
 
     plot_histograms(all_encs, gim_name, target_dir)

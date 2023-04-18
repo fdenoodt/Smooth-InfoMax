@@ -28,7 +28,7 @@ def val_by_latent_syllables(opt, dataloader, model, epoch, step):
             # B x L x C
             (c_mu, c_log_var), (z_mu, z_log_var) = layer.get_latents(model_input)
 
-            if opt['architecture']['predict_distributions']:
+            if opt['architecture']['predict_distributions'] and opt['model_splits'] <= 2: # TODO
                 context = layer.reparameterize(c_mu, c_log_var)
                 z = layer.reparameterize(z_mu, z_log_var)
             else:
