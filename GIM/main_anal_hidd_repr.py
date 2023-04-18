@@ -15,7 +15,7 @@ from options import OPTIONS as OPT
 from options_anal_hidd_repr import OPTIONS as OPT_ANAL
 from arg_parser import arg_parser
 from data import get_dataloader
-
+import torch.nn as nn
 
 random.seed(0)
 
@@ -98,15 +98,15 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
             batch_filenames = torch.load(
                 f"{data_dir}/{file.replace('encodings', 'filenames')}")
             try:
-                batch_pronounced_syllable_idices = torch.load(
+                labels = torch.load(
                     f"{data_dir}/{file.replace('encodings', 'pronounced_syllable')}").numpy()
             except FileNotFoundError:
                 # list of Nones, where N is the number of files in the batch
-                batch_pronounced_syllable_idices = [
+                labels = [
                     None] * len(batch_filenames)
 
             # iterate over the batch
-            for idx, (enc, name, pronounced_syllable_idx) in enumerate(zip(batch_encodings, batch_filenames, batch_pronounced_syllable_idices)):
+            for idx, (enc, name, pronounced_syllable_idx) in enumerate(zip(batch_encodings, batch_filenames, labels)):
                 name = name.split("_")[0]  # eg: babugu_1 -> babugu
                 if pronounced_syllable_idx is not None:  # simple check to deal with split/full audio files
                     pronounced_syllable = translate_number_to_syllable(
@@ -122,9 +122,15 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
 def plot_tsne(feature_space, label_indices, gim_name, target_dir):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
+    if feature_space.shape[1] != 32:
+        print("now!")
+
     projection = TSNE(init='random',
-                      learning_rate=200.0,
-                      perplexity=30).fit_transform(feature_space)
+                      learning_rate=10.0,
+                      n_iter=1000,
+                      perplexity=50).fit_transform(feature_space)
+
+    assert projection.shape[0] == label_indices.shape[0]
 
     file = f"_ t-SNE_latent_space_{gim_name}"
 
@@ -139,7 +145,7 @@ def plot_histograms(feature_space_per_channel, gim_name, target_dir):
         file = f"_ distribution_latent_space_{gim_name}_dim={idx}"
 
         histogram(feature_space,
-                title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir, file=file, show=False)
+                  title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir, file=file, show=False)
 
         print(f"Saved t-SNE plot to {target_dir}/{file}.png")
 
@@ -172,9 +178,8 @@ def generate_tsne_visualisations_original_data(train_or_test):
 
 def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
 
-    encodings_all_batches_concatenated = None
-    pronounced_syllable_idices_all_batches_concatenated = np.array(
-        [])  # indicies
+    all_cs = None
+    all_labels = np.array([])  # indicies
 
     # iterate over files in train_dir
     for idx, file in enumerate(os.listdir(data_dir)):
@@ -182,27 +187,43 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
             # load the file
             # (batch_size, length, nb_channels)
             batch_encodings = torch.load(f"{data_dir}/{file}").cpu()
-            batch_pronounced_syllable_idices = torch.load(
+
+            labels = torch.load(
                 f"{data_dir}/{file.replace('encodings', 'pronounced_syllable')}").numpy()
 
             if idx == 0:  # obtain intial shape from first batch.
-                encodings_all_batches_concatenated = torch.empty(
+                all_cs = torch.empty(
                     0, batch_encodings.size(1), batch_encodings.size(2)).cpu()
 
             # merge the batch to a single tensor
-            encodings_all_batches_concatenated = torch.cat(
-                (encodings_all_batches_concatenated, batch_encodings), dim=0)
-            pronounced_syllable_idices_all_batches_concatenated = np.concatenate(
-                (pronounced_syllable_idices_all_batches_concatenated, batch_pronounced_syllable_idices))
+            all_cs = torch.cat((all_cs, batch_encodings), dim=0)
+            all_labels = np.concatenate((all_labels, labels))
 
-    encodings_all_batches_concatenated = encodings_all_batches_concatenated.numpy()
+    # (b, l, c)
+    b, l, c = all_cs.shape
 
-    batch_size = encodings_all_batches_concatenated.shape[0]
-    encodings_all_batches_concatenated = np.reshape(
-        encodings_all_batches_concatenated, (batch_size, -1))
+    assert b == all_labels.shape[0]
+    assert c == 32 or c == 16
+    # assert l == 4 or l == 44
 
-    plot_tsne(encodings_all_batches_concatenated,
-              pronounced_syllable_idices_all_batches_concatenated,
+    all_cs = all_cs.permute(0, 2, 1)  # (b, c, l)
+
+    # # pool
+    all_cs = nn.functional.adaptive_avg_pool1d(all_cs, 1)  # (b, c, 1)
+    all_cs = all_cs.permute(0, 2, 1).reshape(-1, c)  # (b, 1, c) -> (b, c)
+
+    all_cs = all_cs.numpy()
+
+    # all_cs = np.reshape(
+    #     all_cs, (b, -1))
+
+    b, c = all_cs.shape
+    assert c == 32 or c == 16
+
+    assert b == all_labels.shape[0]
+
+    plot_tsne(all_cs,
+              all_labels,
               gim_name, target_dir)
 
 
@@ -269,7 +290,8 @@ def generate_visualisations(opt_anal):
             if opt_anal['VISUALISE_HISTOGRAMS']:
                 _visualise_latent_space_histograms(
                     test_dir, "GIM", test_vis_dir)
-                _visualise_latent_space_histograms(train_dir, "GIM", train_vis_dir)
+                _visualise_latent_space_histograms(
+                    train_dir, "GIM", train_vis_dir)
 
 
 def run_visualisations(opt, opt_anal):

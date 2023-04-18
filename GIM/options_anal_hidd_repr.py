@@ -4,25 +4,27 @@
 # ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_test_w_ar"
 # ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise_no_autoreg" # w/o auto reg
 # ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
-ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
+# ENCODER_MODEL_DIR = r"C:\GitHub\thesis-fabian-denoodt\GIM\logs\audio_experiment_3_lr_noise"  # w/ auto reg
 ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\temp"  # w/ auto reg
 
 # ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_simple_v2_kld_weight=0.00"  # w/ auto reg
 # ENCODER_MODEL_DIR = r"E:\\thesis_logs\\logs//libri_cpc_kld_weight=0.00"  # w/ auto reg
-ENCODER_MODEL_DIR = r"D:\\thesis_logs\\logs//de_boer_reshuf_simple_v2_kld_weight=0.0033 !!"
-ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0000_latent_dim=32 !!"
-ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!"
+# ENCODER_MODEL_DIR = r"D:\\thesis_logs\\logs//de_boer_reshuf_simple_v2_kld_weight=0.0033 !!"
+# ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0000_latent_dim=32 !!"
+# ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\\de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!"
+
+ENCODER_MODEL_DIR = r"D:\thesis_logs\logs\good models\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!"
 
 LOG_PATH = f"{ENCODER_MODEL_DIR}/analyse_hidden_repr/"
-EPOCH_VERSION = 799
+EPOCH_VERSION = 1599
 AUTO_REGRESSOR_AFTER_MODULE = False
 
 # Actions
-SAVE_ENCODINGS = True
+SAVE_ENCODINGS = False # TODO
 VISUALISE_LATENT_ACTIVATIONS = False
-VISUALISE_TSNE = False
+VISUALISE_TSNE = True
 VISUALISE_TSNE_ORIGINAL_DATA = False
-VISUALISE_HISTOGRAMS = True # TODO: ADDED
+VISUALISE_HISTOGRAMS = False
 
 # warning: only makes sense for outputs of GRU
 ONLY_LAST_PREDICTION_FROM_TIME_WINDOW = False
