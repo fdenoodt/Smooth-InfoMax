@@ -70,6 +70,7 @@ def get_options():
         'architecture_module_2': ARCHITECTURE2,
         'train_layer': 2,  # TODO
         'model_splits': 2,  # TODO
+        'which_module': 1,  # TODO: vals between 1 and model_splits or "last"
         'auto_regressor_after_module': AUTO_REGRESSOR_AFTER_MODULE,
 
         'prediction_step': 12,
@@ -82,7 +83,7 @@ def get_options():
         'root_logs': ROOT_LOGS,
         'validate': True,
         'start_epoch': 0,
-        'num_epochs': 150,
+        'num_epochs': 2,
 
         'batch_size': BATCH_SIZE,  # only used if "all", else overwritten
         'subset': 'all'  # 1, 2, .. 'all'

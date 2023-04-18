@@ -25,7 +25,6 @@ def setup(OPTIONS, subset_size):
     ENCODER = GIM_Encoder(OPTIONS, path=CPC_MODEL_PATH)
     ENCODER.encoder.eval()
 
-    
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         OPTIONS, dataset="de_boer_sounds", split_and_pad=True, train_noise=False, shuffle=True, subset_size=subset_size)
 
@@ -36,7 +35,7 @@ def setup(OPTIONS, subset_size):
     return ENCODER, train_loader, test_loader
 
 
-def validation_loss(encoder, classifier, test_loader, criterion):
+def validation_loss(opt, encoder, classifier, test_loader, criterion):
     # based on GIM/ChatGPT
     total_step = len(test_loader)
 
@@ -46,8 +45,8 @@ def validation_loss(encoder, classifier, test_loader, criterion):
 
     for step, (gt_audio_batch, _, syllable_idx, _) in enumerate(test_loader):
 
-        loss, accuracy = forward_and_loss(
-            encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach=True)
+        loss, accuracy = forward_and_loss(opt,
+                                          encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach=True)
         val_l += loss.item() / total_step
         val_acc += accuracy / total_step
 
@@ -58,12 +57,16 @@ def validation_loss(encoder, classifier, test_loader, criterion):
     return val_l, val_acc
 
 
-def forward_and_loss(encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach):
+def forward_and_loss(opt, encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach):
     # (batch_size, 1, 10240)
     gt_audio_batch = gt_audio_batch.to(device)
 
     cs = encoder(gt_audio_batch)
-    c = cs[-1].to(device)
+    which_module = opt["which_module"]
+    if which_module == "last":
+        c = cs[-1].to(device)
+    else:
+        c = cs[int(which_module)-1].to(device)
 
     # (batch_size, l, c)
     c = c.permute(0, 2, 1)  # (b, c, l)
@@ -114,7 +117,7 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
         for step, (gt_audio_batch, _, syllable_idx, _) in enumerate(train_loader):
             epoch_printer(step, epoch)
 
-            loss, accuracy = forward_and_loss(
+            loss, accuracy = forward_and_loss(opt,
                 encoder, classifier, gt_audio_batch, syllable_idx, criterion, detach=False)
 
             # zero the gradients
@@ -128,8 +131,8 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
             training_acc += accuracy / total_step
             # </> end for step
 
-        validation_l, val_acc = validation_loss(
-            encoder, classifier, test_loader, criterion)
+        validation_l, val_acc = validation_loss(opt,
+                                                encoder, classifier, test_loader, criterion)
 
         training_losses.append(training_l)
         validation_losses.append(validation_l)
@@ -147,19 +150,17 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
 
 def run_configuration(options, experiment_name):
     subset_size = options['subset']
-    if subset_size != "all": # overwrite batch size to 9 content of subset
-        options['batch_size'] = 9 * int(subset_size) # 9 classes
+    if subset_size != "all":  # overwrite batch size to 9 content of subset
+        options['batch_size'] = 9 * int(subset_size)  # 9 classes
 
     encoder, train_loader, test_loader = setup(options, subset_size)
-    
+
     # create linear classifier
     n_features = 32
 
     classifier = torch.nn.Sequential(torch.nn.Linear(n_features, 9))
     criterion = CrossEntropyLoss()
     lr = options['learning_rate']
-
-   
 
     torch.cuda.empty_cache()
 
@@ -174,7 +175,8 @@ def run_configuration(options, experiment_name):
 
     logs = logger.Logger(options)
 
-    classifier = train(options, encoder, classifier, logs, train_loader, test_loader, lr, criterion)
+    classifier = train(options, encoder, classifier, logs,
+                       train_loader, test_loader, lr, criterion)
 
     torch.cuda.empty_cache()
 
@@ -202,4 +204,3 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     run_configuration(OPTIONS, "linear_model")
-
