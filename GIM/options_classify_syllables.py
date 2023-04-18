@@ -58,7 +58,7 @@ AUTO_REGRESSOR_AFTER_MODULE = False
 
 BATCH_SIZE = 171  # 8
 
-ROOT_LOGS = r"D:\thesis_logs\logs/"
+ROOT_LOGS = r"E:\thesis_logs\logs/"
 
 
 def get_options():
