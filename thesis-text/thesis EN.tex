@@ -70,6 +70,8 @@
 %_{x \in p_{data}(x),\\ z \in p_{z}(z)}}
 \newcommand{\expected}[1]{\mathop{\mathbb{E}}_{\substack{#1}}}
 
+\newcommand{\naturalset}[0]{\mathbb{N}}
+
 \newcommand{\sample}[2]{#1 \sim #2}
 \newcommand{\expectedsample}[2]{\expected{\sample{#1}{#2}}}
 \newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\cdot \mid \vecti{x})}}
@@ -124,6 +126,7 @@
 \newcommand{\sigmai}[0]{\bm{\sigma}^{(i)}}
 \newcommand{\epiloni}[0]{\bm{\epsilon}^{(i)}}
 
+\newcommand{\epilonfat}[0]{\bm{\epsilon}}
 
 \newcommand{\identitymtx}[0]{\mathbf{I}}
 \newcommand{\covariancemtx}[0]{\mathbf{\Sigma}}
@@ -181,6 +184,9 @@
 
 % GIM
 
+\newcommand{\fkblank}[0]{f_k(\cdot)}
+\newcommand{\fkmblank}[0]{f_k^m(\cdot)}
+
 \newcommand{\fkm}[0]{f_k^m(\ztk^m,\zt^m)}
 
 
@@ -189,11 +195,11 @@
 
 \newcommand{\R}[0]{\mathbb{R}}
 
-\newcommand{\qzzblank}[0]{q(\cdot \mid \zt^m)}
+\newcommand{\qzzblank}[0]{q(\cdot \mid \zt^{m-1})}
 
 \newcommand{\latentspaceconstraintgim}[0]{\kl{ \qzzblank }{ \standardnormal } }
 
-\newcommand{\sampleqdot}[1]{q(~\cdot~\mid #1)}
+\newcommand{\sampleqdot}[1]{q(\cdot \mid #1)}
 
 
 \newcommand{\reconstrgim}[0]{\sum_k
@@ -205,11 +211,19 @@
 
 
 \newcommand{\genc}[0]{g_{enc}(\cdot)}
+\newcommand{\gencm}[0]{g_{enc}^m(\cdot)}
+\newcommand{\gencM}[0]{g_{enc}^M(\cdot)}
+
 \newcommand{\gar}[0]{g_{ar}(\cdot)}
 
 \newcommand{\Lvnce}[0]{\mathcal{L}_{\text{V-NCE}}}
 \newcommand{\Lnce}[0]{\mathcal{L}_{\text{NCE}}}
 
+\newcommand{\qfromzmneg}[0]{\sampleqdot{\zt^{m-1}}}
+\newcommand{\qfromzm}[0]{\sampleqdot{\zt^m}}
+\newcommand{\qfromzM}[0]{\sampleqdot{\zt^M}}
+
+\newcommand{\normalfatmusigma}[0]{\mathcal{N}(\mufat, \text{diag}(\sigmafat^2))}
 
 
 

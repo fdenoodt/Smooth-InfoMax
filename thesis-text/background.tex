@@ -471,11 +471,9 @@ For the equation above, gradients can easily be back propagated through machine 
 		I(\ztone; \ct) \ge \log(N) - \Lnce
 	\end{equation}
 
-	Since number of samples $N$ is a constant, the mutual information between $\ztone$ and $\ct$ becomes greater when $\Lnce$ becomes smaller. Additionally, when the number of samples $N$ increases, the bound becomes tighter.
+	Since the number of samples $N$ is a constant, the mutual information between $\ztone$ and $\ct$ becomes greater when $\Lnce$ becomes smaller. Additionally, when the number of samples $N$ increases, the bound becomes tighter.
 	
 			
-
-	\textbf{TODO: if time permits: compare against VAE, so doesn't have a decoder layer so simpler architecture + allows for sequential data.}
 	
 		% rnd quote
 		%\textit{By using a contrastive loss, high-dimensional representations of subsets of each data point are used for predicting the future subsets of the same sample. } - % https://web.archive.org/web/20220616074256id_/http://proceedings.mlr.press/v136/stacke20a/stacke20a.pdf
@@ -483,27 +481,29 @@ For the equation above, gradients can easily be back propagated through machine 
 
 \subsection{Greedy InfoMax}
 	% successes
-	So far we discussed how CPC encodes latent representations by maximising the mutual information between temporally nearby patches of data. This method has shown great success in recent years and is considered state-of-the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. Although, backpropagation is considered effective, it still suffers from multiple constraints. Löwe et al. group the constraints in two categories: biological and computational.
+	So far we discussed how CPC encodes latent representations by maximising the mutual information between temporally nearby patches of data. This method has shown great success in recent years and is considered state-of-the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. 
 	
-
-	\subsubsection{Biological constraints of backpropagation [TODO]}
-		- \textbf{Local Error Representation, Weight Symmetry, ...}
-		its performance is still uncompanionable to 
-		
-		% vs humans learning
-		When comparing its performance against how humans learn, humans can still learn much faster from only a few examples... 
-		
-		The human brain does not appear to have a global objective function, which is optimized by backpropagating an error signal \cite{marblestoneIntegrationDeepLearning2016}. In the following section we discuss the changes Löwe et al. have made to make CPC more biologically plausible.
-		
-	\subsubsection{Computational constraints of backpropagation [TODO]}
-		- \textbf{- memory overhead, synchronous training, vanishing gradients.}
+	Although, backpropagation is empirically shown to be highly effective \cite{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \cite{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \cite{lowePuttingEndEndtoEnd2020}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \cite{lowePuttingEndEndtoEnd2020}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \cite{lowePuttingEndEndtoEnd2020}.
 		
 	
-	%[same ideas of repr learning via mutual information maximising, of latent representations, diff: GIM = Biological approach]
-	Löwe et al. work further on the representation learning method proposed in CPC by taking a biologically inspired approach. This is done via the introduction of Greedy InfoMax (GIM), an extension on CPC. As in CPC, mutual information between latent representations is maximized by optimising the InfoNCE loss function. However, neurons in the biological brain primarily learn from local information and there does not appear to be a global error function that is optimized \cite{caporaleSpikeTimingdependentPlasticity2008}. Hence, end-to-end backpropagation cannot be used as an accurate learning model for the brain. 
+\subsubsection{Towards greedy learning}	
+	%[Same ideas of repr learning via mutual information maximising, of latent representations, diff: GIM = Biological approach]
+		To overcome these biological and computational constraints, Löwe et al. introduce Greedy InfoMax (GIM) \cite{lowePuttingEndEndtoEnd2020}, an extension on CPC. Whereas CPC obtains representations $\zt$ and $\ct$ through encoder $\genc$ and autoregressor $\gar$, Löwe et al. split up $\genc$'s neural network architecture by depth into $M$ so called "\textit{modules}": 
+		$$g_{enc}^1(\cdot),~ g_{enc}^2(\cdot),~\dots,~g_{enc}^M(\cdot)$$ 
+		Each module's output is the input of the successive module. A single module may for instance represent one or more layers.
+		\begin{align*} % g_enc1, ...
+			g_{enc}^m(\zt^{m-1}) &= \zt^m \\
+			g_{ar}(\z_1^M ~ \dots ~ \zt^M) &= \ct
+		\end{align*}
+		The final representation $\zt^M$ is obtained by propagating $\xt$ through each module as follows:
+		$$ g_{enc}^M ( \dots	g_{enc}^2(g_{enc}^1(\xt))) = \zt^M $$
+		Both $\zt^M$ or $\ct$ may serve as representation for following downstream tasks.
+	
+%	As in CPC, encodings are obtained which maximise information of their neighbours.
+%	mutual information between latent representations is maximized by optimising the InfoNCE loss function. 
 
 
-
+	% TODO: THIS IMAGE IS NOT CORRECT!!!!!
 	\begin{figure}[h!t]
 	\hspace{2cm}
 	\begin{annotatedFigure}
@@ -561,72 +561,27 @@ For the equation above, gradients can easily be back propagated through machine 
 	\label{fig:gim-overview}
 	% Dieter uses this: https://www.overleaf.com/learn/latex/TikZ_package
 \end{figure}
+	
+	%[greedy training]
+		Each module $\gencm$ is \textit{greedily} optimised with an adaptation of the InfoNCE Loss. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss.
+		
+		In contrast to CPC where a single loss function $\Lnce$ and scoring function $\fkblank$ are required, we now require $\Lnce^m$ and $\fkmblank$ for each module. The equations to optimise for $\gencm$ then become:
+		\begin{align}
+			f_k^m(\ztk^m,\zt^m) &= \exp({\ztk^m}^TW_k^m\zt^m) \label{eq:fkm} \\
+			\Lnce^m &= -\sum_{k} \expected{\textsubscript{X}} \left[\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)} \right]	
+		\end{align}
+	
+		From equation \ref{eq:fkm} we observe, $f_k^m( \cdot )$ no longer receives as input an aggregate $\ct$, but instead a second $\zt$. This is in contrast to CPC where $f_k^m(\ztk^m,\ct^m)$ is maximised instead. Löwe et al. thus omit the autoregressive function within each module. Optionally, for downstream tasks where broad context is helpful, such as classification of phonetic structures in speech recognition, an autoregressive model $g_{ar}(\z_1^M ~ \dots ~ \zt^M) = \ct$ can be appended as a final $M+1$'th module. The altered scoring function then becomes:
+		$$
+		f_k^{M+1}\left(\ztk^M, \ct \right)=\exp \left({\ztk^M}^T W_k^{M+1} c_t \right)
+		$$
 
+		% Mutual Info Maxim
+			% TODO: MOET ALLEMAAL WAT BETER AAN ELKAAR GELINKT WORDEN. 
+			As a result of this approach, the mutual information $I(\ztk^m,\zt^m)$ is maximised, rather than $I(\ztk, \ct)$ as in CPC. % TODO: if time permits: more explenation on maximises also ztk^m and ztk^m-1
+		
+		% Memory benefits
+			As a result of GIM's greedy approach, modules can be trained in parallel, but also sequentially. By training one module after the other, the memory cost can be decreased during training which is beneficial for memory-constrained scenarios. Furthermore, when a higher level of abstraction is needed, additional modules can be appended to the architecture later on without having to fine-tune previous modules.
 
 	
-
-\subsubsection{Towards greedy learning}
-	%[split up into layers]
-	Instead of optimising a single loss function (as in end-to-end backpropagation), Löwe et al. split the neural network up into "modules". Each module is optimised with its own personal instance of the InfoNCE Loss function $\Lnce$ described in equation \ref{eq:NCE_loss}. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss. Each "module" can be considered as an instance of the CPC framework where high dimensional data goes in and a lower dimensional representation comes out. The output representations of a one module serve as the input for the next module. One can thus think of Greedy InfoMax as "stacking" multiple ANN's, which were each trained with the InfoNCE loss on top of each other. A module may consist of one or more layers of the neural network. 
-	
-\subsubsection{Optimising Greedy InfoMax}
-
-% during training, the outputs of one module serve as the inputs for the next module, the latent representations for a module m, can written as follows
-
-
-
-% modules are can be trained asynchrounsly, and predictions flow through
-
-
-
-By splitting up the neural network into modules and allowing them to optimise their own loss, modules can be trained asynchronously, improving upon training time when multiple GPUs are used. Note that similar to tradition neural networks, during forward propagation each module (or layer) requires the output of the previous layer as its input. Hence, modules are still dependent on previous modules for training, however, they can learn without the gradients of subsequent modules.
-
-	
-	We now revisit the function $f_k$ and NCE Loss, and describe it in the context of GIM. Instead of a single $f_k$ and $L_N$, we now have a function $f_k^m$ for each module m, each with their own respective loss $\mathcal{L_N}^m$. The attentive reader may notice $f_k^m( \cdot )$ no longer receives as input $c_t$, but instead a second $z_t$. Löwe omits the autoregressive function \textbf{TODO: F(X) = CT OF ZO} to obtain $c_t$ and immediately applies  gives opted for this function instead, as she did not notice any improvement in her preliminary results.
-	
-	$$
-	f_k^m(\ztk^m,\zt^m) = \exp({\ztk^m}^TW_k^m\zt^m)
-	$$
-	
-	$$
-	\Lnce^m = -\sum_{k} \expected{\textsubscript{X}} \left[\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)} \right]
-	$$
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%************************ BS:
-%Consider a neural network that maps input data $x$ to output $y$.
-%More formally one may write 
-%$$ f_\theta (x^{(i)}) = y^{(i)} $$
-%where y represents the class and $\theta$ the model parameters. However, this mapping can also be written in a probabilistic manner as follows
-%%$$ p_\theta( y^{(i)} | x^{(i)}) $$
-%%where p represents a probability densinity function.
-%%Hence $f_\theta$ can be rewritten as
-%%$$ f_\theta (x^{(i)}) = argmax_{\textsubscript{y $\in \mathcal{ Y }$}} p_\theta( y \mid x^{(i)}) $$
-%
-%
-%$$ p_\theta( y^{(i)} | x^{(i)}) $$
-%where p represents a probability densinity function.
-%Hence $f_\theta$ can be rewritten as
-%
-%$$
-%f_\theta (x^{(i)}) =
-%\underset{\textsubscript{y $\in \mathcal{ Y }$}}{\mathrm{argmax}} \left[ p_\theta( y \mid x^{(i)}) \right] 
-%$$
-
-%************************ BS
-
 
