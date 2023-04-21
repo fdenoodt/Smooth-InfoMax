@@ -151,7 +151,7 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
 def run_configuration(options, experiment_name):
     subset_size = options['subset']
     if subset_size != "all":  # overwrite batch size to 9 content of subset
-        options['batch_size'] = 9 * int(subset_size)  # 9 classes
+        options['batch_size'] = min(9 * int(subset_size), 32 * 9)  # 9 classes, but not enough data in validation set if 128 subset
 
     encoder, train_loader, test_loader = setup(options, subset_size)
 
@@ -161,12 +161,13 @@ def run_configuration(options, experiment_name):
     classifier = torch.nn.Sequential(torch.nn.Linear(n_features, 9))
     criterion = CrossEntropyLoss()
     lr = options['learning_rate']
+    module = options['which_module']
 
     torch.cuda.empty_cache()
 
     options['experiment'] = experiment_name
     options['save_dir'] = f'{experiment_name}_experiment'
-    options['log_path'] = f"{options['root_logs']}/CLASSIFIER/{experiment_name}"
+    options['log_path'] = f"{options['root_logs']}/CLASSIFIER_module_{module}/{experiment_name}"
     options['log_path_latent'] = options['log_path'] + "/latent_space"
 
     arg_parser.create_log_path(options)
