@@ -3,6 +3,8 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+import tikzplotlib
+
 
 
 class Logger:
@@ -202,7 +204,8 @@ class Logger:
             # plt.axis([0, max(200,len(loss)+self.opt["start_epoch"]), 0, -round(np.log(1/(self.opt["negative_samples"]+1)),1)])
 
             # save image
-            plt.savefig(os.path.join(self.opt["log_path"], "loss_{}.png".format(idx)))
+            plt.savefig(os.path.join(self.opt["log_path"], f"loss_{idx}.png"))
+            tikzplotlib.save(os.path.join(self.opt["log_path"], f"loss_{idx}.tex"))
             plt.close()
 
     def append_train_loss(self, train_loss):

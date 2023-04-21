@@ -16,6 +16,7 @@ import time
 from torchvision import transforms
 import torchaudio
 import seaborn as sns
+import tikzplotlib
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -331,6 +332,9 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     if file is not None:
         create_log_dir(dir)
         plt.savefig(f"{dir}/{file}", dpi=120)
+        tikzplotlib.save(f"{dir}/{file}.tex")
+
+
 
     if show:
         plt.show()
@@ -366,6 +370,7 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     if file is not None:
         create_log_dir(dir)
         plt.savefig(f"{dir}/{file}", dpi=120)
+        tikzplotlib.save(f"{dir}/{file}.tex")
 
     if show:
         plt.show()

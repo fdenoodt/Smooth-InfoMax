@@ -203,7 +203,7 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
     b, l, c = all_cs.shape
 
     assert b == all_labels.shape[0]
-    assert c == 32 or c == 16
+    assert c == 32 or c == 16 or c == 512 or c == 256
     # assert l == 4 or l == 44
 
     all_cs = all_cs.permute(0, 2, 1)  # (b, c, l)
@@ -218,7 +218,7 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
     #     all_cs, (b, -1))
 
     b, c = all_cs.shape
-    assert c == 32 or c == 16
+    assert c == 32 or c == 16 or c == 512 or c == 256
 
     assert b == all_labels.shape[0]
 
@@ -249,7 +249,7 @@ def _visualise_latent_space_histograms(data_dir, gim_name, target_dir):
     all_encs = all_encs.numpy()
 
     nb_channels = all_encs.shape[0]  # 32
-    assert nb_channels == 32 or nb_channels == 8 or nb_channels == 16
+    assert nb_channels == 32 or nb_channels == 8 or nb_channels == 16 or nb_channels == 512 or nb_channels == 256
     all_encs = np.reshape(all_encs, (nb_channels, -1))  # (32, b*l)
 
     plot_histograms(all_encs, gim_name, target_dir)
