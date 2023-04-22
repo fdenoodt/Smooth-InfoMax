@@ -100,6 +100,22 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\LXSRLX2U\\Bhati et al. - 2021 - Segmental Contrastive Predictive Coding for Unsupe.pdf;C\:\\Users\\Fab\\Zotero\\storage\\8HRLZWUD\\2106.html}
 }
 
+@online{burgessUnderstandingDisentanglingBeta2018,
+  title = {Understanding Disentangling in \$\textbackslash beta\$-{{VAE}}},
+  author = {Burgess, Christopher P. and Higgins, Irina and Pal, Arka and Matthey, Loic and Watters, Nick and Desjardins, Guillaume and Lerchner, Alexander},
+  date = {2018-04-10},
+  eprint = {1804.03599},
+  eprinttype = {arxiv},
+  eprintclass = {cs, stat},
+  doi = {10.48550/arXiv.1804.03599},
+  url = {http://arxiv.org/abs/1804.03599},
+  urldate = {2023-04-22},
+  abstract = {We present new intuitions and theoretical assessments of the emergence of disentangled representation in variational autoencoders. Taking a rate-distortion theory perspective, we show the circumstances under which representations aligned with the underlying generative factors of variation of data emerge when optimising the modified ELBO bound in \$\textbackslash beta\$-VAE, as training progresses. From these insights, we propose a modification to the training regime of \$\textbackslash beta\$-VAE, that progressively increases the information capacity of the latent code during training. This modification facilitates the robust learning of disentangled representations in \$\textbackslash beta\$-VAE, without the previous trade-off in reconstruction accuracy.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\NF379PPK\\Burgess et al. - 2018 - Understanding disentangling in $beta$-VAE.pdf;C\:\\Users\\Fab\\Zotero\\storage\\24YSE2M4\\1804.html}
+}
+
 @article{caporaleSpikeTimingdependentPlasticity2008,
   title = {Spike Timing-Dependent Plasticity: A {{Hebbian}} Learning Rule},
   shorttitle = {Spike Timing-Dependent Plasticity},
@@ -122,11 +138,13 @@
   title = {Variational {{Methods}} for {{Machine Learning}} with {{Applications}} to {{Deep Networks}}},
   author = {Cinelli, Lucas Pinheiro and Marins, Matheus Araújo and Barros da Silva, Eduardo Antônio and Netto, Sérgio Lima},
   date = {2021},
+  edition = {1st ed. 2021 edition},
   publisher = {{Springer International Publishing}},
   location = {{Cham}},
   doi = {10.1007/978-3-030-70679-1},
   url = {https://link.springer.com/10.1007/978-3-030-70679-1},
   urldate = {2023-04-13},
+  abstract = {This book provides a straightforward look at the concepts, algorithms and advantages of Bayesian Deep Learning and Deep Generative Models. Starting from the model-based approach to Machine Learning, the authors motivate Probabilistic Graphical Models and show how Bayesian inference naturally lends itself to this framework. The authors present detailed explanations of the main modern algorithms on variational approximations for Bayesian inference in neural networks. Each algorithm of this selected set develops a distinct aspect of the theory. The book builds from the ground-up well-known deep generative models, such as Variational Autoencoder and subsequent theoretical developments. By also exposing the main issues of the algorithms together with different methods to mitigate such issues, the book supplies the necessary knowledge on generative models for the reader to handle a wide range of data types: sequential or not, continuous or not, labelled or not. The book is self-contained, promptly covering all necessary theory so that the reader does not have to search for additional information elsewhere.Offers a concise self-contained resource, covering the basic concepts to the algorithms for Bayesian Deep Learning;Presents Statistical Inference concepts, offering a set of elucidative examples, practical aspects, and pseudo-codes;Every chapter includes hands-on examples and exercises and a website features lecture slides, additional examples, and other support material.},
   isbn = {978-3-030-70678-4 978-3-030-70679-1},
   langid = {english},
   keywords = {Approximate inference,Artificial intelligence,Bayesian deep learning,Bayesian neural network,Computer vision,Deep neural networks,Expectation propagation,Machine theory,Variational autoencoder,Variational inference},
@@ -247,6 +265,19 @@
   eventtitle = {International {{Conference}} on {{Machine Learning}}},
   langid = {english},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\EIZ3GV98\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf;C\:\\Users\\Fab\\Zotero\\storage\\RAJYDHYM\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf}
+}
+
+@inproceedings{higginsBetaVAELearningBasic2022,
+  title = {Beta-{{VAE}}: {{Learning Basic Visual Concepts}} with a {{Constrained Variational Framework}}},
+  shorttitle = {Beta-{{VAE}}},
+  author = {Higgins, Irina and Matthey, Loic and Pal, Arka and Burgess, Christopher and Glorot, Xavier and Botvinick, Matthew and Mohamed, Shakir and Lerchner, Alexander},
+  date = {2022-07-21},
+  url = {https://openreview.net/forum?id=Sy2fzU9gl},
+  urldate = {2023-04-22},
+  abstract = {Learning an interpretable factorised representation of the independent data generative factors of the world without supervision is an important precursor for the development of artificial intelligence that is able to learn and reason in the same way that humans do. We introduce beta-VAE, a new state-of-the-art framework for automated discovery of interpretable factorised latent representations from raw image data in a completely unsupervised manner. Our approach is a modification of the variational autoencoder (VAE) framework. We introduce an adjustable hyperparameter beta that balances latent channel capacity and independence constraints with reconstruction accuracy. We demonstrate that beta-VAE with appropriately tuned beta {$>$} 1 qualitatively outperforms VAE (beta = 1), as well as state of the art unsupervised (InfoGAN) and semi-supervised (DC-IGN) approaches to disentangled factor learning on a variety of datasets (celebA, faces and chairs). Furthermore, we devise a protocol to quantitatively compare the degree of disentanglement learnt by different models, and show that our approach also significantly outperforms all baselines quantitatively. Unlike InfoGAN, beta-VAE is stable to train, makes few assumptions about the data and relies on tuning a single hyperparameter, which can be directly optimised through a hyper parameter search using weakly labelled data or through heuristic visual inspection for purely unsupervised data.},
+  eventtitle = {International {{Conference}} on {{Learning Representations}}},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\KVW7LUBW\\Higgins et al. - 2022 - beta-VAE Learning Basic Visual Concepts with a Co.pdf}
 }
 
 @online{ioffeBatchNormalizationAccelerating2015,
@@ -374,6 +405,17 @@
   pubstate = {preprint},
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\NKST6QEI\\Löwe et al. - 2020 - Putting An End to End-to-End Gradient-Isolated Le.pdf;C\:\\Users\\Fab\\Zotero\\storage\\DGLLIKIT\\1905.html}
+}
+
+@article{lucasUnderstandingPosteriorCollapse2022,
+  title = {Understanding {{Posterior Collapse}} in {{Generative Latent Variable Models}}},
+  author = {Lucas, James and Tucker, George and Grosse, Roger and Norouzi, Mohammad},
+  date = {2022-07-11},
+  url = {https://openreview.net/forum?id=r1xaVLUYuE},
+  urldate = {2023-04-22},
+  abstract = {Posterior collapse in Variational Autoencoders (VAEs) arises when the variational distribution closely matches the uninformative prior for a subset of latent variables. This paper presents a simple and intuitive explanation for posterior collapse through the analysis of linear VAEs and their direct correspondence with Probabilistic PCA (pPCA). We identify how local maxima can emerge from the marginal log-likelihood of pPCA, which yields similar local maxima for the evidence lower bound (ELBO). We show that training a linear VAE with variational inference recovers a uniquely identifiable global maximum corresponding to the principal component directions. We provide empirical evidence that the presence of local maxima causes posterior collapse in deep non-linear VAEs. Our findings help to explain a wide range of heuristic approaches in the literature that attempt to diminish the effect of the KL term in the ELBO to reduce posterior collapse.},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\9RLA5RXB\\Lucas et al. - 2022 - Understanding Posterior Collapse in Generative Lat.pdf}
 }
 
 @article{luongDesigningInterpretableRecurrent2021,
@@ -547,6 +589,22 @@
   eventtitle = {Machine {{Learning}} for {{Health}}},
   langid = {english},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\Y7A6ZGSE\\Stacke et al. - 2020 - Evaluation of Contrastive Predictive Coding for Hi.pdf}
+}
+
+@online{steinmetzAutomaticMultitrackMixing2020,
+  title = {Automatic Multitrack Mixing with a Differentiable Mixing Console of Neural Audio Effects},
+  author = {Steinmetz, Christian J. and Pons, Jordi and Pascual, Santiago and Serrà, Joan},
+  date = {2020-10-20},
+  eprint = {2010.10291},
+  eprinttype = {arxiv},
+  eprintclass = {cs, eess},
+  url = {http://arxiv.org/abs/2010.10291},
+  urldate = {2023-04-21},
+  abstract = {We present auraloss1, a PyTorch package that implements time and frequency domain loss functions designed for audio generation tasks. The package provides a straightforward interface, as well as multichannel support. We demonstrate its application by using each loss function to train a model on the task of emulating an analog dynamic range compressor.},
+  langid = {english},
+  pubstate = {preprint},
+  keywords = {Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\NR57CR4V\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
 }
 
 @online{tschannenRecentAdvancesAutoencoderBased2018,

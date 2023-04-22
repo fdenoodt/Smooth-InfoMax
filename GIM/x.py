@@ -390,3 +390,20 @@ print(loss(signal_sin, signal_sin2))
 
 
 # signal_sin.shape
+
+# %%
+
+import librosa
+path = r"C:\GitHub\thesis-fabian-denoodt\GIM\invented_audios"
+librosa.get_duration(filename=f'{path}/109.wav') # in seconds
+
+
+# current audio blocks are of 0.02 seconds, so 20ms.
+# current decoder: 52 --> 10240
+
+# 10240 ~= 52 blocks * 20 ~= 1040 ms = 1.04 seconds
+
+# I want blocks of 0.2 seconds, so 200ms.
+# So 10240 ~= 5 blocks
+
+

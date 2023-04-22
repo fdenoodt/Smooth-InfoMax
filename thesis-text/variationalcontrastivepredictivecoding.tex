@@ -1,4 +1,4 @@
-\chapter{Variational InfoNCE}
+\chapter{Variational Greedy InfoMax}
 
 \section{Motivation} %\section{Problem setting}
 	In the previous section we discussed two categories of representation learning though deep learning. First, we discussed the autoencoder and its variational counterpart, which minimise the reconstruction error. Secondly, we discussed Contrastive Predictive Coding and Greedy InfoMax, both of which optimise the Info NCE objective. This category seeks to maximise the mutual information between the encodings of data patches that are temporally nearby. The latent representations obtained from all four methods can then be utilised for downstream tasks \cite{bengioRepresentationLearningReview2013, weiRecentAdvancesVariational2021, oordRepresentationLearningContrastive2019, lowePuttingEndEndtoEnd2020}
@@ -16,7 +16,7 @@
 
 \section{Towards decoupled training for probabilistic representations}
 	% Our contribution
-		In what follows next we introduce "Variational Greedy Infomax", maintaining the state-of-the-art performance obtained from optimising InfoNCE, while leveraging the interpretable and disentangled benefits from VAEs. This is achieved by optimising a novel loss function, \textit{Variational-InfoNCE}, a combination of InfoNCE and the regularisation term from VAEs. Additionally, by splitting up the neural network into modules, as introduced in \cite{lowePuttingEndEndtoEnd2020}, we greedily optimise each module with its own instance of this loss function. As a result, the interpretability benefits from VAEs will also be applicable in-between modules. This is in contrast to VAEs where solely the final output representations are interpretable.		
+		In what follows next we introduce Variational Greedy InfoMax (V-GIM), maintaining the state-of-the-art performance obtained from optimising InfoNCE, while leveraging the interpretable and disentangled benefits from VAEs. This is achieved by optimising a novel loss function, \textit{Variational-InfoNCE}, a combination of InfoNCE and the regularisation term from VAEs. Additionally, by splitting up the neural network into modules, as introduced in \cite{lowePuttingEndEndtoEnd2020}, we greedily optimise each module with its own instance of this loss function. As a result, the interpretability benefits from VAEs will also be applicable in-between modules. This is in contrast to VAEs where solely the final output representations are interpretable.		
 				
 	% How:
 		% still maximise mutual information between zt, ztk, but predictions no longer fixed datapoints.
@@ -95,47 +95,93 @@
 		\label{eq:variational_gim_loss}
 	\end{equation}
 
-	$m \in \naturalset$ refers to the $m$'th module. $k \in \naturalset$ corresponds to the number of patches in the future the similarity score $\fkm$ must rate. $\ztk^m$ and $\zt^m$ are encoded samples produced by $g_enc^m(\ztk^{m-1})$ and $g_enc^m(\zt^{m-1})$, respectively. $X$ is a set of samples ${ \left\{ \ztk^m, \z_1^m, \z_2^m, \dots \right\} }$ where $\zj^m \neq \ztk^m$ are random samples.
+	$m \in \naturalset$ refers to the $m$'th module. $k \in \naturalset$ corresponds to the number of patches in the future the similarity score $\fkm$ must rate. $\ztk^m$ and $\zt^m$ are encoded samples produced by $g_{enc}^m(\ztk^{m-1})$ and $g_{enc}^m(\zt^{m-1})$, respectively. $X$ is a set of samples ${ \left\{ \ztk^m, \z_1^m, \z_2^m, \dots \right\} }$ where $\zj^m \neq \ztk^m$ are random samples.
 
 
 	The similarity score $f_k^m(\cdot)$'s definition is identical to \cite{lowePuttingEndEndtoEnd2020}:
 	
 	$$ f_k^m(\ztk^m,\zt^m) = \exp({\ztk^m}^TW_k^m\zt^m) $$
-
-	\subsection{Gradient}
+	
+	$\Lvnce^m$ consists of two terms. The first term ensures that encodings of temporally nearby patches contained maximised mutual information. The second ensures that those encodings are all close to the standard normal $\standardnormal$. Finally, $\beta$ is a hyper-parameter which decides the relative importance between the two terms. $\beta >> 1$ will weight more importance to regularisation, but may result in posterior collapse \cite{lucasUnderstandingPosteriorCollapse2022}. On the other hand $\beta \approx 0$ will attach more importance to the mutual information maximisation term while forgetting about the regularisation term. When $\beta = 0$, V-GIM is identical to GIM but with an altered neural network architecture which supports probabilistic encodings.
+	
+	\subsection{Gradient \textbf{TODO}}
 		The gradient of the first term in $\Lvnce^m$ can be approximated through mini-batches, and optimised directly in PyTorch. With regards to the second term, since $\qfromzmneg$ is a Gaussian, a closed form solution exists \cite{kingmaAutoEncodingVariationalBayes2022}, the term can be differentiated without approximated method.
 		
-	
+		
 		%Where the KL divergence for a single sample $x^{(i)}$ is approximated as follows:
 		% https://arxiv.org/pdf/1312.6114.pdf, from example
 		\begin{equation}
 			\frac{1}{2}\sum_{j=1}^J \left( 1 + \log((\sigma_j^{(i)})^2) - (\mu_j^{(i)})^2 - (\sigma_j^{(i)})^2 \right) 
 		\end{equation}
-	
+		
 		\begin{equation} % REAL BUT MUST REMOVE THE (i)	
 			\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
 		\end{equation}
-	
+		
 		
 		where $z^(i,l) = \sigma ^{(i)} \odot \epsilon^{(l)}$ and $\epsilon^(l) \mathcal{N}(0, I)$
-	
+		
 		\textbf{todo: variables should maybe be bold.}
 		
 		
-	%	TODO: DUS DIE KL DIVERGENCE CLOSED FORM NOTATIE, MAAR BIJ SAMPLING ZOU OOK DEFINITIE VAN Z = MU + SIGMA*ERR GEVEN
+		%	TODO: DUS DIE KL DIVERGENCE CLOSED FORM NOTATIE, MAAR BIJ SAMPLING ZOU OOK DEFINITIE VAN Z = MU + SIGMA*ERR GEVEN
+	
+	
+	\subsection{Continuous space around the origin}
+		% around N()
+			As we discussed earlier, the representations or encodings $\sample{\zt^m}~ \qfromzmneg$ generated by each module $m$ are samples from a Gaussian distribution (which may not necessarily be the standard normal). These samples are optimised to be as close as possible to the standard normal $\standardnormal$. 
+	
+		% smooth changes
+			Consider $\ztk^{m-1}$ and $\zt^{m-1}$ which each serve as input for a fully trained module $\gencm$. These two inputs are temporally nearby, and thus, due to the slowly varying features assumption \cite{zhangSlowFeatureAnalysis2012} have a lot of information in common. This means that the correspondence score of their encodings, estimated by the scoring function $\fkmblank$, should also be high. However, as depicted in \ref{fig:gaussian-neighbourhood}, the encodings for $\ztk^{m-1}$ correspond an entire space $ \{ {\ztk^m}^{'},~{\ztk^m}^{''},~\dots \}$ centred around a particular mean vector $\mufat$. If $\Lvnce^m$ is optimal, this means that given $\zt^m$, $f_k^m({\ztk^m}^{'}, {\zt^m})$ should be  large, but also $f_k^m({\ztk^m}^{''}, {\zt^m})$, while remaining small for random encodings $\zi^m \neq \ztk^m$. The correspondence scores must thus be similar for all encodings in a particular neighbourhood, meaning they all have similar mutual information to $\zt^{m}$. This is important, because it will ensure smooth transitions in the latent space. Furthermore, optimising this loss function also maximises the mutual information between outputs of successive modules $I(\zt^{m-1}, \zt^{m})$ \cite{lowePuttingEndEndtoEnd2020}, and the smooth transitions will reflect on the original representations $\xt$.			 
+		
+		\begin{figure} % gauss neighbourhood
+			\centering
+			\includegraphics[width=0.7\linewidth]{"gaussian neighbourhood"}
+			\caption{}
+			\label{fig:gaussian-neighbourhood}
+		\end{figure}
+		
+		% gaps
+			Finally, since the set of encodings $ \{ {\zt^1}^{'},~{\zt^1}^{''},~\dots \}$ from a single patch $\xt$ corresponds a large neighbourhood in the latent space, and since the latent space is fairly small (standard normal) representation distributions from different data points are likely to be pushed around, trying to utilise the limited space as best as they can. This results in a less likely chance of obtaining holes in the latent space.
+			
+			The end result is a continuous space around the origin, which is a crucial observation. It will serve as the main argument for why V-GIM's representations are interpretable, while traditional techniques such as CPC and GIM do not have these guarantees. %Additionally, if a decoder is trained on this space and a latent representation is chosen that the decoder has never seen before, the smooth transitions will ensure that the decoder will generalize well to unseen data.
+			
+
+
 		
 	
 	
 	
-\section{Practical benefits}
+\section{Computational benefits}
+Each module in V-GIM is trained through the variational InfoNCE loss. As a result, latent space constraints are posed on the outputs from the final module, but also in between modules. Hence, many of the benefits we discuss are applicable to both the output and intermediate layers of the ANN architecture.
 
-\subsection{Latent representations}
-	Representations:
-		Interpretability of latent representations:
-			- Interpolation --> adds decoder
+
+\subsection{Representations}
+	\subsubsection{Interpretability of final and intermediate representations}
+		
+		
+		
+		
+		While VAE's allow for interpretability by training a decoder, V-GIM does not require one for training, simplifying its architecture. However, a decoder can still be appended to each module to observe the content stored in each representation. 
+		
+		
+		
+		why only possble if standard gaussian.
+			else decoder may receive inputs dissimilar from what it has seen before and it may not generalise well to the interpolated values.
+	
+	
+	Interpretability of latent representations:
+		Encodings are samples from a distribution, which is optimised to be approximate to standard normal.
+		- Entire latent space will be close to center, which prevents "gaps" in the latent space.
+
+		- Interpolation --> adds decoder
+		
+		- ALSO NO EXPLICIT NEED FOR A DECODER. THIS REMAINS, SO ARCH CAN BE SIMPLER.
 	
 	Better generalisation for downstream tasks
 		- Overfitting: reduction of required labelled data needed. Similar data is similar region, the kl divergence makes regions bigger.
+		% copied from a bit higher
+		% Because of this probabilistic approach, a single patch of data $\xt$ will have multiple representations $\zt^M$, providing increased variance in the representations. This can potentially benefit downstream tasks, particularly when labelled data in scarce \cite{weiRecentAdvancesVariational2021}, leading to improved performance. % TODO: this benefit should be moved to benefits section.
 
 		Overfitting during inference:
 		- The same datapoint has multiple (similar) representations, such that learning techniques for downstream tasks will not be able to "memorise" the latent space as easily.
@@ -143,16 +189,21 @@
 		- Holes: more predictable inference, such that unseen data is more likely to be near clusters. And thus downstream tasks receive latents that are more similar to what is seen before.
 		= better generalisation
 		
-		% copied from a bit higher		
-		% Because of this probabilistic approach, a single patch of data $\xt$ will have multiple representations $\zt^M$, providing increased variance in the representations. This can potentially benefit downstream tasks, particularly when labelled data in scarce \cite{weiRecentAdvancesVariational2021}, leading to improved performance. % TODO: this benefit should be moved to benefits section.
 
-\subsection{Training}
-	- Batch normalisation: is useful for following modules, BUT ALSO DOWNSTREAM TASKS!
-	- GIM advantages remain: maintain the benefits such as smaller networks that can learn indep, ALSO NO EXPLICIT NEED FOR A DECODER. THIS REMAINS, SO ARCH CAN BE SIMPLER.
+
+	Batch normalisation: is useful for following modules, BUT ALSO DOWNSTREAM TASKS!
+		- built in batch normalisation mechanism
+		- During training similar behaviour to batch normalization in-between layers
+	
+	- Independent latent dimensions
+		
+	- GIM advantages remain: maintain the benefits such as smaller networks that can learn indep, 
+	
+	
+	
 	
 
-	- Independent latent dimensions
-	- During training similar behaviour to batch normalization in-between layers
+	
 
 
 
@@ -160,7 +211,7 @@
 
 
 
-\textbf{Other sources:} \\
+%\textbf{Other sources:} \\
 %!!! Abstract on VAE: The fundamental idea in VAEs is to learn the
 %distribution of data in such a way that new meaningful data with more intra-class variations can be generated
 %from the encoded distribution.

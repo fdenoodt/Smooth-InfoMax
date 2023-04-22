@@ -146,6 +146,8 @@ While capable of learning compressed representations, autoencoders do not pose a
 	\label{fig:latent_space_2d}
 \end{figure}
 
+
+
 \subsection{Variational autoencoders}
 % notes: 
 %1) discuss why, (latent space gaussian)
@@ -211,160 +213,176 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 %$$ \widetilde{\mathbf{x}} ^ {(i)} $$
 
 \subsubsection{The learning objective}
+	
+	So far we have discussed how predictions of a neural network can emulate predicting a distribution $\qphizx$, by predicting the distribution's parameters $\mui$ and $\sigmai$. However, no constraints have been set on the quality of the distributions. We will discuss this now. The representations are optimised to minimise two measurements: one, the reconstruction error, and secondly, the distance from the latent distributions to $\standardnormal$.
+	
+	The loss function to be optimised for a single data point $\vecti{x}$ is shown in the equation below.
+	
+	\begin{equation}
+		\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
+	\end{equation} % src: ref to slides ugent
+	
+	% 1) reconstruction error
+	Although the equation may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
+	
+	$$
+	\reconstr
+	$$
+	
+	The distribution $\pthetaxz$ is a distribution over $\vecti{x}$ where $\vect{z}$ is instantiated. What comes out are thus probabilities. Notice $\vect{z}$ is sampled from the Gaussian distribution $\sample{z}{\qphizx}$. So the $\vect{z}$'s close to the mean $\mu(\vecti{x}) = \mui$ are more likely to be sampled than those further away. So for these $\vect{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability \cite{cinelliVariationalMethodsMachine2021}. % TODO: FOR SOME REASON REFERENCE NOT FOUND 
+	%Additionally, minimising this term is equivalent to maximising the likelihood of the reconstructed sample $\vecti{x}$. 
+	In practice this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
+	
+	
+	Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the latent distributions $\qphizx$. Again, this metric should be minimised. As we discussed in the chapter on Entropy, the KL divergence can be considered as a (non-symmetric) distance measure between two distributions. Hence, this value is small when the two distributions are similar. As we discussed earlier $\pz$ is often replaced by $\standardnormal$ as shown below. Minimising this equation will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$. This idea is depicted in figure \ref{fig:twogaussiandistributions}.
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{two_gaussian_distributions}
+		\caption{Effect of regularisation term in VAE}
+		\label{fig:twogaussiandistributions}
+	\end{figure}
+	
+	$$
+	\latentspaceconstraintstandardgaussian
+	$$
+	
+	
+	One can algebraically prove, that optimising this equation is equivalent to optimising the following equation \cite{kingmaAutoEncodingVariationalBayes2022}: 
+	
+	\begin{equation}	
+		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
+	\end{equation}
+	
+	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
+	
+	
 
-So far we have discussed how predictions of a neural network can emulate predicting a distribution $\qphizx$, by predicting the distribution's parameters $\mui$ and $\sigmai$. However, no constraints have been set on the quality of the distributions. We will discuss this now. The representations are optimised to minimise two measurements: one, the reconstruction error, and secondly, the distance from the latent distributions to $\standardnormal$.
 
-The loss function to be optimised for a single data point $\vecti{x}$ is shown in the equation below.
-
-\begin{equation}
-	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
-\end{equation} % src: ref to slides ugent
-
-% 1) reconstruction error
-Although the equation may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
-
-$$
-\reconstr
-$$
-
-The distribution $\pthetaxz$ is a distribution over $\vecti{x}$ where $\vect{z}$ is instantiated. What comes out are thus probabilities. Notice $\vect{z}$ is sampled from the Gaussian distribution $\sample{z}{\qphizx}$. So the $\vect{z}$'s close to the mean $\mu(\vecti{x}) = \mui$ are more likely to be sampled than those further away. So for these $\vect{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability \cite{pinheirocinelliVariationalAutoencoder2021}. % TODO: FOR SOME REASON REFERENCE NOT FOUND 
-%Additionally, minimising this term is equivalent to maximising the likelihood of the reconstructed sample $\vecti{x}$. 
-In practice this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
+\subsubsection{Sampling new data points and interpretability}	
+	Due to the VAE's regularisation term all encodings are pushed towards the centre as depicted in figure \ref{fig:twogaussiandistributions}. As a result, new samples from the dataset can generated by discarding the VAE's encoder and providing standard normal noise to the decoder instead. It is important to understand that this method only works for VAEs and not for the traditional autoencoder. This is because autoencoders do not pose any additional constraints on the latent space. Generating new data points from random noise via a traditional autoencoder will likely result in nonsense generations. This is because there are no guarantees that the autoencoder's decoder will generalise to these latent space as it was not explicitly trained on similar latent representations.
+	
+	Additionally, for the same reason, we can interpolate between encodings obtained from the data. The interpolated encoding can then decoded to the original space. We can observe the specific information contained in each of the representations' features through the decoder, resulting in a significant improvement in interpretability.
 
 
-Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the latent distributions $\qphizx$. Again, this metric should be minimised. As we discussed in the chapter on Entropy, the KL divergence can be considered as a (non-symmetric) distance measure between two distributions. Hence, this value is small when the two distributions are similar. As we discussed earlier $\pz$ is often replaced by $\standardnormal$ as shown below. Minimising this equation will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$.
-
-$$
-\latentspaceconstraintstandardgaussian
-$$
-
-
-One can algebraically prove, that optimising this equation is equivalent to optimising the following equation \cite{kingmaAutoEncodingVariationalBayes2022}: 
-
-\begin{equation}	
-	\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
-\end{equation}
-
-where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
-
-
-% 2) kl divergence
 
 \subsubsection{[TODO] Relation with variational inference / derivation of ELBO loss}
+	
+	%A mapping function $f_W(x) = y$ can be predict distributions by predicting the parameters of the the distribution (mu, sigma for Gaussian distributions).
+	%
+	%Rather than directly learning parameters $\phi$ that map a data point $\vecti{x}$ to latent distribution $p(\vect{z} \mid \mathbf{x}^{(i)})$, an \textit{approximate distribution} $\qzx$ is learned that approximates $p(\vect{z} \mid \vecti{x})$. Through gradient descent parameters for $\phi$ can be achieved, by minimising the KL divergence between the two distributions. $\condq{\vect{z}}{\vecti{x}}$ will is expressed as Gaussian distribution.
+	%
+	%
+	%\begin{equation}
+	%	\kl{\qprobzx}{\probzx} \label{eq:kl_q_p}
+	%\end{equation}
+	%
+	%Yet, the idea is nice, optimising $\qprobzx$ to approximate $\probzx$ sounds nice, it is only possible when $\probzx$ is known, which it is not. If it was, there was no need to approximate it.
+	%
+	%Equation \ref{eq:kl_q_p} is thus intractable to compute, yet the following is true:
+	%
+	%\begin{equation}
+	%	\begin{aligned}
+	%		\kl{\qprobzx}{\probzx} & = \expectedsamplezq \left[ \log \frac{\qzx}{\pzx} \right] \\
+	%		& = ... (todo) \\
+	%		& = - \left( \elbo \right) + \logevidence
+	%	\end{aligned}
+	%\end{equation}
+	%
+	%By replacing the terms, we obtain the following equation:
+	%
+	%\begin{equation}
+	%	\begin{aligned}
+	%		\logevidence & = 
+	%		\klapproxposterior + \elbo \\
+	%		& = \klapproxposterior  + \lelbo
+	%	\end{aligned}
+	%\end{equation}
+	%
+	%We can observe that the KL divergence between the true and approximate posteriors, $p$ and $q$ respectively, is bounded by $\logevidence$. Hence, although $\pzx$ is unknown, maximising $\lelbo$ results in minimising the KL divergence. Also notice that $\kl{\qprobzx}{\probzx} >= 0$, and thus the maximum value for $\lelbo$ results in a KL divergence between the posteriors of zero. It thus suffices to maximise $\lelbo$, or equivalently minimise $-\lelbo$. The loss for a single data point $\vecti{x}$ then becomes
+	
+	%TODO \textbf{todo: in paper variational bayes, they refer to p(x) as p theta, but in slides ugent not?}. \textbf{todo: why cant p(x) be very big then? probably has something to do with jensens inequality.}
+	
+	
+	
+	
+	\begin{equation}
+		\begin{aligned}
+			- \lelbo & = - \elbo \\  
+			& = \elboexplicit \label{eq:elboexplicit} \\
+		\end{aligned}	
+	\end{equation} % src: ref to slides ugent
+	
+	Where the first term is reconstruction error and second is regularisation. Hence minimising the KL divergence between the two posteriors is equivalent to minimising the divergence between the approximate posterior $\qzx$ and the \textbf{marginal or prior?} $\pz$.
+	
+	$p(z)$ in the equation is usually chosen to be the standard normal distribution $\mathcal{N}(0, I)$, such that a closed form solution exists. As such, when $p(z)$ corresponds to the standard normal, and $\qzx$ is a multidimensional Gaussian with mean vector $\mui$ and covariance matrix with independent dimensions, such that the diagonal corresponds of a vector standard devisations $\sigmai$, then the KL divergence has the following closed form:
+	
+	\begin{equation}	
+		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
+	\end{equation}
+	
+	For the equation above, gradients can easily be back propagated through machine learning libraries such as Tensor Flow. We still require a method for computing the gradient of the first term in $\lelbo$. % todo: gradient van linker kan door sampling en mini batch.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	%Recent Advances in Autoencoder-Based:
+	%Representation Learning https://arxiv.org/pdf/1812.05069.pdf
+	%they speak about disentanglement of vae and indepndent features
+	
+	%Understanding disentangling in β-VAE
+	%https://arxiv.org/pdf/1804.03599.pdf
+	%"β-VAE aligns latent dimensions with components that make different contributions to reconstruction"
+	%Our key hypothesis is that β-VAE finds latent components which make different contributions to the log-likelihood term of the cost function (Eq. 5). These latent components tend to correspond to features in the data that are intuitively qualitatively different, and therefore may align with the generative factors in the data.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	%- \subsubsection{reparametrisation trick}
+	%o reiley:
+	%\textit{THE REPARAMETERIZATION TRICK
+	%	Rather than sample directly from a normal distribution with parameters $z_mean$ and $z_log_var$, we instead sample epsilon from a standard normal and then manually adjust the sample to have the correct mean and variance.}
+	%\textit{This is known as the reparameterization trick and is important as it means gradients can backpropagate freely through the layer. By keeping all of the randomness of the layer contained within the variable epsilon, the partial derivative of the layer output with respect to its input can be shown to be deterministic (i.e. independent of the random epsilon), which is essential for backpropagation through the layer to be possible.}
+	
+	%\subsubsection{the loss function - from oreiley}
+	%The Loss Function
+	%Previously, our loss function only consisted of the reconstruction loss between images and their attempted copy after being passed through the encoder and decoder. The reconstruction loss also appears in a variational autoencoder, but we require one extra component: the Kullback–Leibler (KL) divergence term.
+	%
+	%KL divergence is a way of measuring how much one probability distribution differs from another. In a VAE, we want to measure how much our normal distribution with parameters z_mean and z_log_var differs from a standard normal distribution. In this special case, it can be shown that the KL divergence has the following closed form:
+	%
+	%kl_loss = -0.5 * sum(1 + z_log_var - z_mean ^ 2 - exp(z_log_var))
+	%or in mathematical notation:
+	%
+	%The sum is taken over all the dimensions in the latent space. kl_loss is minimized to 0 when z_mean = 0 and z_log_var = 0 for all dimensions. As these two terms start to differ from 0, kl_loss increases.
+	%
+	%In summary, the KL divergence term penalizes the network for encoding observations to z_mean and z_log_var variables that differ significantly from the parameters of a standard normal distribution, namely z_mean = 0 and z_log_var = 0.
+	%
+	%Why does this addition to the loss function help?
+	%
+	%Firstly, we now have a well-defined distribution that we can use for choosing points in the latent space—the standard normal distribution. Secondly, since this term tries to force all encoded distributions toward the standard normal distribution, there is less chance that large gaps will form between point clusters. Instead, the encoder will try to use the space around the origin symmetrically and efficiently.
+	%
+	%In the original VAE paper, the loss function for a VAE was simply the addition of the reconstruction loss and the KL divergence loss term. A variant on this (the 
+	%-VAE) includes a factor that weights the KL divergence to ensure that it is well balanced with the reconstruction loss. If we weight the reconstruction loss too heavily, the KL loss will not have the desired regulatory effect and we will see the same problems that we experienced with the plain autoencoder. If the KL divergence term is weighted too heavily, the KL divergence loss will dominate and the reconstructed images will be poor. This weighting term is one of the parameters to tune when you’re training your VAE.
+	
 
-%A mapping function $f_W(x) = y$ can be predict distributions by predicting the parameters of the the distribution (mu, sigma for Gaussian distributions).
-%
-%Rather than directly learning parameters $\phi$ that map a data point $\vecti{x}$ to latent distribution $p(\vect{z} \mid \mathbf{x}^{(i)})$, an \textit{approximate distribution} $\qzx$ is learned that approximates $p(\vect{z} \mid \vecti{x})$. Through gradient descent parameters for $\phi$ can be achieved, by minimising the KL divergence between the two distributions. $\condq{\vect{z}}{\vecti{x}}$ will is expressed as Gaussian distribution.
-%
-%
-%\begin{equation}
-%	\kl{\qprobzx}{\probzx} \label{eq:kl_q_p}
-%\end{equation}
-%
-%Yet, the idea is nice, optimising $\qprobzx$ to approximate $\probzx$ sounds nice, it is only possible when $\probzx$ is known, which it is not. If it was, there was no need to approximate it.
-%
-%Equation \ref{eq:kl_q_p} is thus intractable to compute, yet the following is true:
-%
-%\begin{equation}
-%	\begin{aligned}
-%		\kl{\qprobzx}{\probzx} & = \expectedsamplezq \left[ \log \frac{\qzx}{\pzx} \right] \\
-%		& = ... (todo) \\
-%		& = - \left( \elbo \right) + \logevidence
-%	\end{aligned}
-%\end{equation}
-%
-%By replacing the terms, we obtain the following equation:
-%
-%\begin{equation}
-%	\begin{aligned}
-%		\logevidence & = 
-%		\klapproxposterior + \elbo \\
-%		& = \klapproxposterior  + \lelbo
-%	\end{aligned}
-%\end{equation}
-%
-%We can observe that the KL divergence between the true and approximate posteriors, $p$ and $q$ respectively, is bounded by $\logevidence$. Hence, although $\pzx$ is unknown, maximising $\lelbo$ results in minimising the KL divergence. Also notice that $\kl{\qprobzx}{\probzx} >= 0$, and thus the maximum value for $\lelbo$ results in a KL divergence between the posteriors of zero. It thus suffices to maximise $\lelbo$, or equivalently minimise $-\lelbo$. The loss for a single data point $\vecti{x}$ then becomes
 
-%TODO \textbf{todo: in paper variational bayes, they refer to p(x) as p theta, but in slides ugent not?}. \textbf{todo: why cant p(x) be very big then? probably has something to do with jensens inequality.}
-
-
-
-
-\begin{equation}
-	\begin{aligned}
-		- \lelbo & = - \elbo \\  
-		& = \elboexplicit \label{eq:elboexplicit} \\
-	\end{aligned}	
-\end{equation} % src: ref to slides ugent
-
-Where the first term is reconstruction error and second is regularisation. Hence minimising the KL divergence between the two posteriors is equivalent to minimising the divergence between the approximate posterior $\qzx$ and the \textbf{marginal or prior?} $\pz$.
-
-$p(z)$ in the equation is usually chosen to be the standard normal distribution $\mathcal{N}(0, I)$, such that a closed form solution exists. As such, when $p(z)$ corresponds to the standard normal, and $\qzx$ is a multidimensional Gaussian with mean vector $\mui$ and covariance matrix with independent dimensions, such that the diagonal corresponds of a vector standard devisations $\sigmai$, then the KL divergence has the following closed form:
-
-\begin{equation}	
-	\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
-\end{equation}
-
-For the equation above, gradients can easily be back propagated through machine learning libraries such as Tensor Flow. We still require a method for computing the gradient of the first term in $\lelbo$. % todo: gradient van linker kan door sampling en mini batch.
-
-
-
-
-
-
-
-
-
-
-
-%Recent Advances in Autoencoder-Based:
-%Representation Learning https://arxiv.org/pdf/1812.05069.pdf
-%they speak about disentanglement of vae and indepndent features
-
-%Understanding disentangling in β-VAE
-%https://arxiv.org/pdf/1804.03599.pdf
-%"β-VAE aligns latent dimensions with components that make different contributions to reconstruction"
-%Our key hypothesis is that β-VAE finds latent components which make different contributions to the log-likelihood term of the cost function (Eq. 5). These latent components tend to correspond to features in the data that are intuitively qualitatively different, and therefore may align with the generative factors in the data.
-
-
-
-
-
-
-
-
-
-
-
-%- \subsubsection{reparametrisation trick}
-%o reiley:
-%\textit{THE REPARAMETERIZATION TRICK
-%	Rather than sample directly from a normal distribution with parameters $z_mean$ and $z_log_var$, we instead sample epsilon from a standard normal and then manually adjust the sample to have the correct mean and variance.}
-%\textit{This is known as the reparameterization trick and is important as it means gradients can backpropagate freely through the layer. By keeping all of the randomness of the layer contained within the variable epsilon, the partial derivative of the layer output with respect to its input can be shown to be deterministic (i.e. independent of the random epsilon), which is essential for backpropagation through the layer to be possible.}
-
-%\subsubsection{the loss function - from oreiley}
-%The Loss Function
-%Previously, our loss function only consisted of the reconstruction loss between images and their attempted copy after being passed through the encoder and decoder. The reconstruction loss also appears in a variational autoencoder, but we require one extra component: the Kullback–Leibler (KL) divergence term.
-%
-%KL divergence is a way of measuring how much one probability distribution differs from another. In a VAE, we want to measure how much our normal distribution with parameters z_mean and z_log_var differs from a standard normal distribution. In this special case, it can be shown that the KL divergence has the following closed form:
-%
-%kl_loss = -0.5 * sum(1 + z_log_var - z_mean ^ 2 - exp(z_log_var))
-%or in mathematical notation:
-%
-%The sum is taken over all the dimensions in the latent space. kl_loss is minimized to 0 when z_mean = 0 and z_log_var = 0 for all dimensions. As these two terms start to differ from 0, kl_loss increases.
-%
-%In summary, the KL divergence term penalizes the network for encoding observations to z_mean and z_log_var variables that differ significantly from the parameters of a standard normal distribution, namely z_mean = 0 and z_log_var = 0.
-%
-%Why does this addition to the loss function help?
-%
-%Firstly, we now have a well-defined distribution that we can use for choosing points in the latent space—the standard normal distribution. Secondly, since this term tries to force all encoded distributions toward the standard normal distribution, there is less chance that large gaps will form between point clusters. Instead, the encoder will try to use the space around the origin symmetrically and efficiently.
-%
-%In the original VAE paper, the loss function for a VAE was simply the addition of the reconstruction loss and the KL divergence loss term. A variant on this (the 
-%-VAE) includes a factor that weights the KL divergence to ensure that it is well balanced with the reconstruction loss. If we weight the reconstruction loss too heavily, the KL loss will not have the desired regulatory effect and we will see the same problems that we experienced with the plain autoencoder. If the KL divergence term is weighted too heavily, the KL divergence loss will dominate and the reconstructed images will be poor. This weighting term is one of the parameters to tune when you’re training your VAE.
-
-
-
-%\subsubsection{Disentangled latents + posterior collapse}
+\subsubsection{Disentangled latents + posterior collapse}
+	TODO
+	\cite{higginsBetaVAELearningBasic2022, burgessUnderstandingDisentanglingBeta2018, lucasUnderstandingPosteriorCollapse2022}
 
 
 \section{Representation learning through Noise-contrastive estimation}
