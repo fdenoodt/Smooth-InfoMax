@@ -332,7 +332,10 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     if file is not None:
         create_log_dir(dir)
         plt.savefig(f"{dir}/{file}", dpi=120)
-        tikzplotlib.save(f"{dir}/{file}.tex")
+        try:
+            tikzplotlib.save(f"{dir}/{file}.tex")
+        except:
+            pass
 
 
 
@@ -370,7 +373,10 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     if file is not None:
         create_log_dir(dir)
         plt.savefig(f"{dir}/{file}", dpi=120)
-        tikzplotlib.save(f"{dir}/{file}.tex")
+        try:
+            tikzplotlib.save(f"{dir}/{file}.tex")
+        except:
+            pass
 
     if show:
         plt.show()

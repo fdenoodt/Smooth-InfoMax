@@ -87,8 +87,10 @@ plt.xticks(subset_sizes, subset_sizes)
 # save
 create_log_dir(root_save)
 plt.savefig(os.path.join(root_save, "validation_accuracy_subset_size.png"))
-
-tikzplotlib.save(os.path.join(root_save, "validation_accuracy_subset_size.tex"))
+try:
+  tikzplotlib.save(os.path.join(root_save, "validation_accuracy_subset_size.tex"))
+except:
+   pass
 
 
 # plt.show()

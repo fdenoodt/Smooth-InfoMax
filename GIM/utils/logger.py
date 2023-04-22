@@ -205,7 +205,10 @@ class Logger:
 
             # save image
             plt.savefig(os.path.join(self.opt["log_path"], f"loss_{idx}.png"))
-            tikzplotlib.save(os.path.join(self.opt["log_path"], f"loss_{idx}.tex"))
+            try:
+                tikzplotlib.save(os.path.join(self.opt["log_path"], f"loss_{idx}.tex"))
+            except:
+                pass
             plt.close()
 
     def append_train_loss(self, train_loss):
