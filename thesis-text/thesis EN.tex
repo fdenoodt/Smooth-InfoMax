@@ -7,13 +7,22 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{subcaption}
+
+
+
+
+
+\usepackage[toc,page]{appendix}
+
 \usetikzlibrary{shapes.geometric, arrows}
 
 
 %\includeonly{background}
 %\includeonly{variationalcontrastivepredictivecoding}
+%\includeonly{experiments}
 
-
+\pagenumbering{gobble}
 
 
 \title{Variational Greedy InfoMax}
@@ -260,10 +269,10 @@ Future work:
 
 
 
-
 \bibliographystyle{IEEEtran}
 \bibliography{biblio}
 
 
+\include{appendix}
 
 \end{document}
