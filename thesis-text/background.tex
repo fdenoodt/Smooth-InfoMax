@@ -503,6 +503,7 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 	
 	Although, backpropagation is empirically shown to be highly effective \cite{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \cite{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \cite{lowePuttingEndEndtoEnd2020}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \cite{lowePuttingEndEndtoEnd2020}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \cite{lowePuttingEndEndtoEnd2020}.
 		
+		
 	
 \subsubsection{Towards greedy learning}	
 	%[Same ideas of repr learning via mutual information maximising, of latent representations, diff: GIM = Biological approach]
