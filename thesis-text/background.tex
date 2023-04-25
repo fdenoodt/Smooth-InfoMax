@@ -1,26 +1,28 @@
 
 \chapter{Background}
+
+\textbf{TODO: OUTLINE + WHY IMPORTANT TO UNDERSTAND}
+
 \section{Entropy, relative entropy and mutual information}
 We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}. The equations that contain a log function are assumed to be under base two.
 \subsection{Shannon's Entropy}
-Entropy measures the average amount of information required to describe a random variable \cite{coverELEMENTSINFORMATIONTHEORY}. The entropy H(X) of a discrete random variable $X$, is formally defined in equation \ref{eq:entropy} shown below. 
-
+Entropy measures the average amount of information required to describe a random variable \cite{coverELEMENTSINFORMATIONTHEORY}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
 \begin{equation}
 	H(X) = -\sum_{x\in\mathcal{X}} p(x) \log p(x)  \label{eq:entropy}
 \end{equation}
-
-The alphabet $\mathcal{X}$ represents the set of events the random variable X can take, formerly known as the \textit{sample space}. Additionally, $p: \mathcal{X} \rightarrow [0, 1]$ denotes the probability density function of $X$. Hence, given an event $ x \in \mathcal{X}, p(x) $ corresponds to the probability of event x occurring.
+where $\mathcal{X}$ represents the set of events the random variable X can take, formerly known as the \textit{sample space}. Additionally, $p: \mathcal{X} \rightarrow [0, 1]$ denotes the probability density function of $X$. Hence, given an event $ x \in \mathcal{X}$, $p(x)$ corresponds to the probability of event $x$ occurring.
 
 %[general explanation]
-Assume a random variable $X$ with possible events $x_1$, $x_2$. Intuitively, when $p(x_1)$ is low, the surprise when the event $x_1$ occurs will be high. The surprise for one event is denoted in equation \ref{eq:surprise}. 
-
+Assume a random variable $X$ with possible events $x_1$, $x_2$. Intuitively, when $p(x_1)$ is low, the surprise when the event $x_1$ occurs will be high. The surprise for one event is defined as follows:
+%\begin{equation}
+%	-p(x) \log p(x) \label{eq:surprise}
+%\end{equation}
 \begin{equation}
-	-p(x) \log p(x) \label{eq:surprise}
+	- \log p(x) \label{eq:surprise}
 \end{equation}
-
-Hence, entropy can also be considered as the sum of “surprise” over each event \cite{datasciencecoursesAliGhodsiLec2017}. 
+Hence, entropy can also be considered as the weighted average surprise over each event \cite{datasciencecoursesAliGhodsiLec2017}. 
 %[algebraic explanation]
-To understand why equation \ref{eq:surprise} does indeed correspond to a measure of surprise, consider an event $x \in \mathcal{X}$ with $p(x) = 1$. Note that $\log p(x) = 0$, and thus the surprise is zero. Meanwhile, if p(x) approaches $0$, $\log p(x)$ goes to $- \inf$. And hence, by the negation sign in formula \ref{eq:entropy} the surprise is large.
+To understand why equation \ref{eq:surprise} does indeed correspond to a measure of surprise, consider an event $x \in \mathcal{X}$ with $p(x) = 1$. Note that $\log p(x) = 0$, and thus the surprise is zero. Meanwhile, if p(x) approaches $0$, $\log p(x)$ goes to $- \infty$. And hence, by the negation sign in formula \ref{eq:entropy} the surprise is large.
 
 
 \begin{figure}[h]
@@ -36,7 +38,7 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
 \subsection{Relative entropy and mutual information}
-Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the “divergence” or "distance" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
+Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the “divergence” between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
 
 \begin{equation}
 	\kl{q}{p} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
@@ -51,7 +53,7 @@ The mutual information (MI) between two random variables $X$ and $Y$ can be comp
 	I(X; Y) =  \kl{p_{X, Y}(x, y)}{p_X(x) p_Y(y)}
 \end{equation}
 
-As described by Cover and Thomas in their book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, I(X; Y) quantifies the amount of information $Y$ describes about $X$. A alternative definition for $I(X;Y)$ is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for $I(X;Y)$, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In a following section, we discuss how these concepts from information theory are applied in representation learning, by maximising the mutual information between latent representations.
+As described by Cover and Thomas in their book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, I(X; Y) quantifies the amount of information $Y$ describes about $X$. An alternative definition for $I(X;Y)$ is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for $I(X;Y)$, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In a following section, we discuss how these concepts from information theory are applied in representation learning, by maximising the mutual information between latent representations.
 
 \begin{equation}
 	I(X;Y)= H(X) - H(X|Y) \label{eq:MI_reduce}
@@ -61,14 +63,11 @@ As described by Cover and Thomas in their book "Elements of Information Theory" 
 
 \section{Supervised neural networks}
 
-% COMMENT CHAT GPT: WHAT IS THE PURPOSE OF THIS SECTION?
-%Clarify the purpose of the section: The section starts by stating that it will discuss traditional supervised learning approaches, but it's not entirely clear what the purpose of the section is. Are you providing an introduction to supervised learning for readers who may be unfamiliar with it? Or are you focusing on the specifics of how supervised learning is implemented with ANNs?
+\textbf{TODO: purpose of section: introduce f: X -$>$ Y, but D-train is merely a subset of the data. A good f generalises well to entire D. when data is complex, many not enough labels... -> representation learning.}
 
-We shall now discuss traditional supervised learning approaches, as these will lay the groundwork for the representation learning approaches discussed in the following section. 
+We shall now discuss traditional supervised learning approaches, as these will lay the groundwork for the representation learning discussed in the following section. 
 
-Typical supervised machine learning problems consider the problem where given a training set of tuples ($x_i$, $y_i$), a mapping function $f: \mathcal{X} \rightarrow \mathcal{Y}$ must be learned, where $x_i \in \mathcal{X}$ corresponds to the input sample and $y_i \in \mathcal{Y}$ the label. A good $f$ will then also generalise well to unseen $x_i \in \mathcal{X}$, which were not part of the training set.
-
-Artificial Neural Networks (ANNs) in particular, tackle this problem by defining $f$ as a fixed set of parameters consisting of a series of layers. During inference, at each layer $l$ a transformation matrix $W^l$ is applied to the output vector from the previous layer $a^{l-1}$. This is shown in the equation below.
+Supervised machine learning problems consider the problem where given a training set of tuples $\mathcal{D}_{\text{train}} = \{ (x_1, y_1), \dots \}$, a mapping function $f: \mathcal{X} \rightarrow \mathcal{Y}$ must be learned, where $x_i \in \mathcal{X}$ corresponds to the input sample and $y_i \in \mathcal{Y}$ the label. A good $f$ will then also generalise well to unseen $x_i \in \mathcal{X}$, which were not part of the training set. Artificial Neural Networks (ANNs) in particular, tackle this problem by defining $f$ as a fixed set of parameters consisting of a series of layers. During inference, at each layer $l$ a transformation matrix $W^l$ is applied to the output vector from the previous layer $a^{l-1}$. This is shown in the equation below.
 
 $$ z^l = W^l a^{l-1} $$
 
@@ -235,25 +234,19 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 	
 	
 	Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the latent distributions $\qphizx$. Again, this metric should be minimised. As we discussed in the chapter on Entropy, the KL divergence can be considered as a (non-symmetric) distance measure between two distributions. Hence, this value is small when the two distributions are similar. As we discussed earlier $\pz$ is often replaced by $\standardnormal$ as shown below. Minimising this equation will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$. This idea is depicted in figure \ref{fig:twogaussiandistributions}.
-	
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{two_gaussian_distributions}
-		\caption{Effect of regularisation term in VAE}
+		\caption{When the prior $p(\vect{z})$ is set to the standard normal, ELBO's regularisation term pushes the latent space towards the origin.}
 		\label{fig:twogaussiandistributions}
 	\end{figure}
-	
 	$$
 	\latentspaceconstraintstandardgaussian
 	$$
-	
-	
 	One can algebraically prove, that optimising this equation is equivalent to optimising the following equation \cite{kingmaAutoEncodingVariationalBayes2022}: 
-	
 	\begin{equation}	
 		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
 	\end{equation}
-	
 	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
 	
 	
@@ -380,9 +373,21 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 	
 
 
-\subsubsection{Disentangled latents + posterior collapse}
-	TODO
-	\cite{higginsBetaVAELearningBasic2022, burgessUnderstandingDisentanglingBeta2018, lucasUnderstandingPosteriorCollapse2022}
+\subsubsection{Disentanglement of latent representations and posterior collapse} \label{cha:disentang}
+	Higgins et al. extend the VAE framework through the introduction of a slight modification of the loss function, resulting in $\beta$-VAE \cite{higginsBetaVAELearningBasic2022}. An additional hyper-parameter $\beta$ is introduced in the ELBO loss function to control the weight of the regularisation term:
+	$$
+	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \betaelboexplicit
+	$$
+	
+	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. 
+
+	A disentangled representation refers to one where each variables is sensitive to a specific change in the generative factors \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin color and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
+	
+	However, a trade-off must be made between accuracy and disentanglement. A small $\beta$ value (close to 0) results in high reconstruction accuracy but little constraint on disentanglement, while a large $\beta$ value (above 1) emphasises disentanglement at the cost of accuracy. If $\beta$ becomes too large, the posteriors $\qphizx$ corresponding to each data point $\vecti{x}$ can become equal to the prior $p(\vect{z})$, resulting in no information contribution and posterior collapse \cite{lucasUnderstandingPosteriorCollapse2022}.
+	
+
+	
+
 
 
 \section{Representation learning through Noise-contrastive estimation}

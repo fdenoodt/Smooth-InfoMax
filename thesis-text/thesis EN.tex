@@ -9,7 +9,7 @@
 \usepackage{tikz}
 \usepackage{subcaption}
 
-
+%TODO: OVERAL EMBEDDED SPACE GEBRUIKEN.
 
 
 
@@ -21,6 +21,7 @@
 %\includeonly{background}
 %\includeonly{variationalcontrastivepredictivecoding}
 %\includeonly{experiments}
+
 
 \pagenumbering{gobble}
 
@@ -127,6 +128,7 @@
 
 
 \newcommand{\elboexplicit}[0]{ \reconstr + \latentspaceconstraint }
+\newcommand{\betaelboexplicit}[0]{ \reconstr + \beta~ \latentspaceconstraint }
 
 \newcommand{\mufat}[0]{\bm{\mu}}
 \newcommand{\sigmafat}[0]{\bm{\sigma}}
@@ -244,6 +246,14 @@
 \include{relatedwork}
 
 \chapter{Discussion}
+
+---
+batch norm:
+ - sindy didn't have issues of batch norm, but believe this is because each module consisted of a single layer, ours contain a number of layers. potentially: outputs from first module change too fast for second module to catch up.
+
+
+
+
 while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
 
 
@@ -258,6 +268,27 @@ Future work:
 
 
 - I didn't add an autoregressor as i didn't find a performance benefit. Potentially, with larger architecture could further improve performance.
+
+
+
+----
+Towards production setting:
+	encodings are thus optimised to be close the standard normal. When in a production environment and new data is given, could in fact have an idea of how well generalisation to the production data: eg via anomaly detection if encodings are too far away from center. 
+	= gives automated way of verifying generalisation.
+	
+	can then maybe see to which data that doesn't generalise well via outliers.
+	
+----
+
+
+future work:
+- disentanglement should do more investations
+
+
+---
+GIM: Modular training
+could incrementally increase numb of modules and observe performance increase for downstream tasks.
+based on this, could find smallest gim architecture depth which satisfies required accuracies.
 
 
 

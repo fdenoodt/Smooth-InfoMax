@@ -1,8 +1,8 @@
 \chapter{Experiments}
 
-In this chapter we assess the representations obtained by minimising the Variational-InfoNCE loss and compare results against its non-variational counterpart. We train the encoders on sequential data from the audio domain and assess the quality of the representations. The assessment is achieved by transforming the latent space into a two-dimensional space using t-SNE and observing clusters. Additionally, the representations obtained from the encoders are used as input for a linear classifier, whose accuracy scores provide insights in the representations' performance.
+In this chapter we assess the encodings obtained from Variational Greedy Infomax (V-GIM) and compare results against its non-variational counterpart (GIM). We train the encoders on sequential data from the audio domain and assess the quality of the representations. The assessment is achieved by transforming the latent space into a two-dimensional space using t-SNE and observing clusters. Additionally, the representations obtained from the encoders are used as input for a linear classifier, whose accuracy scores provide insights in the representations' performance.
 
-Additionally, we gather more insights in the representations. We assess the required amount of labelled data required for obtaining adequate performance in downstream tasks, by training the linear classifier on smaller subsets of the dataset. Finally, we provide insights in the interpretation of the latent features, by developing a decoder for the representations. We can then observe the information that is contained in each of the representation's components by altering values and observing the produced output of the decoder. 
+Additionally, we gather more insights in the representations. We assess the amount of labelled data required for obtaining adequate performance in downstream tasks, by training the linear classifier on smaller subsets of the dataset. Finally, we provide insights in the interpretation of the latent features, by developing a decoder for V-GIM's encodings. We can then observe the information that is contained in each of the representation's components by altering values and observing the produced output of the decoder. 
 
 
 %- Experimental details encoder:
@@ -184,60 +184,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 	Introduction:
 		build map where similar data points are moved close to each other and unsimilar points far away. and map in eg 2 or 3 dims. (scatter plot).
 		
-		minimize some objective function:
-			eg PCA. finds linear projection of high dim data st variance of projected data is maximised.
-	
-	tsne:
-		measure similarity between points, only look at local similarities.
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.7\linewidth]{"tsne gaus"}
-			\caption{}
-			\label{fig:tsne-gaus}
-		\end{figure}
-		
-		i = current point. j = other point.
-		fraction is normalisation.
-		
-		-> pij = pdf which measures similarity between points i and j.
-		if two points are similar: pij = large, dissimimlar: infinitessimal.
-		$$
-		p_{i j}=\frac{\exp \left(-\left\|\mathbf{x}_i-\mathbf{x}_j\right\|^2 / 2 \sigma^2\right)}{\sum_k \sum_{l \neq k} \exp \left(-\left\|\mathbf{x}_k-\mathbf{x}_l\right\|^2 / 2 \sigma^2\right)}
-		$$
-		
-		t-Distributed Stochastic Neighbor Embedding
-		- In practice, we compute the input similarities slightly differently:
-		$$
-		p_{j \mid i}=\frac{\exp \left(-\left\|\mathbf{x}_i-\mathbf{x}_j\right\|^2 / 2 \sigma_i^2\right)}{\sum_{j^{\prime} \neq i} \exp \left(-\left\|\mathbf{x}_i-\mathbf{x}_{j^{\prime}}\right\|^2 / 2 \sigma_i^2\right)}
-		$$
-		- We set the bandwidth $\sigma_i$ such that the conditional has a fixed perplexity
-		- Finally, we symmetrize the conditionals: $p_{i j}=\frac{p_{j \mid i}+p_{i \mid j}}{2 N}$
-		
-		not joint distr, but conditional. only bottom part has changed, so only points that invole point xi.
-		allows to set different bandwidth sigmai.
-			such that different parts in dataset may have diff densities and fixes that.
-			
-			
-		
-		must layout points in map. Move points around to minimize: $K L(P \| Q)=\sum_i \sum_{j \neq i} p_{i j} \log \frac{p_{i j}}{q_{i j}}$
-		
-		will do gradient descent in kull bach leibler divergence such that kl becomes small.
-			
-			- Large $p_{i j}$ modeled by small $q_{i j}$ ? Big penalty!
-			- Small $p_{i j \text { modeled by large }} q_{i j}$ ? Small penalty!
-			- Hence, t-SNE mainly preserves local similarity structure of the data
-				because small penality: doesnt care for points that are far apart. (only checks local similarity)
-				
-		doesn't use gaussian kernel! instead uses student t distribution.
-		a lot more heavy tailed than gaussian distribution.
-			
-			
-		Why a Student-t distribution?
-		- Why do we define map similarities as $q_{i j} \propto\left(1+\left\|\mathbf{y}_i-\mathbf{y}_j\right\|^2\right)^{-1}$ ?
-		- Suppose data is intrinsically high-dimensional
-		- We try to model the local structure of this data in the map
-		- Result: dissimilar points have to be modeled as too far apart in the map!
-		t-sne allows that to happen.
+
 		
 		
 		
@@ -323,7 +270,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 					log basis x={10},
 					tick align=outside,
 					tick pos=left,
-					title={Validation accuracy for different subset sizes},
+					title={Module 1},
 					x grid style={darkgray176},
 					xlabel={Number of datapoints per class (9 classes)},
 					xmin=0.784584097896751, xmax=163.143760296865,
@@ -345,7 +292,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 						64 0.381944427490234
 						128 0.454861106872559
 					};
-					\addlegendentry{kld=0}
+					\addlegendentry{$\beta=0$}
 					\addplot [semithick, green01270]
 					table {%
 						1 0.265873005049569
@@ -357,7 +304,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 						64 0.364583320617676
 						128 0.420138854980469
 					};
-					\addlegendentry{kld=0.0033}
+					\addlegendentry{$\beta=0.0033$}
 					\addplot [semithick, red]
 					table {%
 						1 0.111111111111111
@@ -399,7 +346,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 					log basis x={10},
 					tick align=outside,
 					tick pos=left,
-					title={Validation accuracy for different subset sizes},
+					title={Module 2},
 					x grid style={darkgray176},
 					xlabel={Number of datapoints per class (9 classes)},
 					xmin=0.784584097896751, xmax=163.143760296865,
@@ -421,7 +368,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 						64 0.159722213745117
 						128 0.163194446563721
 					};
-					\addlegendentry{kld=0}
+					\addlegendentry{$\beta=0$}
 					\addplot [semithick, green01270]
 					table {%
 						1 0.23214284828731
@@ -433,7 +380,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 						64 0.354166641235352
 						128 0.40625
 					};
-					\addlegendentry{kld=0.0033}
+					\addlegendentry{$\beta=0.0033$}
 					\addplot [semithick, red]
 					table {%
 						1 0.111111111111111
@@ -453,7 +400,7 @@ Additionally, we gather more insights in the representations. We assess the requ
 			
 			%\caption{Caption for the second graph.}
 		\end{subfigure}
-		\caption{Shared caption for both graphs.}
+		\caption{Validation accuracy for different subset sizes}
 	\end{figure}
 
 
