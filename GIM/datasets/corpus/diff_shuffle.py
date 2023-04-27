@@ -1,7 +1,7 @@
 import shutil
 import random
 import os
-directory = "./split up data padded reshuffled/test/"
+directory = "./split up data cropped/test/"
 
 # get file list in directory
 
@@ -22,8 +22,8 @@ def rename(directory):
 directory = "all"
 
 # Set the training and testing directories
-train_dir = "./split up data padded reshuffled/train/"
-test_dir = "./split up data padded reshuffled/test/"
+train_dir = "./split up data cropped reshuffled/train/"
+test_dir = "./split up data cropped reshuffled/test/"
 
 # Set the percentage of files to use for training
 train_percent = 0.8

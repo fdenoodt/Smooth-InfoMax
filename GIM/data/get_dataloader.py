@@ -62,8 +62,14 @@ def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, t
             test_specific_directory = "split up data padded reshuffled"
             return _dataloaders(opt, train_specific_directory, test_specific_directory, train_sub_dir, "test", split_and_pad, train_noise, shuffle)
         else:
+            print("************************")
+            print("************************")
+            print("************************")
+            print("************************")
+            print("************************")
             print("Using full dataset")
-            specific_directory = "split up data padded reshuffled"
+            # specific_directory = "split up data padded reshuffled"
+            specific_directory = "split up data cropped reshuffled"
     elif reshuffled == "v1":
         specific_directory = "reshuffled"
     elif reshuffled == "v2":
