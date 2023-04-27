@@ -75,6 +75,8 @@ def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_lo
             torch.save(filenames, f"{target_dir}/batch_filenames_{idx}.pt")
             torch.save(pronounced_syllable,
                        f"{target_dir}/batch_pronounced_syllable_{idx}.pt")
+            torch.save(batch_org_audio,
+                       f"{target_dir}/batch_org_audio_{idx}.pt")
 
 
 def generate_and_save_encodings(opt_anal, encoder_model_path):
@@ -122,13 +124,17 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
 def plot_tsne(feature_space, label_indices, gim_name, target_dir):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
-    if feature_space.shape[1] != 32:
-        print("now!")
+    projection = TSNE(
+        init='pca',
+        learning_rate=500,
+        n_iter=10000,
+        n_iter_without_progress=1000,
 
-    projection = TSNE(init='random',
-                      learning_rate=10.0,
-                      n_iter=1000,
-                      perplexity=50).fit_transform(feature_space)
+
+
+        # perplexity=50
+        # perplexity=15
+    ).fit_transform(feature_space)
 
     assert projection.shape[0] == label_indices.shape[0]
 
@@ -180,9 +186,11 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
 
     all_cs = None
     all_labels = np.array([])  # indicies
+    all_audio = None
 
     # iterate over files in train_dir
     for idx, file in enumerate(os.listdir(data_dir)):
+        # eg: batch_encodings_0.pt
         if file.endswith(".pt") and file.startswith("batch_encodings"):
             # load the file
             # (batch_size, length, nb_channels)
@@ -191,36 +199,40 @@ def _visualise_latent_space_tsne(data_dir, gim_name, target_dir):
             labels = torch.load(
                 f"{data_dir}/{file.replace('encodings', 'pronounced_syllable')}").numpy()
 
+            audio = torch.load(
+                f"{data_dir}/{file.replace('encodings', 'org_audio')}").cpu()
+
+
             if idx == 0:  # obtain intial shape from first batch.
-                all_cs = torch.empty(
-                    0, batch_encodings.size(1), batch_encodings.size(2)).cpu()
+                all_cs = torch.empty(0, batch_encodings.size(
+                    1), batch_encodings.size(2)).cpu()
+                all_audio = torch.empty(0, audio.size(1), audio.size(2)).cpu()
 
             # merge the batch to a single tensor
             all_cs = torch.cat((all_cs, batch_encodings), dim=0)
             all_labels = np.concatenate((all_labels, labels))
+            all_audio = torch.cat((all_audio, audio), dim=0)
 
     # (b, l, c)
     b, l, c = all_cs.shape
 
-    assert b == all_labels.shape[0]
     assert c == 32 or c == 16 or c == 512 or c == 256
     # assert l == 4 or l == 44
 
     all_cs = all_cs.permute(0, 2, 1)  # (b, c, l)
 
-    # # pool
-    all_cs = nn.functional.adaptive_avg_pool1d(all_cs, 1)  # (b, c, 1)
-    all_cs = all_cs.permute(0, 2, 1).reshape(-1, c)  # (b, 1, c) -> (b, c)
+    # pool
+    # m = nn.MaxPool1d(10, stride=10)
+    # all_cs = m(all_cs)  # (b, c, l)
+    # all_cs = nn.functional.adaptive_max_pool1d(all_cs, 1)  # (b, c, 1)
+    # all_cs = nn.functional.adaptive_avg_pool1d(all_cs, 1)  # (b, c, 1)
 
+    all_cs = all_cs.permute(0, 2, 1).reshape(b, -1)  # (b, l, c) -> (b, c)
     all_cs = all_cs.numpy()
 
-    # all_cs = np.reshape(
-    #     all_cs, (b, -1))
-
     b, c = all_cs.shape
-    assert c == 32 or c == 16 or c == 512 or c == 256
-
     assert b == all_labels.shape[0]
+
 
     plot_tsne(all_cs,
               all_labels,
@@ -264,10 +276,12 @@ def generate_visualisations(opt_anal):
         saved_modules_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{split}/"
         nb_modules = len(os.listdir(saved_modules_dir))  # module=1, ...
 
+
         # only visualise last 3 modules. The earlier latents are too high dimension and cannot be stored in memory
         first_module = max(nb_modules - 3, 1)
 
         for module_idx in range(first_module, nb_modules + 1):
+
             saved_files_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{split}/module={module_idx}/"
 
             train_dir = f"{saved_files_dir}/train/"

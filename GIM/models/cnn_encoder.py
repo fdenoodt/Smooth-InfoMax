@@ -22,16 +22,12 @@ class CNNEncoder(nn.Module):
         for idx, _ in enumerate(kernel_sizes):
             # if at last layer add the mu and var layers
             if idx == len(kernel_sizes) - 1:
-                # self.encoder_mu = self.new_block(
-                #     inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx],)
 
-                self.encoder_mu = nn.Sequential(nn.Conv1d(
-                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx]),
-                    nn.ReLU()) # TODO: TEMPORARY
+                self.encoder_mu = nn.Conv1d(
+                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
 
-                self.encoder_var = nn.Sequential(nn.Conv1d(
-                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx]),
-                    nn.ReLU()) # TODO: TEMPORARY
+                self.encoder_var = nn.Conv1d(
+                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
             else:
                 self.encoder.add_module(
                     f"layer {idx}",
