@@ -379,9 +379,7 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \betaelboexplicit
 	$$
 	
-	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. 
-
-	A disentangled representation refers to one where each variables is sensitive to a specific change in the generative factors \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin color and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
+	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin colour and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
 	
 	However, a trade-off must be made between accuracy and disentanglement. A small $\beta$ value (close to 0) results in high reconstruction accuracy but little constraint on disentanglement, while a large $\beta$ value (above 1) emphasises disentanglement at the cost of accuracy. If $\beta$ becomes too large, the posteriors $\qphizx$ corresponding to each data point $\vecti{x}$ can become equal to the prior $p(\vect{z})$, resulting in no information contribution and posterior collapse \cite{lucasUnderstandingPosteriorCollapse2022}.
 	
