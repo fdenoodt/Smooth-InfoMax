@@ -74,7 +74,7 @@ As described by Cover and Thomas in their book "Elements of Information Theory" 
 We shall now discuss traditional supervised learning approaches, as these will lay the groundwork for the representation learning discussed in the following section. 
 
 \subsection{Generalisation and curse of dimensionality}
-	Consider a dataset $\D = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$, with $\vecti{x} \in \mathcal{X}$ correspond to a feature vector from the feature space $\mathcal{X}$ and $\vecti{y} \in \mathcal{Y}$ its class label. Supervised machine learning problems consider the task of finding a function
+	Consider a dataset $\D = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$, with $\vecti{x} \in \X$ correspond to a feature vector from the feature space $\mathcal{X}$ and $\vecti{y} \in \mathcal{Y}$ its class label. Supervised machine learning problems consider the task of finding a function
 	$$f: \mathcal{X} \rightarrow \mathcal{Y} \label{eq:fxy} $$
 	such that given a feature vector $\vecti{x}$, a label $\vecti{y}$ can be \textit{inferred}. However, the entire dataset $\D$ is typically not available to us, and $\f$ must be derived from only a partial dataset $\Dtrain \subset \D$. A good $\f$ should not only ensure few errors on the training set $\Dtrain$, but it should also \textit{generalise} well to unseen $\vecti{x} \in \mathcal{X}$ \cite{neyshaburExploringGeneralizationDeep2017, chungUnknownExamplesMachine2019, barbieroModelingGeneralizationMachine2020}.
 
@@ -131,36 +131,48 @@ We shall now discuss traditional supervised learning approaches, as these will l
 % while supervised learning learning finds f given x -> y. performance gains may be obtained by manually transformating T(x) = z s.t f(z) = y. Self supervised representation learning attempts to automate the process of finding T.
 
 %[what is repr learning]
-One of the challenges in supervised learning is the constant need of large amounts of labelled data. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as basis for learning. By doing so, a mapping can be learned from the raw input data to a representation which makes downstream tasks easier. This process of learning representations from data is commonly referred to as representation learning \cite{le-khacContrastiveRepresentationLearning2020}. Supervised learning algorithms can then learn directly from these disentangled latent representations with fewer labelled data.
+One of the challenges in supervised learning is the constant need of large amounts of labelled data $\Dtrain = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$. When this set is scarce, or the task becomes too complex to ensure good generalisation, transforming the feature space $\X$ to a lower-dimensional space $\Z$ can be a good solution to aid with learning for the downstream task $\f$. Meanwhile, an abundant amount of unlabelled data may already exist. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as basis for learning.
 
-In the following two sections we discuss two paradigms of representation learning with ANNs. The first paradigm is learning representations by minimising a reconstruction error. The second learns its representations by contrasting them against noise. These two paradigms will lay the basis for our own contributions in section three.
+In this section we investigate two self-supervised learning paradigms which obtain their representations $\z$ from data without requiring any labels. The methods in this section are tasked to learn the following transformation function:
+$$T: \X \rightarrow \Z$$
+such that the simplified representations obtained from $\T$ can serve as the input for a downstream task:
+\begin{align*}
+	T(\vect{x}) &=  \vect{z} \\
+	f(\vect{z}) &= \vect{y} 
+\end{align*}
+This process of learning a mapping function $\T$ which translates a feature vector $\vect{x}$ to a lower-dimensional representation $\vect{z}$ is commonly referred to as representation learning \cite{le-khacContrastiveRepresentationLearning2020}. 
+
+In the following two subsections we discuss two paradigms of representation learning with ANNs. The first paradigm is learning representations by minimising a reconstruction error. The second learns its representations by contrasting them against noise. These two paradigms will lay the basis for our own contributions in section three.
 
 \subsection{Autoencoders}
 %auto encoder: good at capturing complex, high-dimensional features of the input data
 %\textbf{WHY: More interpretable latent representations through Gaussian distributions.}
-Autoencoders were introduced in 1986 by D. Rumelhart et al. \cite{rumelhartLearningInternalRepresentations1988} as a means to learn compressed representations \cite{bankAutoencoders2021}. This is achieved through a neural network architecture consisting of two blocks. The first block is the encoder $E$ and receives input data which it encodes into a lower dimensional representation. The second block, called the decoder $D$, receives as input the latent representation and is tasked to reconstruct the original input. The two blocks are simultaneously optimised by \textit{minimising the reconstruction error} shown in the following equation:
-
+Autoencoders were introduced in 1986 by D. Rumelhart et al. \cite{rumelhartLearningInternalRepresentations1988} as a means to learn compressed representations from data \cite{bankAutoencoders2021}. This is achieved through an ANN architecture consisting of two functions, an \textit{encoder} $E(\vect{x}) = \vect{z}$ and a \textit{decoder} $D(\vect{z}) = \vect{\tilde{x}}$. 
+%The first block is the encoder $E$ and receives input data which it encodes into a lower dimensional representation. The second block, called the decoder $D$, receives as input the latent representation and is tasked to reconstruct the original input. 
+The lower-dimensional \textit{encoding} $\z$ obtained from $E(\x)$ will then serve as representation for downstream task $\f$.
+The functions $\E$ and $D(\cdot)$ are simultaneously optimised by minimising the reconstruction error shown in the following equation:
 \begin{equation}
-	\mathcal{L} = \sum_{i = 1}^N l(\vecti{x}, D(E(\vecti{x})))
+	\mathcal{L} = \sum_{i = 1}^N l(\vecti{x}, \vecti{\tilde{x}})
 \end{equation}
+where $l$ refers to the error for a single data point, for instance the $l^2$-norm and $N$ the number data points. The dimension of $\vect{z}$ is typically bottlenecked to be smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as "informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}.
 
-where $l$ refers to the error for a single data point, for instance the $l_2$-norm and $N$ the number data points. An example autoencoder architecture is depicted in figure \ref{fig:autoencoder}. $\vect{x} \in \mathcal{D}$ corresponds to an input vector which is encoded into latent representation $\vect{z}$. The decoding of $\vect{z}$ corresponds to $\tildex = D(E(\vect{x}))$. The dimension of $\vect{z}$ is typically bottlenecked to be smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as "informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}. $\vect{z}$ may then for instance be used for downstream tasks such as classification or clustering.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{autoencoder}
-	\caption{Autoencoder neural network architecture adapted from \cite{karagiannakosHowGenerateImages2018}.}
-	\label{fig:autoencoder}
-\end{figure}
-
-
-%motivations for VAE
-While capable of learning compressed representations, autoencoders do not pose any restrictions on the latent space they define (the space of latent representations). As a result, the representations may be meaningful to computers, but non-interpretable to humans. For instance, given the left image depicted in figure \ref{fig:latent_space_2d} which depicts an autoencoder's two dimensional latent space, it is very difficult to know what the resulting images would be when interpolating between the latent representations of 0 (red) and 1 (blue). Answering this question becomes even more infeasible for higher dimensional latent vectors.
+An example autoencoder architecture is depicted in figure \ref{fig:autoencoder}. Since an autoencoder is in fact a single ANN and $\z$ corresponds to the output produced by an intermediate hidden layer, $\z$ is also commonly referred to as a \textit{latent} representation. The space of all latent representations $\Z$ is known as the \textit{latent} space.
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{autoencoder}
+		\caption{Autoencoder architecture, adapted from \cite{karagiannakosHowGenerateImages2018}.}
+		\label{fig:autoencoder}
+	\end{figure}
+While capable of learning compressed representations, autoencoders do not pose any restrictions on the latent space $\Z$. As a result, the representations may be meaningful to computers, but non-interpretable to humans. For instance, given the left image depicted in figure \ref{fig:latent_space_2d} which depicts an autoencoder's two dimensional latent space, it is very difficult to know what the resulting images would be when interpolating between the latent representations of 0 (red) and 1 (blue). Answering this question becomes even more infeasible for higher dimensional latent vectors.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{screenshot021}
-	\caption{ Both images represent a the two-dimensional latent space, learned from the MNIST dataset \cite{PapersCodeMNIST}. This is a dataset consisting of images of handwritten numbers between 0 and 9. Each image is associated to a class label, referring to the number. The left image consists of the space learned from a classical autoencoder, the right of a variational autoencoder (VAE). Both autoencoders have not received any explicit information of the labels of the dataset, yet learned to define representations which equal numbers are closer to each other. The VAE's latent space, depicted in the right image, is optimised to be standard normally distributed. The latent vectors $\vect{z}$ are distributed according to the two-dimensional normal distribution $\sample{\vect{z}}{\standardnormal}$, where $\bm{\mu}$ is the two dimensional zero vector. $\identitymtx$ is the $2 \times 2$ covariance matrix with ones on the diagonal and zeroes elsewhere.}
+	\caption{ Both images represent a the two-dimensional latent space, learned from the MNIST dataset \cite{PapersCodeMNIST}, a dataset consisting of images of handwritten digits between 0 and 9. 
+	The left image depicts a traditional autoencoder's latent space, the right a VAE's.
+ 	Both autoencoders have not received any explicit information of the labels of the dataset, yet learned to define representations which equal numbers are closer to each other. 
+	%The VAE's latent space, depicted in the right image, is optimised to be standard normally distributed. The latent vectors $\vect{z}$ are distributed according to the two-dimensional normal distribution $\sample{\vect{z}}{\standardnormal}$, where $\bm{\mu}$ is the two dimensional zero vector. $\identitymtx$ is the $2 \times 2$ covariance matrix with ones on the diagonal and zeroes elsewhere.
+}
 	\label{fig:latent_space_2d}
 \end{figure}
 
