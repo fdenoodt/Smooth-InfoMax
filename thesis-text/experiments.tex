@@ -111,221 +111,11 @@ Finally, we gather more insights in the encodings. We assess the amount of label
 		\input{distributions}
 	
 	
-	
-	
-	
-	
-%		\begin{figure}[h] % distr beta = 0, module 1
-%			\centering
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=0"}
-%			\end{subfigure}
-%			\hfill
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=1"}
-%			\end{subfigure}
-%			\hfill
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=2"}
-%			\end{subfigure}
-%			\hfill
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=3"}
-%			\end{subfigure}
-%			\hfill
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=4"}
-%			\end{subfigure}
-%			\hfill
-%			\begin{subfigure}[b]{0.25\textwidth}
-%				\centering
-%				\includegraphics[width=1\linewidth]{"graphs/distr/module1 kld0/_ distribution_latent_space_GIM_dim=5"}
-%			\end{subfigure}	
-%			\caption{distr beta = 0, module 1}
-%		\end{figure}
-	
-%	\begin{figure}[h] % distr beta = 0, module 1
-%		\centering
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=0}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=1}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=2}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=3}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=4}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=1 kld=0 dim=5}
-%		\end{subfigure}	
-%	
-%		\caption{distr beta = 0, module 1}
-%	\end{figure}
-
-
-%
-%
-%	\begin{figure}[h] % distr beta = 0, module 2
-%		\centering
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=0}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=1}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=2}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=3}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=4}
-%		\end{subfigure}
-%		\hfill
-%		\begin{subfigure}[b]{0.25\textwidth}
-%			\centering
-%			\input{graphs/distribution module=2 kld=0 dim=5}
-%		\end{subfigure}	
-%		
-%		\caption{distr beta = 0, module 1}
-%	\end{figure}
-%	
-%		
-%		
-%		
-		
-
-		
-	
-	
 	% loss func only shows part of picture -> towards tsne
 		Although loss is used as evaluation metric, it only shows part of the picture. The main objective for the representations is to obtain some form of "decoupled/dis-entanged" features that are more easily separable. This evaluation is done by projecting the latent representations to a 2D plane, via t-SNE. Then datapoints are coloured in depending on their the syllable that was pronounced, eg: "gi" or "ga".
 		
 		
-		
-
-		%Graphs t-sne: Beta = 0	
-		%	\begin{figure}[h]
-		%		\centering
-		%		\includegraphics[width=0.7\linewidth]{screenshot023}
-		%		\caption{}
-		%		\label{fig:tsne_two_module_kld_0}
-		%	\end{figure}
-		%	
-		%	
-		%	\begin{figure}[h]
-		%		\centering
-		%		\includegraphics[width=0.7\linewidth]{screenshot024}
-		%		\caption{}
-		%		\label{fig:tsne_two_module_kld_0033}
-		%	\end{figure}
 	
-	%	
-	%	\ref{fig:tsne_two_module_kld_0}: can see that second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, and thus resulting in faster convergence.
-	%
-	%	
-	%	---------------------------------------------
-	%	
-	%	\textbf{T-sne visualisations:}
-	%	Multiple models trained, trained GIM, but single module (exact CPC architecture), one with autoregressor and once without autoregressor layer, so only CNN layers. 200 epochs, trained on split up data samples.
-	%	
-	%	1) Only CNN: We observe better linear separability
-	%	\begin{figure}[h]
-	%		\centering
-	%		\includegraphics[width=0.7\linewidth]{"cpc architecture ONLY CNN t-SNE_latent_space_GIM"}
-	%		\caption{}
-	%		\label{fig:cpc-architecture-only-cnn-t-snelatentspacegim}
-	%	\end{figure}
-	%	
-	%	2) CNN + 1 autoregressor layer:
-	%	\begin{figure}[h]
-	%		\centering
-	%		\includegraphics[width=0.7\linewidth]{"cpc architecture CNN + GRU t-SNE_latent_space_GIM"}
-	%		\caption{}
-	%		\label{fig:cpc-architecture-cnn--gru-t-snelatentspacegim}
-	%	\end{figure}
-	%	
-	%	3) This is the pure data visualised (no latent representation).
-	%	Were at least doing a bit better than the original data, so that's good! our work is not for nothing.
-	%	\begin{figure}[h]
-	%		\centering
-	%		\includegraphics[width=0.7\linewidth]{"_ t-SNE_latent_space_Original data"}
-	%		\caption{}
-	%		\label{fig:-t-snelatentspaceoriginal-data}
-	%	\end{figure}
-	%	
-	%	
-	%	4) old GIM with all modules each one layer. l1 .. 5 - cnn, l6 = gru. img shows l5 = cnn:
-	%	model can more easily distinguish A's from other \textbf{klinkers}. Partly, it kinda makes sense for GIM to learn to separate \textbf{klinkers}. Since they last longer (longer duration), the loss function will more likely randomly sample a subwindow from the "aa's" than from the \textbf{medeklinker} part.
-	%	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-%		\begin{figure}
-%			\centering
-%			\includegraphics[width=0.7\linewidth]{"t-sne kld=0 module 2"}
-%			\caption{}
-%			\label{fig:t-sne-kld0-module-2}
-%		\end{figure}
-%		\begin{figure}
-%			\centering
-%			\includegraphics[width=0.7\linewidth]{"t-sne kld=0.0033 module 1"}
-%			\caption{}
-%			\label{fig:t-sne-kld0}
-%		\end{figure}
-%		\begin{figure}
-%			\centering
-%			\includegraphics[width=0.7\linewidth]{"t-sne kld=0.0033 module 2"}
-%			\caption{}
-%			\label{fig:t-sne-kld0}
-%		\end{figure}
-%		\begin{figure}
-%			\centering
-%			\includegraphics[width=0.7\linewidth]{"t-sne kld=0 module 1"}
-%			\caption{}
-%			\label{fig:t-sne-kld0-module-1}
-%		\end{figure}
 	
 	
 	\subsubsection{T-sne}
@@ -340,83 +130,79 @@ Finally, we gather more insights in the encodings. We assess the amount of label
 	Introduction:
 		build map where similar data points are moved close to each other and unsimilar points far away. and map in eg 2 or 3 dims. (scatter plot).
 		
+		
+	
+	
+		%	\ref{fig:tsne_two_module_kld_0}: can see that second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, and thus resulting in faster convergence.
+	%	\textbf{T-sne visualisations:}
+	%	Multiple models trained, trained GIM, but single module (exact CPC architecture), one with autoregressor and once without autoregressor layer, so only CNN layers. 200 epochs, trained on split up data samples.
+	
+	%	
+	%	4) old GIM with all modules each one layer. l1 .. 5 - cnn, l6 = gru. img shows l5 = cnn:
+	%	model can more easily distinguish A's from other \textbf{klinkers}. Partly, it kinda makes sense for GIM to learn to separate \textbf{klinkers}. Since they last longer (longer duration), the loss function will more likely randomly sample a subwindow from the "aa's" than from the \textbf{medeklinker} part.
+	%	
+	
+	
+	\begin{figure}[ht] % four t-sne images
+		\centering
+		\begin{subfigure}{0.45\linewidth}
+			\centering
+			\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 1"}
+			\caption{Module 1: $\beta=0.0035$}
+			\label{fig:t-sne-kld33-module1}
+		\end{subfigure}
+		\hspace{0cm}
+		\begin{subfigure}{0.45\linewidth}
+			\centering
+			\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 2"}
+			\caption{Module 2: $\beta=0.0035$}
+			\label{fig:t-sne-kld33-module2}
+		\end{subfigure}
+		\vspace{0cm}
+		\begin{subfigure}{0.45\linewidth}
+			\centering					
+			\includegraphics[width=\linewidth]{"t-sne kld=0 module 1"}
+			\caption{Module 1: $\beta=0$}
+			\label{fig:t-sne-kld0-module-1}
+		\end{subfigure}
+		\hspace{0cm}
+		\begin{subfigure}{0.45\linewidth}
+			\centering
+			\includegraphics[width=\linewidth]{"t-sne kld=0 module 2"}
+			\caption{Module 2: $\beta=0.0035$}
+			\label{fig:t-sne-kld0-module-2}
+		\end{subfigure}
+		\caption{My images}
+		\label{fig:myimages}
+	\end{figure}
 
 		
 		
-		
-		
-		
-		
-	
-
-			
-			\begin{figure}[ht] % four t-sne images
-				\centering
-				\begin{subfigure}{0.45\linewidth}
-					\centering
-					\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 1"}
-					\caption{Module 1: $\beta=0.0035$}
-					\label{fig:t-sne-kld33-module1}
-				\end{subfigure}
-				\hspace{0cm}
-				\begin{subfigure}{0.45\linewidth}
-					\centering
-					\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 2"}
-					\caption{Module 2: $\beta=0.0035$}
-					\label{fig:t-sne-kld33-module2}
-				\end{subfigure}
-				\vspace{0cm}
-				\begin{subfigure}{0.45\linewidth}
-					\centering					
-					\includegraphics[width=\linewidth]{"t-sne kld=0 module 1"}
-					\caption{Module 1: $\beta=0$}
-					\label{fig:t-sne-kld0-module-1}
-				\end{subfigure}
-				\hspace{0cm}
-				\begin{subfigure}{0.45\linewidth}
-					\centering
-					\includegraphics[width=\linewidth]{"t-sne kld=0 module 2"}
-					\caption{Module 2: $\beta=0.0035$}
-					\label{fig:t-sne-kld0-module-2}
-				\end{subfigure}
-				\caption{My images}
-				\label{fig:myimages}
-			\end{figure}
-		
-		
-		
 	
 		
 		
-		
-	
-	
-	
-	
-
-
 	
 
 
 
 \section{Generalisation}
-help!!
-
-\begin{figure}[h] % two graphs of subsets
-	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
+	help!!
+	
+	\begin{figure}[h] % two graphs of subsets
 		\centering
-		\input{graphs/subsets_module1}
-		%\caption{Caption for the first graph.}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\input{graphs/subsets_module2}
-		%\caption{Caption for the second graph.}
-	\end{subfigure}
-	\caption{Validation accuracy for different subset sizes}
-\end{figure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\input{graphs/subsets_module1}
+			%\caption{Caption for the first graph.}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\input{graphs/subsets_module2}
+			%\caption{Caption for the second graph.}
+		\end{subfigure}
+		\caption{Validation accuracy for different subset sizes}
+	\end{figure}
 
 
 
@@ -469,6 +255,10 @@ help!!
 		$$
 		\mathcal{L}_{\text{decoder}} =\frac{1}{n} \sum_{i=1}^n\left( \log (MEL(y^{(i)})) -\log (MEL(\hat{y} ^{(i)} )) \right)^2
 		$$
+		
+		
+		\subsection{Decoder results}
+		
 		
 		
 	

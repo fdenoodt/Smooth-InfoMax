@@ -12,6 +12,32 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\NXZVI8UU\\Aneja et al. - 2021 - A Contrastive Learning Approach for Training Varia.pdf}
 }
 
+@article{aremuMachineLearningApproach2020,
+  title = {A Machine Learning Approach to Circumventing the Curse of Dimensionality in Discontinuous Time Series Machine Data},
+  author = {Aremu, Oluseun Omotola and Hyland-Wood, David and McAree, Peter Ross},
+  date = {2020-03-01},
+  journaltitle = {Reliability Engineering \& System Safety},
+  shortjournal = {Reliability Engineering \& System Safety},
+  volume = {195},
+  pages = {106706},
+  issn = {0951-8320},
+  doi = {10.1016/j.ress.2019.106706},
+  url = {https://www.sciencedirect.com/science/article/pii/S0951832019304752},
+  urldate = {2023-05-01},
+  abstract = {The growing interest in artificial intelligence has led to current data-driven predictive maintenance (PdM) relying on machine learning (ML) algorithms. Although ML algorithms are useful for data-intensive analysis, research shows that their performance and reliability are reduced when high-dimensional data is used for training and testing. Raw machine data can be high-dimensional due to multi-sensor measurements and discontinuous due to the wide ranges of parameter variations during continuous sensor measurements. While standard dimension reduction methods such as principal component analysis are often applied to circumvent high-dimensionality, they are often unreliable when the data is discontinuous. This paper presents a ML-based dimension reduction framework to circumvent the challenges of high-dimensional discontinuous machine data. This framework minimizes discontinuity by clustering observations based on the dataset’s modality. The modality is identified using a kernel density estimation parameterized using a heat diffusion solution to the approximate mean integrated squared error. Then, low-dimension representations of each cluster are learned using Laplacian eigenmaps embedding. Finally, the original time sequence of observations across the low-dimensional clusters is used to re-index the observations into a continuous low-dimension feature set. We demonstrate the framework’s utility on common ML-based PdM analysis using the Commercial Modular Aero-Propulsion System Simulation dataset.},
+  langid = {english},
+  keywords = {Deep learning,Dimension reduction,Machine learning,Manifold learning,Partial differential equations,Predictive maintenance,Prognostics},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\F3I3R33I\\Aremu et al. - 2020 - A machine learning approach to circumventing the c.pdf;C\:\\Users\\Fab\\Zotero\\storage\\PCWUVDIA\\S0951832019304752.html}
+}
+
+@article{bachBreakingCurseDimensionality,
+  title = {Breaking the {{Curse}} of {{Dimensionality}} with {{Convex Neural Networks}}},
+  author = {Bach, Francis},
+  abstract = {We consider neural networks with a single hidden layer and non-decreasing positively homogeneous activation functions like the rectified linear units. By letting the number of hidden units grow unbounded and using classical non-Euclidean regularization tools on the output weights, they lead to a convex optimization problem and we provide a detailed theoretical analysis of their generalization performance, with a study of both the approximation and the estimation errors. We show in particular that they are adaptive to unknown underlying linear structures, such as the dependence on the projection of the input variables onto a low-dimensional subspace. Moreover, when using sparsity-inducing norms on the input weights, we show that high-dimensional non-linear variable selection may be achieved, without any strong assumption regarding the data and with a total number of variables potentially exponential in the number of observations. However, solving this convex optimization problem in infinite dimensions is only possible if the non-convex subproblem of addition of a new unit can be solved efficiently. We provide a simple geometric interpretation for our choice of activation functions and describe simple conditions for convex relaxations of the finite-dimensional non-convex subproblem to achieve the same generalization error bounds, even when constant-factor approximations cannot be found. We were not able to find strong enough convex relaxations to obtain provably polynomialtime algorithms and leave open the existence or non-existence of such tractable algorithms with non-exponential sample complexities.},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\94EEF8H2\\Bach - Breaking the Curse of Dimensionality with Convex N.pdf}
+}
+
 @article{baiExplainableDeepLearning2021,
   title = {Explainable Deep Learning for Efficient and Robust Pattern Recognition: {{A}} Survey of Recent Developments},
   shorttitle = {Explainable Deep Learning for Efficient and Robust Pattern Recognition},
@@ -47,6 +73,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\4PZ3MMVG\\Bank et al. - 2021 - Autoencoders.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RR5Q4DAM\\2003.html}
 }
 
+@online{barbieroModelingGeneralizationMachine2020,
+  title = {Modeling {{Generalization}} in {{Machine Learning}}: {{A Methodological}} and {{Computational Study}}},
+  shorttitle = {Modeling {{Generalization}} in {{Machine Learning}}},
+  author = {Barbiero, Pietro and Squillero, Giovanni and Tonda, Alberto},
+  date = {2020-06-28},
+  eprint = {2006.15680},
+  eprinttype = {arxiv},
+  eprintclass = {cs, stat},
+  doi = {10.48550/arXiv.2006.15680},
+  url = {http://arxiv.org/abs/2006.15680},
+  urldate = {2023-05-01},
+  abstract = {As machine learning becomes more and more available to the general public, theoretical questions are turning into pressing practical issues. Possibly, one of the most relevant concerns is the assessment of our confidence in trusting machine learning predictions. In many real-world cases, it is of utmost importance to estimate the capabilities of a machine learning algorithm to generalize, i.e., to provide accurate predictions on unseen data, depending on the characteristics of the target problem. In this work, we perform a meta-analysis of 109 publicly-available classification data sets, modeling machine learning generalization as a function of a variety of data set characteristics, ranging from number of samples to intrinsic dimensionality, from class-wise feature skewness to \$F1\$ evaluated on test samples falling outside the convex hull of the training set. Experimental results demonstrate the relevance of using the concept of the convex hull of the training data in assessing machine learning generalization, by emphasizing the difference between interpolated and extrapolated predictions. Besides several predictable correlations, we observe unexpectedly weak associations between the generalization ability of machine learning models and all metrics related to dimensionality, thus challenging the common assumption that the \textbackslash textit\{curse of dimensionality\} might impair generalization in machine learning.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\2NQTCR8J\\Barbiero et al. - 2020 - Modeling Generalization in Machine Learning A Met.pdf;C\:\\Users\\Fab\\Zotero\\storage\\7IARUEVG\\2006.html}
+}
+
 @online{bartwronskiComparingImagesFrequency2021,
   title = {Comparing Images in Frequency Domain. “{{Spectral}} Loss” – Does It Make Sense?},
   author = {{bartwronski}},
@@ -56,6 +99,32 @@
   abstract = {Recently, numerous academic papers in the machine learning / computer vision / image processing domains (re)introduce and discuss a “frequency loss function” or “spectral loss” – …},
   langid = {english},
   organization = {{Bart Wronski}}
+}
+
+@article{bauerDeepLearningRemedy2019,
+  title = {On Deep Learning as a Remedy for the Curse of Dimensionality in Nonparametric Regression},
+  author = {Bauer, Benedikt and Kohler, Michael},
+  date = {2019-08},
+  journaltitle = {The Annals of Statistics},
+  volume = {47},
+  number = {4},
+  pages = {2261--2285},
+  publisher = {{Institute of Mathematical Statistics}},
+  issn = {0090-5364, 2168-8966},
+  doi = {10.1214/18-AOS1747},
+  url = {https://projecteuclid.org/journals/annals-of-statistics/volume-47/issue-4/On-deep-learning-as-a-remedy-for-the-curse-of/10.1214/18-AOS1747.full},
+  urldate = {2023-05-01},
+  abstract = {Assuming that a smoothness condition and a suitable restriction on the structure of the regression function hold, it is shown that least squares estimates based on multilayer feedforward neural networks are able to circumvent the curse of dimensionality in nonparametric regression. The proof is based on new approximation results concerning multilayer feedforward neural networks with bounded weights and a bounded number of hidden neurons. The estimates are compared with various other approaches by using simulated data.},
+  keywords = {62G08,62G20,curse of dimensionality,neural networks,Nonparametric regression,rate of convergence},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\UB8EXP4G\\Bauer and Kohler - 2019 - On deep learning as a remedy for the curse of dime.pdf}
+}
+
+@article{bengioCurseDimensionalityLocal,
+  title = {The {{Curse}} of {{Dimensionality}} for {{Local Kernel Machines}}.},
+  author = {Bengio, Yoshua and Delalleau, Olivier and Roux, Nicolas Le and Box, P O},
+  abstract = {We present a series of theoretical arguments supporting the claim that a large class of modern learning algorithms based on local kernels are sensitive to the curse of dimensionality. These include local manifold learning algorithms such as Isomap and LLE, support vector classifiers with Gaussian or other local kernels, and graph-based semisupervised learning algorithms using a local similarity function. These algorithms are shown to be local in the sense that crucial properties of the learned function at x depend mostly on the neighbors of x in the training set. This makes them sensitive to the curse of dimensionality, well studied for classical non-parametric statistical learning. There is a large class of data distributions for which non-local solutions could be expressed compactly and potentially be learned with few examples, but which will require a large number of local bases and therefore a large number of training examples when using a local learning algorithm.},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\L5YPB3VN\\Bengio et al. - The Curse of Dimensionality for Local Kernel Machi.pdf}
 }
 
 @article{bengioRepresentationLearningReview2013,
@@ -70,23 +139,6 @@
   doi = {10.1109/TPAMI.2013.50},
   abstract = {The success of machine learning algorithms generally depends on data representation, and we hypothesize that this is because different representations can entangle and hide more or less the different explanatory factors of variation behind the data. Although specific domain knowledge can be used to help design representations, learning with generic priors can also be used, and the quest for AI is motivating the design of more powerful representation-learning algorithms implementing such priors. This paper reviews recent work in the area of unsupervised feature learning and deep learning, covering advances in probabilistic models, autoencoders, manifold learning, and deep networks. This motivates longer term unanswered questions about the appropriate objectives for learning good representations, for computing representations (i.e., inference), and the geometrical connections between representation learning, density estimation, and manifold learning.},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\MVXRT5Y7\\Bengio et al. - 2013 - Representation Learning A Review and New Perspect.pdf}
-}
-
-@article{bengioRepresentationLearningReview2013a,
-  title = {Representation {{Learning}}: {{A Review}} and {{New Perspectives}}},
-  shorttitle = {Representation {{Learning}}},
-  author = {Bengio, Yoshua and Courville, Aaron and Vincent, Pascal},
-  date = {2013-08},
-  journaltitle = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-  volume = {35},
-  number = {8},
-  pages = {1798--1828},
-  issn = {1939-3539},
-  doi = {10.1109/TPAMI.2013.50},
-  abstract = {The success of machine learning algorithms generally depends on data representation, and we hypothesize that this is because different representations can entangle and hide more or less the different explanatory factors of variation behind the data. Although specific domain knowledge can be used to help design representations, learning with generic priors can also be used, and the quest for AI is motivating the design of more powerful representation-learning algorithms implementing such priors. This paper reviews recent work in the area of unsupervised feature learning and deep learning, covering advances in probabilistic models, autoencoders, manifold learning, and deep networks. This motivates longer term unanswered questions about the appropriate objectives for learning good representations, for computing representations (i.e., inference), and the geometrical connections between representation learning, density estimation, and manifold learning.},
-  eventtitle = {{{IEEE Transactions}} on {{Pattern Analysis}} and {{Machine Intelligence}}},
-  keywords = {Abstracts,autoencoder,Boltzmann machine,Deep learning,Feature extraction,feature learning,Learning systems,Machine learning,Manifolds,neural nets,Neural networks,representation learning,Speech recognition,unsupervised learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\XF8CRHKC\\Bengio et al. - 2013 - Representation Learning A Review and New Perspect.pdf;C\:\\Users\\Fab\\Zotero\\storage\\U3UKJRU6\\6472238.html}
 }
 
 @online{bhandariStandardNormalDistribution2020,
@@ -164,6 +216,22 @@
   keywords = {Action Potentials,Animals,Brain,Dendrites,Humans,Learning,Neural Inhibition,Neuronal Plasticity,Neurons,Synaptic Transmission,Time Factors}
 }
 
+@online{chungUnknownExamplesMachine2019,
+  title = {Unknown {{Examples}} \& {{Machine Learning Model Generalization}}},
+  author = {Chung, Yeounoh and Haas, Peter J. and Upfal, Eli and Kraska, Tim},
+  date = {2019-10-11},
+  eprint = {1808.08294},
+  eprinttype = {arxiv},
+  eprintclass = {cs, stat},
+  doi = {10.48550/arXiv.1808.08294},
+  url = {http://arxiv.org/abs/1808.08294},
+  urldate = {2023-05-01},
+  abstract = {Over the past decades, researchers and ML practitioners have come up with better and better ways to build, understand and improve the quality of ML models, but mostly under the key assumption that the training data is distributed identically to the testing data. In many real-world applications, however, some potential training examples are unknown to the modeler, due to sample selection bias or, more generally, covariate shift, i.e., a distribution shift between the training and deployment stage. The resulting discrepancy between training and testing distributions leads to poor generalization performance of the ML model and hence biased predictions. We provide novel algorithms that estimate the number and properties of these unknown training examples---unknown unknowns. This information can then be used to correct the training set, prior to seeing any test data. The key idea is to combine species-estimation techniques with data-driven methods for estimating the feature values for the unknown unknowns. Experiments on a variety of ML models and datasets indicate that taking the unknown examples into account can yield a more robust ML model that generalizes better.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\WNYCILW3\\Chung et al. - 2019 - Unknown Examples & Machine Learning Model Generali.pdf;C\:\\Users\\Fab\\Zotero\\storage\\W4V8DF6H\\1808.html}
+}
+
 @book{cinelliVariationalMethodsMachine2021,
   title = {Variational {{Methods}} for {{Machine Learning}} with {{Applications}} to {{Deep Networks}}},
   author = {Cinelli, Lucas Pinheiro and Marins, Matheus Araújo and Barros da Silva, Eduardo Antônio and Netto, Sérgio Lima},
@@ -189,14 +257,15 @@
 }
 
 @video{datasciencecoursesAliGhodsiLec2017,
+  entrysubtype = {video},
   title = {Ali {{Ghodsi}}, {{Lec}} : {{Deep Learning}}, {{Variational Autoencoder}}, {{Oct}} 12 2017 [{{Lect}} 6.2]},
   shorttitle = {Ali {{Ghodsi}}, {{Lec}}},
   editor = {{Data Science Courses}},
+  editortype = {director},
   date = {2017-10-15},
   url = {https://www.youtube.com/watch?v=uaaqyVS9-rM},
   urldate = {2023-04-07},
-  abstract = {Variational Autoencoder},
-  editortype = {director}
+  abstract = {Variational Autoencoder}
 }
 
 @incollection{davidfosterVariationalAutoencoders2023,
@@ -310,6 +379,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\KVW7LUBW\\Higgins et al. - 2022 - beta-VAE Learning Basic Visual Concepts with a Co.pdf}
 }
 
+@inproceedings{indykApproximateNearestNeighbors1998,
+  title = {Approximate Nearest Neighbors: Towards Removing the Curse of Dimensionality},
+  shorttitle = {Approximate Nearest Neighbors},
+  booktitle = {Proceedings of the Thirtieth Annual {{ACM}} Symposium on {{Theory}} of Computing},
+  author = {Indyk, Piotr and Motwani, Rajeev},
+  date = {1998-05-23},
+  series = {{{STOC}} '98},
+  pages = {604--613},
+  publisher = {{Association for Computing Machinery}},
+  location = {{New York, NY, USA}},
+  doi = {10.1145/276698.276876},
+  url = {https://dl.acm.org/doi/10.1145/276698.276876},
+  urldate = {2023-05-01},
+  isbn = {978-0-89791-962-3},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\LL8WFGB9\\Indyk and Motwani - 1998 - Approximate nearest neighbors towards removing th.pdf}
+}
+
 @online{ioffeBatchNormalizationAccelerating2015,
   title = {Batch {{Normalization}}: {{Accelerating Deep Network Training}} by {{Reducing Internal Covariate Shift}}},
   shorttitle = {Batch {{Normalization}}},
@@ -325,6 +411,38 @@
   pubstate = {preprint},
   keywords = {Computer Science - Machine Learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\AXZ49JIK\\Ioffe and Szegedy - 2015 - Batch Normalization Accelerating Deep Network Tra.pdf;C\:\\Users\\Fab\\Zotero\\storage\\XEH27CBD\\1502.html}
+}
+
+@article{jainArtificialNeuralNetworks1996,
+  title = {Artificial Neural Networks: A Tutorial},
+  shorttitle = {Artificial Neural Networks},
+  author = {Jain, A.K. and Mao, Jianchang and Mohiuddin, K.M.},
+  date = {1996-03},
+  journaltitle = {Computer},
+  volume = {29},
+  number = {3},
+  pages = {31--44},
+  issn = {1558-0814},
+  doi = {10.1109/2.485891},
+  abstract = {Artificial neural nets (ANNs) are massively parallel systems with large numbers of interconnected simple processors. The article discusses the motivations behind the development of ANNs and describes the basic biological neuron and the artificial computational model. It outlines network architectures and learning processes, and presents some of the most commonly used ANN models. It concludes with character recognition, a successful ANN application.},
+  eventtitle = {Computer},
+  keywords = {Artificial neural networks,Biological neural networks,Biological system modeling,Biology computing,Computer architecture,Concurrent computing,Humans,Integrated circuit interconnections,Parallel processing,Tutorial},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\THK29UCH\\485891.html}
+}
+
+@article{johanssonGeneralizationBoundsRepresentation2022,
+  title = {Generalization Bounds and Representation Learning for Estimation of Potential Outcomes and Causal Effects},
+  author = {Johansson, Fredrik D. and Shalit, Uri and Kallus, Nathan and Sontag, David},
+  date = {2022-01-01},
+  journaltitle = {The Journal of Machine Learning Research},
+  shortjournal = {J. Mach. Learn. Res.},
+  volume = {23},
+  number = {1},
+  pages = {166:7489--166:7538},
+  issn = {1532-4435},
+  abstract = {Practitioners in diverse fields such as healthcare, economics and education are eager to apply machine learning to improve decision making. The cost and impracticality of performing experiments and a recent monumental increase in electronic record keeping has brought attention to the problem of evaluating decisions based on non-experimental observational data. This is the setting of this work. In particular, we study estimation of individual-level potential outcomes and causal effects--such as a single patient's response to alternative medication--from recorded contexts, decisions and outcomes. We give generalization bounds on the error in estimated outcomes based on distributional distance measures between re-weighted samples of groups receiving different treatments. We provide conditions under which our bounds are tight and show how they relate to results for unsupervised domain adaptation. Led by our theoretical results, we devise algorithms which learn representations and weighting functions that minimize our bounds by regularizing the representation's induced treatment group distance, and encourage sharing of information between treatment groups. Finally, an experimental evaluation on real and synthetic data shows the value of our proposed representation architecture and regularization scheme.},
+  keywords = {causal effects,domain adaptation,generalization theory,overlap},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\8F566L8M\\Johansson et al. - 2022 - Generalization bounds and representation learning .pdf}
 }
 
 @online{karagiannakosHowGenerateImages2018,
@@ -373,6 +491,27 @@
   abstract = {Variational autoencoders provide a principled framework for learning deep latent-variable models and corresponding inference models. In this work, we provide an introduction to variational autoencoders and some important extensions.},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\RVFG7F9F\\Kingma and Welling - 2019 - An Introduction to Variational Autoencoders.pdf;C\:\\Users\\Fab\\Zotero\\storage\\AQ83KMRQ\\1906.html}
+}
+
+@article{kroghWhatAreArtificial2008,
+  title = {What Are Artificial Neural Networks?},
+  author = {Krogh, Anders},
+  date = {2008-02},
+  journaltitle = {Nature Biotechnology},
+  shortjournal = {Nat Biotechnol},
+  volume = {26},
+  number = {2},
+  pages = {195--197},
+  publisher = {{Nature Publishing Group}},
+  issn = {1546-1696},
+  doi = {10.1038/nbt1386},
+  url = {https://www.nature.com/articles/nbt1386},
+  urldate = {2023-05-01},
+  abstract = {Artificial neural networks have been applied to problems ranging from speech recognition to prediction of protein secondary structure, classification of cancers and gene prediction. How do they work and what might they be good for?},
+  issue = {2},
+  langid = {english},
+  keywords = {Agriculture,Bioinformatics,Biomedical Engineering/Biotechnology,Biomedicine,Biotechnology,general,Life Sciences},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\GHSMHC6Z\\Krogh - 2008 - What are artificial neural networks.pdf}
 }
 
 @online{laiContrastivePredictiveCoding2019,
@@ -517,6 +656,19 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\LTDYZYN2\\Marblestone et al. - 2016 - Toward an Integration of Deep Learning and Neurosc.pdf}
 }
 
+@inproceedings{neyshaburExploringGeneralizationDeep2017,
+  title = {Exploring {{Generalization}} in {{Deep Learning}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Neyshabur, Behnam and Bhojanapalli, Srinadh and Mcallester, David and Srebro, Nati},
+  date = {2017},
+  volume = {30},
+  publisher = {{Curran Associates, Inc.}},
+  url = {https://proceedings.neurips.cc/paper\_files/paper/2017/hash/10ce03a1ed01077e3e289f3e53c72813-Abstract.html},
+  urldate = {2023-05-01},
+  abstract = {With a goal of understanding what drives generalization in deep networks, we consider several recently suggested explanations, including norm-based control, sharpness and robustness. We study how these measures can ensure generalization, highlighting the importance of scale normalization, and making a connection between sharpness and PAC-Bayes theory.  We then investigate how well the measures explain different observed phenomena.},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\NHV5CAQX\\Neyshabur et al. - 2017 - Exploring Generalization in Deep Learning.pdf}
+}
+
 @inproceedings{NIPS2012_c399862d,
   title = {{{ImageNet}} Classification with Deep Convolutional Neural Networks},
   booktitle = {Advances in Neural Information Processing Systems},
@@ -551,6 +703,36 @@
   abstract = {The MNIST database (Modified National Institute of Standards and Technology database) is a large collection of handwritten digits. It has a training set of 60,000 examples, and a test set of 10,000 examples. It is a subset of a larger NIST Special Database 3 (digits written by employees of the United States Census Bureau) and Special Database 1 (digits written by high school students) which contain monochrome images of handwritten digits. The digits have been size-normalized and centered in a fixed-size image. The original black and white (bilevel) images from NIST were size normalized to fit in a 20x20 pixel box while preserving their aspect ratio. The resulting images contain grey levels as a result of the anti-aliasing technique used by the normalization algorithm. the images were centered in a 28x28 image by computing the center of mass of the pixels, and translating the image so as to position this point at the center of the 28x28 field.},
   langid = {english},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\CA79ISSF\\mnist.html}
+}
+
+@article{polyzotisDataLifecycleChallenges2018,
+  title = {Data {{Lifecycle Challenges}} in {{Production Machine Learning}}: {{A Survey}}},
+  shorttitle = {Data {{Lifecycle Challenges}} in {{Production Machine Learning}}},
+  author = {Polyzotis, Neoklis and Roy, Sudip and Whang, Steven Euijong and Zinkevich, Martin},
+  date = {2018-12-11},
+  journaltitle = {ACM SIGMOD Record},
+  shortjournal = {SIGMOD Rec.},
+  volume = {47},
+  number = {2},
+  pages = {17--28},
+  issn = {0163-5808},
+  doi = {10.1145/3299887.3299891},
+  url = {https://dl.acm.org/doi/10.1145/3299887.3299891},
+  urldate = {2023-05-01},
+  abstract = {Machine learning has become an essential tool for gleaning knowledge from data and tackling a diverse set of computationally hard tasks. However, the accuracy of a machine learned model is deeply tied to the data that it is trained on. Designing and building robust processes and tools that make it easier to analyze, validate, and transform data that is fed into large-scale machine learning systems poses data management challenges. Drawn from our experience in developing data-centric infrastructure for a production machine learning platform at Google, we summarize some of the interesting research challenges that we encountered, and survey some of the relevant literature from the data management and machine learning communities. Specifically, we explore challenges in three main areas of focus - data understanding, data validation and cleaning, and data preparation. In each of these areas, we try to explore how different constraints are imposed on the solutions depending on where in the lifecycle of a model the problems are encountered and who encounters them.}
+}
+
+@inproceedings{przybyszewskiUseDomainKnowledge2017,
+  title = {Use of Domain Knowledge and Feature Engineering in Helping {{AI}} to Play {{Hearthstone}}},
+  booktitle = {2017 {{Federated Conference}} on {{Computer Science}} and {{Information Systems}} ({{FedCSIS}})},
+  author = {Przybyszewski, Przemysław and Dziewiatkowski, Szymon and Jaszczur, Sebastian and Smiech, Mateusz and Szczuka, Marcin},
+  date = {2017-09},
+  pages = {143--148},
+  doi = {10.15439/2017F567},
+  abstract = {This paper describes two approaches to the AAIA'17 Data Mining Challenge. Both approaches are making extensive use of domain/background knowledge about the game to build better representation of classification problem by engineering new features. With newly constructed attributes both approaches resort to Artificial Neural Networks (ANN) to construct classification model. The resulting solutions are effective and meaningful.},
+  eventtitle = {2017 {{Federated Conference}} on {{Computer Science}} and {{Information Systems}} ({{FedCSIS}})},
+  keywords = {Crystals,Data mining,Entertainment industry,Games,Knowledge engineering,Neural networks},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\U4NDDGR2\\8104528.html}
 }
 
 @online{raoUnderstandingGradientIsolatedLearning2020,
@@ -595,6 +777,25 @@
   langid = {english}
 }
 
+@article{rustUsingRandomizationBreak1997,
+  title = {Using {{Randomization}} to {{Break}} the {{Curse}} of {{Dimensionality}}},
+  author = {Rust, John},
+  date = {1997},
+  journaltitle = {Econometrica},
+  volume = {65},
+  number = {3},
+  eprint = {2171751},
+  eprinttype = {jstor},
+  pages = {487--516},
+  publisher = {{[Wiley, Econometric Society]}},
+  issn = {0012-9682},
+  doi = {10.2307/2171751},
+  url = {https://www.jstor.org/stable/2171751},
+  urldate = {2023-05-01},
+  abstract = {This paper introduces random versions of successive approximations and multigrid algorithms for computing approximate solutions to a class of finite and infinite horizon Markovian decision problems (MDPs). We prove that these algorithms succeed in breaking the "curse of dimensionality" for a subclass of MDPs known as discrete decision processes (DDPs).},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\BKDEV87Y\\Rust - 1997 - Using Randomization to Break the Curse of Dimensio.pdf}
+}
+
 @inproceedings{santurkarHowDoesBatch2018,
   title = {How {{Does Batch Normalization Help Optimization}}?},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
@@ -606,6 +807,22 @@
   urldate = {2023-04-25},
   abstract = {Batch Normalization (BatchNorm) is a widely adopted technique that enables faster and more stable training of deep neural networks (DNNs). Despite its pervasiveness, the exact reasons for BatchNorm's effectiveness are still poorly understood. The popular belief is that this effectiveness stems from controlling the change of the layers' input distributions during training to reduce the so-called "internal covariate shift". In this work, we demonstrate that such distributional stability of layer inputs has little to do with the success of BatchNorm. Instead, we uncover a more fundamental impact of BatchNorm on the training process: it makes the optimization landscape significantly smoother. This smoothness induces a more predictive and stable behavior of the gradients, allowing for faster training.},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\ITSBCI6D\\Santurkar et al. - 2018 - How Does Batch Normalization Help Optimization.pdf}
+}
+
+@inproceedings{saunshiTheoreticalAnalysisContrastive2019,
+  title = {A {{Theoretical Analysis}} of {{Contrastive Unsupervised Representation Learning}}},
+  booktitle = {Proceedings of the 36th {{International Conference}} on {{Machine Learning}}},
+  author = {Saunshi, Nikunj and Plevrakis, Orestis and Arora, Sanjeev and Khodak, Mikhail and Khandeparkar, Hrishikesh},
+  date = {2019-05-24},
+  pages = {5628--5637},
+  publisher = {{PMLR}},
+  issn = {2640-3498},
+  url = {https://proceedings.mlr.press/v97/saunshi19a.html},
+  urldate = {2023-05-01},
+  abstract = {Recent empirical works have successfully used unlabeled data to learn feature representations that are broadly useful in downstream classification tasks. Several of these methods are reminiscent of the well-known word2vec embedding algorithm: leveraging availability of pairs of semantically “similar" data points and “negative samples," the learner forces the inner product of representations of similar pairs with each other to be higher on average than with negative samples. The current paper uses the term contrastive learning for such algorithms and presents a theoretical framework for analyzing them by introducing latent classes and hypothesizing that semantically similar points are sampled from the same latent class. This framework allows us to show provable guarantees on the performance of the learned representations on the average classification task that is comprised of a subset of the same set of latent classes. Our generalization bound also shows that learned representations can reduce (labeled) sample complexity on downstream tasks. We conduct controlled experiments in both the text and image domains to support the theory.},
+  eventtitle = {International {{Conference}} on {{Machine Learning}}},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\29Z9IKJJ\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf;C\:\\Users\\Fab\\Zotero\\storage\\I5GQQZMB\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf}
 }
 
 @article{shah92LearningGood,
@@ -686,6 +903,16 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\2SUTWJAN\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
 }
 
+@book{stuartrussellArtificialIntelligenceModern2022,
+  title = {Artificial {{Intelligence}}: {{A Modern Approach}}, 4th {{US}} Ed.},
+  author = {{Stuart Russell} and {Peter Norvig}},
+  date = {2022},
+  edition = {4},
+  url = {https://aima.cs.berkeley.edu/},
+  urldate = {2023-05-01},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\J3CUQAVY\\aima.cs.berkeley.edu.html}
+}
+
 @online{tschannenRecentAdvancesAutoencoderBased2018,
   title = {Recent {{Advances}} in {{Autoencoder-Based Representation Learning}}},
   author = {Tschannen, Michael and Bachem, Olivier and Lucic, Mario},
@@ -700,6 +927,45 @@
   pubstate = {preprint},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\DDUVT5AT\\Tschannen et al. - 2018 - Recent Advances in Autoencoder-Based Representatio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\V2YIM77C\\1812.html}
+}
+
+@article{valiDeepLearningLand2020,
+  title = {Deep {{Learning}} for {{Land Use}} and {{Land Cover Classification Based}} on {{Hyperspectral}} and {{Multispectral Earth Observation Data}}: {{A Review}}},
+  shorttitle = {Deep {{Learning}} for {{Land Use}} and {{Land Cover Classification Based}} on {{Hyperspectral}} and {{Multispectral Earth Observation Data}}},
+  author = {Vali, Ava and Comai, Sara and Matteucci, Matteo},
+  date = {2020-01},
+  journaltitle = {Remote Sensing},
+  volume = {12},
+  number = {15},
+  pages = {2495},
+  publisher = {{Multidisciplinary Digital Publishing Institute}},
+  issn = {2072-4292},
+  doi = {10.3390/rs12152495},
+  url = {https://www.mdpi.com/2072-4292/12/15/2495},
+  urldate = {2023-05-01},
+  abstract = {Lately, with deep learning outpacing the other machine learning techniques in classifying images, we have witnessed a growing interest of the remote sensing community in employing these techniques for the land use and land cover classification based on multispectral and hyperspectral images; the number of related publications almost doubling each year since 2015 is an attest to that. The advances in remote sensing technologies, hence the fast-growing volume of timely data available at the global scale, offer new opportunities for a variety of applications. Deep learning being significantly successful in dealing with Big Data, seems to be a great candidate for exploiting the potentials of such complex massive data. However, there are some challenges related to the ground-truth, resolution, and the nature of data that strongly impact the performance of classification. In this paper, we review the use of deep learning in land use and land cover classification based on multispectral and hyperspectral images and we introduce the available data sources and datasets used by literature studies; we provide the readers with a framework to interpret the-state-of-the-art of deep learning in this context and offer a platform to approach methodologies, data, and challenges of the field.},
+  issue = {15},
+  langid = {english},
+  keywords = {convolutional neural networks,data fusion,deep Learning,end-to-end learning,feature engineering,ground-truth scarcity,hyperspectral data,LULC classification,machine learning,multispectral data,remote sensing data},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\VJBFKY87\\Vali et al. - 2020 - Deep Learning for Land Use and Land Cover Classifi.pdf}
+}
+
+@inproceedings{verleysenCurseDimensionalityData2005,
+  title = {The {{Curse}} of {{Dimensionality}} in {{Data Mining}} and {{Time Series Prediction}}},
+  booktitle = {Computational {{Intelligence}} and {{Bioinspired Systems}}},
+  author = {Verleysen, Michel and François, Damien},
+  editor = {Cabestany, Joan and Prieto, Alberto and Sandoval, Francisco},
+  date = {2005},
+  series = {Lecture {{Notes}} in {{Computer Science}}},
+  pages = {758--770},
+  publisher = {{Springer}},
+  location = {{Berlin, Heidelberg}},
+  doi = {10.1007/11494669_93},
+  abstract = {Modern data analysis tools have to work on high-dimensional data, whose components are not independently distributed. High-dimensional spaces show surprising, counter-intuitive geometrical properties that have a large influence on the performances of data analysis tools. Among these properties, the concentration of the norm phenomenon results in the fact that Euclidean norms and Gaussian kernels, both commonly used in models, become inappropriate in high-dimensional spaces. This papers presents alternative distance measures and kernels, together with geometrical methods to decrease the dimension of the space. The methodology is applied to a typical time series prediction example.},
+  isbn = {978-3-540-32106-4},
+  langid = {english},
+  keywords = {Data Analysis Tool,Gaussian Kernel,Norm Phenomenon,Stock Market Index,Time Series Prediction},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\5WN5758I\\Verleysen and François - 2005 - The Curse of Dimensionality in Data Mining and Tim.pdf}
 }
 
 @online{wangContrastVAEContrastiveVariational2022,
@@ -718,6 +984,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\U6ZB8GPZ\\Wang et al. - 2022 - ContrastVAE Contrastive Variational AutoEncoder f.pdf;C\:\\Users\\Fab\\Zotero\\storage\\YDPKPFPL\\2209.html}
 }
 
+@article{weiIntegrationDomainKnowledgeGuided2021,
+  title = {Towards {{Integration}} of {{Domain Knowledge-Guided Feature Engineering}} and {{Deep Feature Learning}} in {{Surface Electromyography-Based Hand Movement Recognition}}},
+  author = {Wei, Wentao and Hu, Xuhui and Liu, Hua and Zhou, Ming and Song, Yan},
+  date = {2021-12-29},
+  journaltitle = {Computational Intelligence and Neuroscience},
+  volume = {2021},
+  pages = {e4454648},
+  publisher = {{Hindawi}},
+  issn = {1687-5265},
+  doi = {10.1155/2021/4454648},
+  url = {https://www.hindawi.com/journals/cin/2021/4454648/},
+  urldate = {2023-05-01},
+  abstract = {As a machine-learning-driven decision-making problem, the surface electromyography (sEMG)-based hand movement recognition is one of the key issues in robust control of noninvasive neural interfaces such as myoelectric prosthesis and rehabilitation robot. Despite the recent success in sEMG-based hand movement recognition using end-to-end deep feature learning technologies based on deep learning models, the performance of today’s sEMG-based hand movement recognition system is still limited by the noisy, random, and nonstationary nature of sEMG signals and researchers have come up with a number of methods that improve sEMG-based hand movement via feature engineering. Aiming at achieving higher sEMG-based hand movement recognition accuracies while enabling a trade-off between performance and computational complexity, this study proposed a progressive fusion network (PFNet) framework, which improves sEMG-based hand movement recognition via integration of domain knowledge-guided feature engineering and deep feature learning. In particular, it learns high-level feature representations from raw sEMG signals and engineered time-frequency domain features via a feature learning network and a domain knowledge network, respectively, and then employs a 3-stage progressive fusion strategy to progressively fuse the two networks together and obtain the final decisions. Extensive experiments were conducted on five sEMG datasets to evaluate our proposed PFNet, and the experimental results showed that the proposed PFNet could achieve the average hand movement recognition accuracies of 87.8\%, 85.4\%, 68.3\%, 71.7\%, and 90.3\% on the five datasets, respectively, which outperformed those achieved by the state of the arts.},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\IPFZQPXH\\Wei et al. - 2021 - Towards Integration of Domain Knowledge-Guided Fea.pdf}
+}
+
 @article{weiRecentAdvancesVariational2021,
   title = {Recent {{Advances}} in {{Variational Autoencoders With Representation Learning}} for {{Biomedical Informatics}}: {{A Survey}}},
   shorttitle = {Recent {{Advances}} in {{Variational Autoencoders With Representation Learning}} for {{Biomedical Informatics}}},
@@ -734,6 +1017,45 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\K3ZNRVJA\\Wei and Mahmood - 2021 - Recent Advances in Variational Autoencoders With R.pdf;C\:\\Users\\Fab\\Zotero\\storage\\6DB7RA94\\9311619.html}
 }
 
+@incollection{zhangArtificialNeuralNetwork2018,
+  title = {Artificial {{Neural Network}}},
+  booktitle = {Multivariate {{Time Series Analysis}} in {{Climate}} and {{Environmental Research}}},
+  author = {Zhang, Zhihua},
+  editor = {Zhang, Zhihua},
+  date = {2018},
+  pages = {1--35},
+  publisher = {{Springer International Publishing}},
+  location = {{Cham}},
+  doi = {10.1007/978-3-319-67340-0_1},
+  url = {https://doi.org/10.1007/978-3-319-67340-0\_1},
+  urldate = {2023-05-01},
+  abstract = {Multivariate time series analysis in climate and environmental research always requires to process huge amount of data. Inspired by human nervous system, the artificial neural network methodology is a powerful tool to handle this kind of difficult and challenge problems and has been widely used to investigate mechanism of climate change and predict the climate change trend. The main advantage is that artificial neural networks make full use of some unknown information hidden in climate data although they cannot extract it. In this chapter, we will introduce various neural networks, including linear networks, radial basis function networks, generalized regression networks, Kohonen self-organizing networks, learning vector quantization networks, and Hopfield networks.},
+  isbn = {978-3-319-67340-0},
+  langid = {english},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\T876TTZJ\\Zhang - 2018 - Artificial Neural Network.pdf}
+}
+
+@article{zhangOmiEmbedUnifiedMultiTask2021,
+  title = {{{OmiEmbed}}: {{A Unified Multi-Task Deep Learning Framework}} for {{Multi-Omics Data}}},
+  shorttitle = {{{OmiEmbed}}},
+  author = {Zhang, Xiaoyu and Xing, Yuting and Sun, Kai and Guo, Yike},
+  date = {2021-01},
+  journaltitle = {Cancers},
+  volume = {13},
+  number = {12},
+  pages = {3047},
+  publisher = {{Multidisciplinary Digital Publishing Institute}},
+  issn = {2072-6694},
+  doi = {10.3390/cancers13123047},
+  url = {https://www.mdpi.com/2072-6694/13/12/3047},
+  urldate = {2023-05-02},
+  abstract = {High-dimensional omics data contain intrinsic biomedical information that is crucial for personalised medicine. Nevertheless, it is challenging to capture them from the genome-wide data, due to the large number of molecular features and small number of available samples, which is also called “the curse of dimensionality” in machine learning. To tackle this problem and pave the way for machine learning-aided precision medicine, we proposed a unified multi-task deep learning framework named OmiEmbed to capture biomedical information from high-dimensional omics data with the deep embedding and downstream task modules. The deep embedding module learnt an omics embedding that mapped multiple omics data types into a latent space with lower dimensionality. Based on the new representation of multi-omics data, different downstream task modules were trained simultaneously and efficiently with the multi-task strategy to predict the comprehensive phenotype profile of each sample. OmiEmbed supports multiple tasks for omics data including dimensionality reduction, tumour type classification, multi-omics integration, demographic and clinical feature reconstruction, and survival prediction. The framework outperformed other methods on all three types of downstream tasks and achieved better performance with the multi-task strategy compared to training them individually. OmiEmbed is a powerful and unified framework that can be widely adapted to various applications of high-dimensional omics data and has great potential to facilitate more accurate and personalised clinical decision making.},
+  issue = {12},
+  langid = {english},
+  keywords = {cancer classification,deep learning,multi-omics data,multi-task learning,survival prediction},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\TUZKG7PV\\Zhang et al. - 2021 - OmiEmbed A Unified Multi-Task Deep Learning Frame.pdf}
+}
+
 @article{zhangSlowFeatureAnalysis2012,
   title = {Slow {{Feature Analysis}} for {{Human Action Recognition}}},
   author = {Zhang, Zhang and Tao, Dacheng},
@@ -748,6 +1070,21 @@
   eventtitle = {{{IEEE Transactions}} on {{Pattern Analysis}} and {{Machine Intelligence}}},
   keywords = {Feature extraction,Human action recognition,Humans,Neurons,Pattern recognition,slow feature analysis.,Spatiotemporal phenomena,Vectors,Visualization},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\NQBMBLMJ\\Zhang and Tao - 2012 - Slow Feature Analysis for Human Action Recognition.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RCB6IWT4\\6136516.html}
+}
+
+@book{zhengFeatureEngineeringMachine2018,
+  title = {Feature {{Engineering}} for {{Machine Learning}}: {{Principles}} and {{Techniques}} for {{Data Scientists}}},
+  shorttitle = {Feature {{Engineering}} for {{Machine Learning}}},
+  author = {Zheng, Alice and Casari, Amanda},
+  date = {2018-03-23},
+  eprint = {sthSDwAAQBAJ},
+  eprinttype = {googlebooks},
+  publisher = {{"O'Reilly Media, Inc."}},
+  abstract = {Feature engineering is a crucial step in the machine-learning pipeline, yet this topic is rarely examined on its own. With this practical book, you’ll learn techniques for extracting and transforming features—the numeric representations of raw data—into formats for machine-learning models. Each chapter guides you through a single data problem, such as how to represent text or image data. Together, these examples illustrate the main principles of feature engineering.Rather than simply teach these principles, authors Alice Zheng and Amanda Casari focus on practical application with exercises throughout the book. The closing chapter brings everything together by tackling a real-world, structured dataset with several feature-engineering techniques. Python packages including numpy, Pandas, Scikit-learn, and Matplotlib are used in code examples.You’ll examine:Feature engineering for numeric data: filtering, binning, scaling, log transforms, and power transformsNatural text techniques: bag-of-words, n-grams, and phrase detectionFrequency-based filtering and feature scaling for eliminating uninformative featuresEncoding techniques of categorical variables, including feature hashing and bin-countingModel-based feature engineering with principal component analysisThe concept of model stacking, using k-means as a featurization techniqueImage feature extraction with manual and deep-learning techniques},
+  isbn = {978-1-4919-5319-8},
+  langid = {english},
+  pagetotal = {245},
+  keywords = {Computers / Data Science / Data Analytics,Computers / Data Science / Data Modeling \& Design,Computers / Data Science / Data Warehousing,Computers / Data Science / General,Computers / Database Administration \& Management}
 }
 
 @article{zouConvolutionalNeuralNetwork2018,

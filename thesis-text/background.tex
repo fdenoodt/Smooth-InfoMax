@@ -61,56 +61,75 @@ As described by Cover and Thomas in their book "Elements of Information Theory" 
 
 
 
-\section{Supervised neural networks}
+\section{Supervised machine learning and generalisation challenges}
 
-\textbf{TODO: purpose of section: introduce f: X -$>$ Y, but D-train is merely a subset of the data. A good f generalises well to entire D. when data is complex, many not enough labels... -> representation learning.}
+%\textbf{TODO: purpose of section: introduce f: X -$>$ Y, but D-train is merely a subset of the data. A good f generalises well to entire D. when data is complex, many not enough labels... -> representation learning.}
+
+% E big data set D, and training set Dtrain which trains on.
+
+% ideas: to ensure generalisation, wants models that are as simple as possible, 
+% eg vc bound: curse of dimensionality -> requires larger number of data points to ensure better generalisation.
+% hence: repr learning will learn from larger dataset and generates representations for the data with smaller dimsensions. st better generalisation guarantees
 
 We shall now discuss traditional supervised learning approaches, as these will lay the groundwork for the representation learning discussed in the following section. 
 
-Supervised machine learning problems consider the problem where given a training set of tuples $\mathcal{D}_{\text{train}} = \{ (x_1, y_1), \dots \}$, a mapping function $f: \mathcal{X} \rightarrow \mathcal{Y}$ must be learned, where $x_i \in \mathcal{X}$ corresponds to the input sample and $y_i \in \mathcal{Y}$ the label. A good $f$ will then also generalise well to unseen $x_i \in \mathcal{X}$, which were not part of the training set. Artificial Neural Networks (ANNs) in particular, tackle this problem by defining $f$ as a fixed set of parameters consisting of a series of layers. During inference, at each layer $l$ a transformation matrix $W^l$ is applied to the output vector from the previous layer $a^{l-1}$. This is shown in the equation below.
+\subsection{Generalisation and curse of dimensionality}
+	Consider a dataset $\D = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$, with $\vecti{x} \in \mathcal{X}$ correspond to a feature vector from the feature space $\mathcal{X}$ and $\vecti{y} \in \mathcal{Y}$ its class label. Supervised machine learning problems consider the task of finding a function
+	$$f: \mathcal{X} \rightarrow \mathcal{Y} \label{eq:fxy} $$
+	such that given a feature vector $\vecti{x}$, a label $\vecti{y}$ can be \textit{inferred}. However, the entire dataset $\D$ is typically not available to us, and $\f$ must be derived from only a partial dataset $\Dtrain \subset \D$. A good $\f$ should not only ensure few errors on the training set $\Dtrain$, but it should also \textit{generalise} well to unseen $\vecti{x} \in \mathcal{X}$ \cite{neyshaburExploringGeneralizationDeep2017, chungUnknownExamplesMachine2019, barbieroModelingGeneralizationMachine2020}.
 
-$$ z^l = W^l a^{l-1} $$
+% towards vc dimension: smaller x results in better generalisation theories, requires smaller data
+	Furthermore, when the number of dimensions of the input space $\mathcal{X}$ increases, the supervised task becomes even more challenging, requiring a larger $\Dtrain$ to ensure good generalisation. This inability of Machine Learning algorithms to manage high-dimensional data is commonly referred to as the \textit{curse of dimensionality} \cite{rustUsingRandomizationBreak1997, aremuMachineLearningApproach2020, stuartrussellArtificialIntelligenceModern2022}.
+	
+\subsection{Fully connected Neural Networks}
+	% Deep learning	 
+		Artificial Neural Networks (ANNs) address this problem of finding $\f$, by representing it as a fixed set of parameters, known as layers, which consist of a series of transformation matrices and non-linearities \cite{jainArtificialNeuralNetworks1996, kroghWhatAreArtificial2008, zhangArtificialNeuralNetwork2018}. During inference, at each layer $l$ a transformation matrix $\W^l$ is applied to the output vector from the previous layer $\vect{a}^{l-1}$. This is shown in the equation below.
+		$$ \vect{z}^l = \W^l \vect{a}^{l-1} $$
+		A non-linear function $\sigma: R^d \rightarrow R^d$ is then applied to $\vect{z}^{l}$, as shown in equation \ref{eq:nonlinearity}. The resulting vector $a^l$ may then again be the input for a following layer.
+		$$
+			\vect{a}^l = \sigma(\vect{z}^{l})	\label{eq:nonlinearity}
+		$$
+		
+		Hence, during inference, the input vector $\vect{x}$ is propagated through each layer, resulting in a final output $\hat{y}^L$. The equation for the forward pass of a neural network with $L$ layers is described as follows: 	
+		$$
+			f_{\W^1 \dots \W^L}(x) = \hat{y}^L = \sigma(… \sigma( \sigma( x^T \W^1 )^T) \W^2 …)^T \W^L \label{eq:forward_pass}
+		$$
+		The complexity and power of a neural network are affected by the number of layers, and the choice of the number of parameters should depend on the complexity of the learning task. The architecture of a neural network, which includes the dimensions of the matrices, can be represented as a graph-like figure. An example is shown in \ref{fig:ann} where the edges between $\vect{a}^{l-1}$ and $\vect{a}^{l}$ correspond to matrix $\W^l$.
 
-Secondly, a non-linear function $\sigma: R^d \rightarrow R^d$ is applied to $z^{l}$, as shown in equation \ref{eq:nonlinearity}. The resulting vector $a^l$ may then again be the input for a following layer.
+		\input{graphs/ann}
 
-\begin{equation}
-	a^l = \sigma(z^{l})	\label{eq:nonlinearity}
-\end{equation}
+	
+	% [cost function, gradient descent, backpropagation]
+		During training the ANN's parameters $\W = \{\W^1$ \dots $\W^L\}$, are optimised according to the learning problem. The viability of the parameters is quantified by the loss function $\mathcal{L}$ over a batch of $n$ training samples, shown as follows:
+		$$
+			\mathcal{L}(\W) = \frac{1}{n}\sum_{i=1}^n e(\vecti{y}, \vecti{\hat{y}}) \label{eq:generic_loss}
+		$$
+		where $\vecti{y}$ corresponds to the ground truth label and $\vecti{\hat{y}} = f_{\W}(\vecti{x})$. The error function $e(\cdot)$ can be chosen depending on the task, for instance by mean squared error for regression or cross entropy for classification problems.
+		
+		The parameters $\W^1 \dots \W^L$ are typically achieved through iterative minimisation of the loss function. This is achieved using backpropagation, an efficient algorithm which computes the partial derivates with respect to each parameter $\W^l_{ij}$. Updating the parameters in the opposite direction of the partial derivative allows for an iterative estimation of a local minimum, which is demonstrated in the following equation using stochastic gradient descent:
+		$$
+			\W^l_{ij} \leftarrow \W^l_{ij} - \alpha \frac{\partial \mathcal{L}}{\partial \W^l_{ij}}
+		$$
+		The details of computing the partial derivatives using backpropagation are beyond the scope of this thesis.
+		% TODO: kan anders omshcijrven: "while the details of... are not important for our contributions in this thesis, it is important to recognise that a good choice for the loss function is important, as this will decide on meaningful learning
 
-Hence, during inference, the input vector $x$ is propagated through each layer, resulting in a final output $\hat{y}^L$. The equation for the forward pass of a neural network with $L$ layers is described in equation \ref{eq:forward_pass}. 
-
-\begin{equation}
-	f_{W^1 \dots W^L}(x) = \hat{y}^L = \sigma(… \sigma( \sigma( x^T W^1 )^T) W^2 …)^T W^L \label{eq:forward_pass}
-\end{equation}
-
-% [cost function, gradient descent, backpropagation]
-During training the ANN's parameters $W^1$ \dots $W^L$, are optimised according to the learning problem. The viability of the parameters is quantified by the loss function $\mathcal{L}$ over a batch of $n$ training samples, as shown in equation \ref{eq:generic_loss}. $y_i$ corresponds to the ground truth label of the single data sample $x_i$, $e(y_i, \hat{y}_i)$ the error between a ground truth $y_i$ and the estimation $\hat{y}_i$ of a single sample. The error function $e$ can be replaced depending on the task, for instance by mean squared error for regression or cross entropy for classification problems.
-
-\begin{equation}
-	\mathcal{L}(W) = \frac{1}{n}\sum_{i=1}^n e(y_i, f_{W}(x_i)) \label{eq:generic_loss}
-\end{equation}
-
-The parameters can be optimised by minimising the loss function $\mathcal{L}$ defined above. This can be done algebraically, however, it becomes difficult when the dimension of the input features is large. Gradient descent is used to find an "appropriate" minimum of the cost function, by iteratively adjusting the parameters $W^1$ \dots $W^L$ via the following learning rule.
-
-\begin{equation}
-	W^l_{ij} \leftarrow W^l_{ij} - \alpha \frac{\partial \mathcal{L}}{\partial W^l_{ij}}
-\end{equation}
-
-Although gradient descent can be successfully applied for finding local minima, neural networks may still contain many parameters which each must be optimised. This is typically resolved by applying the backpropagation algorithm in combination with gradient descent, such that fewer partial derives must be calculated, resulting in more efficient optimisation.
-
-
-% review from chat gpt:
-%Lastly, it would be useful to provide some discussion of the limitations of supervised learning approaches, beyond the issue of requiring large amounts of labelled data. For example, it would be worth noting that these techniques can be prone to overfitting, and that they may not be well-suited to tasks where the relationship between inputs and outputs is highly complex or non-linear.
-
-
-% limitations of supervised learning approaches and towards representation learning
-% TODO: this paragraph should be better written
-Although supervised learning though ANNs is considered successful, their performance is heavily dependent on the choice of the data representation \cite{bengioRepresentationLearningReview2013}, on which they are applied. For complex representations, a more complex architecture may be required, which requires more data to prevent overfitting. When labelled data is scarce, these models may result in seemingly well performance on the training set, but bad generalisation to data outside the training set. As a consequence, a lot of time in the machine learning pipeline is invested in transforming data into better latent representations. Good latent representations tend to disentangle the data into meaningful features, such that data can be more easily be separable into classes. In the following section we discuss how part of the labour of finding good representations can be relieved with unsupervised learning approaches, which may learn to find good latent representations. These representations could then be used as the input for supervised predictors.
-
-
+	
+	\subsection{Towards lower dimensional feature spaces}
+	
+	Supervised learning through ANNs is often successful, even when dealing with complex problems. However, achieving high performance on the training set does not guarantee good generalisation to new data. As problems become more complex, the use of larger amounts of labelled data is required to ensure good generalisation. For complex feature vectors, a more sophisticated architecture may be necessary, which in turn requires even more data to prevent overfitting. % TODO: MAYBE I NEED A REFERENCE?
+	
+	In cases where labelled data is scarce, ANNs may appear to perform well on the training set, but their generalisation performance to data outside the training set can be poor. The performance of ANNs is thus heavily dependent on the choice of data representation \cite{bengioRepresentationLearningReview2013}. As a consequence, a lot of effort in the machine learning pipeline is invested in feature engineering \cite{zhengFeatureEngineeringMachine2018}, which involves extracting useful features from the feature space $\mathcal{X}$, removing redundant information, and reducing the dimensionality of the feature space \cite{valiDeepLearningLand2020} to obtain a good representation $\vect{z} \in \mathcal{Z}$ that is easier to work with. Rather than learning the mapping function directly on the data, $\vect{x} \in \mathcal{X}$ is first transformed into a lower-dimensional representation $\vect{z} \in \mathcal{Z}$. The mapping function from equation \ref{eq:fxy} is now:
+	$$f: \mathcal{Z} \rightarrow \mathcal{Y} \label{eq:fxz} $$
+	
+	However, feature engineering is a time-consuming and often manual process that requires domain knowledge and expertise \cite{przybyszewskiUseDomainKnowledge2017, weiIntegrationDomainKnowledgeGuided2021}. In the following section we discuss how part of the manual labour of finding good representations from data can be relieved with unsupervised learning approaches, which automate this process. These representations could then be used as the input for a supervised predictor $\f$ or \textit{downstream task} \cite{zhangOmiEmbedUnifiedMultiTask2021}.
 
 
 \section{Representation learning through reconstruction error}
+
+% TODO: OPMERKING BART: WAT IS HET VERSCHIL TUSSEN REPRESENTATIE EN LATENT REPR?
+
+% while supervised learning learning finds f given x -> y. performance gains may be obtained by manually transformating T(x) = z s.t f(z) = y. Self supervised representation learning attempts to automate the process of finding T.
+
 %[what is repr learning]
 One of the challenges in supervised learning is the constant need of large amounts of labelled data. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as basis for learning. By doing so, a mapping can be learned from the raw input data to a representation which makes downstream tasks easier. This process of learning representations from data is commonly referred to as representation learning \cite{le-khacContrastiveRepresentationLearning2020}. Supervised learning algorithms can then learn directly from these disentangled latent representations with fewer labelled data.
 
