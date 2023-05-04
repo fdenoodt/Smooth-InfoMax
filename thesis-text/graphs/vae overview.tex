@@ -1,0 +1,53 @@
+\begin{figure}[h]
+	\centering
+	\tikzstyle{arrow} = [thick,->,>=stealth]
+	\begin{tikzpicture}[
+		AnnNode/.style={trapezium, draw=black,
+			trapezium stretches=true,
+			minimum width=2cm, 
+			minimum height=1.5cm,
+			rotate=-90,
+			trapezium angle=75,
+			very thick},
+		]
+		
+		\node[AnnNode] (enc) {\rotatebox{90}{$E(\xith)$}};
+		\node[AnnNode] (dec) [right of=enc, xshift=1.5cm] {\rotatebox{90}{$D(\zith)$}};
+		
+		% enc edges
+		\draw[->] ++(-2.5, 0) -- (enc.south) node[above, midway] {$\xith \in \D$};
+		\draw[->] 
+		[transform canvas={yshift=.7em}] 
+		(enc.north) -- ++(1.5, 0) node[above, midway] {$\mui$};
+		\draw[->] 
+		[transform canvas={yshift=-.7em}] 
+		(enc.north) --  ++(1.5, 0) node[below, midway] {$\sigmai$};
+		
+		\node 
+		[transform canvas={xshift=5.5em}] 
+		(bracket1) at (enc.north) {\Huge \} };
+		
+		\node 
+		[transform canvas={xshift=10em}] 
+		(sample z) at (enc.north) {$\sample{\zith}{\qvaeEmptyZandXI}$ };
+		
+		
+		
+		% dec edges
+		\draw[->] ++(-2.5, -2.5) -- (dec.south) node[above, midway] {$\zith$};
+		\draw[->] 
+		(dec.north) -- ++(1.5, 0) node[above, midway] {$\vecti{\tilde{x}}$};	  		
+		
+		
+		
+	\end{tikzpicture}
+	\caption{High level view of a VAE.}
+	\label{fig:vae-repr}
+\end{figure}
+
+
+
+
+
+% from img
+% Both blocks depict a neural network. The upper block is the encoder and the lower block the decoder. The upper block receives a data points $\vect{x}$ and produces the parameters of $\qphizx$. Since we choose to model $\qphizx$ as a Gaussian with independent components, the covariance matrix $\covariancemtx$ is zero everywhere except for the diagonal. This way the diagonal values, representing the standard deviations, can be represented via a single vector $\sigmai$. The vectors $\mui$ and $\sigmai$ are $\mu(\vecti{x})$ and $\sigma(\vecti{x})$, respectively. These are the output of the encoder block and form the parameters for $\qphizx$. A single neural network with parameter weights $\phi$ is used to simulate $\qphizx$ for every $\vecti{x} \in \mathcal{D} $. This strategy of sharing $\phi$ across data points is refered to as "amortised variational inference" \cite{kingmaIntroductionVariationalAutoencoders2019}.

@@ -1,6 +1,7 @@
 
 \chapter{Background}
 
+% TODO
 \textbf{TODO: OUTLINE + WHY IMPORTANT TO UNDERSTAND}
 
 \section{Entropy, relative entropy and mutual information}
@@ -37,8 +38,8 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 %[book: p16: note should rename figure to axes to ” H(x) vs …”]
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
-\subsection{Relative entropy and mutual information}
-Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the “divergence” between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
+\subsection{Relative entropy and mutual information} \label{cha:rel_entrop}
+Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the "dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
 
 \begin{equation}
 	\kl{q}{p} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
@@ -53,7 +54,7 @@ The mutual information (MI) between two random variables $X$ and $Y$ can be comp
 	I(X; Y) =  \kl{p_{X, Y}(x, y)}{p_X(x) p_Y(y)}
 \end{equation}
 
-As described by Cover and Thomas in their book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, I(X; Y) quantifies the amount of information $Y$ describes about $X$. An alternative definition for $I(X;Y)$ is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for $I(X;Y)$, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In a following section, we discuss how these concepts from information theory are applied in representation learning, by maximising the mutual information between latent representations.
+As described by Cover and Thomas in their book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, MI quantifies the amount of information $Y$ describes about $X$. An alternative definition is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for MI, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In sections \ref{cha:bg_reconstr} and \ref{cha:bg_nce}, we discuss how these concepts from information theory are applied in representation learning.
 
 \begin{equation}
 	I(X;Y)= H(X) - H(X|Y) \label{eq:MI_reduce}
@@ -124,7 +125,7 @@ We shall now discuss traditional supervised learning approaches, as these will l
 	However, feature engineering is a time-consuming and often manual process that requires domain knowledge and expertise \cite{przybyszewskiUseDomainKnowledge2017, weiIntegrationDomainKnowledgeGuided2021}. In the following section we discuss how part of the manual labour of finding good representations from data can be relieved with unsupervised learning approaches, which automate this process. These representations could then be used as the input for a supervised predictor $\f$ or \textit{downstream task} \cite{zhangOmiEmbedUnifiedMultiTask2021}.
 
 
-\section{Representation learning through reconstruction error}
+\section{Representation learning through reconstruction error} \label{cha:bg_reconstr}
 
 % TODO: OPMERKING BART: WAT IS HET VERSCHIL TUSSEN REPRESENTATIE EN LATENT REPR?
 
@@ -133,28 +134,28 @@ We shall now discuss traditional supervised learning approaches, as these will l
 %[what is repr learning]
 One of the challenges in supervised learning is the constant need of large amounts of labelled data $\Dtrain = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$. When this set is scarce, or the task becomes too complex to ensure good generalisation, transforming the feature space $\X$ to a lower-dimensional space $\Z$ can be a good solution to aid with learning for the downstream task $\f$. Meanwhile, an abundant amount of unlabelled data may already exist. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as basis for learning.
 
-In this section we investigate two self-supervised learning paradigms which obtain their representations $\z$ from data without requiring any labels. The methods in this section are tasked to learn the following transformation function:
+In this section we investigate two self-supervised learning paradigms which learn the following transformation function solely from a feature space $\X$ and thus do not require any labels:
 $$T: \X \rightarrow \Z$$
-such that the simplified representations obtained from $\T$ can serve as the input for a downstream task:
+such that the simplified representations obtained from $\T$ can serve as the input for a downstream task as follows:
 \begin{align*}
 	T(\vect{x}) &=  \vect{z} \\
 	f(\vect{z}) &= \vect{y} 
 \end{align*}
 This process of learning a mapping function $\T$ which translates a feature vector $\vect{x}$ to a lower-dimensional representation $\vect{z}$ is commonly referred to as representation learning \cite{le-khacContrastiveRepresentationLearning2020}. 
 
-In the following two subsections we discuss two paradigms of representation learning with ANNs. The first paradigm is learning representations by minimising a reconstruction error. The second learns its representations by contrasting them against noise. These two paradigms will lay the basis for our own contributions in section three.
+In the following two subsections we discuss two paradigms of representation learning with ANNs. The first paradigm learns representations by minimising a reconstruction error. The second learns its representations by contrasting them against noise. These two paradigms will lay the basis for our own contributions in chapter three.
 
 \subsection{Autoencoders}
 %auto encoder: good at capturing complex, high-dimensional features of the input data
 %\textbf{WHY: More interpretable latent representations through Gaussian distributions.}
-Autoencoders were introduced in 1986 by D. Rumelhart et al. \cite{rumelhartLearningInternalRepresentations1988} as a means to learn compressed representations from data \cite{bankAutoencoders2021}. This is achieved through an ANN architecture consisting of two functions, an \textit{encoder} $E(\vect{x}) = \vect{z}$ and a \textit{decoder} $D(\vect{z}) = \vect{\tilde{x}}$. 
+Autoencoders were introduced in 1986 by Rumelhart et al. \cite{rumelhartLearningInternalRepresentations1988} as a means to learn compressed representations from data \cite{bankAutoencoders2021}. This is achieved through an ANN architecture consisting of two functions, an \textit{encoder} $E(\vect{x}) = \vect{z}$ and a \textit{decoder} $D(\vect{z}) = \vect{\tilde{x}}$. 
 %The first block is the encoder $E$ and receives input data which it encodes into a lower dimensional representation. The second block, called the decoder $D$, receives as input the latent representation and is tasked to reconstruct the original input. 
 The lower-dimensional \textit{encoding} $\z$ obtained from $E(\x)$ will then serve as representation for downstream task $\f$.
 The functions $\E$ and $D(\cdot)$ are simultaneously optimised by minimising the reconstruction error shown in the following equation:
 \begin{equation}
 	\mathcal{L} = \sum_{i = 1}^N l(\vecti{x}, \vecti{\tilde{x}})
 \end{equation}
-where $l$ refers to the error for a single data point, for instance the $l^2$-norm and $N$ the number data points. The dimension of $\vect{z}$ is typically bottlenecked to be smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as "informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}.
+where $l$ refers to the error for a single data point, for instance the $l^2$-norm and $N$ the number data points. The dimension of $\vect{z}$ is typically smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as "informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}.
 
 An example autoencoder architecture is depicted in figure \ref{fig:autoencoder}. Since an autoencoder is in fact a single ANN and $\z$ corresponds to the output produced by an intermediate hidden layer, $\z$ is also commonly referred to as a \textit{latent} representation. The space of all latent representations $\Z$ is known as the \textit{latent} space.
 	\begin{figure}
@@ -163,14 +164,12 @@ An example autoencoder architecture is depicted in figure \ref{fig:autoencoder}.
 		\caption{Autoencoder architecture, adapted from \cite{karagiannakosHowGenerateImages2018}.}
 		\label{fig:autoencoder}
 	\end{figure}
-While capable of learning compressed representations, autoencoders do not pose any restrictions on the latent space $\Z$. As a result, the representations may be meaningful to computers, but non-interpretable to humans. For instance, given the left image depicted in figure \ref{fig:latent_space_2d} which depicts an autoencoder's two dimensional latent space, it is very difficult to know what the resulting images would be when interpolating between the latent representations of 0 (red) and 1 (blue). Answering this question becomes even more infeasible for higher dimensional latent vectors.
+While capable of learning compressed representations, autoencoders do not pose any restrictions on the latent space $\Z$. As a result, the representations may be meaningful to computers, but non-interpretable to humans. For instance, given the left image depicted in figure \ref{fig:latent_space_2d} which depicts an autoencoder's two dimensional latent space, it is almost impossible to infer in advance what the corresponding digit would be when interpolating a new $\z$ somewhere in between the encodings corresponding to digit 0 (red) and 1 (blue). In addition, slight changes to $\z$ may result in significant changes to its decoded counterpart $\x$. Finally, attempting to understand an autoencoders latent space $\Z$ becomes even more infeasible as the dimension of $\Z$ increases.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{screenshot021}
-	\caption{ Both images represent a the two-dimensional latent space, learned from the MNIST dataset \cite{PapersCodeMNIST}, a dataset consisting of images of handwritten digits between 0 and 9. 
-	The left image depicts a traditional autoencoder's latent space, the right a VAE's.
- 	Both autoencoders have not received any explicit information of the labels of the dataset, yet learned to define representations which equal numbers are closer to each other. 
+	\caption{ Latent space of autoencoder (left) and VAE (right), learned from the MNIST dataset \cite{PapersCodeMNIST}, a dataset consisting of images of handwritten digits between 0 and 9. The ANNs have not received any explicit information of the labels of the dataset. 
 	%The VAE's latent space, depicted in the right image, is optimised to be standard normally distributed. The latent vectors $\vect{z}$ are distributed according to the two-dimensional normal distribution $\sample{\vect{z}}{\standardnormal}$, where $\bm{\mu}$ is the two dimensional zero vector. $\identitymtx$ is the $2 \times 2$ covariance matrix with ones on the diagonal and zeroes elsewhere.
 }
 	\label{fig:latent_space_2d}
@@ -186,170 +185,177 @@ While capable of learning compressed representations, autoencoders do not pose a
 %4) can be used for latent space, or also 
 %4) link with maximising likelihood -> p(x) and how minimises kl divergence between approx and kl divergence
 
-Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information that is necessary to reconstruct the data, \textit{however}, an additional constraint is applied to the latent space \cite{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. The data points from the latent space are defined in such a way that they conform to a certain distribution, typically, the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. % ref book oreiley
-%The standard normal distribution is a Gaussian distribution (a symmetric distribution characterised by a bell shape), with with a mean of zero and a standard deviation of one \cite{bhandariStandardNormalDistribution2020}. 
-This behaviour can be observed in the right plot of figure \ref{fig:latent_space_2d}. Since the latent representations conform a two-dimensional standard normal distribution $\standardnormal$, the data samples are more likely to be near the center at (0, 0).
+Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information necessary to reconstruct the data. VAEs maintain the same structure from autoencoders, consisting of encoder $E(\vect{x}) = \vect{z}$ and decoder $D(\vect{z}) = \vect{\tilde{x}}$. However, an additional constraint is applied to the latent space $\Z$ \cite{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. In fact, the latent representations $E(\vect{x}) = \vect{z}$ are samples from multivariate distributions, which we will denote by 
+$$\sample{\vect{z}}{\qvae}$$
+Thus, given a feature vector $\x$, we obtain its corresponding encoding or latent representation $\z$ by taking a sample from a distribution. We will define $q$ in more detail in a following paragraph. The encoder function $\E$ in VAEs is thus nondeterministic and computing $E(\vect{x}) = \vect{z}$ twice may result in two different $\z$s both corresponding to the same $\x$. In a following paragraph we will discuss how to achieve this nondeterministic behaviour using ANNs.
 
-% TODO: explain about gaps, etc
-% i said z's are closer to (0, 0). why do we care? -> similar points are still clustered together, however, there will not be any gaps in the latent space. can thus interpolate between latent representations to find meaningful datapoints.
+By defining the latent representations as samples from distributions, we can pose the same constraints on the quality of the representations $\z \in \Z$ as in traditional autoencoders, but also additional constraints on how the latent space $\Z$ is organised. The additional constraints posed by VAEs on $\Z$ will result in a more interpretable space, where $\z$'s underlying components can be better understood. This will be achieved by enforcing each distribution $\qvaeEmptyZandXI$ corresponding to a particular $\vecti{x}$, to be "similar" to a chosen prior distribution $p(\z)$. Typically, the prior $p(\z)$ is set to the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. The result of this setup can be observed in the latent space depicted in the right plot of figure \ref{fig:latent_space_2d} where all $\z$s are attracted to the origin.
 
-%o reiley:
-%\textit{"A multivariate standard normal distribution is a multivariate distribution with zero valued mean vector and identity covariance matrix."} - 
-%%https://learning.oreilly.com/library/view/generative-deep-learning/9781098134174/ch03.html#normal_distribution
-%
-%\textit{Previously, we saw how there was no requirement for the latent space to be continuous—even if the point (–2, 2) decodes to a well-formed image of a sandal, there was no requirement for (–2.1, 2.1) to look similar. Now, since we are sampling a random point from an area around $z_mean$, the decoder must ensure that all points in the same neighborhood produce very similar images when decoded, so that the reconstruction loss remains small. This is a very nice property that ensures that even when we choose a point in the latent space that has never been seen by the decoder, it is likely to decode to an image that is well formed.} - o reiliy
-%
+In the following subsections, we will explore VAEs in more detail. We begin with a discussion on the process of imposing constraints on $\Z$, which leads to the VAE loss function. Next, we investigate how ANNs can be utilised to simulate sampling from distributions. Finally, we examine how VAEs enable the creation of interpretable representations and how they can be used to generate novel data.
 
 
+
+
+\subsubsection{The learning objective}	
+% def q
+
+	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \cite{volodymyrkuleshovVariationalAutoencoder}. We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the the following definition:
+	\begin{equation}
+		\qvae = \normalNoI \label{eq:definition_q}
+	\end{equation}
+	where $\diagsigma$ denotes the covariance matrix with $\sigmafat$ on the diagonal and zeroes elsewhere. It is important to recognise that $\mufat$ and $\sigmafat$ are different for every $\x$. The two parameters will be computed by an ANN.
+
+
+% loss
+	The representations are optimised to minimise two measurements: one, the reconstruction error, and secondly, the dissimilarity from the latent distributions to a chosen prior $p(\z)$. %$\standardnormal$.
+	The loss function to be optimised for a single data point $\vecti{x}$ is shown in the equation below.
+	\begin{equation}
+		\mathcal{L} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
+		%\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
+	\end{equation} % src: ref to slides ugent
+
+% 1) reconstruction error
+	Although the equation may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
+	
+	\begin{equation}
+		\reconstr \label{eq:reconstr}	
+	\end{equation}
+
+	In a traditional autoencoder we optimise $D(E(\vecti{x})) = \vecti{\tilde{x}}$ such that $\vecti{x} \approx \vecti{\tilde{x}}$. We will now show that the reconstruction term in equation \ref{eq:reconstr} achieves a similar goal for VAEs. Here, $\pthetaxzi$ is a distribution over $\vecti{z}$ where $\vecti{x}$ is a constant, and the latent representation $E(\vecti{x}) = \vecti{z}$ is sampled from the Gaussian distribution $\sample{\vecti{z}}{\qphizxblank}$. The objective is to ensure that $D(\vecti{z}) \approx \vecti{x}$. However, since $\vecti{z}$ is sampled from a Gaussian distribution, the $\vecti{z}$'s close to the mean $\mui$ are more likely to be sampled than those further away. Thus, for these $\vecti{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high, or equivalently we want $\pthetaxzi \approx 1$ \cite{cinelliVariationalMethodsMachine2021}. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability. In practice this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
+	
+
+% 2) latent space
+	Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the distributions $\qphizxblank$. 
+	\begin{equation}
+		%\latentspaceconstraintstandardgaussian
+		\latentspaceconstraint \label{eq:latent_space_constraint}		
+	\end{equation}
+	Again, this metric should be minimised. As we discussed in chapter \ref{cha:rel_entrop}, KL divergence can be considered as a dissimilarity measure between two distributions. Hence, this value is small when the two distributions are similar. The prior distribution $\pzblank$ is a fixed distribution which is chosen by the user, typically defined as $\standardnormal$. Minimising this metric will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$. This idea is depicted in figure \ref{fig:twogaussiandistributions}. When $\pzblank = \standardnormal$, equation \ref{eq:latent_space_constraint} becomes:
+	$$\latentspaceconstraintstandardgaussian$$
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{two_gaussian_distributions}
+		\caption{200 samples $\vecti{z}$ and $\vectj{z}$ from feature vectors $\vecti{x}$ and $\vectj{x}$, respectively, represented by red and blue data points. The prior $p(\vect{z})$ is set to the standard normal, and the regularisation term of VAE's loss pushes the latent space towards the origin.}
+		\label{fig:twogaussiandistributions}
+	\end{figure}
+	When $\qphizxblank = \normal$, one can algebraically prove, that optimising the above equation is equivalent to optimising the following \cite{kingmaAutoEncodingVariationalBayes2022}: 
+	\begin{equation}	
+		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
+	\end{equation}
+	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
+	
 
 
 
 %\textbf{How: predict distributions}
 
 \subsubsection{Simulating distributions through neural networks}
-In variational autoencoders the latent representations of a data point $\vecti{x}$ does not simply consist of a fixed deterministic vector $\vecti{z}$, as was the case in the traditional autoencoder. Instead, given $\vecti{x}$, its latent representation corresponds the following distribution $\qphizx$.
-A concrete vector $\vecti{z}$ can be obtained taking a sample $\sample{\vecti{z}}{\qphizx}$. As result a single $\vecti{x}$ will correspond to multiple latent vectors $\vecti{z}$. The latent representation $\qphizx$ is modelled as $\normal$. This means that all the required information to model $\qphizx$ is a mean vector $\mui$ and a covariance matrix $\diagsigmai$. Thus, given $\vecti{x}$, a deterministic neural network can simulate $\diagsigmai$ by predicting two vectors, namely, $\mui$ and $\sigmai$. The latent vectors $\vecti{z}$ can then be obtained by randomly sampling from the distribution. And thus, multiple $z^{(i)}$'s may correspond to a single $\vecti{x}$. This method is depicted in figure \ref{fig:vae-repr}. Finally, a sample $\vecti{z}$ can be obtained as follows:
-
-\begin{equation}
-\vecti{z} = \mui + \sigmai \odot \epiloni
-\end{equation}
-
-where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}$ and $\odot$ is element-wise multiplication. Computing $\vecti{z}$ through $\epiloni$, rather than directly sampling from $\sample{\vecti{z}}{\normal}$ is referred to as the parametrisation trick and allows for gradients to freely backpropagate through the layer \cite{davidfosterVariationalAutoencoders2023}.
-
-
-% TODO: die sigma(i) moet ^2 zijn!!
-\begin{figure}
-	\centering
-	\includegraphics[width=0.6\linewidth]{"vae repr"}
-	\caption{High level view of a variational autoencoder, depicting how a data point $\vecti{x}$ is encoded into a latent distribution and reconstructed as $\tildexi$. Both blocks depict a neural network. The upper block is the encoder and the lower block the decoder. The upper block receives a data points $\vect{x}$ and produces the parameters of $\qphizx$. Since we choose to model $\qphizx$ as a Gaussian with independent components, the covariance matrix $\covariancemtx$ is zero everywhere except for the diagonal. This way the diagonal values, representing the standard deviations, can be represented via a single vector $\sigmai$. The vectors $\mui$ and $\sigmai$ are $\mu(\vecti{x})$ and $\sigma(\vecti{x})$, respectively. These are the output of the encoder block and form the parameters for $\qphizx$. A single neural network with parameter weights $\phi$ is used to simulate $\qphizx$ for every $\vecti{x} \in \mathcal{D} $. This strategy of sharing $\phi$ across data points is refered to as "amortised variational inference" \cite{kingmaIntroductionVariationalAutoencoders2019}.}
-	\label{fig:vae-repr}
-\end{figure}
-
-%$$\vecti{x} \in \mathcal{D} $$
-%$$\vect{z}$$
-%$$\mu(\vect{z})$$
-%$$\sigma(\vect{z})$$
-%
-%$$\mu(\vecti{x})$$
-%$$\sigma(\vecti{x})$$
-%
-%
-%$$\sample{\vect{z}}{\normal}$$
-%
-%
-%$$ \qphizx $$
-%$$ \pthetaxz $$
-%
-%$$ \widetilde{\mathbf{x}} ^ {(i)} $$
-
-\subsubsection{The learning objective}
-	
-	So far we have discussed how predictions of a neural network can emulate predicting a distribution $\qphizx$, by predicting the distribution's parameters $\mui$ and $\sigmai$. However, no constraints have been set on the quality of the distributions. We will discuss this now. The representations are optimised to minimise two measurements: one, the reconstruction error, and secondly, the distance from the latent distributions to $\standardnormal$.
-	
-	The loss function to be optimised for a single data point $\vecti{x}$ is shown in the equation below.
-	
+	Computing $E(\xith)$ results in encoding $\zith$ which is sampled from $\sample{\zith}{\qvaeEmptyZandXI}$. We will now discuss how ANNs can emulate the stochastic behaviour of sampling from a distribution. As discussed in equation \ref{eq:definition_q}, distribution $\qvaeEmptyZandXI$ is parametrised as a Gaussian with mean $\mui$ and covariance matrix $\diagsigmai$. The entire distribution can thus be modelled by an ANN which takes as input $\xith$ and generates the two corresponding vectors $\mui$ and $\sigmai$. Finally, a sample $\vecti{z}$ can be obtained as follows:
 	\begin{equation}
-		\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
-	\end{equation} % src: ref to slides ugent
-	
-	% 1) reconstruction error
-	Although the equation may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
-	
-	$$
-	\reconstr
-	$$
-	
-	The distribution $\pthetaxz$ is a distribution over $\vecti{x}$ where $\vect{z}$ is instantiated. What comes out are thus probabilities. Notice $\vect{z}$ is sampled from the Gaussian distribution $\sample{z}{\qphizx}$. So the $\vect{z}$'s close to the mean $\mu(\vecti{x}) = \mui$ are more likely to be sampled than those further away. So for these $\vect{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability \cite{cinelliVariationalMethodsMachine2021}. % TODO: FOR SOME REASON REFERENCE NOT FOUND 
-	%Additionally, minimising this term is equivalent to maximising the likelihood of the reconstructed sample $\vecti{x}$. 
-	In practice this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
-	
-	
-	Optimising the second term of equation \ref{eq:elbo_explicit_intial} poses the constraints on the latent distributions $\qphizx$. Again, this metric should be minimised. As we discussed in the chapter on Entropy, the KL divergence can be considered as a (non-symmetric) distance measure between two distributions. Hence, this value is small when the two distributions are similar. As we discussed earlier $\pz$ is often replaced by $\standardnormal$ as shown below. Minimising this equation will result in moving each distribution $\qphizx$, corresponding to a value $\vecti{x}$, close to $\standardnormal$. This idea is depicted in figure \ref{fig:twogaussiandistributions}.
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.7\linewidth]{two_gaussian_distributions}
-		\caption{When the prior $p(\vect{z})$ is set to the standard normal, ELBO's regularisation term pushes the latent space towards the origin.}
-		\label{fig:twogaussiandistributions}
-	\end{figure}
-	$$
-	\latentspaceconstraintstandardgaussian
-	$$
-	One can algebraically prove, that optimising this equation is equivalent to optimising the following equation \cite{kingmaAutoEncodingVariationalBayes2022}: 
-	\begin{equation}	
-		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
+		\vecti{z} = \mui + \sigmai \odot \epiloni
 	\end{equation}
-	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
+	where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}$ and $\odot$ is element-wise multiplication. Computing $\vecti{z}$ through $\epiloni$, rather than directly sampling from $\sample{\vecti{z}}{\normal}$ is referred to as the parametrisation trick and allows for gradients to freely backpropagate through the layer \cite{davidfosterVariationalAutoencoders2023}. The decoder $D(\zith) = \vecti{\tilde{x}}$ can remain identical to the traditional autoencoder's decoder. An overview is presented in figure \ref{fig:vae-repr}.
+	
+	\input{graphs/vae overview}
+	
+	
 	
 	
 
 
-\subsubsection{Sampling new data points and interpretability}	
-	Due to the VAE's regularisation term all encodings are pushed towards the centre as depicted in figure \ref{fig:twogaussiandistributions}. As a result, new samples from the dataset can generated by discarding the VAE's encoder and providing standard normal noise to the decoder instead. It is important to understand that this method only works for VAEs and not for the traditional autoencoder. This is because autoencoders do not pose any additional constraints on the latent space. Generating new data points from random noise via a traditional autoencoder will likely result in nonsense generations. This is because there are no guarantees that the autoencoder's decoder will generalise to these latent space as it was not explicitly trained on similar latent representations.
+
+
+	
+	
+
+
+\subsubsection{Generating new data and interpretability}	
+	Due to the VAE's regularisation term all encodings are pushed towards the centre as depicted in figure \ref{fig:twogaussiandistributions}. Additionally, the space of encodings corresponding to a single $\xith$ is an entire neighbourhood around a particular $\mufat$ and $\sigmafat$. These two properties ensure a continuous space around the origin with smooth transitions on the generative factors between latent representations \cite{davidfosterVariationalAutoencoders2023}. As a result, new samples from the dataset can be generated by discarding the VAE's encoder and providing standard normal noise to the decoder instead. It is important to understand that this method only works for VAEs and not for the traditional autoencoder. This is because autoencoders do not pose any additional constraints on the latent space. Generating new data points from random noise via a traditional autoencoder may result in nonsense generations as the random noise may be too different from the latent space it was trained on. As a result, there are no guarantees that the autoencoder's decoder will generalise to these random representations.
 	
 	Additionally, for the same reason, we can interpolate between encodings obtained from the data. The interpolated encoding can then decoded to the original space. We can observe the specific information contained in each of the representations' features through the decoder, resulting in a significant improvement in interpretability.
+	% TODO: if time permits, this sectino could be written better ^^ ik zou met ven diagrammen kunnen werken.
+	
+	% TODO: maybe check if everything is present and argumentation is okay.	
+	%	o reiley:
+		%Firstly, we now have a well-defined distribution that we can use for choosing points in the latent space—the standard normal distribution. Secondly, since this term tries to force all encoded distributions toward the standard normal distribution, there is less chance that large gaps will form between point clusters. Instead, the encoder will try to use the space around the origin symmetrically and efficiently.
+		
+		
+		%\textit{Previously, we saw how there was no requirement for the latent space to be continuous—even if the point (–2, 2) decodes to a well-formed image of a sandal, there was no requirement for (–2.1, 2.1) to look similar. Now, since we are sampling a random point from an area around $z_mean$, the decoder must ensure that all points in the same neighborhood produce very similar images when decoded, so that the reconstruction loss remains small. This is a very nice property that ensures that even when we choose a point in the latent space that has never been seen by the decoder, it is likely to decode to an image that is well formed.} - o reiliy
+		%
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 
-\subsubsection{[TODO] Relation with variational inference / derivation of ELBO loss}
-	
-	%A mapping function $f_W(x) = y$ can be predict distributions by predicting the parameters of the the distribution (mu, sigma for Gaussian distributions).
-	%
-	%Rather than directly learning parameters $\phi$ that map a data point $\vecti{x}$ to latent distribution $p(\vect{z} \mid \mathbf{x}^{(i)})$, an \textit{approximate distribution} $\qzx$ is learned that approximates $p(\vect{z} \mid \vecti{x})$. Through gradient descent parameters for $\phi$ can be achieved, by minimising the KL divergence between the two distributions. $\condq{\vect{z}}{\vecti{x}}$ will is expressed as Gaussian distribution.
-	%
-	%
-	%\begin{equation}
-	%	\kl{\qprobzx}{\probzx} \label{eq:kl_q_p}
-	%\end{equation}
-	%
-	%Yet, the idea is nice, optimising $\qprobzx$ to approximate $\probzx$ sounds nice, it is only possible when $\probzx$ is known, which it is not. If it was, there was no need to approximate it.
-	%
-	%Equation \ref{eq:kl_q_p} is thus intractable to compute, yet the following is true:
-	%
-	%\begin{equation}
-	%	\begin{aligned}
-	%		\kl{\qprobzx}{\probzx} & = \expectedsamplezq \left[ \log \frac{\qzx}{\pzx} \right] \\
-	%		& = ... (todo) \\
-	%		& = - \left( \elbo \right) + \logevidence
-	%	\end{aligned}
-	%\end{equation}
-	%
-	%By replacing the terms, we obtain the following equation:
-	%
-	%\begin{equation}
-	%	\begin{aligned}
-	%		\logevidence & = 
-	%		\klapproxposterior + \elbo \\
-	%		& = \klapproxposterior  + \lelbo
-	%	\end{aligned}
-	%\end{equation}
-	%
-	%We can observe that the KL divergence between the true and approximate posteriors, $p$ and $q$ respectively, is bounded by $\logevidence$. Hence, although $\pzx$ is unknown, maximising $\lelbo$ results in minimising the KL divergence. Also notice that $\kl{\qprobzx}{\probzx} >= 0$, and thus the maximum value for $\lelbo$ results in a KL divergence between the posteriors of zero. It thus suffices to maximise $\lelbo$, or equivalently minimise $-\lelbo$. The loss for a single data point $\vecti{x}$ then becomes
-	
-	%TODO \textbf{todo: in paper variational bayes, they refer to p(x) as p theta, but in slides ugent not?}. \textbf{todo: why cant p(x) be very big then? probably has something to do with jensens inequality.}
-	
-	
-	
-	
-	\begin{equation}
-		\begin{aligned}
-			- \lelbo & = - \elbo \\  
-			& = \elboexplicit \label{eq:elboexplicit} \\
-		\end{aligned}	
-	\end{equation} % src: ref to slides ugent
-	
-	Where the first term is reconstruction error and second is regularisation. Hence minimising the KL divergence between the two posteriors is equivalent to minimising the divergence between the approximate posterior $\qzx$ and the \textbf{marginal or prior?} $\pz$.
-	
-	$p(z)$ in the equation is usually chosen to be the standard normal distribution $\mathcal{N}(0, I)$, such that a closed form solution exists. As such, when $p(z)$ corresponds to the standard normal, and $\qzx$ is a multidimensional Gaussian with mean vector $\mui$ and covariance matrix with independent dimensions, such that the diagonal corresponds of a vector standard devisations $\sigmai$, then the KL divergence has the following closed form:
-	
-	\begin{equation}	
-		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
-	\end{equation}
-	
-	For the equation above, gradients can easily be back propagated through machine learning libraries such as Tensor Flow. We still require a method for computing the gradient of the first term in $\lelbo$. % todo: gradient van linker kan door sampling en mini batch.
-	
-	
-	
-	
+%\subsubsection{[TODO] Relation with variational inference / derivation of ELBO loss}
+%	
+%	%A mapping function $f_W(x) = y$ can be predict distributions by predicting the parameters of the the distribution (mu, sigma for Gaussian distributions).
+%	%
+%	%Rather than directly learning parameters $\phi$ that map a data point $\vecti{x}$ to latent distribution $p(\vect{z} \mid \mathbf{x}^{(i)})$, an \textit{approximate distribution} $\qzx$ is learned that approximates $p(\vect{z} \mid \vecti{x})$. Through gradient descent parameters for $\phi$ can be achieved, by minimising the KL divergence between the two distributions. $\condq{\vect{z}}{\vecti{x}}$ will is expressed as Gaussian distribution.
+%	%
+%	%
+%	%\begin{equation}
+%	%	\kl{\qprobzx}{\probzx} \label{eq:kl_q_p}
+%	%\end{equation}
+%	%
+%	%Yet, the idea is nice, optimising $\qprobzx$ to approximate $\probzx$ sounds nice, it is only possible when $\probzx$ is known, which it is not. If it was, there was no need to approximate it.
+%	%
+%	%Equation \ref{eq:kl_q_p} is thus intractable to compute, yet the following is true:
+%	%
+%	%\begin{equation}
+%	%	\begin{aligned}
+%	%		\kl{\qprobzx}{\probzx} & = \expectedsamplezq \left[ \log \frac{\qzx}{\pzx} \right] \\
+%	%		& = ... (todo) \\
+%	%		& = - \left( \elbo \right) + \logevidence
+%	%	\end{aligned}
+%	%\end{equation}
+%	%
+%	%By replacing the terms, we obtain the following equation:
+%	%
+%	%\begin{equation}
+%	%	\begin{aligned}
+%	%		\logevidence & = 
+%	%		\klapproxposterior + \elbo \\
+%	%		& = \klapproxposterior  + \lelbo
+%	%	\end{aligned}
+%	%\end{equation}
+%	%
+%	%We can observe that the KL divergence between the true and approximate posteriors, $p$ and $q$ respectively, is bounded by $\logevidence$. Hence, although $\pzx$ is unknown, maximising $\lelbo$ results in minimising the KL divergence. Also notice that $\kl{\qprobzx}{\probzx} >= 0$, and thus the maximum value for $\lelbo$ results in a KL divergence between the posteriors of zero. It thus suffices to maximise $\lelbo$, or equivalently minimise $-\lelbo$. The loss for a single data point $\vecti{x}$ then becomes
+%	
+%	%TODO \textbf{todo: in paper variational bayes, they refer to p(x) as p theta, but in slides ugent not?}. \textbf{todo: why cant p(x) be very big then? probably has something to do with jensens inequality.}
+%	
+%	
+%	
+%	
+%	\begin{equation}
+%		\begin{aligned}
+%			- \lelbo & = - \elbo \\  
+%			& = \elboexplicit \label{eq:elboexplicit} \\
+%		\end{aligned}	
+%	\end{equation} % src: ref to slides ugent
+%	
+%	Where the first term is reconstruction error and second is regularisation. Hence minimising the KL divergence between the two posteriors is equivalent to minimising the divergence between the approximate posterior $\qzx$ and the \textbf{marginal or prior?} $\pz$.
+%	
+%	$p(z)$ in the equation is usually chosen to be the standard normal distribution $\mathcal{N}(0, I)$, such that a closed form solution exists. As such, when $p(z)$ corresponds to the standard normal, and $\qzx$ is a multidimensional Gaussian with mean vector $\mui$ and covariance matrix with independent dimensions, such that the diagonal corresponds of a vector standard devisations $\sigmai$, then the KL divergence has the following closed form:
+%	
+%	\begin{equation}	
+%		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
+%	\end{equation}
+%	
+%	For the equation above, gradients can easily be back propagated through machine learning libraries such as Tensor Flow. We still require a method for computing the gradient of the first term in $\lelbo$. % todo: gradient van linker kan door sampling en mini batch.
+%	
+%	
+%	
+%	
 	
 	
 	
@@ -405,21 +411,43 @@ where $\epiloni$ corresponds to a sampled value $\samplestandardnormal{\epiloni}
 
 
 \subsubsection{Disentanglement of latent representations and posterior collapse} \label{cha:disentang}
-	Higgins et al. extend the VAE framework through the introduction of a slight modification of the loss function, resulting in $\beta$-VAE \cite{higginsBetaVAELearningBasic2022}. An additional hyper-parameter $\beta$ is introduced in the ELBO loss function to control the weight of the regularisation term:
+	Higgins et al. extend the VAE framework through the introduction of a slight modification of the loss function, resulting in $\beta$-VAE \cite{higginsBetaVAELearningBasic2022}. An additional hyper-parameter $\beta$ is introduced in VAE's loss function to control the weight of the regularisation term:
 	$$
 	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \betaelboexplicit
 	$$
 	
-	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin colour and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
+	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \cite{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin colour and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
 	
 	However, a trade-off must be made between accuracy and disentanglement. A small $\beta$ value (close to 0) results in high reconstruction accuracy but little constraint on disentanglement, while a large $\beta$ value (above 1) emphasises disentanglement at the cost of accuracy. If $\beta$ becomes too large, the posteriors $\qphizx$ corresponding to each data point $\vecti{x}$ can become equal to the prior $p(\vect{z})$, resulting in no information contribution and posterior collapse \cite{lucasUnderstandingPosteriorCollapse2022}.
 	
 
 	
+	
+	
+% TODO: explain about gaps, etc
+% i said z's are closer to (0, 0). why do we care? -> similar points are still clustered together, however, there will not be any gaps in the latent space. can thus interpolate between latent representations to find meaningful datapoints.
+
+%o reiley:
+%\textit{"A multivariate standard normal distribution is a multivariate distribution with zero valued mean vector and identity covariance matrix."} - 
+%%https://learning.oreilly.com/library/view/generative-deep-learning/9781098134174/ch03.html#normal_distribution
+%
+%\textit{Previously, we saw how there was no requirement for the latent space to be continuous—even if the point (–2, 2) decodes to a well-formed image of a sandal, there was no requirement for (–2.1, 2.1) to look similar. Now, since we are sampling a random point from an area around $z_mean$, the decoder must ensure that all points in the same neighborhood produce very similar images when decoded, so that the reconstruction loss remains small. This is a very nice property that ensures that even when we choose a point in the latent space that has never been seen by the decoder, it is likely to decode to an image that is well formed.} - o reiliy
+%
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 
-\section{Representation learning through Noise-contrastive estimation}
+\section{Representation learning through Noise-contrastive estimation} \label{cha:bg_nce}
 
 
 

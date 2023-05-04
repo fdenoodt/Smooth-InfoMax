@@ -46,12 +46,12 @@
 
 
 \usetikzlibrary{shapes.geometric, arrows}
+\usepackage[pdftex]{pict2e}
 
 
 
 
-
-\includeonly{background}
+%\includeonly{background}
 %\includeonly{variationalcontrastivepredictivecoding}
 %\includeonly{experiments}
 
@@ -105,6 +105,11 @@
 
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\vecti}[1]{\mathbf{#1}^{(i)}}
+\newcommand{\vectj}[1]{\mathbf{#1}^{(j)}}
+
+\newcommand{\xith}[0]{\vecti{x}}
+\newcommand{\zith}[0]{\vecti{z}}
+
 \newcommand{\kl}[2]{D_{KL} \left( #1 \mid \mid #2 \right)}
 \newcommand{\condp}[2]{p(#1 \mid #2)} % conditional probability
 \newcommand{\condq}[2]{q(#1 \mid #2)} % conditional probability
@@ -120,8 +125,8 @@
 
 \newcommand{\sample}[2]{#1 \sim #2}
 \newcommand{\expectedsample}[2]{\expected{\sample{#1}{#2}}}
-\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\cdot \mid \vecti{x})}}
-%\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\vect{Z} \mid \vecti{x})}}
+\newcommand{\expectedsamplezq}[0]{\expectedsample{\vecti{z}}{q (\cdot \mid \vecti{x})}}
+%\newcommand{\expectedsamplezq}[0]{\expectedsample{\vect{z}}{q_\phi (\cdot \mid \vecti{x})}}
 
 \newcommand{\pzx}[0]{\probzx}
 \newcommand{\pxz}[0]{\probxz}
@@ -140,7 +145,8 @@
 
 \newcommand{\qz}[0]{p(\vect{z})}
 \newcommand{\pz}[0]{p_\theta(\vect{Z})}
-\newcommand{\pzblank}[0]{p_\theta(\cdot)}
+%\newcommand{\pzblank}[0]{p_\theta(\cdot)}
+\newcommand{\pzblank}[0]{p(\cdot)}
 
 
 \newcommand{\px}[0]{p( \vecti{x} )}
@@ -153,7 +159,8 @@
 \newcommand{\klapproxposterior}[0]{\kl{\qprobzx}{\probzx}}
 
 
-\newcommand{\reconstr}[0]{\expectedsamplezq \left[ -\log \pthetaxz \right]}
+\newcommand{\reconstr}[0]{\expectedsamplezq \left[ -\log \pthetaxzi \right]}
+
 
 
 \newcommand{\latentspaceconstraint}[0]{\kl{ \qphizxblank }{ \pzblank } }
@@ -180,13 +187,24 @@
 
 %\newcommand{\sigmaisq}[0]{(\bm{\sigma}^{(i)})^2 }
 \newcommand{\diagsigmai}[0]{\text{diag}(\sigmai)} % maybe should be sigmaisq
+\newcommand{\diagsigma}[0]{\text{diag}(\sigmafat)} % maybe should be sigmaisq
 \newcommand{\normal}[0]{\mathcal{N}(\mui, \diagsigmai)}
+\newcommand{\normalNoI}[0]{\mathcal{N}(\mufat , \diagsigma)}
 \newcommand{\standardnormal}[0]{\mathcal{N}(\bm{\vect{0}}, \identitymtx)}
 
-\newcommand{\qphizx}[0]{q_\phi (\vect{z} \mid \vecti{x})}
-\newcommand{\qphizxblank}[0]{q_\phi (\cdot \mid \vecti{x})}
+\newcommand{\qphizx}[0]{q (\vect{z} \mid \vecti{x})}
+%\newcommand{\qphizx}[0]{q_\phi (\vect{z} \mid \vecti{x})}
 
-\newcommand{\pthetaxz}[0]{p_\theta (\vecti{x} \mid \vect{z})} % todo: in the future it should be large X
+\newcommand{\qvae}[0]{q (\vect{z} \mid \vect{x})}
+\newcommand{\qvaei}[0]{q (\vecti{z} \mid \vecti{x})}
+\newcommand{\qvaeEmptyZandXI}[0]{q ( \cdot \mid \vecti{x})}
+
+\newcommand{\qphizxblank}[0]{q (\cdot \mid \vecti{x})}
+%\newcommand{\qphizxblank}[0]{q_\phi (\cdot \mid \vecti{x})}
+
+%\newcommand{\pthetaxz}[0]{p_\theta (\vecti{x} \mid \vect{z})}
+\newcommand{\pthetaxz}[0]{p (\vecti{x} \mid \vect{z})} % TODO: I REMOVED THETA BECAUSE I DON'T UNDERSTAND IT.
+\newcommand{\pthetaxzi}[0]{p (\vecti{x} \mid \vecti{z})}
 
 
 \newcommand{\tildexi}[0]{\widetilde{\mathbf{x}} ^ {(i)}}
