@@ -243,7 +243,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	\begin{equation}	
 		\kl{\normal}{\standardnormal} = \latentspaceconstraintclosedform
 	\end{equation}
-	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively.
+	where $\sigma_k^{(i)}$ and $\mu_k^{(i)}$ correspond to the components of the predicted vectors $\sigmai$ and $\mui$, respectively. The latent space has dimensionality $D$.
 	
 
 
@@ -449,35 +449,30 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 \section{Representation learning through Noise-contrastive estimation} \label{cha:bg_nce}
 
-
-
-
-% FEEDBACK: MORE EXPLICITLY STATE MAIN IDEA OF REPR LEARNING AND HOW CPC FITS INTO THIS FRAMEWORK
 \subsection{Contrastive predictive coding}
-
 
 %\textbf{[What: CPC: repr for sequences]} \\
 	In what follows next, we discuss Contrastive Predictive Coding (CPC), a representation learning approach that we use as the basis for our own experiment in the following chapter.
 	% TODO: cpc differs from autoencoders in two key ways: reconstruct + time series data
-	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data, compressing patches of the sequence without considering the relation with nearby patches, will result in lost information as the context between patches is not encoded into the representation. % todo: is based on blog, but i cant really refer.. https://www.lesswrong.com/posts/XE6LD2c9NtB7gMdEm/an-92-learning-good-representations-with-contrastive. I should however give an example.
+	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches results in lost information, as contextual information between patches is not encoded into the representation \cite{shah92LearningGood}. %ChatGPT generated: In contrast, CPC considers the relationship between patches of the sequence to capture contextual information, making it a better option for representing time-series data.
 
 
 \begin{figure}[h] % cpc overview
 	\centering
 	\includegraphics[width=0.7\linewidth]{"cpc overview"}
-	\caption{Overview of Contrastive Predictive Coding, originates from \cite{oordRepresentationLearningContrastive2019}}
+	\caption{Overview of Contrastive Predictive Coding, originates from \cite{oordRepresentationLearningContrastive2019}.}
 	\label{fig:cpc-overview}
 \end{figure}
 
 %\textbf{[maintain information between patches by predicting the future based on the past? + architec fig + var names]} \\
 	% todo
-	CPC deals with these context issues by maximising the shared information between the extracted representations of temporally nearby patches \cite{lowePuttingEndEndtoEnd2020}. We will discuss this concept in more detail in a following section. For now, we would like to draw the readers attention to figure \ref{fig:cpc-overview}. The figure depicts a high level view of how this idea is achieved by producing two latent latent representations $\vect{z}_i$ and $\vect{c}_i$. An audio sequence of undefined length is split up into patches $\x_1 \dots \x_n$ where each $\x_i$ is a vector of fixed length, containing for instance 10ms of speech audio. Each patch $\x_i$ is encoded into latent representation $\zt$, defined as follows:
+	CPC deals with these context issues by maximising the shared information between the extracted representations of temporally nearby patches \cite{lowePuttingEndEndtoEnd2020}. We will discuss this concept in more detail in this section. For now, we would like to draw the reader's attention to figure \ref{fig:cpc-overview}. The figure depicts a high level view of how this idea is achieved by producing two latent latent representations $\vect{z}_i$ and $\vect{c}_i$. An audio sequence of undefined length is split up into patches $\x_1 \dots \x_n$ where each $\x_i$ is a vector of fixed length, containing for instance 10ms of speech audio. Each patch $\x_i$ is encoded into latent representation $\zt$, defined as follows:
 	
 	$$
 	\zt = g_{enc}(\xt) .
 	$$
 	
-	$g_{enc}( \cdot )$ is for instance a convolutional fully connected ANN. The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any information on an historic context. This historic context is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 \dots \zt$ into a single representation $\ct$:
+	$g_{enc}( \cdot )$ is for instance a Convolutional Neural Network (CNN). The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any contextual information. This is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 \dots \zt$ into a single representation $\ct$:
 	
 	$$
 	\ct = g_{ar}(\z_1 \dots \zt)
@@ -490,7 +485,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 %\textbf{[assume slow features. + why maxim mutual info? between past and future]}\\
 	The temporally nearby patches $\z_{t+1}$ and $\ct$ are optimised to preserve shared information, while discarding differences. Before we discuss how to obtain such representations, we first motivate why defining representations in this fashion makes sense.
 	
-	Consider we would like to define useful representations for sequential data such as speech signals. Then it not unlikely to believe that the conveyed information at time step $t$ and $t+k$ contains some redundant information, such as pitch, frequency, tone, etc. \cite{raoUnderstandingGradientIsolatedLearning2020}. Meanwhile, large changes of the signal in a small time window, may be the result of noise. Sequential data which poses these slowly varying features, are commonly referred to as "slow-features" \cite{zhangSlowFeatureAnalysis2012}. CPC leverages these slowly varying features, by encoding the underlying shared information between different patches, while at the same time discarding low-level information and noise that is more local \cite{oordRepresentationLearningContrastive2019}.
+	Consider we would like to define useful representations for sequential data such as speech signals. Then it is not unlikely to believe that the conveyed information at time step $t$ and $t+k$ contains some redundancy, such as pitch, frequency, tone, etc. \cite{raoUnderstandingGradientIsolatedLearning2020}. Meanwhile, large changes of the signal in a small time window, may be the result of noise. Sequential data which poses these slowly varying features, are commonly referred to as "slow-features" \cite{zhangSlowFeatureAnalysis2012}. CPC leverages these slowly varying features, by encoding the underlying shared information between different patches, while at the same time discarding low-level information and noise that is more local \cite{oordRepresentationLearningContrastive2019}.
 
 
 \subsubsection{The learning objective}
@@ -517,15 +512,24 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	%Note that in the case of a one layered neural network, $\zt$ corresponds to the vector $\sigma(x_t^T W)$, where W is a weight matrix to be optimized (different from $W_k$ in equation \ref{eq:fk}). Hence, CPC must optimize, at least two weight matrices, namely W and the Wk in equation \ref{eq:fk}. We now discuss how the neural network obtains these optimal weights. Just like in supervised ANNs, a loss function must be optimized. Instead of optimising the generic loss function mentioned in equation ref, the following loss InfoNCE loss function is minimized, which will result in the optimized function $f_k$.
 	
 	The InfoNCE loss, used to optimise $g_{enc}$, $g_{ar}$ and $W_k$ simultaneously is shown below. 
-
 	\begin{equation} % L_N
 		\Lnce = - \sum_{k} \expected{\textsubscript{X}} \left[ \log \nceprediction \right] \label{eq:NCE_loss}
 	\end{equation}
+	Here, $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample for $\ct$ and all other $\zj \in X$ are negative samples.  Hence good representations should result in a large similarity score $f_k(\ztk, \ct)$, while $f_k(\zi, \ct) \approx 0$ for negative samples, resulting in a fraction equal to 1. This would lead to a loss of 0 by the $\log(\cdot)$ function. On the other hand, $\Lnce$ is large when the denominator is large, which occurs when $\f$ is often unsure about negative samples and produces large values for those as well. An overview of the three ANNs which each must be optimised is depicted in figure \ref{fig:cpc-my-overview}.
 	
-	where $X$ corresponds to the set ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$. Notice that there exists exactly one $\ztk \in X$, which corresponds to a positive sample and all other $\zj \in X$ correspond to negative samples (with respect to the context $\ct$).  Hence good representations for $\z, \vect{c}$ and $f_k(\cdot)$, will result in a large similarity score for positive samples and approximate $0$ for negative samples, resulting in a minimum fraction equal to $1$. This would then be cancelled out by the $\log(\cdot)$ function. Meanwhile, $\mathcal{L}_n$ is large when the denomitator is large, indicating in a large high similarity score for negative samples.
+
+	\begin{figure}
+		\hspace{2cm}
+		\centering
+		\input{graphs/cpc_single_module}
+
+		\caption{Overview of CPC. The encoder, autoregressor and $f$ are ANNs and their parameters are optimised via $\Lnce$.}
+		\label{fig:cpc-my-overview}
+	\end{figure}
 	
-\subsubsection{Ties with mutual information}
-	Earlier we argued that CPC's encodings will preserve shared information between temporally nearby patches, while discarding the local noise. Oord et al. make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, Oord et al. proof that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$ \cite{oordRepresentationLearningContrastive2019}. 
+	
+\subsubsection{Ties with mutual information} \label{cha:bg_cpc_ties_w_mi}
+	Earlier we argued that CPC's encodings will preserve shared information between temporally nearby patches, while discarding the local noise. Oord et al. make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, Oord et al. prove that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$ \cite{oordRepresentationLearningContrastive2019}. 
 	
 	\begin{equation} % MI
 		I(\ztone; \ct) = \sum_{\ztone, \ct} p(\ztone, \ct) \log \frac{p(\ztone \mid \ctone)}{p(\ztone)}
@@ -561,17 +565,17 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 \subsection{Greedy InfoMax}
 	% successes
-	So far we discussed how CPC encodes latent representations by maximising the mutual information between temporally nearby patches of data. This method has shown great success in recent years and is considered state-of-the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. 
+	So far we discussed how CPC encodes patches of sequential data into latent representations by maximising the mutual information between temporally nearby representations. This method has shown great success in recent years and is considered state-of-the art in self-supervised learning for encoding sequential data \cite{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. 
 	
-	Although, backpropagation is empirically shown to be highly effective \cite{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \cite{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \cite{lowePuttingEndEndtoEnd2020}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \cite{lowePuttingEndEndtoEnd2020}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \cite{lowePuttingEndEndtoEnd2020}.
+	Even though empirical evidence has shown that backpropagation is highly effective \cite{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \cite{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \cite{lowePuttingEndEndtoEnd2020}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \cite{lowePuttingEndEndtoEnd2020}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \cite{lowePuttingEndEndtoEnd2020}.
 		
 		
 	
 \subsubsection{Towards greedy learning}	
 	%[Same ideas of repr learning via mutual information maximising, of latent representations, diff: GIM = Biological approach]
-		To overcome these biological and computational constraints, Löwe et al. introduce Greedy InfoMax (GIM) \cite{lowePuttingEndEndtoEnd2020}, an extension on CPC. Whereas CPC obtains representations $\zt$ and $\ct$ through encoder $\genc$ and autoregressor $\gar$, Löwe et al. split up $\genc$'s neural network architecture by depth into $M$ so called "\textit{modules}": 
+		To overcome these computational constraints, Löwe et al. introduce Greedy InfoMax (GIM) \cite{lowePuttingEndEndtoEnd2020}, an extension on CPC inspired from the biological brain. Whereas CPC obtains representations $\zt$ and $\ct$ through encoder $\genc$ and autoregressor $\gar$, Löwe et al. split up $\genc$'s neural network architecture by depth into $M$ so called "\textit{modules}": 
 		$$g_{enc}^1(\cdot),~ g_{enc}^2(\cdot),~\dots,~g_{enc}^M(\cdot)$$ 
-		Each module's output is the input of the successive module. A single module may for instance represent one or more layers.
+		A single module may for instance represent one or more layers. Each module's output is the input of the successive module.
 		\begin{align*} % g_enc1, ...
 			g_{enc}^m(\zt^{m-1}) &= \zt^m \\
 			g_{ar}(\z_1^M ~ \dots ~ \zt^M) &= \ct
@@ -580,68 +584,14 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 		$$ g_{enc}^M ( \dots	g_{enc}^2(g_{enc}^1(\xt))) = \zt^M $$
 		Both $\zt^M$ or $\ct$ may serve as representation for following downstream tasks.
 	
-%	As in CPC, encodings are obtained which maximise information of their neighbours.
-%	mutual information between latent representations is maximized by optimising the InfoNCE loss function. 
-
-
-	% TODO: THIS IMAGE IS NOT CORRECT!!!!!
 	\begin{figure}[h!t]
-	\hspace{2cm}
-	\begin{annotatedFigure}
-		{\includegraphics[width=0.8\linewidth]{"GIM overview"}}
-		
-		\annotatedFigureText{0.282,0.99}{black}{0.31}{$\Lnce^1$}{8}
-		\annotatedFigureText{0.61,0.99}{black}{0.31}{$\Lnce^2$}{8}
-		\annotatedFigureText{0.82,0.99}{black}{0.31}{$\Lnce^M$}{8}
-		
-		
-		\annotatedFigureText{0.276,0.77}{black}{0.31}{$\Lnce^1$}{5}
-		
-		\annotatedFigureText{0.145,0.85}{black}{0.31}{$f_1$}{5}
-		\annotatedFigureText{0.145,0.7}{black}{0.31}{$f_1$}{5}
-		
-		\annotatedFigureText{0.24,0.68}{black}{0.31}{Positive sample}{5}
-		\annotatedFigureText{0.18,0.88}{black}{0.31}{Negative sample}{5}
-		
-		
-		\annotatedFigureText{0.143,0.55}{black}{0.31}{$\ct$}{5}
-		\annotatedFigureText{0.18,0.545}{black}{0.31}{$\ctone$}{5}
-		\annotatedFigureText{0.23,0.545}{black}{0.31}{$\vect{c}_{t+2}$}{5}
-		
-		\annotatedFigureText{0.143,0.44}{black}{0.31}{ar}{5}
-		\annotatedFigureText{0.195,0.44}{black}{0.31}{ar}{5}
-		\annotatedFigureText{0.4,0.44}{black}{0.31}{ar}{5}
-		
-		
-		\annotatedFigureText{0.143,0.3}{black}{0.31}{$\zt$}{5}
-		\annotatedFigureText{0.18,0.295}{black}{0.31}{$\ztone$}{5}
-		\annotatedFigureText{0.23,0.295}{black}{0.31}{$\z_{t+2}$}{5}	
-		
-		\annotatedFigureText{0.09,0.175}{black}{0.31}{enc}{5}
-		\annotatedFigureText{0.161,0.175}{black}{0.31}{enc}{5}
-		\annotatedFigureText{0.399,0.175}{black}{0.31}{enc}{5}
-		
-		\annotatedFigureText{0.1,0.05}{black}{0.31}{$\xt$}{5}
-		\annotatedFigureText{0.155,0.045}{black}{0.31}{$\xtone$}{5}
-		\annotatedFigureText{0.22,0.045}{black}{0.31}{$\x_{t+2}$}{5}
-		
-		
-%		\annotatedFigureText{0.59,0.01}{black}{0.31}{$\vect{c}^1$}{8}
-%		\annotatedFigureText{0.79,0.01}{black}{0.31}{$\vect{c}^{M-1}$}{8}
-		\annotatedFigureText{0.6,0.01}{black}{0.31}{$\vect{c}_1^1, \vect{c}_2^1, ...$}{8}
-		\annotatedFigureText{0.8,0.004}{black}{0.31}{$\vect{c}_1^{M-1}, \vect{c}_2^{M-1}, ...$}{8}
-		
-		% \annotatedFigureText{0.49,0.57}{black}{0.31}{$\vect{c}^1$}{8}
-		% \annotatedFigureText{0.45,0.31}{black}{0.31}{$\z^1$}{8}
-		
-		\annotatedFigureText{0.9,0.55}{black}{0.31}{$\vect{c}_1^M, \vect{c}_2^M, ...$}{8}
-		
-		
-	\end{annotatedFigure}
-	\caption{Overview of Greedy InfoMax}
-	\label{fig:gim-overview}
-	% Dieter uses this: https://www.overleaf.com/learn/latex/TikZ_package
-\end{figure}
+		\hspace{2cm}
+		\input{graphs/gim_multiple_modules}
+		\caption{Overview of Greedy InfoMax}
+		\label{fig:gim-overview}
+	\end{figure}
+
+
 	
 	%[greedy training]
 		Each module $\gencm$ is \textit{greedily} optimised with an adaptation of the InfoNCE Loss. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss.
