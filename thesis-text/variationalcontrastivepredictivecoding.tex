@@ -28,15 +28,13 @@
 		% split in modules
 			Instead, in this study, we split up $\genc$'s network architecture by depth into $M$ modules 
 			$$g_{enc}^1(\cdot),~ g_{enc}^2(\cdot),~\dots,~g_{enc}^M(\cdot)$$ 
-			and prevent gradients from flowing between modules, as introduced in \cite{lowePuttingEndEndtoEnd2020}. An additional optional $M+1$'th module $\gar$ can be appended to the architecture. Each module is greedily optimised via a novel loss function, $\Lvnce$, which we will define in a following subsection. Each module's output serves as input for the successive module, as presented in the following equations, and depicted in figure \ref{fig:variationalgim}.
-			
-			\begin{figure} % fig: overview multiple modules
-				\centering
-				\includegraphics[width=0.7\linewidth]{temp_variational_gim}
-				\caption{}
-				\label{fig:variationalgim}
-			\end{figure}
-			
+			and prevent gradients from flowing between modules, as introduced in \cite{lowePuttingEndEndtoEnd2020}. An additional optional $M+1$'th module $\gar$ can be appended to the architecture. Each module is greedily optimised via a novel loss function, $\Lvnce$, which we will define in a following subsection. Each module's output serves as input for the successive module, as presented in the following equations. %#, and depicted in figure \ref{fig:variationalgim}.			
+				%			\begin{figure} % fig: overview multiple modules
+				%				\centering
+				%				\includegraphics[width=0.7\linewidth]{temp_variational_gim}
+				%				\caption{}
+				%				\label{fig:variationalgim}
+				%			\end{figure}
 			\begin{align*} % g_enc1, ...
 				g_{enc}^1(\xt) &= \zt^1 \\
 				g_{enc}^m(\zt^{m-1}) &= \zt^m \\
@@ -65,12 +63,7 @@
 			We achieve these stochastic modules by defining each module $\gencm$ consisting of two blocks. The first block receives as input $\zt^{m-1}$ and predicts the parameters $\mufat$ and $\sigmafat$. These two parameters describe the distribution $\qfromzmneg$. Since we defined $q$ as Gaussian with a diagonal covariance matrix, the distribution can be fully described by those two vectors. The second block samples 
 			$\sample{\zt^m} \sampleqdot{\zt^{m-1}}$ from this distribution and produces an output representation. This is depicted in figure \ref{fig:single_variational_module}.
 			
-			\begin{figure}[h] % img: single module
-				\centering
-				\includegraphics[width=0.7\linewidth]{temp_variational_module}
-				\caption{}
-				\label{fig:single_variational_module}
-			\end{figure}
+			\input{graphs/single_variational_module}
 			
 		% define ztm~q() = gaussian., --> z = mu + sigma*noise
 			In practice, sampling from $q$ is achieved through a reparametrisation trick, as introduced in \cite{kingmaAutoEncodingVariationalBayes2022}. The equation to compute $\zt^m$ then becomes:
