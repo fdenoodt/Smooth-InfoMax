@@ -146,9 +146,7 @@ This process of learning a mapping function $\T$ which translates a feature vect
 In the following two subsections we discuss two paradigms of representation learning with ANNs. The first paradigm learns representations by minimising a reconstruction error. The second learns its representations by contrasting them against noise. These two paradigms will lay the basis for our own contributions in chapter three.
 
 \subsection{Autoencoders}
-%auto encoder: good at capturing complex, high-dimensional features of the input data
-%\textbf{WHY: More interpretable latent representations through Gaussian distributions.}
-Autoencoders were introduced in 1986 by Rumelhart et al. \cite{rumelhartLearningInternalRepresentations1988} as a means to learn compressed representations from data \cite{bankAutoencoders2021}. This is achieved through an ANN architecture consisting of two functions, an \textit{encoder} $E(\vect{x}) = \vect{z}$ and a \textit{decoder} $D(\vect{z}) = \vect{\tilde{x}}$. 
+The encoding problem, introduced by Ackley and Hinton in 1985 \cite{ackleyLearningAlgorithmBoltzmann1985}, and later referred to as the autoencoder by Rumelhart et al. in 1986 \cite{rumelhartLearningInternalRepresentations1988}, considers the problem of learning compressed representations through neural networks \cite{rumelhartLearningInternalRepresentations1988, bankAutoencoders2021}. This is achieved through an ANN architecture consisting of two functions, an \textit{encoder} $E(\vect{x}) = \vect{z}$ and a \textit{decoder} $D(\vect{z}) = \vect{\tilde{x}}$.
 %The first block is the encoder $E$ and receives input data which it encodes into a lower dimensional representation. The second block, called the decoder $D$, receives as input the latent representation and is tasked to reconstruct the original input. 
 The lower-dimensional \textit{encoding} $\z$ obtained from $E(\x)$ will then serve as representation for downstream task $\f$.
 The functions $\E$ and $D(\cdot)$ are simultaneously optimised by minimising the reconstruction error shown in the following equation:
@@ -213,9 +211,9 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 		\mathcal{L} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
 		%\mathcal{L}_{\theta, \phi} (\vecti{x}) = \elboexplicit \label{eq:elbo_explicit_intial}
 	\end{equation} % src: ref to slides ugent
-
-% 1) reconstruction error
-	Although the equation may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
+	Here, $p(\cdot)$ refers to the prior distribution, which is different from $\pthetaxzi$.
+	% 1) reconstruction error
+	Although $\mathcal{L}$ may seem daunting at first, we will decompose its components. The loss function is made up of two terms, the left term corresponds to the reconstruction error, while the second term poses constraints on the latent space. Let us focus on the reconstruction term first.
 	
 	\begin{equation}
 		\reconstr \label{eq:reconstr}	
@@ -454,7 +452,8 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 %\textbf{[What: CPC: repr for sequences]} \\
 	In what follows next, we discuss Contrastive Predictive Coding (CPC), a representation learning approach that we use as the basis for our own experiment in the following chapter.
 	% TODO: cpc differs from autoencoders in two key ways: reconstruct + time series data
-	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches results in lost information, as contextual information between patches is not encoded into the representation \cite{shah92LearningGood}. %ChatGPT generated: In contrast, CPC considers the relationship between patches of the sequence to capture contextual information, making it a better option for representing time-series data.
+	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches can result in suboptimal encodings, as contextual information between patches is not encoded directly into the representation \cite{shah92LearningGood}.
+	%ChatGPT generated: In contrast, CPC considers the relationship between patches of the sequence to capture contextual information, making it a better option for representing time-series data.
 
 
 \begin{figure}[h] % cpc overview

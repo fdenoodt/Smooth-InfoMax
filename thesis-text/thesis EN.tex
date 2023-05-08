@@ -52,7 +52,7 @@
 
 
 %\includeonly{background}
-%\includeonly{variationalcontrastivepredictivecoding}
+\includeonly{variationalcontrastivepredictivecoding}
 %\includeonly{experiments}
 
 
@@ -168,6 +168,9 @@
 \newcommand{\latentspaceconstraintstandardgaussian}[0]{\kl{ \qphizxblank }{ \standardnormal } }
 
 \newcommand{\latentspaceconstraintclosedform}[0]{ \frac{1}{2} \sum_{k=1}^{D} \left( -\log (\sigma_k^{(i)})^2 - 1 + (\sigma_k^{(i)})^2 +  (\mu_k^{(i)})^2 \right) }
+
+
+\newcommand{\latentspaceconstraintclosedformNoI}[0]{ \frac{1}{2} \sum_{k=1}^{D} \left( -\log \sigma_k^2 - 1 + \sigma_k^2 +  \mu_k^2 \right) }
 
 
 \newcommand{\elboexplicit}[0]{ \reconstr + \latentspaceconstraint }
