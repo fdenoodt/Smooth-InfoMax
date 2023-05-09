@@ -140,6 +140,9 @@
 \section{Computational benefits} \label{cha:vgim_benefits}
 	Each module in V-GIM is greedily trained through the variational InfoNCE loss. This allows for decoupled, memory-efficient asynchronous distributed training and mitigates the vanishing gradient problem, which are benefits introduced by GIM \cite{lowePuttingEndEndtoEnd2020}. However, V-GIM adds a constraint to the latent space produced by each module, leading to additional practical benefits. Since V-GIM adopts a greedy training approach, these benefits apply not only to the final module's output but also to the outputs of intermediate modules.
 	
+	% TODO
+	\textbf{[TODO] If time permits, go deeper in benefits introduced by GIM.}
+	
 
 	\subsubsection{Interpretability of final and intermediate modules}
 		By regularising the latent space resulting in the properties discussed in section \ref{cha:contin_space}, each of V-GIM's modules define a space where sampling from a point around the origin is likely to correspond to a data point that is similar to the dataset. A decoder trained on this space will generalise well to unseen data when given a latent representations around the origin. 
