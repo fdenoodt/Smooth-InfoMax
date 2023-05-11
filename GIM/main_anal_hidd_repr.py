@@ -81,9 +81,9 @@ def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_lo
 
 def generate_and_save_encodings(opt_anal, encoder_model_path):
     encoder: GIM_Encoder = GIM_Encoder(opt, path=encoder_model_path)
-    split = True
+    split = False
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds", shuffle=False, split_and_pad=split, train_noise=False)
+        opt, dataset="de_boer_sounds_reshuffled", shuffle=False, split_and_pad=split, train_noise=False)
 
     target_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{'split' if split else 'full'}"
 
