@@ -1,8 +1,6 @@
 \chapter{Experiments}
 
-In this chapter we assess the encodings obtained from Variational Greedy Infomax (V-GIM) and compare results against its non-variational counterpart, GIM. We train the encoders on sequential data from the audio domain and assess the encodings' quality. The assessment is achieved by projecting the encodings into a two-dimensional space using t-SNE and observing the emergence of possible clusters. Additionally, the representations obtained from the encoders are used as input for a linear classifier, whose accuracy scores provide insights in the representations' performance.
-
-Finally, we gather more insights in the encodings. We assess the amount of labelled data required for obtaining adequate performance in downstream tasks, by training the linear classifier on smaller subsets of the dataset. We also provide insights in the underlying structure of the encodings, by training a decoder on top of each of V-GIM's modules.
+In this chapter, we evaluate the effectiveness of the latent representations obtained from Variational Greedy InfoMax (V-GIM) in comparison to its non-variational counterpart, GIM, by training both models on sequential data from the audio domain. To assess the quality of the representations, we project them into a two-dimensional space using t-SNE and analyse the emergence of potential clusters. Moreover, we employ a linear classifier that takes these representations as input, and evaluate its accuracy to gain insights into these models their performance. To further examine the efficacy of these representations, we investigate their potential for downstream task generalisation by training the linear classifier on smaller subsets of the dataset and assessing the amount of labelled data required to achieve satisfactory performance. Finally, we delve into the underlying structure of V-GIM's representations by training a decoder on top of each of V-GIM's modules, providing insights into their composition.
 
 
 %- Experimental details encoder:
@@ -29,180 +27,132 @@ Finally, we gather more insights in the encodings. We assess the amount of label
 
 % TODO: I CALL IT Variational Greedy Infomax: V-GIM
 
-\section{Experimental details encoder}
+\section{Experimental details V-GIM}
+	% VGIM + GIM, trained on Bart's dataset, 80\%, 20 test set
+		GIM and V-GIM are trained on raw speech signals of fixed length sampled at 16kHz. The dataset consists of 851  audio files and is randomly shuffled and split up into 80\% training data (680 files) and 20\% test data (171 files). Each audio file consists of a single spoken sound consisting of three consonants and three vowels, where the consonants and vowels alternate each other. Some examples are the sounds "gi-ga-bu" and "ba-bi-gu".	The words consists of three syllables from the following list: ba, bi, bu, da, di, du, ga, gi and gu. All the sounds are spoken by the same person, at a constant and peaceful tone. We crop the files to a fixed length of 10240 samples, or 640 milliseconds, which is slightly longer than half a second.
+		
+	% In contrast GIM's architecture introduced in Löwe et al.
+		GIM and V-GIM are trained on the same architecture, consisting of two encoder modules $g_{enc}^1(\cdot)$ and $g_{enc}^2(\cdot)$, no autoregressor module $\gar$ is used. Modules are trained in parallel. Each module consists of solely convolution and pooling layers. Since the architecture contains no fully connected layers, the length of the audio files can therefore be variable during inference. The architecture details for the two modules are presented in tables \ref{tab:architecure-module-1} and \ref{tab:architecure-module-2}. ReLu non-linearity is applied after each convolution, except in the last layer in each module. No batch normalisation is used. The number of hidden channels produced by each convolution and pooling layer remains constant, at 32 channels. In each module, data flows synchronously from one layer to the successive layer, except in the final two layers. These run in parallel and both take the same input from the preceding layer. This architecture choice is related to the parametrisation trick we discussed in section \ref{cha:vgim_decoupled_training_for_probabil_repr}. One layer generates $\mufat$ and the other $\sigmafat$ such that $\ztm$ can be computed via the reparametrisation trick. The architecture is visualised in figure \ref{fig:architecture}. 
+		An input signal of length $1 \times 10240$ is downsampled to $32 \times 52$ by the first module and to $32 \times 13$ by the second module. Each latent representation $\zt^M = \zt^2$ captures $49$ms of speech.
+		% As a result of this architecture, an input signal of length $1 \times 10240$ is downsampled to $32 \times 52$ by the first module and to $32 \times 13$ by the second module. Each latent representation $\zt^M = \zt^2$ captures $49$ms of speech.
 
 	
-	
-	\subsection{Dataset}
-		The Greedy Infomax model is trained on speech data. The model takes as input a raw speech signal of a fixed length and outputs a latent representation for that signal. The dataset is split up into 729 training files and 122 test files. In each file consists of a single spoken sound consisting of three consonants and three vowels, where the consonants and vowels alternate each other. Some Examples are the sounds "gi-ga-bu" and "ba-bi-gu". All the sounds are spoken by the same person, at a constant and peaceful \textbf{todo: describe emotional aspects of speech audio}. 
-		
-		The following transformations are applied to the audio files. Although the original contains a sample rate of 441 Khz, the audio files are downsampled to 16 Khz, matching the sample rate used by Löwe \cite{lowePuttingEndEndtoEnd2020}. This significantly reduces the size of the latent representations, and thus the required amount of VRAM during training. Additionally, two types of noise are added to the data. We apply Gaussian white noise, at different decibels ranging between zero and fifteen \textbf{TODO ...}.
-		
-		- also background noise from dataset. is a way to enlarge our dataset. 
-		- Each audio file is cut to have length \textbf{10240}. Additionally, 
-		
-		
-		Splitting: see appendix  \ref{appendix:split_syllables}
-		
-	\subsection{Architecture}
-		% cnn + gru: so inputs can have variable lengths
-			Training is done speech signals of fixed length, eg 8,800 samples. Notice however, that the neural network only makes use of convolutional neural networks layers and GRU's, no fully connected layers. The input dimensions can therefore be variable during inference. Only the number of channels in the latent representations should be constant, but the length can change.
-			
-		\begin{figure}[h]
+		% Table
+		\input{graphs/vgim_architecture}
+
+		\begin{figure}
 			\centering
-			\includegraphics[width=0.7\linewidth]{architecture}
-			\caption{}
+			\hspace*{1.5cm}
+			\begin{annotatedFigure}
+				{\includegraphics[width=0.8\linewidth, trim={0 2.8cm 0 2cm}, clip]{"graphs/vgim architecture"} }
+				
+				
+				\annotatedFigureText{0.1,0.15}{black}{0.31}{$\xt$}{8}
+				
+				\annotatedFigureText{0.565,0.28}{black}{0.31}{$\zt^1$}{8}
+				\annotatedFigureText{0.88,0.3}{black}{0.31}{$\zt^2$}{8}
+				
+			\end{annotatedFigure}
+			\caption{Visualisation of V-GIM's architecture.}
 			\label{fig:architecture}
 		\end{figure}
-	
-		Figure \ref{fig:architecture} displays how via contrastive predictive coding an input speech signal is transformed into two latent vectors. The two vectors combined describe a Gaussian distribution for each feature of the latent representation. One vector corresponds to the means and the other to the standard deviations of the latent distributions. We variational autoencoders assume independent latent features, such that the covariance matrix is non negative on the diagonal and zero off the diagonal. This allows the covariance matrix to be described using a single vector. We again, make use of this (plausible incorrect?) assumption of having independent latent features.
-
-
-
-
-		% Training on longer patches, classification on padded sub-patches.
-		During inference, (in this context obtaining the latent representations for our input signals), depending on the length of the input signal, the length of the output latent representation will differ.
-		If we wish to look at how separable latent representations are for syllables, the length can be variable. Some input sounds could be 6,600 samples, while others 8,800 samples. We therefore pad the syllables with zeroes in front and end of the signal, to obtain fixed length of equal to that of the longest syllable; 8,800 samples.
 		
-		Training happens on longer data samples, and every \textbf{X} epochs t-SNE visualisations are made to observe evolutional of dis-entanglement.
+		
+		Importantly, the reparametrisation trick is included in our implementation of GIM's architecture as well. However, by enforcing no constraints on the latent space, which is achieved by assigning $\beta = 0$ in $\Lvnce$, we observed that $\sigmafat$ moves towards \textbf{0} such that all the randomness from sampling from a Gaussian distribution is removed. As such, our implementation of GIM is equivalent to GIM introduced in \cite{lowePuttingEndEndtoEnd2020} but with an altered architecture.
+		
+	% - ADAM optimiser, decaying learning rate, batch size = 171 (= test data), 800 epochs
+	% - 10 negative samples, predict k = 12 time steps in the future
+		Both GIM and V-GIM are trained using the Adam optimiser for 800 epochs with an exponential learning rate scheduler \cite{bhargavladGuidePytorchLearning}, with initial learning rate $lr_{init} = 0.01$ and $\gamma=0.995$, such that $lr$ is updated as follows:
+		$$lr_{epoch} = \gamma * lr_{epoch - 1}$$
+		The batch size is set to 171, which is exactly the size of the test set. The number of patches to predict in the future $k$, is set to 12. Implementation details with regards to drawing negative samples for $\fkmblank$ remain identical to the experiments from \cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020}. The regularisation importance term $\beta$ is set to 0 for GIM and 0.0035 for V-GIM, which is the largest value we could obtain without causing posterior collapse.
+
+	%	% classifier:
+	%	After convergence, both methods trained on multi class logistic regressor?	linear multi-class classifier
+	
+		After training V-GIM and GIM for 800 epochs, we train a linear multi-class classifier for 100 epochs on their respective latent representations for every module, evaluated using Cross-Entropy \cite{hoRealWorldWeightCrossEntropyLoss2020}. We set $lr=0.001$ and use the Adam optimiser. The classifier is tasked to predict the syllable corresponding to its latent representation. Details on the algorithm used to split up audio files by individual syllables is provided in appendix \ref{appendix:split_syllables}. Representations are average pooled to a single time step, the number of channels remains unchanged at 32. The classifier thus consists of a single fully connected layer with 32 input nodes and 9 output nodes, conforming the number of input features and number of classes respectively. We reshuffle the dataset and use 80\% for training and 20\% for testing.
+
 		
 
 \section{Results}
 
-	% Enkele loss curces etc
-	\subsection{Results CPC}
-	
-	\begin{figure}[h] % distr beta = 0, module 1
-		\centering
-				\begin{subfigure}[b]{0.45\textwidth}
-			\centering
-			\input{graphs/kld=0035_loss_0}
-			\caption{Module 1: $\beta=0.0035$}
-		\end{subfigure}
-		\hfill
-		\begin{subfigure}[b]{0.45\textwidth}
-			\centering
-			\input{graphs/kld=0035_loss_1}
-			\caption{Module 2: $\beta=0.0035$}
-		\end{subfigure}		
-		\hfill
+	\subsection{Results GIM and V-GIM}	
+	\subsubsection{Training error}
+	% 4 Loss functions (2 modules, gim+vgim)
 		
-		\begin{subfigure}[b]{0.45\textwidth}
-			\centering
-			\input{graphs/kld=0_loss_0}
-			\caption{Module 1: $\beta=0$}
-		\end{subfigure}
-		\hfill
-		\begin{subfigure}[b]{0.45\textwidth}
-			\centering
-			\input{graphs/kld=0_loss_1}
-			\caption{Module 2: $\beta=0$}
-		\end{subfigure}
 		
-		\caption{Training and validation loss}
+		Figure \ref{fig:four_losses} displays the loss curves corresponding to GIM ($\beta=0$) and V-GIM ($\beta=0.0035)$ for both modules. In the first two modules, the validation loss for GIM is lower compared to V-GIM. This is as expected because V-GIM includes an additional regularisation term in its loss function. In the two second modules, both GIM and V-GIM have loss curves that converge to lower values than their previous module. This suggests that the task becomes easier for the subsequent modules, due to the representations obtained from the preceding module.
+		
+		Interestingly, in the second module, V-GIM has a lower loss compared to GIM, even though V-GIM includes the regularization term in its loss function. We argue that this is related to internal covariate shift, which we discussed in section \ref{cha:vgim_batch_norm}. The large learning rate from the previous module leads to a significant "drift" in the distribution of activations during training, making it difficult for successive modules to keep up with these changes. V-GIM is less susceptible to this issue due to the internal batch-normalisation mechanism that is built into the regularisation term. Consequently, V-GIM's modules can train with larger learning rates without affecting the performance of successive modules, resulting in faster convergence.
+		
+		\input{graphs/gim_vgim_losses}
+		  
 
-	\end{figure}
 
-	
-	
-	\subsection{Distributions}
-	
-	% distr images
-		\input{distributions}
-	
-	
-	% loss func only shows part of picture -> towards tsne
-		Although loss is used as evaluation metric, it only shows part of the picture. The main objective for the representations is to obtain some form of "decoupled/dis-entanged" features that are more easily separable. This evaluation is done by projecting the latent representations to a 2D plane, via t-SNE. Then datapoints are coloured in depending on their the syllable that was pronounced, eg: "gi" or "ga".
+
 		
+	\subsubsection{T-SNE}
+			% loss func only shows part of picture -> towards tsne
+			Although loss is used as evaluation metric, it only shows part of the picture. The main objective for the representations is to obtain some form of "decoupled/dis-entanged" features that are more easily separable. This evaluation is done by projecting the latent representations to a 2D plane, via t-SNE. Then data points are coloured in depending on their the syllable that was pronounced, eg: "gi" or "ga".
+	
+	We transform the latent representations obtained from each module 
+	Figure X displays 
+	% T-sne
+		T-distributed stochastic neighbour embedding.
+	
+		Visualising data using T-sne.
+			given N high-dimensional objects x1 .. xN. wants to see underlying structure of the data. eg clusters? local structures?
+			
+			How visiualise very high dimensional data?
+			
+			Introduction:
+				build map where similar data points are moved close to each other and unsimilar points far away. and map in eg 2 or 3 dims. (scatter plot).
 		
-	
-	
-	
-	\subsubsection{T-sne}
-	T-distributed stochastic neighbour embedding.
-	
-	
-	Visualising data using T-sne.
-	given N high-dimensional objects x1 .. xN. wants to see underlying structure of the data. eg clusters? local structures?
-	
-	How visiualise very high dimensional data?
-	
-	Introduction:
-		build map where similar data points are moved close to each other and unsimilar points far away. and map in eg 2 or 3 dims. (scatter plot).
-		
-		
-	
-	
 		%	\ref{fig:tsne_two_module_kld_0}: can see that second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, and thus resulting in faster convergence.
-	%	\textbf{T-sne visualisations:}
-	%	Multiple models trained, trained GIM, but single module (exact CPC architecture), one with autoregressor and once without autoregressor layer, so only CNN layers. 200 epochs, trained on split up data samples.
-	
-	%	
-	%	4) old GIM with all modules each one layer. l1 .. 5 - cnn, l6 = gru. img shows l5 = cnn:
-	%	model can more easily distinguish A's from other \textbf{klinkers}. Partly, it kinda makes sense for GIM to learn to separate \textbf{klinkers}. Since they last longer (longer duration), the loss function will more likely randomly sample a subwindow from the "aa's" than from the \textbf{medeklinker} part.
-	%	
-	
-	
-	\begin{figure}[ht] % four t-sne images
-		\centering
-		\begin{subfigure}{0.45\linewidth}
-			\centering
-			\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 1"}
-			\caption{Module 1: $\beta=0.0035$}
-			\label{fig:t-sne-kld33-module1}
-		\end{subfigure}
-		\hspace{0cm}
-		\begin{subfigure}{0.45\linewidth}
-			\centering
-			\includegraphics[width=\linewidth]{"t-sne kld=0.0033 module 2"}
-			\caption{Module 2: $\beta=0.0035$}
-			\label{fig:t-sne-kld33-module2}
-		\end{subfigure}
-		\vspace{0cm}
-		\begin{subfigure}{0.45\linewidth}
-			\centering					
-			\includegraphics[width=\linewidth]{"t-sne kld=0 module 1"}
-			\caption{Module 1: $\beta=0$}
-			\label{fig:t-sne-kld0-module-1}
-		\end{subfigure}
-		\hspace{0cm}
-		\begin{subfigure}{0.45\linewidth}
-			\centering
-			\includegraphics[width=\linewidth]{"t-sne kld=0 module 2"}
-			\caption{Module 2: $\beta=0.0035$}
-			\label{fig:t-sne-kld0-module-2}
-		\end{subfigure}
-		\caption{My images}
-		\label{fig:myimages}
-	\end{figure}
-
+		
+		%	\textbf{T-sne visualisations:}
+		%	Multiple models trained, trained GIM, but single module (exact CPC architecture), one with autoregressor and once without autoregressor layer, so only CNN layers. 200 epochs, trained on split up data samples.
+		
+		%	
+		%	4) old GIM with all modules each one layer. l1 .. 5 - cnn, l6 = gru. img shows l5 = cnn:
+		%	model can more easily distinguish A's from other \textbf{klinkers}. Partly, it kinda makes sense for GIM to learn to separate \textbf{klinkers}. Since they last longer (longer duration), the loss function will more likely randomly sample a subwindow from the "aa's" than from the \textbf{medeklinker} part.
+		%	
 		
 		
-	
+		\input{graphs/four_tsne_plots}
+		
+		% Accuracies table	
+		| Method | Accuracy Module 1 | Accuracy Module 2 |
+		| GIM	 | 0.5		| 0.5		|
+		| V-GIM	 | 0.47		| 0.47		|
+		
+		is inline with performance on T-SNE, klinkers are easily distuingished, but medeklinkers not so much.
 		
 		
-	
+		
+	\subsubsection{Distributions}
+			% distr images
+		Figure X, Y, Z depict the distributions of latent distributions corresponding to an individual dimension. Each figure depicts the distributions for a single module. We show distributions for the first 6 dimensions. We observe that V-GIM does indeed learn to to make distributions similar to a Gaussian, meanwhile in GIM we observe strong thin peaks, that the first module learned to frequently predict the same value with little noise due to $\sigmafat \approx 0$. The peaks are less dominant in the second module, which may be attributed to suboptimal convergence, which is attributed to suboptimal learning rate, as discussed in section \textbf{XX: prev paragraph}.
+		\input{distributions}
 
 
-
-\section{Generalisation}
-	help!!
-	
-	\begin{figure}[h] % two graphs of subsets
-		\centering
-		\begin{subfigure}[b]{0.4\textwidth}
+	\subsection{Generalisation study}
+		help!!
+		
+		\begin{figure}[h] % two graphs of subsets
 			\centering
-			\input{graphs/subsets_module1}
-			%\caption{Caption for the first graph.}
-		\end{subfigure}
-		\hfill
-		\begin{subfigure}[b]{0.4\textwidth}
-			\centering
-			\input{graphs/subsets_module2}
-			%\caption{Caption for the second graph.}
-		\end{subfigure}
-		\caption{Validation accuracy for different subset sizes}
-	\end{figure}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\input{graphs/subsets_module1}
+				%\caption{Caption for the first graph.}
+			\end{subfigure}
+			\hfill
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\input{graphs/subsets_module2}
+				%\caption{Caption for the second graph.}
+			\end{subfigure}
+			\caption{Validation accuracy for different subset sizes}
+		\end{figure}
 
 
 
@@ -212,7 +162,7 @@ Finally, we gather more insights in the encodings. We assess the amount of label
 	
 
 
-\section{Interpretability}
+\section{V-GIM's Interpretability analysis}
 
 	\subsection{Decoders for Variational Greedy InfoMax}
 		% investigate what info in V-GIM + argue can interpolate

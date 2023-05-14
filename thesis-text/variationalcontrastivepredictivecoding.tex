@@ -15,7 +15,7 @@
 		
 
 
-\section{Towards decoupled training for probabilistic representations}
+\section{Towards decoupled training for probabilistic representations} \label{cha:vgim_decoupled_training_for_probabil_repr}
 	% Our contribution
 		In what follows next we introduce Variational Greedy InfoMax (V-GIM), maintaining the state-of-the-art performance obtained from optimising InfoNCE, while leveraging the interpretable and disentangled benefits from VAEs. This is achieved by optimising a novel loss function, \textit{Variational-InfoNCE}, a combination of InfoNCE and the regularisation term from VAEs. Additionally, by splitting up the neural network into modules, as introduced in \cite{lowePuttingEndEndtoEnd2020}, we greedily optimise each module with its own instance of this loss function. As a result, the interpretability benefits from VAEs will also be applicable in-between modules. This is in contrast to VAEs where solely the final output representations are interpretable.		
 				
@@ -112,7 +112,7 @@
 	Here, $\Z^0$ equals the feature space $\X$. The two claims hold true for every $\Z^m$ if and only if $\Lvnce$ is optimal. The two claims will serve as the main argument for why V-GIM's representations are interpretable, discussed in section \ref{cha:vgim_benefits}. Meanwhile, traditional techniques such as CPC and GIM lack these interpretable benefits.
 	
 		\subsubsection{Claim 1: $\Z^m$ is uninterrupted and well-covered around the origin.}
-			In V-GIM, the latent representation $\zt^m \in \Z^m$ of each data point is a sample from the Gaussian distribution $q(\cdot \mid \zt^{m-1})$. Thus, encoding the same data point $\zt^{m-1} \in \Z^{m-1}$ an infinite number of times results in an entire circular region (around a particular mean $\mufat$) in $\Z^m$ that is entirely covered by the latent representations corresponding to $\zt^{m-1}$, without any interruptions in region. This is different from GIM and CPC where a data point merely covers a single point of the latent space (and not an entire region). Furthermore, because each region should be close to the origin, regions are more likely to utilise the limited space efficiently around the origin, resulting in a lower chance of obtaining large holes between two regions from different data points. As a result, the encodings from the dataset should cover the entire latent space around the origin, such that all latent representations around the origin correspond to a data point that is similar to the dataset.
+			In V-GIM, a latent representation $\zt^m \in \Z^m$ of a data point $\zt^{m-1} \in \Z^{m-1}$ is a sample from the Gaussian distribution $q(\cdot \mid \zt^{m-1})$. Thus, encoding the same $\zt^{m-1}$ an infinite number of times results in an entire circular region (around a particular mean $\mufat$) in $\Z^m$ that is entirely covered by the latent representations corresponding to $\zt^{m-1}$, without any interruptions in this region. This is different from GIM and CPC where a data point merely covers a single point of the latent space (and not an entire region). Furthermore, because each region should be close to the origin, regions are more likely to utilise the limited space efficiently around the origin, resulting in a lower chance of obtaining large holes between two regions from different data points. As a result, the latent representations from the dataset should cover the entire latent space around the origin, such that all latent representations around the origin have a corresponding data point that is similar to a data point from the dataset.
 		
 	
 		\subsubsection{Claim 2: $\Lvnce$ enforces smooth and consistent transitions in the latent space with respect to mutual information of the original data points.}
@@ -128,10 +128,6 @@
 			Finally, the result of these two claims is an uninterrupted latent space around the origin 
 			where moving a latent representation towards a particular dimension in the latent space causes smooth and consistent changes in the corresponding data point from the previous module's latent space. This crucial observation will serve as the main argument for why V-GIM's representations are interpretable, while traditional techniques such as CPC and GIM do not have these guarantees. 
 		
-
-% TODO IK BEN HIER GESTOPT EN HEB OPGEGEVEN, IK MOET NOG REVIEWEN DIT STUK. ERNA OOK INTEPRETABILITY SECTION NAKIJKEN EN DAN ZOU AF MOETEN ZIJN. EVENTUEEL IN BACKGROUND "CONTINOUS SPACE" WEGHALEN ALS IK HET DAAR AANHAAL.			
-			
-
 		
 			
 
@@ -163,7 +159,7 @@
 		%Because of this probabilistic approach, a single patch of data $\xt$ will have multiple representations $\zt^M$, providing increased variance in the representations. This can potentially benefit downstream tasks, particularly when labelled data in scarce \cite{weiRecentAdvancesVariational2021}, leading to improved performance. % TODO: this benefit should be moved to benefits section.
 
 	
-	\subsubsection{Internal batch normalisation mechanism}
+	\subsubsection{Internal batch normalisation mechanism} \label{cha:vgim_batch_norm}
 		During training of ANNs, the weights of different layers undergo changes, which can lead to a problem known as "internal covariate shift" \cite{ioffeBatchNormalizationAccelerating2015}. This shift causes the distributions of each layer's input to change over time, which in turn can negatively affect subsequent layers, slowing down the training process \cite{bjorckUnderstandingBatchNormalization2018, lecunEfficientBackProp1998}. This issue is typically addressed via batch normalisation \cite{santurkarHowDoesBatch2018, bjorckUnderstandingBatchNormalization2018}, a mechanism which normalises the activations of internal layers, allowing for a higher learning rate during training and thus accelerating the process.
 			
 		Batch normalisation is especially important in a greedy setting such as GIM and V-GIM, where modules are independently trained in parallel. Without intermediate normalisation, subsequent modules may learn slower than previous modules, resulting in the subsequent modules not being able to catch up in time to the changes from previous modules made during training. The result would be that modules may have to be trained with different learning rates, resulting in an additional hyperparameter that must be obtained for each module.

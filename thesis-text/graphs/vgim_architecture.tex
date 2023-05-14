@@ -1,0 +1,37 @@
+\newcommand\nocell[1]{\multicolumn{#1}{c|}{}}
+\setcellgapes{2pt}
+
+\begin{table}[htbp]
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Layer} & \textbf{Kernel Size} & \textbf{Stride} & \textbf{Padding} \\ \hline
+			Conv1D         & 10                   & 4               & 2                \\ \hline
+			Max Pool       & 8                    & 4               & 0                \\ \hline
+			Conv1D         & 8                    & 3               & 2                \\ \hline
+			Max Pool       & 8                    & 4               & 0                \\ \hline
+			\multicolumn{4}{|l|}{\textbf{In parallel:}}									\\ \hline
+			Conv1D         & 3                    & 1               & 2                \\ \hline
+			Conv1D         & 3                    & 1               & 2                \\ \hline
+		\end{tabular}
+		\caption{Module 1 architecture.}
+		\label{tab:architecure-module-1}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Layer} & \textbf{Kernel Size} & \textbf{Stride} & \textbf{Padding} \\ \hline
+			Conv1D         & 6                    & 2               & 2                \\ \hline
+			Conv1D         & 6                    & 2               & 2                \\ \hline
+			\multicolumn{4}{|l|}{\textbf{In parallel:}}									\\ \hline
+			Conv1D         & 3                    & 1              & 1                \\ \hline
+			Conv1D         & 3                    & 1               & 1                \\ \hline
+		\end{tabular}
+		\caption{Module 2 architecture.}
+		\label{tab:architecure-module-2}
+	\end{minipage}
+\end{table}

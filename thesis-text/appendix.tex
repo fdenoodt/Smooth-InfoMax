@@ -1,6 +1,23 @@
 \begin{appendices}
 	\chapter{Syllable classification through histogram segmentation} \label{appendix:split_syllables}
 	
+	
+	\textbf{probabily bs:}
+	% Training on longer patches, classification on padded sub-patches.
+	During inference, (in this context obtaining the latent representations for our input signals), depending on the length of the input signal, the length of the output latent representation will differ.
+	If we wish to look at how separable latent representations are for syllables, the length can be variable. Some input sounds could be 6,600 samples, while others 8,800 samples. We therefore pad the syllables with zeroes in front and end of the signal, to obtain fixed length of equal to that of the longest syllable; 8,800 samples.
+	
+	Training happens on longer data samples, and every \textbf{X} epochs t-SNE visualisations are made to observe evolutional of dis-entanglement.
+	
+	
+	
+	
+	
+	---------------------------------------------------
+	
+	
+	
+	
 	% split audio files into three separate files (one for each syllable)
 	Since the recordings are very consistent in loudness and are noise free, we can split up the files per syllable, obtaining three files per original sound (one for each syllable).
 	

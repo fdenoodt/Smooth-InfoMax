@@ -8,13 +8,16 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{subcaption}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{multirow}
+\usepackage{array, makecell, rotating}
 
 %TODO: OVERAL EMBEDDED SPACE GEBRUIKEN.
 
 
 
 \usepackage[toc,page]{appendix}
-
 \usepackage{listofitems} % for \readlist to create arrays
 \usetikzlibrary{arrows.meta} % for arrow size
 \usepackage[outline]{contour} % glow around text
@@ -53,7 +56,7 @@
 
 %\includeonly{background}
 %\includeonly{variationalcontrastivepredictivecoding}
-%\includeonly{experiments}
+\includeonly{experiments}
 
 
 
@@ -318,6 +321,13 @@
 \include{relatedwork}
 
 \chapter{Discussion}
+
+-- 
+decaying learing rate:
+	we train using decaying lr, because models must first learn distributions and goes too slow if lr is too small.
+	and a learning rate scheduler
+	ExponentialLR
+	decay rate 0.995
 
 ---
 batch norm:

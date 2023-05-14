@@ -1,0 +1,29 @@
+\begin{figure}[h] % distr beta = 0, module 1
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\input{graphs/kld=0035_loss_0}
+		\caption{Module 1: $\beta=0.0035$}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\input{graphs/kld=0035_loss_1}
+		\caption{Module 2: $\beta=0.0035$}
+	\end{subfigure}		
+	\hfill
+	
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\input{graphs/kld=0_loss_0}
+		\caption{Module 1: $\beta=0$}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\input{graphs/kld=0_loss_1}
+		\caption{Module 2: $\beta=0$}
+	\end{subfigure}
+	\caption{Training and validation loss}
+	\label{fig:four_losses}
+\end{figure}
