@@ -70,9 +70,15 @@ def forward_and_loss(opt, encoder, classifier, gt_audio_batch, syllable_idx, cri
 
     # (batch_size, l, c)
     c = c.permute(0, 2, 1)  # (b, c, l)
+    temp2 = c.shape
 
-    pooled_c = nn.functional.adaptive_avg_pool1d(c, 1)  # (b, c, 1)
-    pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, 32)  # (b, 1, c) -> (b, c)
+    # pooled_c = nn.functional.adaptive_avg_pool1d(c, 1)  # (b, c, 1)
+    # pooled_c = nn.functional.adaptive_max_pool1d(torch.abs(c) , 1)  # (b, c, 1)
+    # temp = pooled_c.shape
+    # pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, 32)  # (b, 1, c) -> (b, c)
+    pooled_c = c.reshape(-1, temp2[1]*temp2[2])
+    temp = pooled_c.shape
+
 
     if detach:
         classifier.eval()
@@ -156,7 +162,8 @@ def run_configuration(options, experiment_name):
     encoder, train_loader, test_loader = setup(options, subset_size)
 
     # create linear classifier
-    n_features = 32
+    n_features = (32 * 11) if options['which_module'] == "2" else (32 * 44)  # TODO: I added * 11 because max pooling is gone
+    
 
     classifier = torch.nn.Sequential(torch.nn.Linear(n_features, 9))
     criterion = CrossEntropyLoss()

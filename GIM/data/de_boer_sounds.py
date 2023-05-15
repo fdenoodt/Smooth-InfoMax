@@ -73,7 +73,8 @@ class DeBoerDataset(Dataset):
         if self.split_into_syllables:
             # 8821 // 160 = 55
             # 3452 // 160 = 21
-            audio_length = 21 * 160  # -> 8800 elements
+            audio_length = 55 * 160  # -> 8800 elements
+            # audio_length = 21 * 160  # -> 8800 elements
             
 
 
@@ -105,7 +106,7 @@ class DeBoerDataset(Dataset):
         if self.split_into_syllables:
             # print(audio_length_before_resample)
             assert (  # check only relevant for split up/padded audio files
-                audio_length_before_resample == 3452 # 12156  # computed in padding.py
+                audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
             ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
 
         # resample: from 22050 to 16000

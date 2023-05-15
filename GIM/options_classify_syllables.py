@@ -70,7 +70,7 @@ def get_options():
         'architecture_module_2': ARCHITECTURE2,
         'train_layer': 2,  # TODO
         'model_splits': 2,  # TODO
-        'which_module': 1,  # TODO: vals between 1 and model_splits or "last"
+        'which_module': 2,  # TODO: vals between 1 and model_splits or "last"
         'auto_regressor_after_module': AUTO_REGRESSOR_AFTER_MODULE,
 
         'prediction_step': 12,
@@ -78,12 +78,12 @@ def get_options():
         'subsample': True,
         'loss': 0,
         'batch_size_multiGPU': BATCH_SIZE,
-        'learning_rate': 0.01,  # 0.005, 50 epochs ging tot 38%
+        'learning_rate': 0.001,  # 0.005, 50 epochs ging tot 38%
         'data_input_dir': './datasets/',
         'root_logs': ROOT_LOGS,
         'validate': True,
         'start_epoch': 0,
-        'num_epochs': 2,
+        'num_epochs': 100,
 
         'batch_size': BATCH_SIZE,  # only used if "all", else overwritten
         'subset': 'all'  # 1, 2, .. 'all'
