@@ -27,7 +27,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 
 % TODO: I CALL IT Variational Greedy Infomax: V-GIM
 
-\section{Experimental details V-GIM}
+\section{Experimental details V-GIM} \label{cha:experim_details_vgim}
 	% VGIM + GIM, trained on Bart's dataset, 80\%, 20 test set
 		GIM and V-GIM are trained on raw speech signals of fixed length sampled at 16kHz. The dataset consists of 851  audio files and is randomly shuffled and split up into 80\% training data (680 files) and 20\% test data (171 files). Each audio file consists of a single spoken sound consisting of three consonants and three vowels, where the consonants and vowels alternate each other. Some examples are the sounds "gi-ga-bu" and "ba-bi-gu".	The words consists of three syllables from the following list: ba, bi, bu, da, di, du, ga, gi and gu. All the sounds are spoken by the same person, at a constant and peaceful tone. We crop the files to a fixed length of 10240 samples, or 640 milliseconds, which is slightly longer than half a second.
 		
@@ -80,9 +80,9 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	% 4 Loss functions (2 modules, gim+vgim)
 		
 		
-		Figure \ref{fig:four_losses} displays the loss curves corresponding to GIM ($\beta=0$) and V-GIM ($\beta=0.0035)$ for both modules. In the first two modules, the validation loss for GIM is lower compared to V-GIM. This is as expected because V-GIM includes an additional regularisation term in its loss function. In the two second modules, both GIM and V-GIM have loss curves that converge to lower values than their previous module. This suggests that the task becomes easier for the subsequent modules, due to the representations obtained from the preceding module.
+		Figure \ref{fig:four_losses} displays the loss curves corresponding to GIM ($\beta=0$) and V-GIM ($\beta=0.0035)$ for both modules. In the first module, the test loss for GIM is lower compared to V-GIM. This is as expected because V-GIM includes an additional regularisation term in its loss function. In the second module, both GIM and V-GIM have loss curves that converge to lower values than their previous module. This suggests that the task becomes easier for the subsequent modules, indicating that the preceding module does indeed make simplified representations for the speech data.
 		
-		Interestingly, in the second module, V-GIM has a lower loss compared to GIM, even though V-GIM includes the regularization term in its loss function. We argue that this is related to internal covariate shift, which we discussed in section \ref{cha:vgim_batch_norm}. The large learning rate from the previous module leads to a significant "drift" in the distribution of activations during training, making it difficult for successive modules to keep up with these changes. V-GIM is less susceptible to this issue due to the internal batch-normalisation mechanism that is built into the regularisation term. Consequently, V-GIM's modules can train with larger learning rates without affecting the performance of successive modules, resulting in faster convergence.
+		Interestingly, in the second module, V-GIM has a lower loss compared to GIM, even though V-GIM includes the regularization term in its loss function. We argue that this is related to internal covariate shift, which we discussed in section \ref{cha:vgim_batch_norm}. The large learning rate from the previous module leads to a significant "drift" in the distribution of activations during training, making it difficult for GIM's successive modules to keep up with these changes. V-GIM is less susceptible to this issue due to the internal batch-normalisation mechanism that is built into the regularisation term. Consequently, V-GIM's modules can train with larger learning rates without affecting the performance of successive modules, resulting in faster convergence.
 		
 		\input{graphs/gim_vgim_losses}
 		  
@@ -90,47 +90,40 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 
 
 		
-	\subsubsection{T-SNE}
-			% loss func only shows part of picture -> towards tsne
-			Although loss is used as evaluation metric, it only shows part of the picture. The main objective for the representations is to obtain some form of "decoupled/dis-entanged" features that are more easily separable. This evaluation is done by projecting the latent representations to a 2D plane, via t-SNE. Then data points are coloured in depending on their the syllable that was pronounced, eg: "gi" or "ga".
+	\subsubsection{T-SNE} % TODO: moet single syllable uitleggen met opsplitsing
+	We project the latent representations obtained from each module to a two-dimensional plane using t-SNE \cite{maatenVisualizingDataUsing2008}. This enables us to observe potential clusters, as similar data points are mapped close together, while dissimilar points remain far away. Similar to the classifier discussed in section \ref{cha:experim_details_vgim}, t-SNE is trained on flattened representations that are split into individual syllables, without performing any pooling. We run t-SNE with random initialisation, perplexity of 30 and a learning rate of 200 for 1000 iterations.
 	
-	We transform the latent representations obtained from each module 
-	Figure X displays 
-	% T-sne
-		T-distributed stochastic neighbour embedding.
+	The graphs for GIM and V-GIM are displayed in figure \ref{fig:four_tsne_plots}. T-SNE was not provided any information about the class labels. Syllables containing the vowel "a" are represented with a red tint, "u" with green, and "i" with blue. We observe similar results in the first module of both GIM and V-GIM. T-SNE identifies two clusters, with one cluster corresponding to syllables containing an "a" and the other cluster to containing "u" or "i". Within the "u/i" cluster, there is still a grouping of "u" and "i" data points. However, distinguishing between "b", "d" or "g" is more challenging as data points within the clusters are entangled.
 	
-		Visualising data using T-sne.
-			given N high-dimensional objects x1 .. xN. wants to see underlying structure of the data. eg clusters? local structures?
-			
-			How visiualise very high dimensional data?
-			
-			Introduction:
-				build map where similar data points are moved close to each other and unsimilar points far away. and map in eg 2 or 3 dims. (scatter plot).
+	In the second module, we observe more significant differences between GIM and V-GIM. In V-GIM's second module, there is clearer separation between the "i" and "u" syllables, indicating that the second module contributes to improved latent representations. However, distinguishing between the pronounced consonant remains difficult. On the other hand, GIM's second module does not appear to have converged well, as t-SNE struggles to separate the representations into meaningful clusters. Consequently, syllables are mixed together without much structure. This further emphasises how GIM is affected by internal covariate shift, while V-GIM is not.
+	
+	\input{graphs/four_tsne_plots}
+	
+	%TODO: DIT KAN IN CONCLUSIE MIS HERGEBRUIKT WORDEN
+	%\ref{fig:tsne_two_module_kld_0}: can see that second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, and thus resulting in faster convergence.
 		
-		%	\ref{fig:tsne_two_module_kld_0}: can see that second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, and thus resulting in faster convergence.
+	
+	\subsubsection{Classifier}
+	Table \ref{tab:classifier_accuracies} shows accuracies of the classifier. Results are in line with performance on t-SNE, klinkers are easily distuingished, but medeklinkers not so much.
+
+		\begin{table}[htbp]
+			\centering
+			\begin{tabular}{|l|c|c|}
+				\hline
+				\textbf{Method} & \textbf{Accuracy Module 1} & \textbf{Accuracy Module 2} \\ \hline
+				GIM         	& 0.5                   & 0.5              \\ \hline
+				V-GIM         	& 0.5                   & 0.5              \\ \hline
+			\end{tabular}
+			\caption{Accuracies on test data}
+			\label{tab:classifier_accuracies}
+		\end{table}
 		
-		%	\textbf{T-sne visualisations:}
-		%	Multiple models trained, trained GIM, but single module (exact CPC architecture), one with autoregressor and once without autoregressor layer, so only CNN layers. 200 epochs, trained on split up data samples.
-		
-		%	
-		%	4) old GIM with all modules each one layer. l1 .. 5 - cnn, l6 = gru. img shows l5 = cnn:
-		%	model can more easily distinguish A's from other \textbf{klinkers}. Partly, it kinda makes sense for GIM to learn to separate \textbf{klinkers}. Since they last longer (longer duration), the loss function will more likely randomly sample a subwindow from the "aa's" than from the \textbf{medeklinker} part.
-		%	
-		
-		
-		\input{graphs/four_tsne_plots}
-		
-		% Accuracies table	
-		| Method | Accuracy Module 1 | Accuracy Module 2 |
-		| GIM	 | 0.5		| 0.5		|
-		| V-GIM	 | 0.47		| 0.47		|
-		
-		is inline with performance on T-SNE, klinkers are easily distuingished, but medeklinkers not so much.
+
 		
 		
 		
 	\subsubsection{Distributions}
-			% distr images
+		% distr images
 		Figure X, Y, Z depict the distributions of latent distributions corresponding to an individual dimension. Each figure depicts the distributions for a single module. We show distributions for the first 6 dimensions. We observe that V-GIM does indeed learn to to make distributions similar to a Gaussian, meanwhile in GIM we observe strong thin peaks, that the first module learned to frequently predict the same value with little noise due to $\sigmafat \approx 0$. The peaks are less dominant in the second module, which may be attributed to suboptimal convergence, which is attributed to suboptimal learning rate, as discussed in section \textbf{XX: prev paragraph}.
 		\input{distributions}
 
