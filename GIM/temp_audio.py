@@ -8,6 +8,9 @@ import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
+import tikzplotlib
+
+# %%
 directory = r"C:\GitHub\thesis-fabian-denoodt\GIM\datasets\corpus\split up data padded\train"
 directory = r"C:\GitHub\thesis-fabian-denoodt\GIM\datasets\corpus\train"
 
@@ -146,10 +149,21 @@ def plot_waveform(waveform, sr, title="Waveform"):
     num_channels, num_frames = waveform.shape
     time_axis = torch.arange(0, num_frames) / sr
 
-    figure, axes = plt.subplots(num_channels, 1)
-    axes.plot(time_axis, waveform[0], linewidth=1)
-    axes.grid(True)
-    figure.suptitle(title)
+    plt.figure(figsize=(8, 7))
+    plt.plot(time_axis, waveform[0])
+    plt.xlim(0, time_axis[-1])
+    plt.xlabel('Time (s)')
+    plt.ylabel('Amplitude')
+
+
+    plt.title(title, fontdict=dict(size=18))
+    plt.xlabel('Time', fontdict=dict(size=15))
+    plt.ylabel('Frequency', fontdict=dict(size=15))
+
+    plt.savefig(title + ".pdf", bbox_inches='tight')
+
+
+
     plt.show(block=False)
 
 
@@ -181,12 +195,64 @@ print(ss.shape)
 
 # %%
 
+import IPython.display as ipd
+from IPython.display import Audio, display
+
+# play audio for `ss` using ipython.display.Audio
+display(Audio(ss, rate=sr))
+
+
+
+# %%
+
 # stack the two signals
 stacked = torch.stack([s, ss], dim=0)
 print(stacked.shape)
 
 # %%
+
+
+def power_to_db(melspec):
+    amin = 1e-10 * torch.ones_like(melspec)
+    ref_value = torch.ones_like(melspec)
+
+    log_spec = 10.0 * torch.log10(torch.maximum(amin, melspec))
+    log_spec -= 10.0 * torch.log10(torch.maximum(amin, ref_value))
+    return log_spec
+
+
+def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
+    fig, axs = plt.subplots(1, 1)
+    axs.set_title(title or "Spectrogram (db)")
+    axs.set_ylabel(ylabel)
+    axs.set_xlabel("frame")
+
+    # im = axs.imshow(
+    #     librosa.power_to_db(specgram),
+    #     origin="lower", aspect="auto"
+    # )
+    im = axs.imshow(
+        power_to_db(specgram),
+        origin="lower", aspect="auto"
+    )
+
+    fig.colorbar(im, ax=axs)
+    plt.show(block=False)
+
+
 n_mels = 128
+
+# normal spectrogram
+normal_spectrogram = T.Spectrogram(
+    n_fft=n_fft,
+    win_length=win_length,
+    hop_length=hop_length,
+    center=True,
+    pad_mode="reflect",
+    power=2.0,
+)
+norm_spec = normal_spectrogram(stacked)
+
 
 mel_spectrogram = T.MelSpectrogram(
     sample_rate=sr,
@@ -201,88 +267,36 @@ mel_spectrogram = T.MelSpectrogram(
     n_mels=n_mels,
     mel_scale="htk",
 )
-
-# melspec_librosa = librosa.feature.melspectrogram(
-#     y=signal,
-#     sr=sr,
-#     n_fft=n_fft,
-#     hop_length=hop_length,
-#     win_length=win_length,
-#     center=True,
-#     pad_mode="reflect",
-#     power=2.0,
-#     n_mels=n_mels,
-#     norm="slaney",
-#     htk=True,
-# )
-
-
-def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
-    fig, axs = plt.subplots(1, 1)
-    axs.set_title(title or "Spectrogram (db)")
-    axs.set_ylabel(ylabel)
-    axs.set_xlabel("frame")
-
-    print(specgram.shape)
-    print(librosa.power_to_db(specgram).shape)
-
-    im = axs.imshow(
-        # specgram,
-        librosa.power_to_db(specgram),
-        origin="lower", aspect="auto"
-    )
-    fig.colorbar(im, ax=axs)
-    plt.show(block=False)
-
-
 melspec = mel_spectrogram(stacked)
 
-# amin is tensor of shape melspec, consisting of amin values
-#amin = 1e-10
-amin = 1e-10 * torch.ones_like(melspec)
-ref_value = torch.ones_like(melspec)
 
-log_spec = 10.0 * torch.log10(torch.maximum(amin, melspec))
-log_spec -= 10.0 * torch.log10(torch.maximum(amin, ref_value))
+# plot_spectrogram(
+#     melspec[1][0], title="MelSpectrogram - librosa", ylabel="mel freq")
 
+def plot_red(spec, title):
+    spectrogram = np.abs(spec)
+    power_to_db = librosa.power_to_db(spectrogram, ref=np.max)
+    plt.figure(figsize=(8, 7))
+    librosa.display.specshow(power_to_db, sr=sr, x_axis='time', y_axis='mel', cmap='magma',
+                             hop_length=hop_length)
+    plt.colorbar(label='dB')
+    plt.title(title, fontdict=dict(size=18))
+    plt.xlabel('Time', fontdict=dict(size=15))
+    plt.ylabel('Frequency', fontdict=dict(size=15))
+    tikzplotlib.save(title + ".tex")
 
-plot_spectrogram(
-    melspec[0][0], title="MelSpectrogram - librosa", ylabel="mel freq")
-plot_spectrogram(
-    melspec[1][0], title="MelSpectrogram - librosa", ylabel="mel freq")
+    # save as pdf
+    plt.savefig(title + ".pdf", bbox_inches='tight')
 
-
-def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
-    fig, axs = plt.subplots(1, 1)
-    axs.set_title(title or "Spectrogram (db)")
-    axs.set_ylabel(ylabel)
-    axs.set_xlabel("frame")
-
-    print(specgram.shape)
-    print(librosa.power_to_db(specgram).shape)
-
-    im = axs.imshow(
-        specgram,
-        # librosa.power_to_db(specgram),
-        origin="lower", aspect="auto"
-    )
-    fig.colorbar(im, ax=axs)
-    plt.show(block=False)
+    plt.show()
 
 
-plot_spectrogram(
-    log_spec[0][0], title="MelSpectrogram - librosa", ylabel="mel freq")
-plot_spectrogram(
-    log_spec[1][0], title="MelSpectrogram - librosa", ylabel="mel freq")
+plot_red(melspec[1][0], "Mel-Spectrogram (dB)")
+plot_red(norm_spec[1][0], "Linear Spectrogram (dB)")
 
 
-# melspec = mel_spectrogram(s)
-
-# plot_spectrogram(melspec_librosa, title="MelSpectrogram - librosa", ylabel="mel freq")
-# print(melspec.shape)
-
-# mse = torch.square(melspec - melspec_librosa).mean().item()
-# print("Mean Square Difference: ", mse)
+# plot `ss` in time domain
+plot_waveform(ss, sr, title="Waveform in time domain")
 
 
 # %%
