@@ -20,8 +20,10 @@ This script will plot the final validation accuracy for each subset size. (aka t
 The plot will contain two lines, one for kld=0.0033 and one for kld=0.
 """
 
-root_logs = r"D:\thesis_logs\logs\good models\CLASSIFIER_module_2"
-root_save = r"D:\thesis_logs\logs\good models\CLASSIFIER_module_2\plots"
+# root_logs = r"D:\thesis_logs\logs\good models\CLASSIFIER_module_2"
+# root_save = r"D:\thesis_logs\logs\good models\CLASSIFIER_module_2\plots"
+root_logs = r"D:\thesis_logs\logs\good models\generalisation_experiment\module1"
+root_save = r"D:\thesis_logs\logs\good models\generalisation_experiment\module1\plots"
 
 # get all folders
 folders = os.listdir(root_logs)
@@ -45,7 +47,7 @@ subset_sizes, klds, folders = zip(*sorted(zip(subset_sizes, klds, folders)))
 val_acc = []
 for folder in folders:
     path = os.path.join(root_logs, folder,
-                        r"CrossEntrop Loss\lr_0.0100000\GIM_L1")
+                        r"CrossEntrop Loss\lr_0.0010000\GIM_L1")
     with open(os.path.join(path, "validation_accuracy.csv")) as f:
         lines = f.readlines()
         val_acc.append(float(lines[-1]))
@@ -56,21 +58,21 @@ val_acc = [v / 100 for v in val_acc]
 # Separate kld=0 and kld=0.0033
 val_acc_0 = [val_acc[i] for i in range(len(val_acc)) if klds[i] == "0"]
 val_acc_0_0033 = [val_acc[i]
-                  for i in range(len(val_acc)) if klds[i] == "0.0033"]
+                  for i in range(len(val_acc)) if klds[i] == "0.0035"]
 
 subset_sizes = subset_sizes[::2]
 
 # filter out last subset_size
-subset_sizes = subset_sizes[:-1]
-val_acc_0 = val_acc_0[:-1]
-val_acc_0_0033 = val_acc_0_0033[:-1]
+# subset_sizes = subset_sizes[:-1]
+# val_acc_0 = val_acc_0[:-1]
+# val_acc_0_0033 = val_acc_0_0033[:-1]
 
 val_acc_random = [1/9 for _ in range(len(subset_sizes))]
 
 
 # plot
 plt.plot(subset_sizes, val_acc_0, "-b", label="kld=0")
-plt.plot(subset_sizes, val_acc_0_0033, "-g", label="kld=0.0033")
+plt.plot(subset_sizes, val_acc_0_0033, "-g", label="kld=0.0035")
 plt.plot(subset_sizes, val_acc_random, "-r", label="random")
 
 plt.xlabel("Number of datapoints per class (9 classes)")
