@@ -170,41 +170,58 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		
 		\input{graphs/sectr_example/spectr_example}
 		
-		The training and validation loss curves for both decoders are shown in figure \ref{fig:decoder_loss_functions}.
 		
-		\input{graphs/decoder/loss_functions}
 		
 		%TODO: IF I HAVE TIME, I COULD DISPLAY SOME VISUALS OF PREDICTIONS IT HAS MADE, BUT CURRENTLY, THEY DON'T LOOK VERY GOOD.
 
 			
-		\subsection{V-GIM analysis through decoder}
+		\subsection{V-GIM representation analysis through decoder}
+			Decoding arbitrary latent representations allows us to perceive the remaining information in the representation. It is worth mentioning that the reliability of this analysis is dependent on the performance of the decoder. If it is not able to reconstruct certain features, this does not necessarily mean the information is not contained in the latent representation. 
+			
+			Training and validation loss curves for both decoders are shown in figure \ref{fig:decoder_loss_functions}. Overall, in both decoders we observed that audio files could be reconstructed and the pronounced syllables were recognisable when listening to them. However, reconstructed sounds seemed noisy and information about the speaker's identity was unrecognisable, suggesting that this information is either no longer contained in the latent representations, or the decoders are not able to replicate it. Additionally, while we could vowels were easily identifiable, we observed that the decoder occasionally made mistakes with consonants. For instance decoding the latent representation for "gu" could occasionally result in an incorrect "bu" or "du". These observations are in line with the t-SNE plots classification performance we discussed in the previous section, further suggesting that consonant information may no longer be present in the latent representations.
+			
+			\input{graphs/decoder/loss_functions}
+			
+			Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} in Appendix \ref{cha:appendix_interpol} show decoded latent representations corresponding obtained from the \textit{intermediate} decoder. In each figure, values from an individual dimension is manipulated. As such, changes to the speech wave give indications on what information is encoded in that dimension. Each representation starts as the zero-vector $\textbf{0}$ but a single dimension is being modified, ranging between -2.68 and 2.68. The reconstructed audio wave is shown both in frequency and time domain.
+			
+			We classify the dimensions and their contained information into one of three categories. Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} show an example of each category. The first category contains information about frequencies for a specific frequency bin. Altering this dimension will have strong influence on the magnitude of one or two frequency bins while other bins remain relatively unchanged. This is shown in figure \ref{fig:interpol_dim12}, where changing the value of the 12th dimension towards -2.68 causes a peek around the 100 Hz frequency bin. The peek disappears when approaching 0. Meanwhile, when approaching +2.68, the magnitude of the 150 Hz frequency bin increases. Overall, we observed this kind of behaviour for roughly half of the 32 dimensions. The majority of dimensions were sensitive in the 100 Hz and 150 Hz frequency bins, while a few in the 175 Hz bin. These ranges are to be expected as the pitch range for men's voices is between 60 and 180 Hz \cite{rePreferencesVeryLow2012}.
+			
+			Dimensions that belong to the second category, do not only influence magnitude of frequencies in a specific bin, but also to the nearby bins. In this category, changes to a dimension will cause magnitude of a specific frequency to increase as well, but it will also take along its neighbouring frequencies, resulting in a smooth envelop with a single peak which gradually decreases over the neighbouring frequencies. This behaviour is shown in figure \ref{fig:interpol_dim1}.
+	
+			The final category of dimensions are those that do not seem to contribute anything to the reconstructed signal. Changes to the values in these dimensions cause very little change to the resulted speech wave both in time domain and frequency domain. These are either 
+			useless dimensions or the decoder was not able to capture their contribution. An example is shown in figure \ref{fig:interpol_dim7}.
+			
+			\textbf{Final decoder...}
 		
-		To keep:
-		%D:\thesis_logs\logs\good models\interpolate_module_1\plots_interpolate_fourier\dim=11
-		% either 100 or 150 hz.
 		
-		%dim=0: strong peak at 100 and also environment
-		
-		%dim 6
-		
-		
-		dim=0: strong peak at 100 and also environment
-		dim1 same
-		dim2: starts high peak at 100, but other end of spectrum is 150 strong peak
-		dim3: 0 to 3: at 3 high peaks all around 100 (0 - 300 hz)
-		so can see that some are sensitive for merely single freq, others for multiple freqs!
-		dim12 too, dim10, 25
-		
-		dim4: same as dim2
-		dim7: same as dim2 (either peak at 100hz or 150hz)
-		dim11: same: either peak at 100hz or 150hz.
-		dim14, dim15, 16, 17, 18, 19, 22, 26, 31
-		
-		dim6: does nothing. could be a dimension that does not contribute to anything.
-		\^\^ dim8 same
-		dim13, 20, 30
-		
-		dim 21: sensitive around 180-200
+	%			
+	%			
+	%			To keep:
+	%			%D:\thesis_logs\logs\good models\interpolate_module_1\plots_interpolate_fourier\dim=11
+	%			% either 100 or 150 hz.
+	%			
+	%			%dim=0: strong peak at 100 and also environment
+	%			
+	%			%dim 6
+	%			
+	%			
+	%			dim=0: strong peak at 100 and also environment
+	%			dim1 same
+	%			dim2: starts high peak at 100, but other end of spectrum is 150 strong peak
+	%			dim3: 0 to 3: at 3 high peaks all around 100 (0 - 300 hz)
+	%			so can see that some are sensitive for merely single freq, others for multiple freqs!
+	%			dim12 too, dim10, 25
+	%			
+	%			dim4: same as dim2
+	%			dim7: same as dim2 (either peak at 100hz or 150hz)
+	%			dim11: same: either peak at 100hz or 150hz.
+	%			dim14, dim15, 16, 17, 18, 19, 22, 26, 31
+	%			
+	%			dim6: does nothing. could be a dimension that does not contribute to anything.
+	%			%	 dim8 same
+	%			dim13, 20, 30
+	%			
+	%			dim 21: sensitive around 180-200
 		
 
 			

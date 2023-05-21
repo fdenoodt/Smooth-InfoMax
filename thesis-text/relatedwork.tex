@@ -9,15 +9,41 @@ In the field of Explainable AI multiple paradigms exist, ranging from activation
 These techniques give insights in audio domain, but lack in other domains such as speech domain where heatmaps be harder to gain insights from.
 
 
+
+
+---
+Explainable ANNs:
+	- diff paradigms, by looking at heath maps and lr etc
+	- our work is in fact new paradigm, by adding constraints to the optimisation metric, resulting in better understandable latent representations
+	- Explainable deep learning methods survey: \cite{baiExplainableDeepLearning2021} (attribution and non attribution, zie mijn draft.dox) --> propbeert contribution van elke feature te linken. dat zijn technieken die werken voor foto's of feature vectors, maar voor puur sequential audio is moeilijker bruikbaar.
+
+Others who have added prior constraint to latent space (ik heb denk ik paper daar van)
+
+Alternative priors
+
+Explainable representation learning
+
+Explainable representation learning in speech data
+
+
+Maybe exists other techniques that change the ANN resulting in bette explainable. (eg pruning?)
+	- methodology to remove features that do not contribute to accuracy. (feature selection) with interpretability motivations. \cite{glorfeldMethodologySimplificationInterpretation1996}
+
+---
+CPC and GreedyInfomax:
+	- Bart's previous thesis student,
+		The same dataset was used by X, Y, for speech learning. X trained a convolutional neural network with the speech recognition task. Y further continued this work by developing a model, based on Greedy Infomax. Showing that learning is feasible. We contribute to Y’s ideas by inspecting the representations that were learned from GIM.
+		--> Showing that greedy learning with the corpus is feasible.
+
+
+
+
+
 \section{Representation learning: explainable}
 \section{Variational learning}
 There already were a few papers with variational contrastive predictive coding
 
 \section{Links I should investigate}
-
-- Adversarial and Contrastive Variational Autoencoder for Sequential Recommendation
-https://arxiv.org/pdf/2103.10693.pdf
-
 - S3VAE: Self-Supervised Sequential VAE for Representation Disentanglement and Data Generation
 https://arxiv.org/abs/2005.11437
 
