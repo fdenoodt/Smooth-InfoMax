@@ -81,7 +81,7 @@ def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_lo
 
 def generate_and_save_encodings(opt_anal, encoder_model_path):
     encoder: GIM_Encoder = GIM_Encoder(opt, path=encoder_model_path)
-    split = False
+    split = True
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
         opt, dataset="de_boer_sounds_reshuffled", shuffle=False, split_and_pad=split, train_noise=False)
 
@@ -125,13 +125,10 @@ def plot_tsne(feature_space, label_indices, gim_name, target_dir):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
     projection = TSNE(
-        init='pca',
-        learning_rate=500,
-        n_iter=10000,
-        n_iter_without_progress=1000,
-
-
-
+        init='random',
+        learning_rate=200,
+        n_iter=1000,
+        # n_iter_without_progress=1000,
         # perplexity=50
         # perplexity=15
     ).fit_transform(feature_space)
@@ -147,13 +144,18 @@ def plot_tsne(feature_space, label_indices, gim_name, target_dir):
 
 
 def plot_histograms(feature_space_per_channel, gim_name, target_dir):
+    max_dim = 16
     for idx, feature_space in enumerate(feature_space_per_channel):
+        if idx == max_dim:
+            break
+
         file = f"_ distribution_latent_space_{gim_name}_dim={idx}"
 
         histogram(feature_space,
                   title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir, file=file, show=False)
 
         print(f"Saved t-SNE plot to {target_dir}/{file}.png")
+
 
 
 def generate_tsne_visualisations_original_data(train_or_test):

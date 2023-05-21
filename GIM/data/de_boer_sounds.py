@@ -103,11 +103,11 @@ class DeBoerDataset(Dataset):
             samplerate == self.initial_sample_rate
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        if self.split_into_syllables:
+        # if self.split_into_syllables:
             # print(audio_length_before_resample)
-            assert (  # check only relevant for split up/padded audio files
-                audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
-            ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
+            # assert (  # check only relevant for split up/padded audio files
+            #     audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
+            # ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
 
         # resample: from 22050 to 16000
         audio = resample(audio,

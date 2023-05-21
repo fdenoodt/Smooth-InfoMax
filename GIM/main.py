@@ -34,9 +34,9 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
         # store model
-        if epoch % opt["log_every_x_epochs"] == 0:
-            # save model
-            torch.save(model.state_dict(), opt["model_path"] + f"temp_model_{epoch}.pt")
+        # if epoch % opt["log_every_x_epochs"] == 0:
+        #     # save model
+        #     torch.save(model.state_dict(), opt["model_path"] + f"temp_model_{epoch}.pt")
 
 
 
