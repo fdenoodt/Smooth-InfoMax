@@ -74,7 +74,7 @@ def forward_and_loss(opt, encoder, classifier, gt_audio_batch, syllable_idx, cri
 
     if opt["pooling"] == "max":
         pooled_c = nn.functional.adaptive_max_pool1d(c, 1)  # (b, c, 1)
-        pooled_c = pooled_c.reshape(-1, 512)
+        pooled_c = pooled_c.reshape(-1, 32)
     elif opt["pooling"] == "not":
 
         # pooled_c = nn.functional.adaptive_max_pool1d(torch.abs(c) , 1)  # (b, c, 1)
@@ -94,9 +94,10 @@ def forward_and_loss(opt, encoder, classifier, gt_audio_batch, syllable_idx, cri
     else:
         outputs = classifier(pooled_c)
 
+    n_classes = 9 if opt["labels"] == "syllables" else 3
     # transform syllable_idx to one-hot encoding
     targets = torch.nn.functional.one_hot(
-        syllable_idx, num_classes=9).to(device)
+        syllable_idx, num_classes=n_classes).to(device)
     loss = criterion(outputs, targets)
 
     accuracy, = utils.accuracy(outputs.data, syllable_idx.to(device))
@@ -162,13 +163,22 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
 
 def run_configuration(options, experiment_name):
     subset_size = options['subset']
+
+    labels = options['labels']
+    assert labels == "syllables" or labels == "vowels", "labels must be 'syllables' or 'vowels'"
+    if labels == "syllables":
+        n_classes = 9
+    else:
+        n_classes = 3
+     
+
     if subset_size != "all":  # overwrite batch size to 9 content of subset
-        options['batch_size'] = min(9 * int(subset_size), 32 * 9)  # 9 classes, but not enough data in validation set if 128 subset
+        options['batch_size'] = min(n_classes * int(subset_size), 32 * n_classes)  # 9 classes, but not enough data in validation set if 128 subset
 
     encoder, train_loader, test_loader = setup(options, subset_size)
 
     # create linear classifier
-    LATENT_DIM = 512
+    LATENT_DIM = 32
     if options['pooling'] == "max":
         n_features = LATENT_DIM  # TODO: I added * 11 because max pooling is gone
     elif options['pooling'] == "not":
@@ -176,7 +186,8 @@ def run_configuration(options, experiment_name):
     else:
         raise ValueError("pooling must be 'max' or 'not'")
 
-    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, 9))
+    include_bias = options['include_bias_term']
+    classifier = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes, bias=include_bias))
     criterion = CrossEntropyLoss()
     lr = options['learning_rate']
     module = options['which_module']

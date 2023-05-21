@@ -5,7 +5,7 @@ import torchaudio
 from collections import defaultdict
 
 from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
-from helper_functions import resample, translate_syllable_to_number
+from helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
 
 
 def default_loader(path):
@@ -75,8 +75,6 @@ class DeBoerDataset(Dataset):
             # 3452 // 160 = 21
             audio_length = 55 * 160  # -> 8800 elements
             # audio_length = 21 * 160  # -> 8800 elements
-            
-
 
         else:
             # the length of the audio files is similar because syllables are padded with zeros in front and back
@@ -90,8 +88,12 @@ class DeBoerDataset(Dataset):
         full_word = filename.split("_")[0]  # bagigi
         if self.split_into_syllables:
             pronounced_syllable = filename[-2:]  # ba
-            pronounced_syllable = translate_syllable_to_number(
-                pronounced_syllable)  # 0
+            if self.opt['labels'] == 'syllables':
+                pronounced_syllable = translate_syllable_to_number(
+                    pronounced_syllable)  # 0
+            else:
+                pronounced_syllable = translate_syllable_vowel_number(pronounced_syllable) # either 0, 1 or 2
+
         else:
             pronounced_syllable = 0  # dummy value as None is not supported by pytorch
 
