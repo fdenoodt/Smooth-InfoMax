@@ -1,39 +1,67 @@
 
 %*******************************************************************************
-\chapter{Related work}
-We have studied the latent representations obtained from maximising the InfoNCE objective. 
-We achieved this through the introduction of V-GIM, a self-supervised representation learning approach with the same InfoNCE objective, but with an additional constraint to the latent space resulting in better interpretable representations. Such that a decoder could be trained and predict meaningful ...
-This is a vastly different approach from existing techniques in explainable AI.
+\chapter{Relation to existing work}
 
-In the field of Explainable AI multiple paradigms exist, ranging from activation heatmaps ...
-These techniques give insights in audio domain, but lack in other domains such as speech domain where heatmaps be harder to gain insights from.
+%Contrastive Predictive Coding has seen success in recent years, in addition we have GIM which contributes to this.
+In recent years CPC is shown to be a successful self-supervised learning approach in a wide range of domains \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, allowing for training modules in parallel on multiple devices, or sequentially, offering a solution for hardware constrained devices. In addition, Wang \cite{meihanwangSpeechRepresentationLearning2019} show that GIM can be applied to learn good speech representations from the speech dataset discussed in section \ref{cha:experim_details_vgim}.
 
-
-
+However, the underlying representations obtained from optimising the InfoNCE loss have not yet been studied in great detail. In this thesis we shed light onto this, through the introduction of a constraint to the latent space, causing space, which can be better understood and analysed. 
+	We have studied the latent representations obtained from maximising the InfoNCE objective. 
+	We achieved this through the introduction of V-GIM, a self-supervised representation learning approach with the same InfoNCE objective, but with an additional constraint to the latent space resulting in better interpretable representations. Such that a decoder could be trained and predict meaningful ...
+	
+\section{Explainable ANNs}
+	%While multiple XAI techniques exist, they work in different paradigms, usually attempt to visualise 
+	This is a vastly different approach from existing techniques in explainable AI. Bai et al. group the techniques in three categories \cite{baiExplainableDeepLearning2021}; attribution-based methods, non-attribution-based methods and uncertainty quantification.
+	1) tries to attribute a prediction to its input features. eg used for images and can highlight regions contribute to the decision.
+	
+	
+	
+	X et al. group XAI techniques in x cateogories
+		In the field of Explainable AI multiple paradigms exist, ranging from activation heatmaps ...
+	
+	These techniques give insights in visual domain, but lack in other domains such as speech domain where heatmaps be harder to gain insights from.
 
 ---
 Explainable ANNs:
 	- diff paradigms, by looking at heath maps and lr etc
 	- our work is in fact new paradigm, by adding constraints to the optimisation metric, resulting in better understandable latent representations
-	- Explainable deep learning methods survey: \cite{baiExplainableDeepLearning2021} (attribution and non attribution, zie mijn draft.dox) --> propbeert contribution van elke feature te linken. dat zijn technieken die werken voor foto's of feature vectors, maar voor puur sequential audio is moeilijker bruikbaar.
-
-Others who have added prior constraint to latent space (ik heb denk ik paper daar van)
-
-Alternative priors
-
-Explainable representation learning
-
+	- Explainable deep learning methods survey: \cite{baiExplainableDeepLearning2021} (attribution and non attribution, zie mijn draft.dox) --> probeert contribution van elke feature te linken. dat zijn technieken die werken voor foto's of feature vectors, maar voor puur sequential audio is moeilijker bruikbaar.
+	
+	Maybe exists other techniques that change the ANN resulting in better explainable. (eg pruning?)
+	- methodology to remove features that do not contribute to accuracy. (feature selection) with interpretability motivations. \cite{glorfeldMethodologySimplificationInterpretation1996}
+	
+	
 Explainable representation learning in speech data
 
 
-Maybe exists other techniques that change the ANN resulting in bette explainable. (eg pruning?)
-	- methodology to remove features that do not contribute to accuracy. (feature selection) with interpretability motivations. \cite{glorfeldMethodologySimplificationInterpretation1996}
 
----
-CPC and GreedyInfomax:
-	- Bart's previous thesis student,
-		The same dataset was used by X, Y, for speech learning. X trained a convolutional neural network with the speech recognition task. Y further continued this work by developing a model, based on Greedy Infomax. Showing that learning is feasible. We contribute to Y’s ideas by inspecting the representations that were learned from GIM.
-		--> Showing that greedy learning with the corpus is feasible.
+Explainable representation learning
+	- Representation learning overview: eventueel enkel opnoemen? wasserstijn gans etc?
+	
+	- InfoGAN: chenInfoGANInterpretableRepresentation2016, guoDeepMultimodalRepresentation2019
+		This idea of constraining the latent space to become more interpretable was also done in InfoGAN.
+		which learns disentangled and interpretable representations. achieved by maximising mutual between a small subset of the latent variables and the observation \cite{chenInfoGANInterpretableRepresentation2016}.
+		
+
+Variational learning (alternative priors):
+	Taking inspiration from VAEs, we constrain V-GIM's latent space by minimising the KL-divergence to a standard normal Gaussian. In recent years, multiple extensions to VAEs have been introduced which use a different prior. 
+	While the most common posterior is a factorised gaussian for easy mathematical derivation, Kingma et al \cite{kingmaIntroductionVariationalAutoencoders2019} show that alternative full Gaussian is also possible. ref Kinmga thesis? "Variational learning (alternative priors): cite:nalisnickApproximateInferenceDeep". "a factorized Gaussian, thereby imposing strong constraints on the posterior form and its ability to represent the true posterior, which is often multimodal" 
+	Full-covariance Gaussian posterior.
+	
+	%Others who have added prior constraint to latent space (ik heb denk ik paper daar van)
+	Alternative priors
+		- \cite{tomczakVAEVampPrior2018}: use a mixture of Gaussians and results in less useless latent dimensions.
+		- Gaussian mixture model: \cite{guoVariationalAutoencoderOptimizing2020}
+		- Gaussian mixture: \cite{nalisnickApproximateInferenceDeep}
+		- Hierarchical VAE: \cite{vahdatNVAEDeepHierarchical2020}
+
+
+
+%---
+%CPC and GreedyInfomax:
+%	- Bart's previous thesis student,
+%		The same dataset was used by X, Y, for speech learning. X trained a convolutional neural network with the speech recognition task. Y further continued this work by developing a model, based on Greedy Infomax. Showing that learning is feasible. We contribute to Y’s ideas by inspecting the representations that were learned from GIM.
+%		--> Showing that greedy learning with the corpus is feasible.
 
 
 
