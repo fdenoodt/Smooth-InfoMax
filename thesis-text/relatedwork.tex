@@ -2,14 +2,14 @@
 %*******************************************************************************
 \chapter{Relation to existing work}
 
-%Contrastive Predictive Coding has seen success in recent years, in addition we have GIM which contributes to this.
-In recent years CPC is shown to be a successful self-supervised learning approach in a wide range of domains \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, allowing for training modules in parallel on multiple devices, or sequentially, offering a solution for hardware constrained devices. In addition, Wang \cite{meihanwangSpeechRepresentationLearning2019} show that GIM can be applied to learn good speech representations from the speech dataset discussed in section \ref{cha:experim_details_vgim}.
+%Contrastive Predictive Coding has seen success in recent years, in addition we have GIM which contributes to this. TODO: MISS ZOU DIT EIG OOK GEWOON IN INTRODUCTIE KUNNEN?
+In recent years, CPC has been shown to be a successful self-supervised learning approach in a wide range of domains \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, allowing for training modules in parallel on multiple devices, or sequentially, offering a solution for hardware constrained devices. In addition, Wang \cite{meihanwangSpeechRepresentationLearning2019} show that GIM can be applied to learn good speech representations from the speech dataset discussed in section \ref{cha:experim_details_vgim}.
 
 However, the underlying representations obtained from optimising the InfoNCE loss have not yet been studied in great detail. In this thesis we shed light onto this, through the introduction of a constraint to the latent space, causing space, which can be better understood and analysed. 
 	We have studied the latent representations obtained from maximising the InfoNCE objective. 
 	We achieved this through the introduction of V-GIM, a self-supervised representation learning approach with the same InfoNCE objective, but with an additional constraint to the latent space resulting in better interpretable representations. Such that a decoder could be trained and predict meaningful ...
 	
-\section{Explainable ANNs}
+\section{Explainable AI}
 	%While multiple XAI techniques exist, they work in different paradigms, usually attempt to visualise 
 	This is a vastly different approach from existing techniques in explainable AI. Bai et al. group the techniques in three categories \cite{baiExplainableDeepLearning2021}; attribution-based methods, non-attribution-based methods and uncertainty quantification.
 	1) tries to attribute a prediction to its input features. eg used for images and can highlight regions contribute to the decision.
@@ -18,8 +18,11 @@ However, the underlying representations obtained from optimising the InfoNCE los
 	
 	X et al. group XAI techniques in x cateogories
 		In the field of Explainable AI multiple paradigms exist, ranging from activation heatmaps ...
-	
 	These techniques give insights in visual domain, but lack in other domains such as speech domain where heatmaps be harder to gain insights from.
+	
+		
+	
+	- 
 
 ---
 Explainable ANNs:
@@ -31,30 +34,31 @@ Explainable ANNs:
 	- methodology to remove features that do not contribute to accuracy. (feature selection) with interpretability motivations. \cite{glorfeldMethodologySimplificationInterpretation1996}
 	
 	
-Explainable representation learning in speech data
+Explainable learning in speech data
 
 
+Summarise: our method: sequential data/speech data, interpretable, representation learning, disentanglement
 
-Explainable representation learning
-	- Representation learning overview: eventueel enkel opnoemen? wasserstijn gans etc?
+\section{Mutual information and interpretability Representation learning}
+
+	% eerst MI inleiden
+	If we further continue in the Mutual Information Maximisation research line, GIM and Deep InfoMax both obtained representations through mutual information maximisation. GIM maximises the mutual information between temporally nearby patches, assuming common information between nearby data \cite{lowePuttingEndEndtoEnd2020}. It is also the basis for our own contribution, V-GIM. Similarly, Deep InfoMax considers an ANN encoder model which maximises the mutual information between input and output. This is achieved by incorporating knowledge about locality in the representations, resulting in locally-consistent information across structural locations \cite{hjelmLearningDeepRepresentations2019}.
+	InfoGAN \cite{chenInfoGANInterpretableRepresentation2016} is an extension to the GANs and also learns representations by maximising the mutual information between the generated data and small subsets of the latent variables in the latent representations. In addition, InfoGAN's learning approach results in disentangled and interpretable representations, where manipulating an individual dimension in the latent space, results in changes to a specific feature of the generated data, while other features remain unchanged. This is achieved through a modification of the traditional minimax loss function in GANs.
 	
-	- InfoGAN: chenInfoGANInterpretableRepresentation2016, guoDeepMultimodalRepresentation2019
-		This idea of constraining the latent space to become more interpretable was also done in InfoGAN.
-		which learns disentangled and interpretable representations. achieved by maximising mutual between a small subset of the latent variables and the observation \cite{chenInfoGANInterpretableRepresentation2016}.
+	Further continuing in representation learning methods which incorporate interpretability mechanisms, Timeline uses RNNs with an attention mechanism to aggregate sequential health to interpretable representations \cite{baiInterpretableRepresentationLearning2018}. This interpretability is achieved through analysis of weights associated to different medical codes. Similarly, Agrawal and Ganapathy use relevance weighting on raw speech data, allowing for interpretation of the representations during forward propagation \cite{agrawalInterpretableRepresentationLearning2020}.
+	
+	
+	
+	% in MI domain? Deep InfoMax [17] and Greedy InfoMax 
 		
 
-Variational learning (alternative priors):
-	Taking inspiration from VAEs, we constrain V-GIM's latent space by minimising the KL-divergence to a standard normal Gaussian. In recent years, multiple extensions to VAEs have been introduced which use a different prior. 
-	While the most common posterior is a factorised gaussian for easy mathematical derivation, Kingma et al \cite{kingmaIntroductionVariationalAutoencoders2019} show that alternative full Gaussian is also possible. ref Kinmga thesis? "Variational learning (alternative priors): cite:nalisnickApproximateInferenceDeep". "a factorized Gaussian, thereby imposing strong constraints on the posterior form and its ability to represent the true posterior, which is often multimodal" 
-	Full-covariance Gaussian posterior.
-	
-	%Others who have added prior constraint to latent space (ik heb denk ik paper daar van)
-	Alternative priors
-		- \cite{tomczakVAEVampPrior2018}: use a mixture of Gaussians and results in less useless latent dimensions.
-		- Gaussian mixture model: \cite{guoVariationalAutoencoderOptimizing2020}
-		- Gaussian mixture: \cite{nalisnickApproximateInferenceDeep}
-		- Hierarchical VAE: \cite{vahdatNVAEDeepHierarchical2020}
+\section{Alternative priors and posteriors in VAEs}	% TODO: MAYBE THIS SHOULD BE MOVED TO DISCUSSION/FUTURE WORK?
+Taking inspiration from VAEs, V-GIM aims to minimise the KL-divergence with its posterior distributions $\qphizx$ and prior $\prior=\standardnormal$. Doing so results in a latent space which can be better understood. In recent years multiple contributions were introduced to VAEs in relation to different priors and posteriors.
 
+In VAEs the posterior $\qphizx$ is in fact an approximate for the true posterior $\pphizx$ \cite{odaiboTutorialDerivingStandard2019}. This approximate posterior is most commonly chosen to be a simple factorised Gaussian for easier mathematical derivations, however, this is typically an oversimplification of the true posterior \cite{nalisnickApproximateInferenceDeep}. Consequently, Kingma and Welling show that the approximate posterior can be extended to a Gaussian with full covariance matrix \cite{kingmaIntroductionVariationalAutoencoders2019}. Additionally, Nalisnick et al. propose a Gaussian mixture model (a combination several Gaussians) as approximate posterior, enabling multimodal posterior distributions \cite{nalisnickApproximateInferenceDeep}.
+
+Continuing in the line of Gaussian mixture models, extensions to alternative priors have been explored as well. Lee et al. and experiment with Gaussian mixture model priors \cite{leeMetaGMVAEMixtureGaussian2021, guoVariationalAutoencoderOptimizing2020}, resulting in improved performance. Additionally, Tomczak and Welling introduce VampPrior, which choses the prior to be a mixture of variational posteriors, resulting in improved model performance and reducing issues related to useless dimensions \cite{tomczakVAEVampPrior2018}. This is a known issue in VAEs which we observed V-GIM suffers from as well.
+	
 
 
 %---

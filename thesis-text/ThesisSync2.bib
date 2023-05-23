@@ -16,6 +16,21 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\JZCAA6DW\\Ackley et al. - 1985 - A learning algorithm for boltzmann machines.pdf;C\:\\Users\\Fab\\Zotero\\storage\\9BUK7H8G\\S0364021385800124.html}
 }
 
+@article{agrawalInterpretableRepresentationLearning2020,
+  title = {Interpretable {{Representation Learning}} for {{Speech}} and {{Audio Signals Based}} on {{Relevance Weighting}}},
+  author = {Agrawal, Purvi and Ganapathy, Sriram},
+  date = {2020},
+  journaltitle = {IEEE/ACM Transactions on Audio, Speech, and Language Processing},
+  volume = {28},
+  pages = {2823--2836},
+  issn = {2329-9304},
+  doi = {10.1109/TASLP.2020.3030489},
+  abstract = {The learning of interpretable representations from raw data presents significant challenges for time series data like speech. In this work, we propose a relevance weighting scheme that allows the interpretation of the speech representations during the forward propagation of the model itself. The relevance weighting is achieved using a sub-network approach that performs the task of feature selection. A relevance sub-network, applied on the output of first layer of a convolutional neural network model operating on raw speech signals, acts as an acoustic filterbank (FB) layer with relevance weighting. A similar relevance sub-network applied on the second convolutional layer performs modulation filterbank learning with relevance weighting. The full acoustic model consisting of relevance sub-networks, convolutional layers and feed-forward layers is trained for a speech recognition task on noisy and reverberant speech in the Aurora-4, CHiME-3 and VOiCES datasets. The proposed representation learning framework is also applied for the task of sound classification in the UrbanSound8K dataset. A detailed analysis of the relevance weights learned by the model reveals that the relevance weights capture information regarding the underlying speech/audio content. In addition, speech recognition and sound classification experiments reveal that the incorporation of relevance weighting in the neural network architecture improves the performance significantly.},
+  eventtitle = {{{IEEE}}/{{ACM Transactions}} on {{Audio}}, {{Speech}}, and {{Language Processing}}},
+  keywords = {Acoustic-phonetics,Acoustics,automatic speech recognition,deep representation learning,Kernel,Modulation,modulation filtering,Neural networks,raw waveform processing,relevance modeling,Speech recognition,Task analysis,Time-frequency analysis,urban sound classification},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\UCR7YKX3\\Agrawal and Ganapathy - 2020 - Interpretable Representation Learning for Speech a.pdf;C\:\\Users\\Fab\\Zotero\\storage\\WNVZJS5R\\9224148.html}
+}
+
 @inproceedings{anejaContrastiveLearningApproach2021,
   title = {A {{Contrastive Learning Approach}} for {{Training Variational Autoencoder Priors}}},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
@@ -73,6 +88,24 @@
   langid = {english},
   keywords = {Adversarial robustness,Explainable deep learning,Network compression and acceleration,Stability in deep learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\7IZHVWIH\\Bai et al. - 2021 - Explainable deep learning for efficient and robust.pdf;C\:\\Users\\Fab\\Zotero\\storage\\BFT4CIV5\\S0031320321002892.html}
+}
+
+@inproceedings{baiInterpretableRepresentationLearning2018,
+  title = {Interpretable {{Representation Learning}} for {{Healthcare}} via {{Capturing Disease Progression}} through {{Time}}},
+  booktitle = {Proceedings of the 24th {{ACM SIGKDD International Conference}} on {{Knowledge Discovery}} \& {{Data Mining}}},
+  author = {Bai, Tian and Zhang, Shanshan and Egleston, Brian L. and Vucetic, Slobodan},
+  date = {2018-07-19},
+  series = {{{KDD}} '18},
+  pages = {43--51},
+  publisher = {{Association for Computing Machinery}},
+  location = {{New York, NY, USA}},
+  doi = {10.1145/3219819.3219904},
+  url = {https://dl.acm.org/doi/10.1145/3219819.3219904},
+  urldate = {2023-05-23},
+  abstract = {Various deep learning models have recently been applied to predictive modeling of Electronic Health Records (EHR). In medical claims data, which is a particular type of EHR data, each patient is represented as a sequence of temporally ordered irregularly sampled visits to health providers, where each visit is recorded as an unordered set of medical codes specifying patient's diagnosis and treatment provided during the visit. Based on the observation that different patient conditions have different temporal progression patterns, in this paper we propose a novel interpretable deep learning model, called Timeline. The main novelty of Timeline is that it has a mechanism that learns time decay factors for every medical code. This allows the Timeline to learn that chronic conditions have a longer lasting impact on future visits than acute conditions. Timeline also has an attention mechanism that improves vector embeddings of visits. By analyzing the attention weights and disease progression functions of Timeline, it is possible to interpret the predictions and understand how risks of future visits change over time. We evaluated Timeline on two large-scale real world data sets. The specific task was to predict what is the primary diagnosis category for the next hospital visit given previous visits. Our results show that Timeline has higher accuracy than the state of the art deep learning models based on RNN. In addition, we demonstrate that time decay factors and attentions learned by Timeline are in accord with the medical knowledge and that Timeline can provide a useful insight into its predictions.},
+  isbn = {978-1-4503-5552-0},
+  keywords = {attention model,deep learning,electronic health records,healthcare},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\6399U4EC\\Bai et al. - 2018 - Interpretable Representation Learning for Healthca.pdf}
 }
 
 @online{bankAutoencoders2021,
@@ -517,6 +550,22 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\KVW7LUBW\\Higgins et al. - 2022 - beta-VAE Learning Basic Visual Concepts with a Co.pdf}
 }
 
+@online{hjelmLearningDeepRepresentations2019,
+  title = {Learning Deep Representations by Mutual Information Estimation and Maximization},
+  author = {Hjelm, R. Devon and Fedorov, Alex and Lavoie-Marchildon, Samuel and Grewal, Karan and Bachman, Phil and Trischler, Adam and Bengio, Yoshua},
+  date = {2019-02-22},
+  eprint = {1808.06670},
+  eprinttype = {arxiv},
+  eprintclass = {cs, stat},
+  doi = {10.48550/arXiv.1808.06670},
+  url = {http://arxiv.org/abs/1808.06670},
+  urldate = {2023-05-23},
+  abstract = {In this work, we perform unsupervised learning of representations by maximizing mutual information between an input and the output of a deep neural network encoder. Importantly, we show that structure matters: incorporating knowledge about locality of the input to the objective can greatly influence a representation's suitability for downstream tasks. We further control characteristics of the representation by matching to a prior distribution adversarially. Our method, which we call Deep InfoMax (DIM), outperforms a number of popular unsupervised learning methods and competes with fully-supervised learning on several classification tasks. DIM opens new avenues for unsupervised learning of representations and is an important step towards flexible formulations of representation-learning objectives for specific end-goals.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\5TN6QCA2\\Hjelm et al. - 2019 - Learning deep representations by mutual informatio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\C275LSAR\\1808.html}
+}
+
 @article{hoRealWorldWeightCrossEntropyLoss2020,
   title = {The {{Real-World-Weight Cross-Entropy Loss Function}}: {{Modeling}} the {{Costs}} of {{Mislabeling}}},
   shorttitle = {The {{Real-World-Weight Cross-Entropy Loss Function}}},
@@ -731,6 +780,23 @@
   pubstate = {preprint},
   keywords = {Computer Science - Computation and Language,Computer Science - Machine Learning,Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\XISIK4LT\\Lai - 2019 - Contrastive Predictive Coding Based Feature for Au.pdf;C\:\\Users\\Fab\\Zotero\\storage\\LXU26RFN\\1904.html}
+}
+
+@online{latifDeepRepresentationLearning2021,
+  title = {Deep {{Representation Learning}} in {{Speech Processing}}: {{Challenges}}, {{Recent Advances}}, and {{Future Trends}}},
+  shorttitle = {Deep {{Representation Learning}} in {{Speech Processing}}},
+  author = {Latif, Siddique and Rana, Rajib and Khalifa, Sara and Jurdak, Raja and Qadir, Junaid and Schuller, Björn W.},
+  date = {2021-09-24},
+  eprint = {2001.00378},
+  eprinttype = {arxiv},
+  eprintclass = {cs, eess},
+  doi = {10.48550/arXiv.2001.00378},
+  url = {http://arxiv.org/abs/2001.00378},
+  urldate = {2023-05-23},
+  abstract = {Research on speech processing has traditionally considered the task of designing hand-engineered acoustic features (feature engineering) as a separate distinct problem from the task of designing efficient machine learning (ML) models to make prediction and classification decisions. There are two main drawbacks to this approach: firstly, the feature engineering being manual is cumbersome and requires human knowledge; and secondly, the designed features might not be best for the objective at hand. This has motivated the adoption of a recent trend in speech community towards utilisation of representation learning techniques, which can learn an intermediate representation of the input signal automatically that better suits the task at hand and hence lead to improved performance. The significance of representation learning has increased with advances in deep learning (DL), where the representations are more useful and less dependent on human knowledge, making it very conducive for tasks like classification, prediction, etc. The main contribution of this paper is to present an up-to-date and comprehensive survey on different techniques of speech representation learning by bringing together the scattered research across three distinct research areas including Automatic Speech Recognition (ASR), Speaker Recognition (SR), and Speaker Emotion Recognition (SER). Recent reviews in speech have been conducted for ASR, SR, and SER, however, none of these has focused on the representation learning from speech -- a gap that our survey aims to bridge.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Machine Learning,Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\VVD4298I\\Latif et al. - 2021 - Deep Representation Learning in Speech Processing.pdf;C\:\\Users\\Fab\\Zotero\\storage\\LLNAMCRA\\2001.html}
 }
 
 @article{le-khacContrastiveRepresentationLearning2020,
@@ -972,6 +1038,22 @@
   volume = {25},
   publisher = {{Curran Associates, Inc.}},
   url = {https://proceedings.neurips.cc/paper{\_}files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf}
+}
+
+@online{odaiboTutorialDerivingStandard2019,
+  title = {Tutorial: {{Deriving}} the {{Standard Variational Autoencoder}} ({{VAE}}) {{Loss Function}}},
+  shorttitle = {Tutorial},
+  author = {Odaibo, Stephen},
+  date = {2019-07-21},
+  eprint = {1907.08956},
+  eprinttype = {arxiv},
+  eprintclass = {cs, stat},
+  url = {http://arxiv.org/abs/1907.08956},
+  urldate = {2023-05-23},
+  abstract = {In Bayesian machine learning, the posterior distribution is typically computationally intractable, hence variational inference is often required. In this approach, an evidence lower bound on the log likelihood of data is maximized during training. Variational Autoencoders (VAE) are one important example where variational inference is utilized. In this tutorial, we derive the variational lower bound loss function of the standard variational autoencoder. We do so in the instance of a gaussian latent prior and gaussian approximate posterior, under which assumptions the Kullback-Leibler term in the variational lower bound has a closed form solution. We derive essentially everything we use along the way; everything from Bayes' theorem to the Kullback-Leibler divergence.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\QJDAFHCH\\Odaibo - 2019 - Tutorial Deriving the Standard Variational Autoen.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SNUF72L4\\1907.html}
 }
 
 @online{oordRepresentationLearningContrastive2019,
@@ -1474,6 +1556,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\8D3RCCDF\\Wu et al. - 2021 - Greedy Hierarchical Variational Autoencoders for L.pdf}
 }
 
+@article{yuanBridgeGANInterpretableRepresentation2020,
+  title = {Bridge-{{GAN}}: {{Interpretable Representation Learning}} for {{Text-to-Image Synthesis}}},
+  shorttitle = {Bridge-{{GAN}}},
+  author = {Yuan, Mingkuan and Peng, Yuxin},
+  date = {2020-11},
+  journaltitle = {IEEE Transactions on Circuits and Systems for Video Technology},
+  volume = {30},
+  number = {11},
+  pages = {4258--4268},
+  issn = {1558-2205},
+  doi = {10.1109/TCSVT.2019.2953753},
+  abstract = {Text-to-image synthesis is to generate images with the consistent content as the given text description, which is a highly challenging task with two main issues: visual reality and content consistency. Recently, it is available to generate images with high visual reality due to the significant progress of generative adversarial networks. However, translating text description to image with high content consistency is still ambitious. For addressing the above issues, it is reasonable to establish a transitional space with interpretable representation as a bridge to associate text and image. So we propose a text-to-image synthesis approach named Bridge-like Generative Adversarial Networks (Bridge-GAN). Its main contributions are: (1) A transitional space is established as a bridge for improving content consistency, where the interpretable representation can be learned by guaranteeing the key visual information from given text descriptions. (2) A ternary mutual information objective is designed for optimizing the transitional space and enhancing both the visual reality and content consistency. It is proposed under the goal to disentangle the latent factors conditioned on text description for further interpretable representation learning. Comprehensive experiments on two widely-used datasets verify the effectiveness of our Bridge-GAN with the best performance.},
+  eventtitle = {{{IEEE Transactions}} on {{Circuits}} and {{Systems}} for {{Video Technology}}},
+  keywords = {Bridge circuits,Bridge-GAN,Image synthesis,interpretable representation learning,Mutual information,Semantics,Task analysis,Text-to-image synthesis,Training,Visualization},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\GAGWYLD9\\Yuan and Peng - 2020 - Bridge-GAN Interpretable Representation Learning .pdf;C\:\\Users\\Fab\\Zotero\\storage\\CP52ACI5\\8902154.html}
+}
+
 @incollection{zhangArtificialNeuralNetwork2018,
   title = {Artificial {{Neural Network}}},
   booktitle = {Multivariate {{Time Series Analysis}} in {{Climate}} and {{Environmental Research}}},
@@ -1542,6 +1641,22 @@
   langid = {english},
   pagetotal = {245},
   keywords = {Computers / Data Science / Data Analytics,Computers / Data Science / Data Modeling \& Design,Computers / Data Science / Data Warehousing,Computers / Data Science / General,Computers / Database Administration \& Management}
+}
+
+@article{zhouVisuallyInterpretableRepresentation2020,
+  title = {Visually {{Interpretable Representation Learning}} for {{Depression Recognition}} from {{Facial Images}}},
+  author = {Zhou, Xiuzhuang and Jin, Kai and Shang, Yuanyuan and Guo, Guodong},
+  date = {2020-07},
+  journaltitle = {IEEE Transactions on Affective Computing},
+  volume = {11},
+  number = {3},
+  pages = {542--552},
+  issn = {1949-3045},
+  doi = {10.1109/TAFFC.2018.2828819},
+  abstract = {Recent evidence in mental health assessment have demonstrated that facial appearance could be highly indicative of depressive disorder. While previous methods based on the facial analysis promise to advance clinical diagnosis of depressive disorder in a more efficient and objective manner, challenges in visual representation of complex depression pattern prevent widespread practice of automated depression diagnosis. In this paper, we present a deep regression network termed DepressNet to learn a depression representation with visual explanation. Specifically, a deep convolutional neural network equipped with a global average pooling layer is first trained with facial depression data, which allows for identifying salient regions of input image in terms of its severity score based on the generated depression activation map (DAM). We then propose a multi-region DepressNet, with which multiple local deep regression models for different face regions are jointly leaned and their responses are fused to improve the overall recognition performance. We evaluate our method on two benchmark datasets, and the results show that our method significantly boosts state-of-the-art performance of the visual-based depression recognition. Most importantly, the DAM induced by our learned deep model may help reveal the visual depression pattern on faces and understand the insights of automated depression diagnosis.},
+  eventtitle = {{{IEEE Transactions}} on {{Affective Computing}}},
+  keywords = {Computer architecture,deep convolutional neural network,depression activation map,Depression recognition,Face,face recognition,Face recognition,Feature extraction,Image recognition,Videos,Visualization},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\N2B8BAMH\\Zhou et al. - 2020 - Visually Interpretable Representation Learning for.pdf;C\:\\Users\\Fab\\Zotero\\storage\\YD2SGVUC\\8344107.html}
 }
 
 @article{zouConvolutionalNeuralNetwork2018,
