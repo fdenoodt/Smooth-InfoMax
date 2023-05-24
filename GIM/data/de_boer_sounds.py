@@ -5,7 +5,7 @@ import torchaudio
 from collections import defaultdict
 
 from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
-from helper_functions import resample, translate_syllable_to_number
+from helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
 
 
 def default_loader(path):
@@ -73,9 +73,8 @@ class DeBoerDataset(Dataset):
         if self.split_into_syllables:
             # 8821 // 160 = 55
             # 3452 // 160 = 21
-            audio_length = 21 * 160  # -> 8800 elements
-            
-
+            audio_length = 55 * 160  # -> 8800 elements
+            # audio_length = 21 * 160  # -> 8800 elements
 
         else:
             # the length of the audio files is similar because syllables are padded with zeros in front and back
@@ -89,8 +88,12 @@ class DeBoerDataset(Dataset):
         full_word = filename.split("_")[0]  # bagigi
         if self.split_into_syllables:
             pronounced_syllable = filename[-2:]  # ba
-            pronounced_syllable = translate_syllable_to_number(
-                pronounced_syllable)  # 0
+            if self.opt['labels'] == 'syllables':
+                pronounced_syllable = translate_syllable_to_number(
+                    pronounced_syllable)  # 0
+            else:
+                pronounced_syllable = translate_syllable_vowel_number(pronounced_syllable) # either 0, 1 or 2
+
         else:
             pronounced_syllable = 0  # dummy value as None is not supported by pytorch
 
@@ -102,11 +105,11 @@ class DeBoerDataset(Dataset):
             samplerate == self.initial_sample_rate
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        if self.split_into_syllables:
+        # if self.split_into_syllables:
             # print(audio_length_before_resample)
-            assert (  # check only relevant for split up/padded audio files
-                audio_length_before_resample == 3452 # 12156  # computed in padding.py
-            ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
+            # assert (  # check only relevant for split up/padded audio files
+            #     audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
+            # ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
 
         # resample: from 22050 to 16000
         audio = resample(audio,
