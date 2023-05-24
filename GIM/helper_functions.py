@@ -436,3 +436,7 @@ def translate_number_to_syllable(index):
 def translate_syllable_vowel_number(syllable):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
     return 0 if "a" in syllable else 1 if "i" in syllable else 2
+
+def translate_vowel_number_to_vowel(number):
+    # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
+    return "a" if number == 0 else "i" if number == 1 else "u"
