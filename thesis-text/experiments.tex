@@ -171,36 +171,50 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		\input{graphs/sectr_example/spectr_example}
 		
 		
-		
 		%TODO: IF I HAVE TIME, I COULD DISPLAY SOME VISUALS OF PREDICTIONS IT HAS MADE, BUT CURRENTLY, THEY DON'T LOOK VERY GOOD.
 
 			
 	\subsection{V-GIM representation analysis through decoder}
-		Decoding arbitrary latent representations allows us to perceive the remaining information in the representation. It is worth mentioning that the reliability of this analysis is dependent on the performance of the decoder. If it is not able to reconstruct certain features, this does not necessarily mean the information is not contained in the latent representation. 
+		Decoding latent representations into its original representation as a speech wave allows us to perceive the remaining information in the representation. It is worth mentioning that the reliability of this analysis is dependent on the performance of the decoder. If it is not able to reconstruct certain features, this does not necessarily mean the information is not contained in the latent representation. 
 		
-		Training and validation loss curves for both decoders are shown in figure \ref{fig:decoder_loss_functions}. Overall, in both decoders we observed that audio files could be reconstructed and the pronounced syllables were recognisable when listening to them. However, reconstructed sounds seemed noisy and information about the speaker's identity was unrecognisable, suggesting that this information is either no longer contained in the latent representations, or the decoders are not able to replicate it. Additionally, while we could vowels were easily identifiable, we observed that the decoder occasionally made mistakes with consonants. For instance decoding the latent representation for "gu" could occasionally result in an incorrect "bu" or "du". These observations are in line with the t-SNE plots classification performance we discussed in the previous section, further suggesting that consonant information may no longer be present in the latent representations.
+		Training and validation loss curves for both decoders are shown in figure \ref{fig:decoder_loss_functions}. Overall, in both decoders we observed that audio files could be reconstructed and the pronounced syllables were recognisable when listening to them. However, reconstructed sounds were noisier and information about the speaker's identity was unrecognisable, suggesting that this information is either no longer contained in the latent representations, or the decoders are not able to replicate it. Additionally, while vowels were easily identifiable by listening to the audio, we observed that the decoder occasionally generated incorrect consonants. For instance decoding the latent representation for ``gu" could occasionally result in an incorrectly generated ``bu" or ``du". These observations are in line with the t-SNE plots classification performance we discussed in the previous section, further suggesting that consonant information may no longer be present in the latent representations.
 		
 		\input{graphs/decoder/loss_functions}
 		
-		Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} in Appendix \ref{cha:appendix_interpol} show decoded latent representations corresponding obtained from the \textit{intermediate} decoder. In each figure, values from an individual dimension is manipulated. As such, changes to the speech wave give indications on what information is encoded in that dimension. Each representation starts as the zero-vector $\textbf{0}$ but a single dimension is being modified, ranging between -2.68 and 2.68. The reconstructed audio wave is shown both in frequency and time domain.
+		By decoding the latent representations of existing speech data, we gain insight in the remaining information in the representations. However, our goal goes further: we would like to also understand the underlying structure of these representations, and attempt to understand the precise information contained in each dimension. We achieve this by starting from the zero-vector $\textbf{0}$ as latent representation, and manipulating a single dimension at a time. We can then observe the effect in the reconstructed speech signals, by looking at the it from time and frequency domain. Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} show reconstructed speech signals, obtained from the \textit{intermediate} decoder. We show the reconstructed audio waves, both in time and frequency domain. In each figure, a single dimension is being manipulated, ranging between -2.68 and 2.68. Since the latent space is optimised to conform to the standard normal distribution, this would mean that 99\% of the data points are contained within this range \cite{bhandariStandardNormalDistribution2020}.
 		
-		We classify the dimensions and their contained information into one of three categories. Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} show an example of each category. The first category contains information about frequencies for a specific frequency bin. Altering this dimension will have strong influence on the magnitude of one or two frequency bins while other bins remain relatively unchanged. This is shown in figure \ref{fig:interpol_dim12}, where changing the value of the 12th dimension towards -2.68 causes a peek around the 100 Hz frequency bin. The peek disappears when approaching 0. Meanwhile, when approaching +2.68, the magnitude of the 150 Hz frequency bin increases. Overall, we observed this kind of behaviour for roughly half of the 32 dimensions. The majority of dimensions were sensitive in the 100 Hz and 150 Hz frequency bins, while a few in the 175 Hz bin. These ranges are to be expected as the pitch range for men's voices is between 60 and 180 Hz \cite{rePreferencesVeryLow2012}.
+		We categorise the dimensions into one of three groups based on their contained information. Figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7} and \ref{fig:interpol_dim12} show an example of each category. The first category contains information about frequencies for a specific frequency bin. Altering this dimension will have strong influence on the magnitude of one or two frequency bins while other bins remain relatively unchanged. This is shown in figure \ref{fig:interpol_dim12}, where changing the value of the 12th dimension towards -2.68 causes a peek around the 100 Hz frequency bin. The peek disappears when approaching 0. Meanwhile, when approaching +2.68, the magnitude of the 150 Hz frequency bin increases. Overall, we observed this kind of behaviour for roughly half of the 32 dimensions. The majority of dimensions were sensitive in the 100 Hz and 150 Hz frequency bins, while a few in the 175 Hz bin. These ranges are to be expected as the pitch range for men's voices is between 60 and 180 Hz \cite{rePreferencesVeryLow2012}.
 		
-		Dimensions that belong to the second category, do not only influence magnitude of frequencies in a specific bin, but also to the nearby bins. In this category, changes to a dimension will cause magnitude of a specific frequency to increase as well, but it will also take along its neighbouring frequencies, resulting in a smooth envelop with a single peak which gradually decreases over the neighbouring frequencies. This behaviour is shown in figure \ref{fig:interpol_dim1}.
-
-		The final category of dimensions are those that do not seem to contribute anything to the reconstructed signal. Changes to the values in these dimensions cause very little change to the resulted speech wave both in time domain and frequency domain. These are either 
-		useless dimensions or the decoder was not able to capture their contribution. An example is shown in figure \ref{fig:interpol_dim7}.
+		Dimensions that belong to the second category, not only influence magnitude of frequencies in a specific bin, but also affects the neighbouring bins. In this category, modifying a dimension will cause an increase in the magnitude of a particular bin, while simultaneously influencing the surrounding frequencies. This results in a smooth envelop with a single peak which gradually decreases across the neighbouring bins. This behaviour is shown in figure \ref{fig:interpol_dim1}.
 		
-		\textbf{Final decoder...}
+		The final category includes the dimensions which do not seem to make any contribution to the reconstructed signal. Changes to these cause very little change to the resulted speech wave, both in time and frequency domain. These dimensions are either useless, or the decoder was not able to capture their contribution. An example is shown in figure \ref{fig:interpol_dim7}.
 		
+		Regarding the second decoder, which was trained with V-GIM's \textit{final} representations, we observe that syllables are audible, but due to disturbances, it becomes more challenging to distinguish the precise syllables and consonants. This is to be expected, as latent representations in the second module capture speech sequences of a longer time frame (64ms instead of 28ms) while remaining the same size at 32 dimensions.
 		
-		Graphs related to the interpolation experiment are shown in figures \ref{fig:interpol_dim1}, \ref{fig:interpol_dim7}, \ref{fig:interpol_dim12}. We categorise the dimensions in V-GIM in three sections, the graphs present an example of each category.
+		In the final representations, we observed more dimensions of the second category, containing the information of an entire neighbourhood of frequency bins, influencing frequencies ranging between 80 to 300 Hz. Additionally, we observed peaks in the frequency domain with much stronger magnitudes, compared to those in the intermediate representations. An example is shown in figure \ref{fig:interpol_dim7_second_module}, displaying the reconstructed speech wave in time and frequency domain for a final representation.
 		
 		\input{graphs/interpolation_graphs}
 	
 	\subsection{Consonants}
-		hi
-		\input{graphs/temp/vowel_classifier_weights}
+		To gain better insight in which dimensions incorporate vowel information, we train a linear classifier to predict whether the vowel corresponding to a syllable's latent representation is an ``a", ``i" or ``u". Implementation details are the same as the linear classifier in section \ref{cha:experim_details_vgim}, but with only the three classes and without a bias term. The classifier is trained on the latent representations from V-GIM's first module. Additionally, representations are max pooled over the time domain, resulting in a single 32 dimensional feature vector for each syllable. After training, a Softmax function is appended to normalise predictions into probability values. After convergence, the classifier obtained a validation accuracy of $??\%$.
+		
+		Figure \ref{fig:vowelclassifierweights} displays the weights of the linear classifier. The weights are scaled between -1 and 1. Each row corresponds to the weights corresponding to an individual prediction class. Equivalently, when considering a graph representation for the classifier, the weights on the edges corresponding to a particular output node, are the values in a single row. Consequently, values close to 1 or -1 indicate a high (positive or negative) correlation between the target class and the corresponding dimension. 
+		
+		Interestingly, most dimensions appear to contribute very little to the predicted outcome, indicating that these dimensions are either useless, or the classifier did not find value in their contained information. Consequently, most vowel information can be derived with relatively high accuracy from merely a small subset of dimensions. 
+		
+		In addition, we observe that certain dimensions contain information for a single vowel, while others contain information for two. Values in the first dimension for instance, have a strong correlation with the vowel ``a", while no significant correlation with ``i" or ``u" appears to visible. Meanwhile, values in dimension 17 contain information for both ``a" and ``i", depending on whether the values approach 1 or -1.
+		
+		
+	\begin{figure}
+		\centering
+		\includegraphics[width=1\linewidth, trim={0 10cm 0 10cm}, clip]{graphs/vowel_classifier_weights}
+		\caption{
+			Visualisation of weights in the linear vowel classifier. Latent representations from V-GIM's first module are used. The classifier is trained without bias terms.
+		}
+		\label{fig:vowelclassifierweights}
+	\end{figure}
+	
+	
 	
 	
 		

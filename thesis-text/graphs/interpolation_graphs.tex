@@ -29,7 +29,7 @@
 		\input{graphs/interpolate_dim0/time/2.68}
 	\end{subfigure}
 	
-	\caption{The first dimension is being modified, while other dimensions are fixed at 0. The dimension has influence on the 150Hz frequency band, but also neighbouring ranges.}
+	\caption{Reconstructed speech signal from \textit{intermediate} latent representation. The first dimension is being modified, while other dimensions are fixed at 0. The dimension has influence on the 150Hz frequency band, but also neighbouring ranges.}
 	\label{fig:interpol_dim1}
 \end{figure}
 
@@ -65,7 +65,7 @@
 		\input{graphs/interpolate_dim6/time/2.68}
 	\end{subfigure}
 	
-	\caption{The seventh dimension is being modified, while other dimensions are fixed at 0. We observe no significant differences when adjusting, indicating that the dimension may not capture any information at all.}
+	\caption{Reconstructed speech signal from \textit{intermediate} latent representation. The seventh dimension is being modified, while other dimensions are fixed at 0. We observe no significant differences when adjusting, indicating that the dimension may not capture any information at all.}
 	\label{fig:interpol_dim7}
 \end{figure}
 
@@ -101,6 +101,43 @@
 		\input{graphs/interpolate_dim11/time/2.68}
 	\end{subfigure}
 	
-	\caption{The twelfth dimension is being modified, while other dimensions are fixed at 0. Negative values cause a large spike around 100Hz while positive values fully remove the 100Hz and influences the 150Hz range instead.}
+	\caption{Reconstructed speech signal from \textit{intermediate} latent representation. The twelfth dimension is being modified, while other dimensions are fixed at 0. Negative values cause a large spike around 100Hz while positive values fully remove the 100Hz and influences the 150Hz range instead.}
 	\label{fig:interpol_dim12}
 \end{figure}
+
+
+% second module
+\begin{figure}
+	\centering
+	\begin{subfigure}{0.34\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/fourier/-2.68}
+	\end{subfigure}\hfill
+	\begin{subfigure}{0.3\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/fourier/0.16}
+	\end{subfigure}\hfill
+	\begin{subfigure}{0.3\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/fourier/2.68}
+	\end{subfigure}
+	
+	\vspace{0.5cm} % Adjust vertical spacing between rows
+	
+	\begin{subfigure}{0.36\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/time/-2.68}
+	\end{subfigure}\hfill
+	\begin{subfigure}{0.3\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/time/0.16}
+	\end{subfigure}\hfill
+	\begin{subfigure}{0.3\textwidth}
+		\centering
+		\input{graphs/interpolate_dim6_module2/time/2.68}
+	\end{subfigure}
+	
+	\caption{Reconstructed speech signal from \textit{final} latent representation. The seventh dimension is being modified, while other dimensions are fixed at 0. The dimension has influence on the 125Hz frequency band, but also neighbouring ranges.}
+	\label{fig:interpol_dim7_second_module}
+\end{figure}
+% TODO: IF I REALLY WANTED TO, I COULD HAVE YLABELS FOR TIME DOMAIN WITHOUT 5*10 NOTATION BY CHANGING YMIN AND YMAX BETWEEN -0.15 - 0.15 FOR EACH GRAPH. BUT I LAZY
