@@ -16,7 +16,7 @@
 		]
 		
 		\node[AnnNode] (enc) {\rotatebox{90}{ANN}};
-		\node[SamplingBlock] [right of=enc, xshift=2.5cm] (sample) {$\zt^m \sim \sampleqdot{\zt^{m-1}}$};
+		\node[SamplingBlock] [right of=enc, xshift=2.5cm] (sample) {$\zt^m \sim \sampleqmdot{\zt^{m-1}}$};
 		
 		% enc edges
 		\draw[->] ++(-2.5, 0) -- (enc.south) node[above, midway] {$\zt^{m-1}$};

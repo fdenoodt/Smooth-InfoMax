@@ -173,26 +173,39 @@
 \newcommand{\fkblank}[0]{f_k(\cdot)}
 \newcommand{\fkmblank}[0]{f_k^m(\cdot)}
 
-\newcommand{\fkm}[0]{f_k^m(\ztk^m,\zt^m)}
+\newcommand{\fkm}[0]{f_k^m({\ztk^m},{\zt^m})}
+\newcommand{\fkmMonteCarlo}[0]{f_k^m({\ztk^m}^{(l)},{\zt^m}^{(l)})}
 
 
 \newcommand{\gim}[0]{\log \frac{\fkm }{\sum_{\zj^m \in X} f_k^m(\zj^m, \zt^m)}}
 
+\newcommand{\gimMonteCarlo}[0]{\log \frac{\fkmMonteCarlo}{\sum_{\zj^m \in X} f_k^m(\zj^m, {\zt^m}^{(l)})}}
+
+
 
 \newcommand{\R}[0]{\mathbb{R}}
 
-\newcommand{\qzzblank}[0]{q(\cdot \mid \zt^{m-1})}
+\newcommand{\qzzblank}[0]{q^m(\cdot \mid \zt^{m-1})}
 
 \newcommand{\latentspaceconstraintgim}[0]{\kl{ \qzzblank }{ \standardnormal } }
 
 \newcommand{\sampleqdot}[1]{q(\cdot \mid #1)}
-
+\newcommand{\sampleqmdot}[1]{q^m(\cdot \mid #1)}
+\newcommand{\sampleqMOnedot}[1]{q^{M+1}(\cdot \mid #1)}
 
 \newcommand{\reconstrgim}[0]{\sum_k
 \expected{
-	\sample{\ztk^m}{\sampleqdot{\ztk^{m-1}} } \\ 
-	\sample{\zt^m}{\sampleqdot{\zt^{m-1}}} } 
+	\sample{\ztk^m}{\sampleqmdot{\ztk^{m-1}} } \\ 
+	\sample{\zt^m}{\sampleqmdot{\zt^{m-1}}} } 
 \left[ \gim \right]
+}
+
+\newcommand{\reconstrgimMontecarlo}[0]{\sum_k
+%	\expected{
+%		\sample{\ztk^m}{\sampleqmdot{\ztk^{m-1}} } \\ 
+%		\sample{\zt^m}{\sampleqmdot{\zt^{m-1}}} } 
+	\frac{1}{L} 
+	\left[\sum_{l=1}^L \gimMonteCarlo \right]
 }
 
 
@@ -205,9 +218,9 @@
 \newcommand{\Lvnce}[0]{\mathcal{L}_{\text{V-NCE}}}
 \newcommand{\Lnce}[0]{\mathcal{L}_{\text{NCE}}}
 
-\newcommand{\qfromzmneg}[0]{\sampleqdot{\zt^{m-1}}}
-\newcommand{\qfromzm}[0]{\sampleqdot{\zt^m}}
-\newcommand{\qfromzM}[0]{\sampleqdot{\zt^M}}
+\newcommand{\qfromzmneg}[0]{\sampleqmdot{\zt^{m-1}}}
+\newcommand{\qfromzm}[0]{\sampleqmdot{\zt^m}}
+\newcommand{\qfromzM}[0]{\sampleqMOnedot{\zt^M}}
 
 \newcommand{\normalfatmusigma}[0]{\mathcal{N}(\mufat, \text{diag}(\sigmafat^2))}
 

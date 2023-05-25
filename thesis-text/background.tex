@@ -5,7 +5,7 @@
 \textbf{[TODO] OUTLINE + WHY IMPORTANT TO UNDERSTAND}
 
 \section{Entropy, relative entropy and mutual information}
-We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}. The equations that contain a log function are assumed to be under base two.
+We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book ``Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}. The equations that contain a log function are assumed to be under base two.
 \subsection{Shannon's Entropy}
 Entropy measures the average amount of information required to describe a random variable \cite{coverELEMENTSINFORMATIONTHEORY}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
 \begin{equation}
@@ -29,7 +29,7 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.4\linewidth]{screenshot005}
-	\caption{$H(p)$ vs $p$ (originates from "Elements of Information Theory", page 16)}
+	\caption{$H(p)$ vs $p$ (originates from ``Elements of Information Theory", page 16)}
 	\label{fig:EntropyvsP}
 \end{figure}
 
@@ -39,7 +39,7 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
 \subsection{Relative entropy and mutual information} \label{cha:rel_entrop}
-Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the "dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
+Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the ``dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
 
 \begin{equation}
 	\kl{q}{p} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
@@ -54,7 +54,7 @@ The mutual information (MI) between two random variables $X$ and $Y$ can be comp
 	I(X; Y) =  \kl{p_{X, Y}(x, y)}{p_X(x) p_Y(y)}
 \end{equation}
 
-As described by Cover and Thomas in their book "Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, MI quantifies the amount of information $Y$ describes about $X$. An alternative definition is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for MI, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In sections \ref{cha:bg_reconstr} and \ref{cha:bg_nce}, we discuss how these concepts from information theory are applied in representation learning.
+As described by Cover and Thomas in their book ``Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}, MI quantifies the amount of information $Y$ describes about $X$. An alternative definition is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for MI, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In sections \ref{cha:bg_reconstr} and \ref{cha:bg_nce}, we discuss how these concepts from information theory are applied in representation learning.
 
 \begin{equation}
 	I(X;Y)= H(X) - H(X|Y) \label{eq:MI_reduce}
@@ -153,7 +153,7 @@ The functions $\E$ and $D(\cdot)$ are simultaneously optimised by minimising the
 \begin{equation}
 	\mathcal{L} = \sum_{i = 1}^N l(\vecti{x}, \vecti{\tilde{x}})
 \end{equation}
-where $l$ refers to the error for a single data point, for instance the $l^2$-norm and $N$ the number data points. The dimension of $\vect{z}$ is typically smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as "informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}.
+where $l$ refers to the error for a single data point, for instance the $l^2$-norm and $N$ the number data points. The dimension of $\vect{z}$ is typically smaller than the original dimension of $\vect{x}$. This results in the encoder having to define encodings that are as ``informative" as possible to reconstruct the original data \cite{bankAutoencoders2021}.
 
 An example autoencoder architecture is depicted in figure \ref{fig:autoencoder}. Since an autoencoder is in fact a single ANN and $\z$ corresponds to the output produced by an intermediate hidden layer, $\z$ is also commonly referred to as a \textit{latent} representation. The space of all latent representations $\Z$ is known as the \textit{latent} space.
 	\begin{figure}
@@ -187,7 +187,7 @@ Similar to traditional autoencoders, variational autoencoders (VAE) learn repres
 $$\sample{\vect{z}}{\qvae}$$
 Thus, given a feature vector $\x$, we obtain its corresponding encoding or latent representation $\z$ by taking a sample from a distribution. We will define $q$ in more detail in a following paragraph. The encoder function $\E$ in VAEs is thus nondeterministic and computing $E(\vect{x}) = \vect{z}$ twice may result in two different $\z$s both corresponding to the same $\x$. In a following paragraph we will discuss how to achieve this nondeterministic behaviour using ANNs.
 
-By defining the latent representations as samples from distributions, we can pose the same constraints on the quality of the representations $\z \in \Z$ as in traditional autoencoders, but also additional constraints on how the latent space $\Z$ is organised. The additional constraints posed by VAEs on $\Z$ will result in a more interpretable space, where $\z$'s underlying components can be better understood. This will be achieved by enforcing each distribution $\qvaeEmptyZandXI$ corresponding to a particular $\vecti{x}$, to be "similar" to a chosen prior distribution $p(\z)$. Typically, the prior $p(\z)$ is set to the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. The result of this setup can be observed in the latent space depicted in the right plot of figure \ref{fig:latent_space_2d} where all $\z$s are attracted to the origin.
+By defining the latent representations as samples from distributions, we can pose the same constraints on the quality of the representations $\z \in \Z$ as in traditional autoencoders, but also additional constraints on how the latent space $\Z$ is organised. The additional constraints posed by VAEs on $\Z$ will result in a more interpretable space, where $\z$'s underlying components can be better understood. This will be achieved by enforcing each distribution $\qvaeEmptyZandXI$ corresponding to a particular $\vecti{x}$, to be ``similar" to a chosen prior distribution $p(\z)$. Typically, the prior $p(\z)$ is set to the standard normal distribution $\standardnormal$ \cite{davidfosterVariationalAutoencoders2023}. The result of this setup can be observed in the latent space depicted in the right plot of figure \ref{fig:latent_space_2d} where all $\z$s are attracted to the origin.
 
 In the following subsections, we will explore VAEs in more detail. We begin with a discussion on the process of imposing constraints on $\Z$, which leads to the VAE loss function. Next, we investigate how ANNs can be utilised to simulate sampling from distributions. Finally, we examine how VAEs enable the creation of interpretable representations and how they can be used to generate novel data.
 
@@ -484,7 +484,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 %\textbf{[assume slow features. + why maxim mutual info? between past and future]}\\
 	The temporally nearby patches $\z_{t+1}$ and $\ct$ are optimised to preserve shared information, while discarding differences. Before we discuss how to obtain such representations, we first motivate why defining representations in this fashion makes sense.
 	
-	Consider we would like to define useful representations for sequential data such as speech signals. Then it is not unlikely to believe that the conveyed information at time step $t$ and $t+k$ contains some redundancy, such as pitch, frequency, tone, etc. \cite{raoUnderstandingGradientIsolatedLearning2020}. Meanwhile, large changes of the signal in a small time window, may be the result of noise. Sequential data which poses these slowly varying features, are commonly referred to as "slow-features" \cite{zhangSlowFeatureAnalysis2012}. CPC leverages these slowly varying features, by encoding the underlying shared information between different patches, while at the same time discarding low-level information and noise that is more local \cite{oordRepresentationLearningContrastive2019}.
+	Consider we would like to define useful representations for sequential data such as speech signals. Then it is not unlikely to believe that the conveyed information at time step $t$ and $t+k$ contains some redundancy, such as pitch, frequency, tone, etc. \cite{raoUnderstandingGradientIsolatedLearning2020}. Meanwhile, large changes of the signal in a small time window, may be the result of noise. Sequential data which poses these slowly varying features, are commonly referred to as ``slow-features" \cite{zhangSlowFeatureAnalysis2012}. CPC leverages these slowly varying features, by encoding the underlying shared information between different patches, while at the same time discarding low-level information and noise that is more local \cite{oordRepresentationLearningContrastive2019}.
 
 
 \subsubsection{The learning objective}
@@ -540,7 +540,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 	$$p(i \mid X, \ct)$$
 	
-	where $X$ corresponds the set of samples  ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$  as discussed in the InfoNCE loss, and $i$ corresponds to indicator that sample $\zi$ is the "positive" sample. By doing so, one can eventually obtain a proportionality relation to the density distribution presented below. 
+	where $X$ corresponds the set of samples  ${ \left\{ \ztk, \z_1, \z_2, \dots \right\} }$  as discussed in the InfoNCE loss, and $i$ corresponds to indicator that sample $\zi$ is the ``positive" sample. By doing so, one can eventually obtain a proportionality relation to the density distribution presented below. 
 	
 	\begin{equation}
 		\fzc \propto \pzcdivpz \label{eq:fkproporational}
@@ -572,7 +572,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	
 \subsubsection{Towards greedy learning}	
 	%[Same ideas of repr learning via mutual information maximising, of latent representations, diff: GIM = Biological approach]
-		To overcome these computational constraints, Löwe et al. introduce Greedy InfoMax (GIM) \cite{lowePuttingEndEndtoEnd2020}, an extension on CPC inspired from the biological brain. Whereas CPC obtains representations $\zt$ and $\ct$ through encoder $\genc$ and autoregressor $\gar$, Löwe et al. split up $\genc$'s neural network architecture by depth into $M$ so called "\textit{modules}": 
+		To overcome these computational constraints, Löwe et al. introduce Greedy InfoMax (GIM) \cite{lowePuttingEndEndtoEnd2020}, an extension on CPC inspired from the biological brain. Whereas CPC obtains representations $\zt$ and $\ct$ through encoder $\genc$ and autoregressor $\gar$, Löwe et al. split up $\genc$'s neural network architecture by depth into $M$ so called ``\textit{modules}": 
 		$$g_{enc}^1(\cdot),~ g_{enc}^2(\cdot),~\dots,~g_{enc}^M(\cdot)$$ 
 		A single module may for instance represent one or more layers. Each module's output is the input of the successive module.
 		\begin{align*} % g_enc1, ...
