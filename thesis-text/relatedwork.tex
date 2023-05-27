@@ -5,10 +5,14 @@
 %Contrastive Predictive Coding has seen success in recent years, in addition we have GIM which contributes to this. TODO: MISS ZOU DIT EIG OOK GEWOON IN INTRODUCTIE KUNNEN?
 In recent years, CPC has been shown to be a successful self-supervised learning approach in a wide range of domains \cite{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, enabling modules to be trained in parallel, or sequentially. Moreover, Wang \cite{meihanwangSpeechRepresentationLearning2019} empirically demonstrates that GIM learns good speech representations for the speech dataset we use in our own experiments \ref{cha:experim_details_vgim}.
 
-However, the underlying representations obtained from optimising the InfoNCE loss have not yet been studied in great detail. In this thesis we shed light onto this, through the introduction of a constraint to the latent space, resulting in a space which is easier to analyse and understand.
+However, the underlying representations obtained from optimising this InfoNCE objective have not yet been studied in great detail. In this thesis we shed light onto this, through the introduction of a constraint to the latent space, resulting in a space which is easier to analyse and understand.
 
 We have studied the latent representations obtained from maximising the InfoNCE objective. 
 We achieved this through the introduction of V-GIM, a self-supervised representation learning approach with the same InfoNCE objective, but with an additional constraint to the latent space resulting in better interpretable representations. Such that a decoder could be trained and predict meaningful ...
+
+
+
+
 	
 \section{Explainable AI}
 	%While multiple XAI techniques exist, they work in different paradigms, usually attempt to visualise 
@@ -42,11 +46,12 @@ Summarise: our method: sequential data/speech data, interpretable, representatio
 
 \section{Mutual information and interpretable Representation learning}
 
-	% eerst MI inleiden
+	% Eerst MI inleiden
 	If we further continue in the Mutual Information Maximisation research line, GIM and Deep InfoMax both obtained representations through mutual information maximisation. GIM maximises the mutual information between temporally nearby patches, assuming common information between nearby data \cite{lowePuttingEndEndtoEnd2020}. It is also the basis for our own contribution, V-GIM. Similarly, Deep InfoMax considers an ANN encoder model which maximises the mutual information between input and output. This is achieved by incorporating knowledge about locality in the representations, resulting in locally-consistent information across structural locations \cite{hjelmLearningDeepRepresentations2019}.
-	InfoGAN \cite{chenInfoGANInterpretableRepresentation2016} is an extension to the GANs and also learns representations by maximising the mutual information between the generated data and small subsets of the latent variables in the latent representations. In addition, InfoGAN's learning approach results in disentangled and interpretable representations, where manipulating an individual dimension in the latent space, results in changes to a specific feature of the generated data, while other features remain unchanged. This is achieved through a modification of the traditional minimax loss function in GANs.
+	InfoGAN \cite{chenInfoGANInterpretableRepresentation2016} is an extension to GANs, learning representations by maximising the mutual information between the generated data and small subsets of the latent variables in the latent representations. In addition, InfoGAN's learning approach results in disentangled and interpretable representations, where manipulating an individual dimension in the latent space, results in changes to a specific feature of the generated data, leaving other features unaffected. This is achieved through a modification of the traditional minimax loss function in GANs. Similarly, Bridge-GAN builds upon these concepts by introducing an intermediate latent space, or "bridge," between text and images, resulting in interpretable and disentangled representations for text-to-image synthesis \cite{yuanBridgeGANInterpretableRepresentation2020}.
 	
-	Further continuing in representation learning methods which incorporate an interpretability mechanisms, Timeline uses RNNs with an attention mechanism to aggregate sequential health to interpretable representations \cite{baiInterpretableRepresentationLearning2018}. This interpretability is achieved through analysis of weights associated to different medical codes. Similarly, Agrawal and Ganapathy use relevance weighting on raw speech data, allowing for interpretation of the representations during forward propagation \cite{agrawalInterpretableRepresentationLearning2020}.
+	Further continuing in representation learning methods which incorporate an interpretability mechanisms, Timeline uses RNNs with an attention mechanism to aggregate sequential health to interpretable representations \cite{baiInterpretableRepresentationLearning2018}. This interpretability is achieved through analysis of weights associated to different medical codes. Similarly, Agrawal and Ganapathy use relevance weighting on raw speech data, allowing for interpretation of the representations during forward propagation \cite{agrawalInterpretableRepresentationLearning2020}. Similar to V-GIM, InfoVAEGAN combines the GAN framework with concepts from VAEs, enabling the learning of interpretable data variations \cite{yeInfoVAEGANLearningJoint2021}.
+
 	
 	
 	
@@ -54,11 +59,11 @@ Summarise: our method: sequential data/speech data, interpretable, representatio
 		
 
 \section{Alternative priors and posteriors in VAEs}	% TODO: MAYBE THIS SHOULD BE MOVED TO DISCUSSION/FUTURE WORK?
-Taking inspiration from VAEs, V-GIM aims to minimise the KL-divergence with its posterior distributions $\qphizx$ and prior $\prior=\standardnormal$. Doing so results in a latent space which can be better understood. In recent years multiple contributions were introduced to VAEs in relation to different priors and posteriors.
-
-In VAEs the posterior $\qphizx$ is in fact an approximate for the true posterior $\pphizx$ \cite{odaiboTutorialDerivingStandard2019}. This approximate posterior is most commonly chosen to be a simple factorised Gaussian for easier mathematical derivations, however, this is typically an oversimplification of the true posterior \cite{nalisnickApproximateInferenceDeep}. Consequently, Kingma and Welling show that the approximate posterior can be extended to a Gaussian with full covariance matrix \cite{kingmaIntroductionVariationalAutoencoders2019}. Additionally, Nalisnick et al. propose a Gaussian mixture model (a combination several Gaussians) as approximate posterior, enabling multimodal posterior distributions \cite{nalisnickApproximateInferenceDeep}.
-
-Continuing in the line of Gaussian mixture models, extensions to alternative priors have been explored as well. Lee et al. and experiment with Gaussian mixture model priors \cite{leeMetaGMVAEMixtureGaussian2021, guoVariationalAutoencoderOptimizing2020}, resulting in improved performance. Additionally, Tomczak and Welling introduce VampPrior, which choses the prior to be a mixture of variational posteriors, resulting in improved model performance and reducing issues related to useless dimensions \cite{tomczakVAEVampPrior2018}. This is a known issue in VAEs which we observed V-GIM suffers from as well.
+	Taking inspiration from VAEs, V-GIM aims to minimise the KL-divergence with its posterior distributions $\qphizx$ and prior $\prior=\standardnormal$. Doing so results in a latent space which can be better understood. In recent years multiple contributions were introduced to VAEs in relation to different priors and posteriors.
+	
+	In VAEs the posterior $\qphizx$ is in fact an approximate for the true posterior $\pphizx$ \cite{odaiboTutorialDerivingStandard2019}. This approximate posterior is most commonly chosen to be a simple factorised Gaussian for easier mathematical derivations, however, this is typically an oversimplification of the true posterior \cite{nalisnickApproximateInferenceDeep}. Consequently, Kingma and Welling show that the approximate posterior can be extended to a Gaussian with full covariance matrix \cite{kingmaIntroductionVariationalAutoencoders2019}. Additionally, Nalisnick et al. propose a Gaussian mixture model (a combination several Gaussians) as approximate posterior, enabling multimodal posterior distributions \cite{nalisnickApproximateInferenceDeep}.
+	
+	Continuing in the line of Gaussian mixture models, extensions to alternative priors have been explored as well. Lee et al. and experiment with Gaussian mixture model priors \cite{leeMetaGMVAEMixtureGaussian2021, guoVariationalAutoencoderOptimizing2020}, resulting in improved performance. Additionally, Tomczak and Welling introduce VampPrior, which choses the prior to be a mixture of variational posteriors, resulting in improved model performance and reducing issues related to useless dimensions \cite{tomczakVAEVampPrior2018}. This is a known issue in VAEs which we observed V-GIM suffers from as well.
 	
 
 
@@ -72,7 +77,28 @@ Continuing in the line of Gaussian mixture models, extensions to alternative pri
 
 
 
-\section{Representation learning: explainable}
+\section{Regularisation terms and their use}
+	V-GIM achieves its interpretability through the addition of a regularisation term. However, this idea of adding a penality to the loss function has been commonly used in the past with a wide variety of purposes \cite{ComprehensiveSurveyRegularization}. Kukačka and Golkov provide a survey on the different regularisation terms by sorting them under different categories, introducing regularisation terms which pose constraints on the weights, and a second category that that puts constraints on the activations \cite{kukackaRegularizationDeepLearning2017}.
+	
+	Regularisation terms which enforce constraints on the weights typically aim to improve generalisation performance by penalising complexity. Weight decay is such an example, enforcing smaller weights achieved through the $l^2$-norm on the network weights \cite{gneccoWeightdecayTechniqueLearning2009}. Similarly, Kukačka and Golkov describe weight smoothing which applies $l^2$-norm to the gradients during training. Weight elimination is similar to weight decay but favours sparse networks \cite{weigendGeneralizationWeightEliminationApplication1990}. Soft weight-sharing clusters weights together such that weights in a cluster share similar values \cite{nowlanSimplifyingNeuralNetworks1992}.
+	
+	Tian and Zhang describes sparse vector-based regularization, posing constraints on the activations. This is useful for applications which require sparse representations such as data compression \cite{tianComprehensiveSurveyRegularization2022}. Further continuing in the line of activation regularisation, Tomczak introduce a regularisation term to encourages activations to maximise entropy, resulting in uncorrelated and disentangled representations \cite{tomczakLearningInformativeFeatures2016}.
+
+	
+	
+	- representation for latent space constraint: \cite{geladaDeepMDPLearningContinuous2019}
+	- Improving Interpretability and Regularization in Deep Learning \cite{wuImprovingInterpretabilityRegularization2018}. ads regularisation term to improve interpretability.
+	- 
+	
+	%, ranging from improving generalisation to manipulating the structure of activations.
+	%representations, for instance obtaining sparse vector representations for better data compression 
+	
+	
+	
+	----
+		Other regularisation terms, and there use. maybe there exist similar strategies that constrain space/algorithm for interpretability?
+	----	
+
 \section{Variational learning}
 There already were a few papers with variational contrastive predictive coding
 
