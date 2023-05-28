@@ -5,9 +5,9 @@
 \textbf{[TODO] OUTLINE + WHY IMPORTANT TO UNDERSTAND}
 
 \section{Entropy, relative entropy and mutual information}
-We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book ``Elements of Information Theory" \cite{coverELEMENTSINFORMATIONTHEORY}. The equations that contain a log function are assumed to be under base two.
+We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book ``Elements of Information Theory" \cite{coverElementsInformationTheory2006}. The equations that contain a log function are assumed to be under base two.
 \subsection{Shannon's Entropy}
-Entropy measures the average amount of information required to describe a random variable \cite{coverELEMENTSINFORMATIONTHEORY}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
+Entropy measures the average amount of information required to describe a random variable \cite{coverElementsInformationTheory2006}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
 \begin{equation}
 	H(X) = -\sum_{x\in\mathcal{X}} p(x) \log p(x)  \label{eq:entropy}
 \end{equation}
@@ -39,7 +39,7 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
 \subsection{Relative entropy and mutual information} \label{cha:rel_entrop}
-Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverELEMENTSINFORMATIONTHEORY}. The KL divergence quantifies the ``dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
+Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \cite{coverElementsInformationTheory2006}. The KL divergence quantifies the ``dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
 
 \begin{equation}
 	\kl{q}{p} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
@@ -48,7 +48,7 @@ Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined
 
 
 % was rephrased by chat gpt
-The mutual information (MI) between two random variables $X$ and $Y$ can be computed as the KL divergence between their joint probability distribution, $p_{X,Y}(x,y)$, and the product of their marginal probability distributions, $p_X(x)$ and $p_Y(y)$, which is denoted as $p_X(x)p_Y(y)$ \cite{coverELEMENTSINFORMATIONTHEORY}. The equation for mutual information then becomes:
+The mutual information (MI) between two random variables $X$ and $Y$ can be computed as the KL divergence between their joint probability distribution, $p_{X,Y}(x,y)$, and the product of their marginal probability distributions, $p_X(x)$ and $p_Y(y)$, which is denoted as $p_X(x)p_Y(y)$ \cite{coverElementsInformationTheory2006}. The equation for mutual information then becomes:
 
 \begin{equation}
 	I(X; Y) =  \kl{p_{X, Y}(x, y)}{p_X(x) p_Y(y)}
@@ -167,7 +167,7 @@ While capable of learning compressed representations, autoencoders do not pose a
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{screenshot021}
-	\caption{ Latent space of autoencoder (left) and VAE (right), learned from the MNIST dataset \cite{PapersCodeMNIST}, a dataset consisting of images of handwritten digits between 0 and 9. The ANNs have not received any explicit information of the labels of the dataset. 
+	\caption{ Latent space of autoencoder (left) and VAE (right), learned from the MNIST dataset \cite{lecunGradientbasedLearningApplied1998}, a dataset consisting of images of handwritten digits between 0 and 9. The ANNs have not received any explicit information of the labels of the dataset. 
 	%The VAE's latent space, depicted in the right image, is optimised to be standard normally distributed. The latent vectors $\vect{z}$ are distributed according to the two-dimensional normal distribution $\sample{\vect{z}}{\standardnormal}$, where $\bm{\mu}$ is the two dimensional zero vector. $\identitymtx$ is the $2 \times 2$ covariance matrix with ones on the diagonal and zeroes elsewhere.
 }
 	\label{fig:latent_space_2d}
@@ -197,7 +197,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 \subsubsection{The learning objective}	
 % def q
 
-	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \cite{volodymyrkuleshovVariationalAutoencoder}. We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the the following definition:
+	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \cite{volodymyrkuleshovVariationalAutoencoder2023}. We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the the following definition:
 	\begin{equation}
 		\qvae = \normalNoI \label{eq:definition_q}
 	\end{equation}
@@ -452,7 +452,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 %\textbf{[What: CPC: repr for sequences]} \\
 	In what follows next, we discuss Contrastive Predictive Coding (CPC), a representation learning approach that we use as the basis for our own experiment in the following chapter.
 	% TODO: cpc differs from autoencoders in two key ways: reconstruct + time series data
-	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches can result in suboptimal encodings, as contextual information between patches is not encoded directly into the representation \cite{shah92LearningGood}.
+	CPC is an unsupervised learning approach, again with the objective of learning (lower dimensional) representations from high dimensional data \cite{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches can result in suboptimal encodings, as contextual information between patches is not encoded directly into the representation \cite{shah92LearningGood2020}.
 	%ChatGPT generated: In contrast, CPC considers the relationship between patches of the sequence to capture contextual information, making it a better option for representing time-series data.
 
 

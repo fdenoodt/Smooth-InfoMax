@@ -63,7 +63,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		
 	% - ADAM optimiser, decaying learning rate, batch size = 171 (= test data), 800 epochs
 	% - 10 negative samples, predict k = 12 time steps in the future
-		Both GIM and V-GIM are trained using the Adam optimiser for 800 epochs with an exponential learning rate scheduler \cite{bhargavladGuidePytorchLearning}, with initial learning rate $lr_{init} = 0.01$ and $\gamma=0.995$, such that $lr$ is updated as follows:
+		Both GIM and V-GIM are trained using the Adam optimiser for 800 epochs with an exponential learning rate scheduler \cite{bhargavladGuidePytorchLearning2020}, with initial learning rate $lr_{init} = 0.01$ and $\gamma=0.995$, such that $lr$ is updated as follows:
 		$$lr_{epoch} = \gamma * lr_{epoch - 1}$$
 		The batch size is set to 171, which is exactly the size of the test set. The number of patches to predict in the future $k$, is set to 12. Implementation details with regards to drawing negative samples for $\fkmblank$ remain identical to the experiments from \cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020}. The regularisation importance term $\beta$ is set to 0 for GIM and 0.0035 for V-GIM, which is the largest value we could obtain without causing posterior collapse.
 
