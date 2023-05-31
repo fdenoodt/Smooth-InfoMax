@@ -65,7 +65,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	% - 10 negative samples, predict k = 12 time steps in the future
 		Both GIM and V-GIM are trained using the Adam optimiser for 800 epochs with an exponential learning rate scheduler \citep{bhargavladGuidePytorchLearning2020}, with initial learning rate $lr_{init} = 0.01$ and $\gamma=0.995$, such that $lr$ is updated as follows:
 		$$lr_{epoch} = \gamma * lr_{epoch - 1}$$
-		The batch size is set to 171, which is exactly the size of the test set. The number of patches to predict in the future $k$, is set to 12. Implementation details with regards to drawing negative samples for $\fkmblank$ remain identical to the experiments from \citep{oordRepresentationLearningContrastive2019} and \citep{lowePuttingEndEndtoEnd2020}. The regularisation importance term $\beta$ is set to 0 for GIM and 0.0035 for V-GIM, which is the largest value we could obtain without causing posterior collapse.
+		The batch size is set to 171, which is exactly the size of the test set. The number of patches to predict in the future $k$, is set to 12. Implementation details with regards to drawing negative samples for $\fkmblank$ remain identical to the experiments from \citep{oordRepresentationLearningContrastive2019} and \citep{lowePuttingEndEndtoEnd2020}. The regularisation importance term $\beta$ is set to 0 for GIM and 0.0035 for V-GIM, which is the largest value we could obtain without causing posteriors to collapse to the standard normal, commonly referred to as posterior collapse.
 
 	%	% classifier:
 	%	After convergence, both methods trained on multi class logistic regressor?	linear multi-class classifier

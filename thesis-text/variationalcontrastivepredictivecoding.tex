@@ -77,7 +77,7 @@
 			
 	
 		
-\section{The learning objective} \label{cha:vgim_learning_objective}
+\section{The loss function} \label{cha:vgim_learning_objective}
 	Instead of training the neural network's modules end-to-end with a global loss function, each module is optimised greedily with its own personal loss function. Through the introduction of the novel \textit{Variational-InfoNCE} loss, mutual information between temporally nearby representations is maximised, while regularising the latent space to be approximate to the standard Gaussian $\standardnormal$. The Variational-InfoNCE loss is defined as follows:
 	
 	\begin{equation} % variational_gim_loss % TODO: die k's is niet echt correct/onvolledig

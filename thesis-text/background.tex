@@ -194,7 +194,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 
 
-\subsubsection{The learning objective}	
+\subsubsection{The loss function}	
 % def q
 
 	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \citep{volodymyrkuleshovVariationalAutoencoder2023}. We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the the following definition:
