@@ -5,10 +5,23 @@
 \pagenumbering{arabic}
 
 
+interpretability is a concern, to understand neural network. This problem has only become more relevant in recent years, as in representation learning for instance, not only are the internal works of the ANNs unknown, but also its outputs. (eg autoencoder)
+
+To understand neural networks, we must first understand its representations before we can understand how it derives its answers. While multiple representation learning algorithms (infoGAN) aim to find a solution to the first question, these approaches provide little information in the internal workings of the ANN.
+
+We attempt to go a step further,
+In this thesis we introduce V-GIM, by splitting up ANN into modules each obtaining interpretable representations, also providing interpretability inside the network.
+
+----
+
+
 In recent years, CPC has been shown to be a successful self-supervised learning approach in a wide range of domains \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, enabling modules to be trained in parallel, or sequentially. Moreover, Wang \citep{meihanwangSpeechRepresentationLearning2019} empirically demonstrates that GIM learns good speech representations for the speech dataset we use in our own experiments \ref{cha:experim_details_vgim}.
 
 However, the underlying representations obtained from optimising this InfoNCE objective have not yet been studied in great detail. In this thesis we aim to gain better understanding in these representations by enforcing constraints to the latent space, resulting in a space that is easier to analyse and understand.
 
+
+
+%While, previous interpretable representation learning has focused on learning representations for images, we work with sequential audio data, which is notoriously more complex as visualisation schemes no longe work, and small artificats in the audio may disturb observations.
 
 
 

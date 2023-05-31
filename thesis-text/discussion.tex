@@ -1,0 +1,158 @@
+\chapter{Discussion and future work}
+% scribbr:
+% Step 1: Summarize your key findings
+% Step 2: Give your interpretations (on results)
+% Step 3: Discuss the implications
+	% link met literature, bv kl divergence geeft veel useless dimensions (is same as literature)
+% Step 4: Acknowledge the limitations
+% Step 5: Share your recommendations
+	% = future work, eventueel gericht op die limitaties.
+
+	
+In this thesis we introduced V-GIM, providing the necessary tools to analyse the representations learned from optimising the InfoNCE's objective. In this section we discuss ou interpretations on V-GIM's results, discuss its limitations and make recommendations for plausible future work.
+
+\section{Interpretability}
+	V-GIM's interpretability is achieved by defining latent representations as samples from Gaussian distributions which are optimised to be similar to the standard normal. Consequently the data will cover the entire latent space around the origin, such that sampling a random point from this latent space is likely to result in a data point that is similar to the data. By encoding each data point to its latent representation and creating a histogram for of the representations per dimension, we observed that V-GIM does indeed enforce each dimension to be standard normal, indicating that implications with respect to interpretability using the decoder are indeed applicable. 
+	
+	We analysed V-GIM's representations using t-SNE plots, linear classifiers, and decoders which were trained on top of V-GIM's representations. Interestingly, the representations seemed to contain vowel information while consonant information was lacking. This was observed in both the t-SNE plots and the linear classifier results. We suggest this is related to the duration of the phonemes. The vowels in the dataset are typically pronounced for longer durations than the consonants, and thus, due to the smaller length, representations containing consonant information have fewer information in common nearby representations as in those representations the consonant may no longer be pronounced any more. This is in line with \cite{lowePuttingEndEndtoEnd2020} findings, suggesting that optimising using the InfoNCE objective favours global information rather than local. 
+	
+	\cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020} observed better performance in their papers for a similar phoneme classification problem. We believe this is related to the size of individual representations, as they have 512 rather than 32 as in our work. Additionally, our representations capture longer time sequences and have a smaller resulting in potentially less mutual information between temporally nearby patches. Due to computational constraints, and since our primary concern was to analyse these representations, we maintained our own architecture where representations contain longer time frames.
+	
+	The decoder provided information on the contained speech information that remained in the representations. While the pronounced sounds were recognisable, the decoder occasionally generated incorrect consonant sounds, eg producing the sound ``ba" where the original sound was ``ga". This further supports claims that representations no longer contain consonant information. Additionally syllable content was recognisable but audio files sounded more disturbed and recognising the speaker's identity became almost impossible.
+	
+		
+
+	
+	
+	
+	
+	% decoder results:
+		- speaker identity, 
+		- frequencies: particular dimensions no influence, 
+	
+	The interpolation study provided insights in the contained information in each dimension. In particular, we found that the contained information in dimensions could be sorted in three categories, having information of one or two frequency bins, an entire region of frequency bins, or have no information at all.
+	
+	-----
+	
+	% disclaimer: decoder only works on V-GIM, not GIM.
+	It is noteworthy that insights obtained from decoder only viable because of V-GIM's regularisation term, and not in regularisation-free MI maximisation techniques such as CPC and V-GIM.
+	
+	
+	
+	Additionally, the addition of an optional decoder provided benefits over encoder-decoder architectures, as the decoder was not required for training, providing more available memory for more complex architectures.
+	
+	The decoder provided insights in the contained information in each dimension.
+	
+	Additionally, V-GIM's module architecture enables observation of interpretable activations inbetween the network as well. Further work could investigate these internal representations further, so not only do we have the means to understand the final representations, as X, Y, we even have the means to understand internal, potentially giving even better insights in how neural networks operate. While other representation learning techniques, x,y,z claim interpretable representations, V-GIM's representations are interpretable, but additinoally provide insights in the internal mechanism of the network as well.
+	
+	Note that:
+		Interpretability analysis gives insight in information that is available, but making claims on what information is not included is harder, as could be that decoder didn't see it. interpretability analysis gives insight in information that is available, but making claims on what information is not included is harder, as could be that decoder didn't see it. 
+		
+	useless dimensions:
+		- combining results from weight table and 
+	 	- some dimensions were very nicely Gaussian shaped while others were not, indicating that optimisation function could potentially maintain useless dimensions to keep up good cost function, while containing all information. So V-GIM exploits loss function, not necessarly learning as we expect.
+	 	- test alternative priors van VAE
+		 - test disentanglement
+		
+
+
+	further work, could take to more extremes a single module per layer such that each layer can be analyses and then potentially also the weights.
+
+
+		
+\section{Performance benefits and representation variability}
+		- performance is worse in second module, further attributed to less mutual information.
+
+		- didn't observe a benefit from variation variance, even for the smallest subset sizes.
+		- We hypothesised representation variance, resulting in more data points could improve the decision boundary, encouraging the boundary to be similar as to SVM, where distance is maximised for each point.
+		- Taking inspiration from SVM's decision boundary, we investigated whether V-GIM's representation could offer a similar approach for alternative downstream tasks, is a potential 
+			- encourage a better boundary, similar to SVM's \citep{hearstSupportVectorMachines1998, nobleWhatSupportVector2006}, maximising the margin between classes.
+			 --> didn't seem the case.
+		- explanation on why should be further investigated. One hypothesis is related to SVM's ...
+		
+			
+\section{batch normalisation}
+		- sindy didn't have issues of batch norm, but believe this is because each module consisted of a single layer, ours contain a number of layers. potentially: outputs from first module change too fast for second module to catch up.
+	
+\section{memory}
+		- while V-GIM's greedy approach allows for distributed learning, enabling training on resource constraint devices. each module has a memory overhead due to the similarity score fkm, causing the combined memory requirements to be higher.
+		- while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
+	
+
+
+
+
+
+
+
+
+%-- 
+%decaying learing rate:
+%we train using decaying lr, because models must first learn distributions and goes too slow if lr is too small.
+%and a learning rate scheduler
+%ExponentialLR
+%decay rate 0.995
+%
+%---
+
+
+
+
+
+
+
+
+%---
+%The second module in GIM clearly doesn't have as much effect. This can be explained because there may not be as much common information anymore between the patches. There may be a source that says that cpc learns low level features, but the second module is supposed to learn more high level features, which cpc may have trouble with?
+%---
+%
+%Future work:
+%- Related work in VAE shows that gradually increasing regularisation term, results in better disentengledment, while avoiding posterior collapse. could have a kldweight scheduler.
+%
+%- not constrained solely to InfoNCE loss, the GIM architecture could work for other losses too that allow for greedy optimisation.
+%
+%
+%- I didn't add an autoregressor as i didn't find a performance benefit. Potentially, with larger architecture could further improve performance.
+%
+%
+%
+%----
+%Towards production setting:
+%encodings are thus optimised to be close the standard normal. When in a production environment and new data is given, could in fact have an idea of how well generalisation to the production data: eg via anomaly detection if encodings are too far away from center. 
+%= gives automated way of verifying generalisation.
+%
+%can then maybe see to which data that doesn't generalise well via outliers.
+%
+%----
+%
+%
+%future work:
+%- disentanglement should do more investations
+%
+%
+%---
+%GIM: Modular training
+%could incrementally increase numb of modules and observe performance increase for downstream tasks.
+%based on this, could find smallest gim architecture depth which satisfies required accuracies.
+%
+%----
+%interpretability:
+%most dimensions sensitive around 75 to 150 hz. this is as expected as the adult man speaks around 80 to 180 hz.
+%
+%---
+%interpretability is only as good as the decoder. if a shitty decoder doesn't construct well, doesn't necessarily give correct conclusions about V-GIM.
+%
+%
+%---
+%Future work: alternatieve prior (zie related work.)
+%
+%
+%
+%
+%
+%
+%\begin{itemize}
+%	\item Explainability of latents is dependent on the performance of the decoder.
+%	\item Intermediate loss function with kld resulted in similar behaviour as batch normalisation. Resulting in faster convergence than without kld.
+%	\item We observed no quality loss in the learned representations. Data was equally easily separable.
+%\end{itemize}

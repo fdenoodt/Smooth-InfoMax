@@ -62,6 +62,9 @@
 %\includeonly{experiments}
 %\includeonly{relatedwork}
 %\includeonly{appendix}
+%\includeonly{discussion}
+
+
 
 
 
@@ -103,82 +106,10 @@
 \include{variationalcontrastivepredictivecoding}
 \include{experiments}
 \include{relatedwork}
+\include{discussion}
 
-\chapter{Discussion}
-
--- 
-decaying learing rate:
-	we train using decaying lr, because models must first learn distributions and goes too slow if lr is too small.
-	and a learning rate scheduler
-	ExponentialLR
-	decay rate 0.995
-
----
-batch norm:
- - sindy didn't have issues of batch norm, but believe this is because each module consisted of a single layer, ours contain a number of layers. potentially: outputs from first module change too fast for second module to catch up.
-
-
-
-
-while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
-
-
----
-The second module in GIM clearly doesn't have as much effect. This can be explained because there may not be as much common information anymore between the patches. There may be a source that says that cpc learns low level features, but the second module is supposed to learn more high level features, which cpc may have trouble with?
----
-
-Future work:
- - Related work in VAE shows that gradually increasing regularisation term, results in better disentengledment, while avoiding posterior collapse. could have a kldweight scheduler.
- 
-- not constrained solely to InfoNCE loss, the GIM architecture could work for other losses too that allow for greedy optimisation.
-
-
-- I didn't add an autoregressor as i didn't find a performance benefit. Potentially, with larger architecture could further improve performance.
-
-
-
-----
-Towards production setting:
-	encodings are thus optimised to be close the standard normal. When in a production environment and new data is given, could in fact have an idea of how well generalisation to the production data: eg via anomaly detection if encodings are too far away from center. 
-	= gives automated way of verifying generalisation.
-	
-	can then maybe see to which data that doesn't generalise well via outliers.
-	
-----
-
-
-future work:
-- disentanglement should do more investations
-
-
----
-GIM: Modular training
-could incrementally increase numb of modules and observe performance increase for downstream tasks.
-based on this, could find smallest gim architecture depth which satisfies required accuracies.
-
-----
-interpretability:
-most dimensions sensitive around 75 to 150 hz. this is as expected as the adult man speaks around 80 to 180 hz.
-
----
-interpretability is only as good as the decoder. if a shitty decoder doesn't construct well, doesn't necessarily give correct conclusions about V-GIM.
-
-
----
-Future work:alternatieve prior (zie related work.)
-
-
-
-
-
-
-\begin{itemize}
-	\item Explainability of latents is dependent on the performance of the decoder.
-	\item Intermediate loss function with kld resulted in similar behaviour as batch normalisation. Resulting in faster convergence than without kld.
-	\item We observed no quality loss in the learned representations. Data was equally easily separable.
-\end{itemize}
-
-
+\chapter{Conclusion}
+	We develop XX
 
 \bibliographystyle{apalike}
 \bibliography{references}
