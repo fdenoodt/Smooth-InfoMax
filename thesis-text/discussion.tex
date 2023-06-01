@@ -9,46 +9,53 @@
 	% = future work, eventueel gericht op die limitaties.
 
 	
-In this thesis we introduced V-GIM, providing the necessary tools to analyse the representations learned from optimising the InfoNCE objective.
-% why interpretable
-V-GIM's interpretability is achieved by defining latent representations as samples from Gaussian distributions which are optimised to be similar to the standard normal. This way, the dataset will cover the entire latent space around the origin, such that sampling a random point from this space is likely to result in a data point that is similar to the data. 
+In this thesis we introduced V-GIM, a self-supervised approach for interpretable representation learning through mutual information maximisation. In this thesis, we provide a discussion on V-GIM's results with respective to its interpretability. We discuss its limitations, and make recommendations for plausible future work.
 
-%By encoding each data point to its latent representation and creating a histogram for of the representations per dimension, we observed that V-GIM does indeed enforce each dimension to be standard normal, indicating that implications with respect to interpretability using the decoder are indeed applicable. 
+%% why interpretable: chat gpt wou dat niet
+%V-GIM's interpretability is achieved by defining latent representations as samples from Gaussian distributions which are optimised to be similar to the standard normal. As such, the dataset will cover the entire latent space around the origin, such that sampling a random point from this space is likely to result in a data point that is similar to the data. 
 
-In this section we discuss our interpretations on V-GIM's results, discuss its limitations and make recommendations for plausible future work.
+
 
 \section{Interpretability}
 	
 	% no b, wel a
-	We analysed V-GIM's representations using t-SNE plots, linear classifiers, and decoders which were trained on top of V-GIM's representations. Interestingly, the representations seemed to contain vowel information while consonant information was lacking. This was observed in both the t-SNE plots and the linear classifier results. We suggest that this is related to the duration of the phonemes. The InfoNCE objective maximises the mutual information between temporally nearby patches, assuming presence of common information in nearby data. However, the vowels in the dataset are typically pronounced for longer duration than the consonants, and thus, representations where a consonant is being pronounced have fewer information in common with nearby representations as in those representations the consonant may not be pronounced any more. These findings are in line with \cite{lowePuttingEndEndtoEnd2020} who suggest that optimisation using the InfoNCE objective favours global information rather than local. 
+	We analysed V-GIM's representations using t-SNE plots, linear classifiers, and decoders trained on top of V-GIM's representations. We observed that the representations contained vowel information but lacked consonant information. This was observed in both the t-SNE plots and the linear classifier results. We suggest that this is related to the duration of the phonemes. The InfoNCE objective maximises the mutual information between temporally nearby patches, assuming presence of common information in nearby data. However, the vowels in the dataset are typically pronounced for longer duration than the consonants, and thus, representations where a consonant is being pronounced have fewer information in common with nearby representations as in those representations the consonant may not be pronounced any more. These findings are align with \cite{lowePuttingEndEndtoEnd2020} who suggested that optimisation the InfoNCE objective favours global information over local information. 
 	
-		
-	The decoder provided us with information on the contained speech information that remained in the representations. While the pronounced sounds were recognisable, the decoder occasionally generated incorrect consonants, for instance by producing the sound ``ba" when the original sound is ``ga". This is further evidence indicating that representations no longer contain as much consonant information. Additionally the pronounced sounds were recognisable but sounded more disturbed and recognising the speaker's identity became almost impossible. This could be an indication that this information is no longer contained in the representations.
+	The decoder provided with insights into the speech information that remained in the representations. While the pronounced sounds were generally recognisable, the decoder occasionally generated incorrect consonants, for instance by producing the sound ``ba" when the original sound was ``ga". This further supports our findings that the representations contain less consonant information. Additionally the pronounced sounds were recognisable but sounded distorted, making it almost impossible to recognise the speaker's identity. This indicates that the speaker's identity may no longer be present in the representations.
 	
-
-	The interpolation study provided insights in the contained information of each dimension. We discovered three categories: dimensions with information of one or two frequency bins, dimensions with information spanning an entire range of frequency bins, and dimensions with no information at all, we call these useless dimensions. Most dimensions were active around the 100Hz to 200Hz frequency range, which is similar to the pitch of a male voice.
-
-	Interestingly, the vowel information was included in only a small subset of dimensions. This was demonstrated in the vowel experiment, in which a classifier was trained to predict the vowel corresponding to a representation from V-GIM's first module. The classifier obtained relatively high accuracies by only looking at a few dimensions, indicating that the other dimesions did not contribute to the classification.
-	 This demonstrates that the size of representations could be reduced even further by removing these dimensions.
+	Interestingly, the vowel information was found to be concentrated in only a small subset of dimensions. This was observed in the vowel experiment, where a linear classifier trained on V-GIM's first module achieved high accuracies by assigning high weights to a few dimensions, while the majority of weights were close to zero, indicating that those dimensions did not contribute to the prediction. This suggests that the size of representations could be further reduced by removing dimensions that do not contribute to the task. Some of these dimensions likely carry different information, while others may be completely useless.
 	
-	% The other dimensions were thus either useless, or carried different information. 
-	
-	
-	In the histogram plots, we obseved 
 	
 	% why useless dimensions appear
-	We assume V-GIM's useless dimensions can be partly attributed to KL divergence in the $\Lvnce$ loss function. 
-	V-GIM appears to be stuck in a local minimum, where it ends up exploiting the $\Lvnce$ in a way we would not expect. In particular, certain dimensions will carry actual information, contributing to a good InfoNCE bound, while other dimensions that do not carry any information but enforce the standard normal space, thus optimising the KL divergence. This is further shown in the distribution graphs as certain graphs are almost identical to the standard normal distribution, while others have larger differences.
+	We attribute the presence of useless dimensions in V-GIM's representations to the KL divergence term in the $\Lvnce$ loss function. The histogram plots revealed that some dimensions' distributions were nearly identical to the standard normal distribution, while others showed more variation. We assume that certain dimensions with more variation most likely carry all the actual information and contribute to a good InfoNCE bound, while the identical dimensions do not carry any useful information but help maintain a low KL divergence.
 	
-	%some dimensions were very nicely Gaussian shaped while others were not, indicating that optimisation function could potentially maintain useless dimensions to keep up good cost function, while containing all information. So V-GIM exploits loss function, not necessarly learning as we expect.
+			
+	% diff priors
+	This problem of useless dimensions is also known in VAEs and can be mitigated by choosing different priors or posteriors. For instance, VampPrior addresses this problem by using a mixture of Gaussians as prior in stead of the typical standard normal \citep{tomczakVAEVampPrior2018}. Further work could explore alternative priors introduced to VAEs which we discussed in section \ref{cha:rel_alt_priors}, and investigate their performance in V-GIM. Alternatively, the problem of useless dimensions could potentially be mitigated by introducing a regularisation term applied to the weights of the similarity score function $\fkm$, which would enforce similar weights between different dimensions. This regularisation would encourage each dimension to contribute an equal amount of information.
 	
-	This problem of useless dimensions is known to VAEs as well, and can for instance be mitigated by choosing alternative prior or posterior \citep{tomczakVAEVampPrior2018}. Further work could explore alternative priors introduced to VAEs and investigate their performance in V-GIM. Alternatively, the problem of useless dimensions could potentially be mitigated via a regularisation term applied to the weights of the similarity score function $\fkm$ or discriminator, enforcing similar weights between different dimensions. As such each dimension would be encouraged to contribute an equal amount to the contained information. 
+	% disentanglement
+	With regards to representation disentanglement, \cite{burgessUnderstandingDisentanglingBeta2018} argue that choosing a standard normal prior in VAEs encourages disentangled representations. These ideas can also be applied to V-GIM and should be further investigated in future work.
 	
-	With regards to representation disentanglement, \cite{burgessUnderstandingDisentanglingBeta2018} argue that choosing a standard normal prior in VAEs encourages disentangled representations. As a consequence of our approach these ideas are also applicable to V-GIM and should be further verified in future work.
+	
+	% V-GIM enables interpretability of internal representations as well, potentially enabling to understand the network
+	
+	V-GIM's regularisation term ensures that sampling a random point in the latent space around the origin will likely result in a point that is similar to the original data. Moreover, since the training set covers the entire space around the origin, a decoder trained on this space will likely generalise well to unseen data around the origin. Therefore, the interpolation experiment allowed us to investigate what exact information was contained in each dimension, in each of V-GIM's modules. 
+	
+	We discovered three categories: dimensions containing information from one or two specific frequency bins, dimensions containing information spanning a range of frequency bins, and dimensions containing no information at all. Most dimensions were active around the 100Hz to 200Hz frequency range, similar to the pitch of a male voice \citep{rePreferencesVeryLow2012}.
+	
+	% towards true XAI
+	While our work focused on understanding V-GIM's representations for two modules, achieving true explainable AI requires understanding not only the model's outputs but also how it obtained its outputs. V-GIM could serve as an initial step in this direction by defining each layer as a module, allowing for a better understanding of each activation in the network. Further research could explore the associated weights between modules to gain further insights in the model's internal workings.
+
+	%. Consequently, if activations are understandable, understanding the exact weights may become more feasible as only a single layer must be analysed at a time.
+		 
+	%	In the interpolation study, decoders were trained on each of V-GIM's modules, providing us with insights in the contained information of each dimension. We discovered three categories: dimensions containing information of one or two specific frequency bins, dimensions containing information spanning an entire range of frequency bins, and dimensions containing no information at all, we call these the useless dimensions. Most dimensions were active around the 100Hz to 200Hz frequency range, which is similar to the pitch of a male voice.
+	%	
+	%	
+	%
+	%	further work, could take to more extremes a single module per layer such that each layer can be analyses and then potentially also the weights.
+	
 	
 
-	% V-GIM enables interpretability of internal representations as well, potentially enabling to understand the network	 
-	further work, could take to more extremes a single module per layer such that each layer can be analyses and then potentially also the weights.
 
 
 	
@@ -69,6 +76,7 @@ In this section we discuss our interpretations on V-GIM's results, discuss its l
 	%		 - test disentanglement
 		
 
+%By encoding each data point to its latent representation and creating a histogram for of the representations per dimension, we observed that V-GIM does indeed enforce each dimension to be standard normal, indicating that implications with respect to interpretability using the decoder are indeed applicable. 
 
 
 
