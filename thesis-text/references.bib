@@ -29,6 +29,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\UCR7YKX3\\Agrawal and Ganapathy - 2020 - Interpretable Representation Learning for Speech a.pdf;C\:\\Users\\Fab\\Zotero\\storage\\WNVZJS5R\\9224148.html}
 }
 
+@misc{amiriFederatedLearningQuantized2020,
+  title = {Federated {{Learning With Quantized Global Model Updates}}},
+  author = {Amiri, Mohammad Mohammadi and Gunduz, Deniz and Kulkarni, Sanjeev R. and Poor, H. Vincent},
+  year = {2020},
+  month = oct,
+  number = {arXiv:2006.10672},
+  eprint = {2006.10672},
+  primaryclass = {cs, math},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.2006.10672},
+  urldate = {2023-06-01},
+  abstract = {We study federated learning (FL), which enables mobile devices to utilize their local datasets to collaboratively train a global model with the help of a central server, while keeping data localized. At each iteration, the server broadcasts the current global model to the devices for local training, and aggregates the local model updates from the devices to update the global model. Previous work on the communication efficiency of FL has mainly focused on the aggregation of model updates from the devices, assuming perfect broadcasting of the global model. In this paper, we instead consider broadcasting a compressed version of the global model. This is to further reduce the communication cost of FL, which can be particularly limited when the global model is to be transmitted over a wireless medium. We introduce a lossy FL (LFL) algorithm, in which both the global model and the local model updates are quantized before being transmitted. We analyze the convergence behavior of the proposed LFL algorithm assuming the availability of accurate local model updates at the server. Numerical experiments show that the proposed LFL scheme, which quantizes the global model update (with respect to the global model estimate at the devices) rather than the global model itself, significantly outperforms other existing schemes studying quantization of the global model at the PS-to-device direction. Also, the performance loss of the proposed scheme is marginal compared to the fully lossless approach, where the PS and the devices transmit their messages entirely without any quantization.},
+  archiveprefix = {arxiv},
+  keywords = {{Computer Science - Distributed, Parallel, and Cluster Computing},Computer Science - Information Theory,Computer Science - Machine Learning},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\F6PFQ5SH\\Amiri et al. - 2020 - Federated Learning With Quantized Global Model Upd.pdf;C\:\\Users\\Fab\\Zotero\\storage\\CFNQP8GL\\2006.html}
+}
+
 @inproceedings{anejaContrastiveLearningApproach2021,
   title = {A {{Contrastive Learning Approach}} for {{Training Variational Autoencoder Priors}}},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
@@ -256,6 +273,24 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\YSZAW48P\\Bjorck et al. - 2018 - Understanding Batch Normalization.pdf}
 }
 
+@article{blottFINNREndtoEndDeepLearning2018,
+  title = {{{FINN-R}}: {{An End-to-End Deep-Learning Framework}} for {{Fast Exploration}} of {{Quantized Neural Networks}}},
+  shorttitle = {{{FINN-R}}},
+  author = {Blott, Michaela and Preu{\ss}er, Thomas B. and Fraser, Nicholas J. and Gambardella, Giulio and O'brien, Kenneth and Umuroglu, Yaman and Leeser, Miriam and Vissers, Kees},
+  year = {2018},
+  month = dec,
+  journal = {ACM Transactions on Reconfigurable Technology and Systems},
+  volume = {11},
+  number = {3},
+  pages = {16:1--16:23},
+  issn = {1936-7406},
+  doi = {10.1145/3242897},
+  urldate = {2023-06-01},
+  abstract = {Convolutional Neural Networks have rapidly become the most successful machine-learning algorithm, enabling ubiquitous machine vision and intelligent decisions on even embedded computing systems. While the underlying arithmetic is structurally simple, compute and memory requirements are challenging. One of the promising opportunities is leveraging reduced-precision representations for inputs, activations, and model parameters. The resulting scalability in performance, power efficiency, and storage footprint provides interesting design compromises in exchange for a small reduction in accuracy. FPGAs are ideal for exploiting low-precision inference engines leveraging custom precisions to achieve the required numerical accuracy for a given application. In this article, we describe the second generation of the FINN framework, an end-to-end tool that enables design-space exploration and automates the creation of fully customized inference engines on FPGAs. Given a neural network description, the tool optimizes for given platforms, design targets, and a specific precision. We introduce formalizations of resource cost functions and performance predictions and elaborate on the optimization algorithms. Finally, we evaluate a selection of reduced precision neural networks ranging from CIFAR-10 classifiers to YOLO-based object detection on a range of platforms including PYNQ and AWS F1, demonstrating new unprecedented measured throughput at 50 TOp/s on AWS F1 and 5 TOp/s on embedded devices.},
+  keywords = {artificial intelligence,convolutional neural networks,FINN,FPGA,hardware accellerator,inference,Neural network,quantized neural networks},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\ZMN5MIUM\\Blott et al. - 2018 - FINN-R An End-to-End Deep-Learning Framework for .pdf}
+}
+
 @misc{braunConsolidatedViewLoss2020,
   title = {A Consolidated View of Loss Functions for Supervised Deep Learning-Based Speech Enhancement},
   author = {Braun, Sebastian and Tashev, Ivan},
@@ -478,6 +513,22 @@
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\GXT72DRW\\Fortuin et al. - 2019 - SOM-VAE Interpretable Discrete Representation Lea.pdf;C\:\\Users\\Fab\\Zotero\\storage\\KR46FTA6\\1806.html}
+}
+
+@article{gallantPerceptronbasedLearningAlgorithms1990,
+  title = {Perceptron-Based Learning Algorithms},
+  author = {Gallant, S.I.},
+  year = {1990},
+  month = jun,
+  journal = {IEEE Transactions on Neural Networks},
+  volume = {1},
+  number = {2},
+  pages = {179--191},
+  issn = {1941-0093},
+  doi = {10.1109/72.80230},
+  abstract = {A key task for connectionist research is the development and analysis of learning algorithms. An examination is made of several supervised learning algorithms for single-cell and network models. The heart of these algorithms is the pocket algorithm, a modification of perceptron learning that makes perceptron learning well-behaved with nonseparable training data, even if the data are noisy and contradictory. Features of these algorithms include speed algorithms fast enough to handle large sets of training data; network scaling properties, i.e. network methods scale up almost as well as single-cell models when the number of inputs is increased; analytic tractability, i.e. upper bounds on classification error are derivable; online learning, i.e. some variants can learn continually, without referring to previous data; and winner-take-all groups or choice groups, i.e. algorithms can be adapted to select one out of a number of possible classifications. These learning algorithms are suitable for applications in machine learning, pattern recognition, and connectionist expert systems.{$<>$}},
+  keywords = {Algorithm design and analysis,Classification algorithms,Heart,Hybrid intelligent systems,Machine learning,Machine learning algorithms,Pattern recognition,Supervised learning,Training data,Upper bound},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\2WLX47PY\\Gallant - 1990 - Perceptron-based learning algorithms.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SZJIKCTE\\80230.html}
 }
 
 @article{gamperSoundSampleDetection2013,
@@ -805,6 +856,23 @@
   file = {C\:\\Users\\Fab\\Zotero\\storage\\WZCUUWN7\\Karamanolakis et al. - 2018 - Item Recommendation with Variational Autoencoders .pdf}
 }
 
+@misc{kimDistanceawareQuantization2021,
+  title = {Distance-Aware {{Quantization}}},
+  author = {{kim}, Dohyung and Lee, Junghyup and Ham, Bumsub},
+  year = {2021},
+  month = aug,
+  number = {arXiv:2108.06983},
+  eprint = {2108.06983},
+  primaryclass = {cs},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.2108.06983},
+  urldate = {2023-06-01},
+  abstract = {We address the problem of network quantization, that is, reducing bit-widths of weights and/or activations to lighten network architectures. Quantization methods use a rounding function to map full-precision values to the nearest quantized ones, but this operation is not differentiable. There are mainly two approaches to training quantized networks with gradient-based optimizers. First, a straight-through estimator (STE) replaces the zero derivative of the rounding with that of an identity function, which causes a gradient mismatch problem. Second, soft quantizers approximate the rounding with continuous functions at training time, and exploit the rounding for quantization at test time. This alleviates the gradient mismatch, but causes a quantizer gap problem. We alleviate both problems in a unified framework. To this end, we introduce a novel quantizer, dubbed a distance-aware quantizer (DAQ), that mainly consists of a distance-aware soft rounding (DASR) and a temperature controller. To alleviate the gradient mismatch problem, DASR approximates the discrete rounding with the kernel soft argmax, which is based on our insight that the quantization can be formulated as a distance-based assignment problem between full-precision values and quantized ones. The controller adjusts the temperature parameter in DASR adaptively according to the input, addressing the quantizer gap problem. Experimental results on standard benchmarks show that DAQ outperforms the state of the art significantly for various bit-widths without bells and whistles.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\KX7LRIQJ\\kim et al. - 2021 - Distance-aware Quantization.pdf;C\:\\Users\\Fab\\Zotero\\storage\\6P4GFQD2\\2108.html}
+}
+
 @misc{kingmaAutoEncodingVariationalBayes2022,
   title = {Auto-{{Encoding Variational Bayes}}},
   author = {Kingma, Diederik P. and Welling, Max},
@@ -1003,6 +1071,20 @@
   abstract = {Unsupervised learning aims to learn meaningful representations from unlabeled data which can captures its intrinsic structure, that can be transferred to downstream tasks. Meta-learning, whose objective is to learn to generalize across tasks such that the learned model can rapidly adapt to a novel task, shares the spirit of unsupervised learning in that the both seek to learn more effective and efficient learning procedure than learning from scratch. The fundamental difference of the two is that the most meta-learning approaches are supervised, assuming full access to the labels. However, acquiring labeled dataset for meta-training not only is costly as it requires human efforts in labeling but also limits its applications to pre-defined task distributions. In this paper, we propose a principled unsupervised meta-learning model, namely Meta-GMVAE, based on Variational Autoencoder (VAE) and set-level variational inference. Moreover, we introduce a mixture of Gaussian (GMM) prior, assuming that each modality represents each class-concept in a randomly sampled episode, which we optimize with Expectation-Maximization (EM). Then, the learned model can be used for downstream few-shot classification tasks, where we obtain task-specific parameters by performing semi-supervised EM on the latent representations of the support and query set, and predict labels of the query set by computing aggregated posteriors. We validate our model on Omniglot and Mini-ImageNet datasets by evaluating its performance on downstream few-shot classification tasks. The results show that our model obtain impressive performance gains over existing unsupervised meta-learning baselines, even outperforming supervised MAML on a certain setting.},
   langid = {english},
   file = {C\:\\Users\\Fab\\Zotero\\storage\\ZZDZA3MH\\Lee et al. - 2021 - Meta-GMVAE Mixture of Gaussian VAE for Unsupervis.pdf}
+}
+
+@article{leinonenLowComplexityVectorQuantized2020,
+  title = {Low-{{Complexity Vector Quantized Compressed Sensing}} via {{Deep Neural Networks}}},
+  author = {Leinonen, Markus and Codreanu, Marian},
+  year = {2020},
+  journal = {IEEE Open Journal of the Communications Society},
+  volume = {1},
+  pages = {1278--1294},
+  issn = {2644-125X},
+  doi = {10.1109/OJCOMS.2020.3020131},
+  abstract = {Sparse signals, encountered in many wireless and signal acquisition applications, can be acquired via compressed sensing (CS) to reduce computations and transmissions, crucial for resource-limited devices, e.g., wireless sensors. Since the information signals are often continuous-valued, digital communication of compressive measurements requires quantization. In such a quantized compressed sensing (QCS) context, we address remote acquisition of a sparse source through vector quantized noisy compressive measurements. We propose a deep encoder-decoder architecture, consisting of an encoder deep neural network (DNN), a quantizer, and a decoder DNN, that realizes low-complexity vector quantization aiming at minimizing the mean-square error of the signal reconstruction for a given quantization rate. We devise a supervised learning method using stochastic gradient descent and backpropagation to train the system blocks. Strategies to overcome the vanishing gradient problem are proposed. Simulation results show that the proposed non-iterative DNN-based QCS method achieves higher rate-distortion performance with lower algorithm complexity as compared to standard QCS methods, conducive to delay-sensitive applications with large-scale signals.},
+  keywords = {Complexity theory,Compressed sensing,data compression,Decoding,feedforward neural networks,Quantization (signal),Rate-distortion,Signal reconstruction,supervised learning,vector quantization,Wireless communication,Wireless sensor networks},
+  file = {C\:\\Users\\Fab\\Zotero\\storage\\WYVKXKIB\\Leinonen and Codreanu - 2020 - Low-Complexity Vector Quantized Compressed Sensing.pdf;C\:\\Users\\Fab\\Zotero\\storage\\ND6BKYRZ\\9179815.html}
 }
 
 @article{linskerSelfOrganizationPerceptualNetwork1988,

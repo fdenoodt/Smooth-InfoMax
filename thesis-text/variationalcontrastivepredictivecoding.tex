@@ -161,7 +161,17 @@
 		
 	
 	\subsubsection{Improved generalisation performance through representation variance}
-		V-GIM's encodings are samples from a distribution, which means that a single patch of data $\xt$ may have multiple encoded representations $\zt^M$. For downstream tasks with very little labelled data, the variability in representations could serve as an internal data augmentation method, which may improve generalisation to unseen data for downstream tasks.
+		V-GIM's encodings are samples from a distribution, which means that a single patch of data $\xt$ has multiple encoded representations $\zt^M$. For downstream tasks with little labelled data, the variability in representations could serve as an internal data augmentation method, making the set of plausible decision boundaries smaller, and therefore also improving generalisation to unseen data. This motivation is further depicted in figure \ref{fig:set_of_decision_boundaries} where a two-dimensional latent space and the set of its plausible decision boundaries are shown.
+		
+		\begin{figure}
+			\centering
+			\hspace*{1.5cm}
+			\begin{annotatedFigure}
+				{\includegraphics[width=0.8\linewidth, trim={5cm 4.5cm 0 4cm}, clip]{"graphs/linear boundary"} }	
+			\end{annotatedFigure}
+			\caption{Example of a two dimensional space obtained from GIM or V-GIM respectively, where a binary classifier is given three data points. The black lines represent all the possible decision boundaries, while the circular areas in V-GIM represent the samples obtained from the corresponding Gaussian distribution.}
+			\label{fig:architecture}
+		\end{figure}
 		
 		%Because of this probabilistic approach, a single patch of data $\xt$ will have multiple representations $\zt^M$, providing increased variance in the representations. This can potentially benefit downstream tasks, particularly when labelled data in scarce \citep{weiRecentAdvancesVariational2021}, leading to improved performance. % TODO: this benefit should be moved to benefits section.
 

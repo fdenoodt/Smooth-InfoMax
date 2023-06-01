@@ -81,28 +81,115 @@ In this thesis we introduced V-GIM, a self-supervised approach for interpretable
 
 
 		
-\section{Performance benefits and representation variability}
-		% beter in discussie van results?
-		\cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020} observed better performance in their papers for a similar speech recognition problem. We believe this is related to the size of individual representations, as they have 512 rather than 32 as in our work. Additionally, our representations capture longer time sequences and have a smaller resulting in potentially less mutual information between temporally nearby patches. Due to computational constraints, and since our primary concern was to analyse these representations, we maintained our own architecture where representations contain longer time frames.
-
-
-		- performance is worse in second module, further attributed to less mutual information.
-
-		- didn't observe a benefit from variation variance, even for the smallest subset sizes.
-		- We hypothesised representation variance, resulting in more data points could improve the decision boundary, encouraging the boundary to be similar as to SVM, where distance is maximised for each point.
-		- Taking inspiration from SVM's decision boundary, we investigated whether V-GIM's representation could offer a similar approach for alternative downstream tasks, is a potential 
-			- encourage a better boundary, similar to SVM's \citep{hearstSupportVectorMachines1998, nobleWhatSupportVector2006}, maximising the margin between classes.
-			 --> didn't seem the case.
-		- explanation on why should be further investigated. One hypothesis is related to SVM's ...
+\section{Performance on representation variability and computational costs} % benefits and representation variability}
 		
+		% v-gim = gim performance
+		The syllable classifier provided insights into V-GIM's performance, which we compared to GIM. Overall, V-GIM's performance is similar to GIM, indicating that the additional regularisation term resulting in better interpretable representations, does not harm performance significantly.
+		
+		% gim/cpc better in org paper
+		However, results were mediocre for both GIM and V-GIM, obtaining test accuracies around 53\% and 54\% for 9 classes, with performance further decreasing in the deeper modules. Meanwhile, \cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020} observed better performance in their papers for a similar speech recognition problem, for phoneme classification on the LibriSpeech Dataset. In particular, \citeauthor{lowePuttingEndEndtoEnd2020} obtained 73.4\% with GIM and 64.9\% with CPC.
+		
+		% why: wij langere tijds duratie is kleinere representatie
+		We attribute this performance discrepancy to the captured speech duration that each representation captures. \citeauthor{lowePuttingEndEndtoEnd2020} and \citeauthor{oordRepresentationLearningContrastive2019} make use of architectures where representations must capture smaller speech durations compared in our architecture. Their representations must thus summarise less information, while also having more capacity to do so, having a total of 512 dimensions per representations rather than 32 as is in our case. As our primary focus was to understand the models underlying representations, rather than obtain state of the art performance, we stayed with our own architecture.
+		
+		In addition to the restricted capacity of our representations, the nature of the sequential data also plays a major role to the performance. In particular, mutual information maximising using the InfoNCE objective requires presence of common information between the temporally nearby patches of data. However, as representations capture longer time durations, there may be less common information in the nearby patches for the InfoNCE objective to capitalise on. For instance a pronounced speech wave of the syllable ``ba" may be encoded into two representations where the first representation encodes the speech wave for the phoneme ``b" while the second encodes the ``a". However, the ``b" and the ``a" no longer have the same letter in common, and thus this information will no longer be included in the latent representations. Meanwhile, the common information between the data will remain. This is observed in the decreased performance of the deeper modules, where deeper representations must encode a longer speech duration. The extent to which sequential data can be downscaled is thus dependent on the amount of mutual information between the patches.
+		
+		% batch norm, we do better
+		While, performance decreases in deeper modules due to limited mutual information, V-GIM significantly outperforms GIM in the syllable experiment within the second module. V-GIM achieves a test accuracy of 41\%, compared to GIM's 28\%. We hypothesise this related to V-GIM's internal batch normalisation mechanism between modules, thus preventing internal covariate shift from occurring. Meanwhile, GIM does not have any normalisation in between modules, resulting in successive modules not being able to catch up with the changes from the predeceasing modules. While \citeauthor{lowePuttingEndEndtoEnd2020} did not observe this problem in her implementation, we argue this is related to the architecture size of the modules, which consisted of a single layer, allowing for higher learning rate. Additionally, to promote faster convergence, we make use learning rate schedule, starting with a high learning rate which slowly decreases over time. This likely further affects the internal covariate shift, further obstructing GIM's convergence, while V-GIM is not affected and can thus convergence faster.
+		 
+		
+		% sindy didn't have issues of batch norm, but believe this is because each module consisted of a single layer, ours contain a number of layers. potentially: outputs from first module change too fast for second module to catch up.
+		
+		
+		V-GIM's representation variability could potentially provide a generalisation benefit for downstream tasks when little labelled data is available, as the distributions limit the number of plausible decision boundaries that can separate the data. However, the linear classifiers trained on a smaller subset of the labelled data did not seem to benefit from this variability and obtained similar performance to those trained with GIM's representations. 
+		
+		One hypothesis is that the classifiers are optimised using the cross entropy loss function and therefore, may behave similar to Support Vector Machines (SVM), obtaining a single decision boundary which maximises the margin between the classes \citep{hearstSupportVectorMachines1998, nobleWhatSupportVector2006}. As there is only a single boundary being considered, the model is not influenced by all the other available decision boundaries which potentially linearly separate the classes. However, this is merely speculation and should be investigated more thoroughly in future work. Additionally, alternative downstream tasks should be investigated for V-GIM as well, as different learning algorithms such the Perceptron Learning Algorithm (PLA) which utilise a different learning approach could potentially find better value \cite{gallantPerceptronbasedLearningAlgorithms1990} in V-GIM's representations compared to GIM's representations. These findings would not only be interesting for V-GIM, but also for VAEs.
+		
+		% quantised learning
+		Lastly, quantised learning aims to make ANNs more efficient and consume less memory expensive by making use of reduced-precision representations for weights and activations in the network \cite{blottFINNREndtoEndDeepLearning2018}. However, doing so will more likely result in gradients equal to zero and are thus even more susceptible to the vanishing gradient problem \cite{kimDistanceawareQuantization2021}. V-GIM's could potentially provide a solution to this problem, as modules are trained greedily and gradients do not flow between modules, and is thus less prone to vanishing gradients, as discussed by \cite{lowePuttingEndEndtoEnd2020}. Future work should investigate quantised learning with V-GIM further.
+		
+		
+		
+		
+		
+		
+
+		
+	%		
+	%		 
+	%		
+	%		We hypothesise that the generalisation benefit from representation learning may be dependent on the learning algorithm used for the downstream tasks. Although our classifiers optimised using cross entropy did not 
+	%		
+	%		
+	%		% miss is onze classifier ding meer zoals SVM
+	%		The experiment was done using a linear classifier optimised with the cross entropy loss, 
+	%		
+	%		V-GIM 
+	%		 However more research should be done to be certain. We hypthesise the linear classifier we used which optimises CE, may internally do something similar to SVM where it already finds the best boundary without the need for the additional informration. However, alternative information could potentially benefit from this infused information resulting in a smaller set of plausible decision boundaries, hence improving generalisaiton.
+	%		
+	%		One theory is that CE optimisation behaves similarly to SVM and in fact maximises the boundary between the classes.
+		
+		
+		
+		%		While optimisation algorithms such as SVM aim to maximise the margin between classes, simpler algorthms such as the perceptron learning algorithm (PLA) simply attempt to find a boundary which separates the classes without attempting to find the ``best" separation. The representation variance could potentially infuse information on the  
+		%		 such that the representation variance
+		%		The classifier was trained to optimise the Cross Entropy loss,
+		%		
+		%		Further work should investigate this theorem in more detail in more detail. It is not only applicable to V-GIM, but also VAE.
+		%		
+		%and compare which algorithms may benefit from the representation variability and which ones do not
+		 
+		
+%		% repr variability:	
+%		- didn't observe a benefit from variation variance, even for the smallest subset sizes.
+%		- We hypothesised representation variance, resulting in more data points could improve the decision boundary, encouraging the boundary to be similar as to SVM, where distance is maximised for each point.
+%		- Taking inspiration from SVM's decision boundary, we investigated whether V-GIM's representation could offer a similar approach for alternative downstream tasks, is a potential 
+%		- encourage a better boundary, similar to SVM's \citep{hearstSupportVectorMachines1998, nobleWhatSupportVector2006}, maximising the margin between classes.
+%		--> didn't seem the case.
+%		- explanation on why should be further investigated. One hypothesis is related to SVM's ...
+%		% Should do more research in this, potentially certain algorithms such as PLA can strongly benefit from this. \citep{gallantPerceptronbasedLearningAlgorithms1990}
+%		
+	
+		
+		% why GIM/CPC better performance (summarise less, so more MI between representations)
+		
+		%We believe this is related to the size of individual representations, as they have 512 rather than 32 as in our work. Additionally, our representations capture longer time sequences and have a smaller resulting in potentially less mutual information between temporally nearby patches. Due to computational constraints, and since our primary concern was to analyse these representations, we maintained our own architecture where representations contain longer time frames.
+		
+		% performance is worse in second module, further attributed to less mutual information.
+		% cpc/gim better because doesn't downscale any further. shows that there is a limit on how much information is gone, as lowe says: favours global information, so the larger we summarise the details we lose
+		% how much sequential data can be downscaled is thus dependent on the amount of mutual information.
+		
+		
+		
+
+			%Since, our representations capture longer time sequences, the InfoNCE objective must maximise the mutual information with the successive representations which are further away and thus have less information in common, as the speech wave corresponding to future representations may be pronouncing other phonemes, hence no longer having this information in common.
+		
+
+		
+		% further seen in deeper modules, which capture longer speech durations. Perforce further decreases, indicating that there is no longer enough common information in the nearby data.
+	
+		
+		
+		%[TODO]
+		% performance afhankelijk van hoeveel informatie gedeeld is. als representaties zeer grote time frames moeten capturen, is dat enkel mogelijk als er voldoende gemeenschappelijke informatie is met de opvolgende time frames.
+		%		Additionally, we observed performance further decreased in future modules, indicating that the speech waves of temporally nearby representations may no longer have as much common information. This demonstrates that speech waves can only be reduces in size to a certain extend without hurting performance. If further dimensionality reduction is required, we propose to explore the addition of sparse networks.
+			% how much sequential data can be downscaled is thus dependent on the amount of mutual information.
 			
-\section{batch normalisation}
-		- sindy didn't have issues of batch norm, but believe this is because each module consisted of a single layer, ours contain a number of layers. potentially: outputs from first module change too fast for second module to catch up.
+			
 	
-\section{memory}
-		- while V-GIM's greedy approach allows for distributed learning, enabling training on resource constraint devices. each module has a memory overhead due to the similarity score fkm, causing the combined memory requirements to be higher.
-		- while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
 	
+		
+		
+
+
+
+	
+	
+	
+%\section{memory}
+%		- while V-GIM's greedy approach allows for distributed learning, enabling training on resource constraint devices. each module has a memory overhead due to the similarity score fkm, causing the combined memory requirements to be higher.
+%		- while GIM argues to resolve memory constraints, not entirely true. In fact we even countered the opposite as containing multiple neural networks, each with their own personal loss function (the loss function is based on fk which contains parameters that must be learned), and thus for early layers where the sequence is still long, a lot of memory is required. We went for a compromise on GIM by splitting up the architecture in merely two modules, significantly reducing the memory constraints.
+%	
 
 
 
