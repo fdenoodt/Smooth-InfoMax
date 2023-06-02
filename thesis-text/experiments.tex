@@ -205,6 +205,9 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		In addition, we observe that certain dimensions contain information for a single vowel, while others contain information for two. Values in the first dimension for instance, have a strong correlation with the vowel ``a", while no significant correlation with ``i" or ``u" appears to be visible. Meanwhile, values in dimension 17 contain information for both ``a" and ``i", depending on whether the values approach 1 or -1.
 		
 		
+		
+		
+		
 	\begin{figure}
 		\centering
 		\includegraphics[width=1\linewidth, trim={0 10cm 0 10cm}, clip]{graphs/vowel_classifier_weights}
@@ -212,6 +215,14 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 			Visualisation of weights in the linear vowel classifier. Latent representations from V-GIM's first module are used. The classifier is trained without bias terms.
 		}
 		\label{fig:vowelclassifierweights}
+	\end{figure}
+	
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth, clip]{graphs/vowel_classifier_weights_heatmap}
+		\caption{Visualisation of V-GIM's latent space where dimension 0 and 16 are being perturbed and the other dimensions remain fixed at 0. These two dimensions weer}
+		\label{fig:vowelclassifierweightsheatmap}
 	\end{figure}
 	
 	

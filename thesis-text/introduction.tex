@@ -5,6 +5,39 @@
 \pagenumbering{arabic}
 
 
+%%
+AI extremely powerful, even potentially exceeding general artificial intelligence.
+
+These approaches are typically trained using deep neural networks in an end-to-end fashion. While successful, their internal workings are usually not well understood due/Unfortunately, these systems still lack in explainability.
+
+Multiple attempts have been made, (give few results in XAI)
+
+% limitation 1) of XAI
+However, strategies usually offer a visual solution that works well for visual images, but for sequential data becomes harder.
+
+% limitation 2) of XAI
+While understanding ANN's output gives part of the answer, still not quite true explainable, .. how does internal mechanism work?
+ 
+
+In this thesis we introduce V-GIM, an unsupervised approach to learning representations for high dimensional sequential data, based on the mutual information maximisation introduced in Contrastive Predictive Coding.
+
+a self-supervised representation learning approach which learns representations for data. Through the introduction of stochasticity in the neural network and splitting up a convential neural network architecture by depth, the outputs and 
+
+In particular, in representation learning 
+
+----
+Our contributions our the following:
+\begin{itemize}
+	\item V-GIM enables better understanding of the learned representations, allowing to observe the learned data in each dimension, for both the final representations as internal activations. Thus providing better interpretability compared to other interpretable techniques such as InfoGAN, ...
+	\item V-GIM offers computational benefits such as internal batch normalisation, outperforming its non-variational counterpart GIM. V-GIM's stochastic approach results in a more variability, potentially serving as data augmentation tool for downstream tasks with little labelled data.
+	\item We provide insights in V-GIM's learned representations, making suggestions on which data in incorporated in which dimensions and which information may no longer be in the representations.
+\end{itemize}
+
+
+
+
+---
+
 interpretability is a concern, to understand neural network. This problem has only become more relevant in recent years, as in representation learning for instance, not only are the internal works of the ANNs unknown, but also its outputs. (eg autoencoder)
 
 To understand neural networks, we must first understand its representations before we can understand how it derives its answers. While multiple representation learning algorithms (infoGAN) aim to find a solution to the first question, these approaches provide little information in the internal workings of the ANN.
@@ -38,66 +71,7 @@ However, the underlying representations obtained from optimising this InfoNCE ob
 
 
 
-%Referring with author and year
-%• (Young 2010)
-%• As shown by Young (2010) ...
-%• (Stills & Young 1976)
-%• (Crosby, Stills, Nash & Young 1969)
-%• (Crosby et al. 1969) – subsequently
-%• or always et al. if more than six authors
-%• (Young 2010, 2012)
-%• (Young 1975a, 1975b)
-%• (Stills & Young 1976; Young 2010)
 
-
-
-
-
-
-
-
-
-
-
-
-
---------------
-
-
-% TODO:
-FEEDBACK BART
-
-!!!
-wat is + waarom het gedaan wordt.
-
-should also explain in my work.
-
-should be around 60 pages.
-
-Discussion:
-Sectie 4.5: (Bart wil aparte sectie)
-- Hoe helpt deze techniek om het netwerk interpreteerbaarder te maken.
-- compare techniques: whether they are better explainable.
-- Zou na results moeten zijn. en kan zo inleiding zijn naar future work.
-- bart zou verwachten dat cha 3 zeer groot is.
-
-- UVA: wordt geschreven voor begeleiders, hun hebben meer achtergrond.
-- Jury aan VUB andere verwachtingen, wil meer uitleg.
-
-- mijn discussie sectie moet langer! en zeker in vertellen waarom het beter is voor visualities.
-
----
-Defense:
-- verduideluikende vragen
-- critiek als gaten in argumentatie
-- hun komen met suggestie die ze uit literatuur kennen, en moet bv mening over geven.
-- "zou dat ook anders gekund hebben"
-!!
----
-
-%Order of importance: 
-%Solution + evaluation, introduction + related work, 
-%Fundamentals Future work
 
 
 %\begin{itemize}
@@ -106,26 +80,28 @@ Defense:
 %	\item Our contributions
 %\end{itemize}
 
-% Overview of thesis
-\begin{itemize}
-	\item Context: !E GIM for representation learning: generates representations that simplify classification tasks vs when done on raw data
-	\item Problem: If wants to know for what tasks applicable... must know what is present in data
-	\item Solution: Analysis of learned representations on speech data
-	\item My contributions: 
-	\begin{itemize}
-		\item Decoder ANN for each layer of GIM: Shows what information is maintained through the layers
-		\item Search correlations between kernels weights and signal features
-		\item Extension on CPC via VAE
-	\end{itemize}
-\end{itemize}
 
 
 
-% what a background is [generic]
-%\begin{itemize}
-%	\item Explains "what is" questions
-%	\item State of the art neural networks take raw data as input and do pre-processing automatically
-%	\item Explanation of Sindy's neural network
-%	\item Techniques behind what I do
-%\end{itemize}
-%\hrule
+
+
+
+
+
+
+% ---------------
+Doel:
+Onderwerp introduceren
+Lezer interesseren
+Relevantie aantonen van mijn studie
+Aantonen wat voor onzeroek in de scriptie volgt
+
+Delen:
+Aanleiding
+	- voorbeeld geven dat context beschrijft van onderzoek
+	- afbaken onderzoek
+	- huidige kennis:
+		- belangrijkste conclusies
+	- wat het nut is
+	- hoofdvragen + deelvragen
+	- lijswijzer
