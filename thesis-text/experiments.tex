@@ -196,13 +196,15 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		\input{graphs/interpolation_graphs}
 	
 	\subsection{Vowel experiment}
-		To gain better insight in which dimensions incorporate vowel information, we train a linear classifier to predict whether the vowel corresponding to a syllable's latent representation is an ``a", ``i" or ``u". Implementation details are the same as the linear classifier in section \ref{cha:experim_details_vgim}, but with only the three classes and without a bias term. The classifier is trained on the latent representations from V-GIM's first module. Additionally, representations are max pooled over the time domain, resulting in a single 32 dimensional feature vector for each syllable. After training, a Softmax function is appended to normalise predictions into probability values. After convergence, the classifier obtained a test accuracy of 85.38\%.
+		To gain better insight in which dimensions incorporate vowel information, we train a linear classifier to predict whether the vowel corresponding to a syllable's latent representation is an ``a", ``i" or  ``u"\footnote{The phoneme sounds ``a", ``i" and ``u" are represented as ``a", ``i" and ``$\mho$" in the international phonetic alphabet (IPA) \citep{teachwonderfulLetExploreInternational2021}}. Implementation details are the same as the linear classifier in section \ref{cha:experim_details_vgim}, but with only the three classes and without a bias term. The classifier is trained on the latent representations from V-GIM's first module. Additionally, representations are max pooled over the time domain, resulting in a single 32 dimensional feature vector for each syllable. After training, a Softmax function is appended to normalise predictions into probability values. After convergence, the classifier obtained a test accuracy of 85.38\%.
 		
 		Figure \ref{fig:vowelclassifierweights} displays the weights of the linear classifier. The weights are scaled between -1 and 1. Each row corresponds to the weights corresponding to an individual prediction class. Equivalently, when considering a graph representation for the classifier, the weights on the edges corresponding to a particular output node, are the values in a single row. Consequently, values close to 1 or -1 indicate a high (positive or negative) correlation between the target class and the corresponding dimension. 
 		
 		Interestingly, most dimensions appear to contribute very little to the predicted outcome, indicating that these dimensions are either useless, or the classifier did not find value in their contained information. Consequently, most vowel information can be derived with relatively high accuracy from merely a small subset of dimensions. 
 		
 		In addition, we observe that certain dimensions contain information for a single vowel, while others contain information for two. Values in the first dimension for instance, have a strong correlation with the vowel ``a", while no significant correlation with ``i" or ``u" appears to be visible. Meanwhile, values in dimension 17 contain information for both ``a" and ``i", depending on whether the values approach 1 or -1.
+		
+		Figure \ref{fig:vowelclassifierweightsheatmap} displays the decision boundary that was learned by the consonant classifier. We observe relatively thin ``grey zones" where the probabilities are not particularly decisive for a single consonant. For the majority of data points in the latent space, the classifier thus makes predictions with relatively high certainty. In addition, the area corresponding to the prediction ``u" is smaller than the other areas. This could potentially be explained as the sounds ``a" and ``i" can easily be distinguished, while the sound for ``u" is somewhere in between, and thus harder to distinguish.
 		
 		
 		
@@ -221,7 +223,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth, clip]{graphs/vowel_classifier_weights_heatmap}
-		\caption{Visualisation of V-GIM's latent space where dimension 0 and 16 are being perturbed and the other dimensions remain fixed at 0. These two dimensions weer}
+		\caption{Decision boundary in V-GIM's latent space where dimension 1 and 17 are being perturbed while the other dimensions remain fixed at 0.}
 		\label{fig:vowelclassifierweightsheatmap}
 	\end{figure}
 	
