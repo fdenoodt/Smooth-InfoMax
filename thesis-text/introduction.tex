@@ -6,9 +6,29 @@
 
 
 %%
-AI extremely powerful, even potentially exceeding general artificial intelligence.
+Black box models have seen incredible strength in recent years, even surpassing humans in multiple domains.
+% potentially reaching general artif ai
+Some recent examples include ChatGPT having a better test score X, AlphaGo beating the world champion Go player in 2016 \citep{fuAlphaGoMonteCarlo2016} etc.
 
-These approaches are typically trained using deep neural networks in an end-to-end fashion. While successful, their internal workings are usually not well understood due/Unfortunately, these systems still lack in explainability.
+grand master level in star craft
+
+alpha fold: protein problem (protein folding?)
+
+4 examples large impact:
+ - ai can process data faster than humans. humans cannot read all books
+ 
+ - time to sequence dna in half
+
+ - complex simulation: gpt3: answer questions, write code, translate (all at same time)
+ 	- deepmind's gato: atari games, stacking games, all same ANN
+ 	
+
+
+
+These approaches are typically trained using deep neural networks in an end-to-end fashion. Although very successful, their internal workings are usually not well understood due/Unfortunately, these systems still lack in explainability.
+
+However, if humans wish to potentially take inspiration from these learned models, for instance by copying similar strategies in Alpha Go, a better understanding of these models is absolutely required.
+
 
 Multiple attempts have been made, (give few results in XAI)
 
@@ -32,10 +52,6 @@ Our contributions our the following:
 	\item V-GIM offers computational benefits such as internal batch normalisation, outperforming its non-variational counterpart GIM. V-GIM's stochastic approach results in a more variability, potentially serving as data augmentation tool for downstream tasks with little labelled data.
 	\item We provide insights in V-GIM's learned representations, making suggestions on which data in incorporated in which dimensions and which information may no longer be in the representations.
 \end{itemize}
-
-
-
-
 ---
 
 interpretability is a concern, to understand neural network. This problem has only become more relevant in recent years, as in representation learning for instance, not only are the internal works of the ANNs unknown, but also its outputs. (eg autoencoder)
@@ -52,7 +68,7 @@ In recent years, CPC has been shown to be a successful self-supervised learning 
 
 However, the underlying representations obtained from optimising this InfoNCE objective have not yet been studied in great detail. In this thesis we aim to gain better understanding in these representations by enforcing constraints to the latent space, resulting in a space that is easier to analyse and understand.
 
-
+\footnote{The structure of this thesis is based on the structure in Sindy Löwe's master's thesis from the University of Amsterdam.}
 
 %While, previous interpretable representation learning has focused on learning representations for images, we work with sequential audio data, which is notoriously more complex as visualisation schemes no longe work, and small artificats in the audio may disturb observations.
 
@@ -90,18 +106,18 @@ However, the underlying representations obtained from optimising this InfoNCE ob
 
 
 % ---------------
-Doel:
-Onderwerp introduceren
-Lezer interesseren
-Relevantie aantonen van mijn studie
-Aantonen wat voor onzeroek in de scriptie volgt
-
-Delen:
-Aanleiding
-	- voorbeeld geven dat context beschrijft van onderzoek
-	- afbaken onderzoek
-	- huidige kennis:
-		- belangrijkste conclusies
-	- wat het nut is
-	- hoofdvragen + deelvragen
-	- lijswijzer
+%Doel:
+%Onderwerp introduceren
+%Lezer interesseren
+%Relevantie aantonen van mijn studie
+%Aantonen wat voor onzeroek in de scriptie volgt
+%
+%Delen:
+%Aanleiding
+%	- voorbeeld geven dat context beschrijft van onderzoek
+%	- afbaken onderzoek
+%	- huidige kennis:
+%		- belangrijkste conclusies
+%	- wat het nut is
+%	- hoofdvragen + deelvragen
+%	- lijswijzer
