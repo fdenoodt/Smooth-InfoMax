@@ -12,7 +12,7 @@
   urldate = {2023-05-08},
   abstract = {The computational power of massively parallel networks of simple processing elements resides in the communication bandwidth provided by the hardware connections between elements. These connections can allow a significant fraction of the knowledge of the system to be applied to an instance of a problem in a very short time. One kind of computation for which massively parallel networks appear to be well suited is large constraint satisfaction searches, but to use the connections efficiently two conditions must be met: First, a search technique that is suitable for parallel networks must be found. Second, there must be some way of choosing internal representations which allow the preexisting hardware connections to be used efficiently for encoding the constraints in the domain being searched. We describe a general parallel search method, based on statistical mechanics, and we show how it leads to a general learning rule for modifying the connection strengths so as to incorporate knowledge about a task domain in an efficient way. We describe some simple examples in which the learning algorithm creates internal representations that are demonstrably the most efficient way of using the preexisting connectivity structure.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\JZCAA6DW\\Ackley et al. - 1985 - A learning algorithm for boltzmann machines.pdf;C\:\\Users\\Fab\\Zotero\\storage\\9BUK7H8G\\S0364021385800124.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\JZCAA6DW\\Ackley et al. - 1985 - A learning algorithm for boltzmann machines.pdf;C\:\\Users\\lambr\\Zotero\\storage\\9BUK7H8G\\S0364021385800124.html}
 }
 
 @article{agrawalInterpretableRepresentationLearning2020,
@@ -26,7 +26,17 @@
   doi = {10.1109/TASLP.2020.3030489},
   abstract = {The learning of interpretable representations from raw data presents significant challenges for time series data like speech. In this work, we propose a relevance weighting scheme that allows the interpretation of the speech representations during the forward propagation of the model itself. The relevance weighting is achieved using a sub-network approach that performs the task of feature selection. A relevance sub-network, applied on the output of first layer of a convolutional neural network model operating on raw speech signals, acts as an acoustic filterbank (FB) layer with relevance weighting. A similar relevance sub-network applied on the second convolutional layer performs modulation filterbank learning with relevance weighting. The full acoustic model consisting of relevance sub-networks, convolutional layers and feed-forward layers is trained for a speech recognition task on noisy and reverberant speech in the Aurora-4, CHiME-3 and VOiCES datasets. The proposed representation learning framework is also applied for the task of sound classification in the UrbanSound8K dataset. A detailed analysis of the relevance weights learned by the model reveals that the relevance weights capture information regarding the underlying speech/audio content. In addition, speech recognition and sound classification experiments reveal that the incorporation of relevance weighting in the neural network architecture improves the performance significantly.},
   keywords = {Acoustic-phonetics,Acoustics,automatic speech recognition,deep representation learning,Kernel,Modulation,modulation filtering,Neural networks,raw waveform processing,relevance modeling,Speech recognition,Task analysis,Time-frequency analysis,urban sound classification},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\UCR7YKX3\\Agrawal and Ganapathy - 2020 - Interpretable Representation Learning for Speech a.pdf;C\:\\Users\\Fab\\Zotero\\storage\\WNVZJS5R\\9224148.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\UCR7YKX3\\Agrawal and Ganapathy - 2020 - Interpretable Representation Learning for Speech a.pdf;C\:\\Users\\lambr\\Zotero\\storage\\WNVZJS5R\\9224148.html}
+}
+
+@misc{alammarExplainableAIGuide2021,
+  title = {Explainable {{AI Guide}}},
+  author = {Alammar, Jay},
+  year = {2021},
+  journal = {Explainable AI Cheat Sheet},
+  urldate = {2023-06-04},
+  howpublished = {https://ex.pegg.io/},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\L5PYCTHU\\ex.pegg.io.html}
 }
 
 @misc{amiriFederatedLearningQuantized2020,
@@ -43,7 +53,7 @@
   abstract = {We study federated learning (FL), which enables mobile devices to utilize their local datasets to collaboratively train a global model with the help of a central server, while keeping data localized. At each iteration, the server broadcasts the current global model to the devices for local training, and aggregates the local model updates from the devices to update the global model. Previous work on the communication efficiency of FL has mainly focused on the aggregation of model updates from the devices, assuming perfect broadcasting of the global model. In this paper, we instead consider broadcasting a compressed version of the global model. This is to further reduce the communication cost of FL, which can be particularly limited when the global model is to be transmitted over a wireless medium. We introduce a lossy FL (LFL) algorithm, in which both the global model and the local model updates are quantized before being transmitted. We analyze the convergence behavior of the proposed LFL algorithm assuming the availability of accurate local model updates at the server. Numerical experiments show that the proposed LFL scheme, which quantizes the global model update (with respect to the global model estimate at the devices) rather than the global model itself, significantly outperforms other existing schemes studying quantization of the global model at the PS-to-device direction. Also, the performance loss of the proposed scheme is marginal compared to the fully lossless approach, where the PS and the devices transmit their messages entirely without any quantization.},
   archiveprefix = {arxiv},
   keywords = {{Computer Science - Distributed, Parallel, and Cluster Computing},Computer Science - Information Theory,Computer Science - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\F6PFQ5SH\\Amiri et al. - 2020 - Federated Learning With Quantized Global Model Upd.pdf;C\:\\Users\\Fab\\Zotero\\storage\\CFNQP8GL\\2006.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\F6PFQ5SH\\Amiri et al. - 2020 - Federated Learning With Quantized Global Model Upd.pdf;C\:\\Users\\lambr\\Zotero\\storage\\CFNQP8GL\\2006.html}
 }
 
 @inproceedings{anejaContrastiveLearningApproach2021,
@@ -56,7 +66,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-02-19},
   abstract = {Variational autoencoders (VAEs) are one of the powerful likelihood-based generative models with applications in many domains. However, they struggle to generate high-quality images, especially when samples are obtained from the prior without any tempering. One explanation for VAEs' poor generative quality is the prior hole problem: the prior distribution fails to match the aggregate approximate posterior. Due to this mismatch, there exist areas in the latent space with high density under the prior that do not correspond to any encoded image. Samples from those areas are decoded to corrupted images. To tackle this issue, we propose an energy-based prior defined by the product of a base prior distribution and a reweighting factor, designed to bring the base closer to the aggregate posterior. We train the reweighting factor by noise contrastive estimation, and we generalize it to hierarchical VAEs with many latent variable groups. Our experiments confirm that the proposed noise contrastive priors improve the generative performance of state-of-the-art VAEs by a large margin on the MNIST, CIFAR-10, CelebA 64, and CelebA HQ 256 datasets. Our method is simple and can be applied to a wide variety of VAEs to improve the expressivity of their prior distribution.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NXZVI8UU\\Aneja et al. - 2021 - A Contrastive Learning Approach for Training Varia.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NXZVI8UU\\Aneja et al. - 2021 - A Contrastive Learning Approach for Training Varia.pdf}
 }
 
 @article{aremuMachineLearningApproach2020,
@@ -73,7 +83,7 @@
   abstract = {The growing interest in artificial intelligence has led to current data-driven predictive maintenance (PdM) relying on machine learning (ML) algorithms. Although ML algorithms are useful for data-intensive analysis, research shows that their performance and reliability are reduced when high-dimensional data is used for training and testing. Raw machine data can be high-dimensional due to multi-sensor measurements and discontinuous due to the wide ranges of parameter variations during continuous sensor measurements. While standard dimension reduction methods such as principal component analysis are often applied to circumvent high-dimensionality, they are often unreliable when the data is discontinuous. This paper presents a ML-based dimension reduction framework to circumvent the challenges of high-dimensional discontinuous machine data. This framework minimizes discontinuity by clustering observations based on the dataset's modality. The modality is identified using a kernel density estimation parameterized using a heat diffusion solution to the approximate mean integrated squared error. Then, low-dimension representations of each cluster are learned using Laplacian eigenmaps embedding. Finally, the original time sequence of observations across the low-dimensional clusters is used to re-index the observations into a continuous low-dimension feature set. We demonstrate the framework's utility on common ML-based PdM analysis using the Commercial Modular Aero-Propulsion System Simulation dataset.},
   langid = {english},
   keywords = {Deep learning,Dimension reduction,Machine learning,Manifold learning,Partial differential equations,Predictive maintenance,Prognostics},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\F3I3R33I\\Aremu et al. - 2020 - A machine learning approach to circumventing the c.pdf;C\:\\Users\\Fab\\Zotero\\storage\\PCWUVDIA\\S0951832019304752.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\F3I3R33I\\Aremu et al. - 2020 - A machine learning approach to circumventing the c.pdf;C\:\\Users\\lambr\\Zotero\\storage\\PCWUVDIA\\S0951832019304752.html}
 }
 
 @article{bachBreakingCurseDimensionality,
@@ -81,7 +91,7 @@
   author = {Bach, Francis},
   abstract = {We consider neural networks with a single hidden layer and non-decreasing positively homogeneous activation functions like the rectified linear units. By letting the number of hidden units grow unbounded and using classical non-Euclidean regularization tools on the output weights, they lead to a convex optimization problem and we provide a detailed theoretical analysis of their generalization performance, with a study of both the approximation and the estimation errors. We show in particular that they are adaptive to unknown underlying linear structures, such as the dependence on the projection of the input variables onto a low-dimensional subspace. Moreover, when using sparsity-inducing norms on the input weights, we show that high-dimensional non-linear variable selection may be achieved, without any strong assumption regarding the data and with a total number of variables potentially exponential in the number of observations. However, solving this convex optimization problem in infinite dimensions is only possible if the non-convex subproblem of addition of a new unit can be solved efficiently. We provide a simple geometric interpretation for our choice of activation functions and describe simple conditions for convex relaxations of the finite-dimensional non-convex subproblem to achieve the same generalization error bounds, even when constant-factor approximations cannot be found. We were not able to find strong enough convex relaxations to obtain provably polynomialtime algorithms and leave open the existence or non-existence of such tractable algorithms with non-exponential sample complexities.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\94EEF8H2\\Bach - Breaking the Curse of Dimensionality with Convex N.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\94EEF8H2\\Bach - Breaking the Curse of Dimensionality with Convex N.pdf}
 }
 
 @inproceedings{baiContrastivelyDisentangledSequential2021,
@@ -94,25 +104,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-05-27},
   abstract = {Self-supervised disentangled representation learning is a critical task in sequence modeling. The learnt representations contribute to better model interpretability as well as the data generation, and improve the sample efficiency for downstream tasks. We propose a novel sequence representation learning method, named Contrastively Disentangled Sequential Variational Autoencoder (C-DSVAE), to extract and separate the static (time-invariant) and dynamic (time-variant) factors in the latent space. Different from previous sequential variational autoencoder methods, we use a novel evidence lower bound which maximizes the mutual information between the input and the latent factors, while penalizes the mutual information between the static and dynamic factors. We leverage contrastive estimations of the mutual information terms in training, together with simple yet effective augmentation techniques, to introduce additional inductive biases. Our experiments show that C-DSVAE significantly outperforms the previous state-of-the-art methods on multiple metrics.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\A85KM9YG\\Bai et al. - 2021 - Contrastively Disentangled Sequential Variational .pdf}
-}
-
-@article{baiExplainableDeepLearning2021,
-  title = {Explainable Deep Learning for Efficient and Robust Pattern Recognition: {{A}} Survey of Recent Developments},
-  shorttitle = {Explainable Deep Learning for Efficient and Robust Pattern Recognition},
-  author = {Bai, Xiao and Wang, Xiang and Liu, Xianglong and Liu, Qiang and Song, Jingkuan and Sebe, Nicu and Kim, Been},
-  year = {2021},
-  month = dec,
-  journal = {Pattern Recognition},
-  volume = {120},
-  pages = {108102},
-  issn = {0031-3203},
-  doi = {10.1016/j.patcog.2021.108102},
-  urldate = {2022-11-05},
-  abstract = {Deep learning has recently achieved great success in many visual recognition tasks. However, the deep neural networks (DNNs) are often perceived as black-boxes, making their decision less understandable to humans and prohibiting their usage in safety-critical applications. This guest editorial introduces the thirty papers accepted for the Special Issue on Explainable Deep Learning for Efficient and Robust Pattern Recognition. They are grouped into three main categories: explainable deep learning methods, efficient deep learning via model compression and acceleration, as well as robustness and stability in deep learning. For each of the three topics, a survey of the representative works and latest developments is presented, followed by the brief introduction of the accepted papers belonging to this topic. The special issue should be of high relevance to the reader interested in explainable deep learning methods for efficient and robust pattern recognition applications and it helps promoting the future research directions in this field.},
-  langid = {english},
-  keywords = {Adversarial robustness,Explainable deep learning,Network compression and acceleration,Stability in deep learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\7IZHVWIH\\Bai et al. - 2021 - Explainable deep learning for efficient and robust.pdf;C\:\\Users\\Fab\\Zotero\\storage\\BFT4CIV5\\S0031320321002892.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\A85KM9YG\\Bai et al. - 2021 - Contrastively Disentangled Sequential Variational .pdf}
 }
 
 @inproceedings{baiInterpretableRepresentationLearning2018,
@@ -130,7 +122,7 @@
   abstract = {Various deep learning models have recently been applied to predictive modeling of Electronic Health Records (EHR). In medical claims data, which is a particular type of EHR data, each patient is represented as a sequence of temporally ordered irregularly sampled visits to health providers, where each visit is recorded as an unordered set of medical codes specifying patient's diagnosis and treatment provided during the visit. Based on the observation that different patient conditions have different temporal progression patterns, in this paper we propose a novel interpretable deep learning model, called Timeline. The main novelty of Timeline is that it has a mechanism that learns time decay factors for every medical code. This allows the Timeline to learn that chronic conditions have a longer lasting impact on future visits than acute conditions. Timeline also has an attention mechanism that improves vector embeddings of visits. By analyzing the attention weights and disease progression functions of Timeline, it is possible to interpret the predictions and understand how risks of future visits change over time. We evaluated Timeline on two large-scale real world data sets. The specific task was to predict what is the primary diagnosis category for the next hospital visit given previous visits. Our results show that Timeline has higher accuracy than the state of the art deep learning models based on RNN. In addition, we demonstrate that time decay factors and attentions learned by Timeline are in accord with the medical knowledge and that Timeline can provide a useful insight into its predictions.},
   isbn = {978-1-4503-5552-0},
   keywords = {attention model,deep learning,electronic health records,healthcare},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\6399U4EC\\Bai et al. - 2018 - Interpretable Representation Learning for Healthca.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\6399U4EC\\Bai et al. - 2018 - Interpretable Representation Learning for Healthca.pdf}
 }
 
 @misc{bankAutoencoders2021,
@@ -147,7 +139,7 @@
   abstract = {An autoencoder is a specific type of a neural network, which is mainly designed to encode the input into a compressed and meaningful representation, and then decode it back such that the reconstructed input is similar as possible to the original one. This chapter surveys the different types of autoencoders that are mainly used today. It also describes various applications and use-cases of autoencoders.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\4PZ3MMVG\\Bank et al. - 2021 - Autoencoders.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RR5Q4DAM\\2003.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\4PZ3MMVG\\Bank et al. - 2021 - Autoencoders.pdf;C\:\\Users\\lambr\\Zotero\\storage\\RR5Q4DAM\\2003.html}
 }
 
 @misc{barbieroModelingGeneralizationMachine2020,
@@ -165,7 +157,23 @@
   abstract = {As machine learning becomes more and more available to the general public, theoretical questions are turning into pressing practical issues. Possibly, one of the most relevant concerns is the assessment of our confidence in trusting machine learning predictions. In many real-world cases, it is of utmost importance to estimate the capabilities of a machine learning algorithm to generalize, i.e., to provide accurate predictions on unseen data, depending on the characteristics of the target problem. In this work, we perform a meta-analysis of 109 publicly-available classification data sets, modeling machine learning generalization as a function of a variety of data set characteristics, ranging from number of samples to intrinsic dimensionality, from class-wise feature skewness to \$F1\$ evaluated on test samples falling outside the convex hull of the training set. Experimental results demonstrate the relevance of using the concept of the convex hull of the training data in assessing machine learning generalization, by emphasizing the difference between interpolated and extrapolated predictions. Besides several predictable correlations, we observe unexpectedly weak associations between the generalization ability of machine learning models and all metrics related to dimensionality, thus challenging the common assumption that the \textbackslash textit\{curse of dimensionality\} might impair generalization in machine learning.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\2NQTCR8J\\Barbiero et al. - 2020 - Modeling Generalization in Machine Learning A Met.pdf;C\:\\Users\\Fab\\Zotero\\storage\\7IARUEVG\\2006.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\2NQTCR8J\\Barbiero et al. - 2020 - Modeling Generalization in Machine Learning A Met.pdf;C\:\\Users\\lambr\\Zotero\\storage\\7IARUEVG\\2006.html}
+}
+
+@article{barredoarrietaExplainableArtificialIntelligence2020a,
+  title = {Explainable {{Artificial Intelligence}} ({{XAI}}): {{Concepts}}, Taxonomies, Opportunities and Challenges toward Responsible {{AI}}},
+  shorttitle = {Explainable {{Artificial Intelligence}} ({{XAI}})},
+  author = {Barredo Arrieta, Alejandro and {D{\'i}az-Rodr{\'i}guez}, Natalia and Del Ser, Javier and Bennetot, Adrien and Tabik, Siham and Barbado, Alberto and Garcia, Salvador and {Gil-Lopez}, Sergio and Molina, Daniel and Benjamins, Richard and Chatila, Raja and Herrera, Francisco},
+  year = {2020},
+  month = jun,
+  journal = {Information Fusion},
+  volume = {58},
+  pages = {82--115},
+  issn = {15662535},
+  doi = {10.1016/j.inffus.2019.12.012},
+  urldate = {2023-06-04},
+  langid = {english},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\48F6K3F3\\Barredo Arrieta e.a. - 2020 - Explainable Artificial Intelligence (XAI) Concept.pdf}
 }
 
 @misc{bartwronskiComparingImagesFrequency2021,
@@ -194,7 +202,7 @@
   urldate = {2023-05-01},
   abstract = {Assuming that a smoothness condition and a suitable restriction on the structure of the regression function hold, it is shown that least squares estimates based on multilayer feedforward neural networks are able to circumvent the curse of dimensionality in nonparametric regression. The proof is based on new approximation results concerning multilayer feedforward neural networks with bounded weights and a bounded number of hidden neurons. The estimates are compared with various other approaches by using simulated data.},
   keywords = {62G08,62G20,curse of dimensionality,neural networks,Nonparametric regression,rate of convergence},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\UB8EXP4G\\Bauer and Kohler - 2019 - On deep learning as a remedy for the curse of dime.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\UB8EXP4G\\Bauer and Kohler - 2019 - On deep learning as a remedy for the curse of dime.pdf}
 }
 
 @article{bengioCurseDimensionalityLocal,
@@ -202,10 +210,10 @@
   author = {Bengio, Yoshua and Delalleau, Olivier and Roux, Nicolas Le and Box, P O},
   abstract = {We present a series of theoretical arguments supporting the claim that a large class of modern learning algorithms based on local kernels are sensitive to the curse of dimensionality. These include local manifold learning algorithms such as Isomap and LLE, support vector classifiers with Gaussian or other local kernels, and graph-based semisupervised learning algorithms using a local similarity function. These algorithms are shown to be local in the sense that crucial properties of the learned function at x depend mostly on the neighbors of x in the training set. This makes them sensitive to the curse of dimensionality, well studied for classical non-parametric statistical learning. There is a large class of data distributions for which non-local solutions could be expressed compactly and potentially be learned with few examples, but which will require a large number of local bases and therefore a large number of training examples when using a local learning algorithm.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\L5YPB3VN\\Bengio et al. - The Curse of Dimensionality for Local Kernel Machi.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\L5YPB3VN\\Bengio et al. - The Curse of Dimensionality for Local Kernel Machi.pdf}
 }
 
-@article{bengioRepresentationLearningReview2013,
+@article{bengioRepresentationLearningReview2013a,
   title = {Representation {{Learning}}: {{A Review}} and {{New Perspectives}}},
   shorttitle = {Representation {{Learning}}},
   author = {Bengio, Y. and Courville, Aaron and Vincent, Pascal},
@@ -216,7 +224,7 @@
   pages = {1798--1828},
   doi = {10.1109/TPAMI.2013.50},
   abstract = {The success of machine learning algorithms generally depends on data representation, and we hypothesize that this is because different representations can entangle and hide more or less the different explanatory factors of variation behind the data. Although specific domain knowledge can be used to help design representations, learning with generic priors can also be used, and the quest for AI is motivating the design of more powerful representation-learning algorithms implementing such priors. This paper reviews recent work in the area of unsupervised feature learning and deep learning, covering advances in probabilistic models, autoencoders, manifold learning, and deep networks. This motivates longer term unanswered questions about the appropriate objectives for learning good representations, for computing representations (i.e., inference), and the geometrical connections between representation learning, density estimation, and manifold learning.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\MVXRT5Y7\\Bengio et al. - 2013 - Representation Learning A Review and New Perspect.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\MVXRT5Y7\\Bengio et al. - 2013 - Representation Learning A Review and New Perspect.pdf}
 }
 
 @misc{bhandariStandardNormalDistribution2020,
@@ -229,7 +237,7 @@
   abstract = {The standard normal distribution, also called the z-distribution, is a special normal distribution where the mean is 0 and the standard deviation is 1.},
   howpublished = {https://www.scribbr.com/statistics/standard-normal-distribution/},
   langid = {american},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\U8GSDBAT\\standard-normal-distribution.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\U8GSDBAT\\standard-normal-distribution.html}
 }
 
 @misc{bhargavladGuidePytorchLearning2020,
@@ -241,10 +249,10 @@
   abstract = {Explore and run machine learning code with Kaggle Notebooks | Using data from No attached data sources},
   howpublished = {https://kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\HRT4V5GI\\guide-to-pytorch-learning-rate-scheduling.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\HRT4V5GI\\guide-to-pytorch-learning-rate-scheduling.html}
 }
 
-@misc{bhatiSegmentalContrastivePredictive2021b,
+@misc{bhatiSegmentalContrastivePredictive2021,
   title = {Segmental {{Contrastive Predictive Coding}} for {{Unsupervised Word Segmentation}}},
   author = {Bhati, Saurabhchand and Villalba, Jes{\'u}s and {\.Z}elasko, Piotr and {Moro-Velazquez}, Laureano and Dehak, Najim},
   year = {2021},
@@ -258,7 +266,7 @@
   abstract = {Automatic detection of phoneme or word-like units is one of the core objectives in zero-resource speech processing. Recent attempts employ self-supervised training methods, such as contrastive predictive coding (CPC), where the next frame is predicted given past context. However, CPC only looks at the audio signal's frame-level structure. We overcome this limitation with a segmental contrastive predictive coding (SCPC) framework that can model the signal structure at a higher level e.g. at the phoneme level. In this framework, a convolutional neural network learns frame-level representation from the raw waveform via noise-contrastive estimation (NCE). A differentiable boundary detector finds variable-length segments, which are then used to optimize a segment encoder via NCE to learn segment representations. The differentiable boundary detector allows us to train frame-level and segment-level encoders jointly. Typically, phoneme and word segmentation are treated as separate tasks. We unify them and experimentally show that our single model outperforms existing phoneme and word segmentation methods on TIMIT and Buckeye datasets. We analyze the impact of boundary threshold and when is the right time to include the segmental loss in the learning process.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computation and Language,Computer Science - Machine Learning,Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\LXSRLX2U\\Bhati et al. - 2021 - Segmental Contrastive Predictive Coding for Unsupe.pdf;C\:\\Users\\Fab\\Zotero\\storage\\8HRLZWUD\\2106.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\LXSRLX2U\\Bhati et al. - 2021 - Segmental Contrastive Predictive Coding for Unsupe.pdf;C\:\\Users\\lambr\\Zotero\\storage\\8HRLZWUD\\2106.html}
 }
 
 @inproceedings{bjorckUnderstandingBatchNormalization2018,
@@ -270,7 +278,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-04-25},
   abstract = {Batch normalization (BN) is a technique to normalize activations in intermediate layers of deep neural networks. Its tendency to improve accuracy and speed up training have established BN as a favorite technique in deep learning. Yet, despite its enormous success, there remains little consensus on the exact reason and mechanism behind these improvements. In this paper we take a step towards a better understanding of BN, following an empirical approach. We conduct several experiments, and show that BN primarily enables training with larger learning rates, which is the cause for faster convergence and better generalization. For networks without BN we demonstrate how large gradient updates can result in diverging loss and activations growing uncontrollably with network depth, which limits possible learning rates. BN avoids this problem by constantly correcting activations to be zero-mean and of unit standard deviation, which enables larger gradient steps, yields faster convergence and may help bypass sharp local minima. We further show various ways in which gradients and activations of deep unnormalized networks are ill-behaved. We contrast our results against recent findings in random matrix theory, shedding new light on classical initialization schemes and their consequences.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\YSZAW48P\\Bjorck et al. - 2018 - Understanding Batch Normalization.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\YSZAW48P\\Bjorck et al. - 2018 - Understanding Batch Normalization.pdf}
 }
 
 @article{blottFINNREndtoEndDeepLearning2018,
@@ -288,7 +296,7 @@
   urldate = {2023-06-01},
   abstract = {Convolutional Neural Networks have rapidly become the most successful machine-learning algorithm, enabling ubiquitous machine vision and intelligent decisions on even embedded computing systems. While the underlying arithmetic is structurally simple, compute and memory requirements are challenging. One of the promising opportunities is leveraging reduced-precision representations for inputs, activations, and model parameters. The resulting scalability in performance, power efficiency, and storage footprint provides interesting design compromises in exchange for a small reduction in accuracy. FPGAs are ideal for exploiting low-precision inference engines leveraging custom precisions to achieve the required numerical accuracy for a given application. In this article, we describe the second generation of the FINN framework, an end-to-end tool that enables design-space exploration and automates the creation of fully customized inference engines on FPGAs. Given a neural network description, the tool optimizes for given platforms, design targets, and a specific precision. We introduce formalizations of resource cost functions and performance predictions and elaborate on the optimization algorithms. Finally, we evaluate a selection of reduced precision neural networks ranging from CIFAR-10 classifiers to YOLO-based object detection on a range of platforms including PYNQ and AWS F1, demonstrating new unprecedented measured throughput at 50 TOp/s on AWS F1 and 5 TOp/s on embedded devices.},
   keywords = {artificial intelligence,convolutional neural networks,FINN,FPGA,hardware accellerator,inference,Neural network,quantized neural networks},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\ZMN5MIUM\\Blott et al. - 2018 - FINN-R An End-to-End Deep-Learning Framework for .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\ZMN5MIUM\\Blott et al. - 2018 - FINN-R An End-to-End Deep-Learning Framework for .pdf}
 }
 
 @misc{braunConsolidatedViewLoss2020,
@@ -304,7 +312,7 @@
   abstract = {Deep learning-based speech enhancement for real-time applications recently made large advancements. Due to the lack of a tractable perceptual optimization target, many myths around training losses emerged, whereas the contribution to success of the loss functions in many cases has not been investigated isolated from other factors such as network architecture, features, or training procedures. In this work, we investigate a wide variety of loss spectral functions for a recurrent neural network architecture suitable to operate in online frame-by-frame processing. We relate magnitude-only with phase-aware losses, ratios, correlation metrics, and compressed metrics. Our results reveal that combining magnitude-only with phase-aware objectives always leads to improvements, even when the phase is not enhanced. Furthermore, using compressed spectral values also yields a significant improvement. On the other hand, phase-sensitive improvement is best achieved by linear domain losses such as mean absolute error.},
   archiveprefix = {arxiv},
   keywords = {Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\I7DNXDF2\\Braun and Tashev - 2020 - A consolidated view of loss functions for supervis.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SMFD3BZY\\2009.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\I7DNXDF2\\Braun and Tashev - 2020 - A consolidated view of loss functions for supervis.pdf;C\:\\Users\\lambr\\Zotero\\storage\\SMFD3BZY\\2009.html}
 }
 
 @misc{burgessUnderstandingDisentanglingBeta2018,
@@ -321,7 +329,7 @@
   abstract = {We present new intuitions and theoretical assessments of the emergence of disentangled representation in variational autoencoders. Taking a rate-distortion theory perspective, we show the circumstances under which representations aligned with the underlying generative factors of variation of data emerge when optimising the modified ELBO bound in \$\textbackslash beta\$-VAE, as training progresses. From these insights, we propose a modification to the training regime of \$\textbackslash beta\$-VAE, that progressively increases the information capacity of the latent code during training. This modification facilitates the robust learning of disentangled representations in \$\textbackslash beta\$-VAE, without the previous trade-off in reconstruction accuracy.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NF379PPK\\Burgess et al. - 2018 - Understanding disentangling in $beta$-VAE.pdf;C\:\\Users\\Fab\\Zotero\\storage\\24YSE2M4\\1804.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NF379PPK\\Burgess et al. - 2018 - Understanding disentangling in $beta$-VAE.pdf;C\:\\Users\\lambr\\Zotero\\storage\\24YSE2M4\\1804.html}
 }
 
 @article{caporaleSpikeTimingdependentPlasticity2008,
@@ -354,10 +362,10 @@
   doi = {10.1109/MCSE.2016.74},
   abstract = {By discussing the board game (Go) and the recent successful computer system (AlphaGo), associate EIC Jim X. Chen presents an overview of the evolution of computing and hardware efficiency. The emphasis is on sharing information about the evolution of computing, which has a significant impact on artificial intelligence.},
   keywords = {AlphaGo,cores,CPU frequency,GFLOPS,Go,GPU,scientific computing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\I53LJ8VH\\Chen - 2016 - The Evolution of Computing AlphaGo.pdf;C\:\\Users\\Fab\\Zotero\\storage\\JS2D8TQQ\\7499782.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\I53LJ8VH\\Chen - 2016 - The Evolution of Computing AlphaGo.pdf;C\:\\Users\\lambr\\Zotero\\storage\\JS2D8TQQ\\7499782.html}
 }
 
-@article{chengExploringHierarchicalConvolutional2018a,
+@article{chengExploringHierarchicalConvolutional2018,
   title = {Exploring {{Hierarchical Convolutional Features}} for {{Hyperspectral Image Classification}}},
   author = {Cheng, Gong and Li, Zhenpeng and Han, Junwei and Yao, Xiwen and Guo, Lei},
   year = {2018},
@@ -370,7 +378,7 @@
   doi = {10.1109/TGRS.2018.2841823},
   abstract = {Hyperspectral image (HSI) classification is an active and important research task driven by many practical applications. To leverage deep learning models especially convolutional neural networks (CNNs) for HSI classification, this paper proposes a simple yet effective method to extract hierarchical deep spatial feature for HSI classification by exploring the power of off-the-shelf CNN models, without any additional retraining or fine-tuning on the target data set. To obtain better classification accuracy, we further propose a unified metric learning-based framework to alternately learn discriminative spectral-spatial features, which have better representation capability and train support vector machine (SVM) classifiers. To this end, we design a new objective function that explicitly embeds a metric learning regularization term into SVM training. The metric learning regularization term is used to learn a powerful spectral-spatial feature representation by fusing spectral feature and deep spatial feature, which has small intraclass scatter but big between class separation. By transforming HSI data into new spectral-spatial feature space through CNN and metric learning, we can pull the pixels from the same class closer, while pushing the different class pixels farther away. In the experiments, we comprehensively evaluate the proposed method on three commonly used HSI benchmark data sets. State-of-the-art results are achieved when compared with the existing HSI classification methods.},
   keywords = {Convolutional neural networks (CNNs),deep learning,Feature extraction,hyperspectral image (HSI) classification,Hyperspectral imaging,Machine learning,Measurement,metric learning,Semantics,spectral\textendash spatial feature,Support vector machines,Training},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\L4SISI68\\Cheng et al. - 2018 - Exploring Hierarchical Convolutional Features for .pdf;C\:\\Users\\Fab\\Zotero\\storage\\QCXXXLX5\\8393448.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\L4SISI68\\Cheng et al. - 2018 - Exploring Hierarchical Convolutional Features for .pdf;C\:\\Users\\lambr\\Zotero\\storage\\QCXXXLX5\\8393448.html}
 }
 
 @misc{chenInfoGANInterpretableRepresentation2016,
@@ -388,7 +396,7 @@
   abstract = {This paper describes InfoGAN, an information-theoretic extension to the Generative Adversarial Network that is able to learn disentangled representations in a completely unsupervised manner. InfoGAN is a generative adversarial network that also maximizes the mutual information between a small subset of the latent variables and the observation. We derive a lower bound to the mutual information objective that can be optimized efficiently, and show that our training procedure can be interpreted as a variation of the Wake-Sleep algorithm. Specifically, InfoGAN successfully disentangles writing styles from digit shapes on the MNIST dataset, pose from lighting of 3D rendered images, and background digits from the central digit on the SVHN dataset. It also discovers visual concepts that include hair styles, presence/absence of eyeglasses, and emotions on the CelebA face dataset. Experiments show that InfoGAN learns interpretable representations that are competitive with representations learned by existing fully supervised methods.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\J6IGNF38\\Chen et al. - 2016 - InfoGAN Interpretable Representation Learning by .pdf;C\:\\Users\\Fab\\Zotero\\storage\\AJFB64I3\\1606.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\J6IGNF38\\Chen et al. - 2016 - InfoGAN Interpretable Representation Learning by .pdf;C\:\\Users\\lambr\\Zotero\\storage\\AJFB64I3\\1606.html}
 }
 
 @misc{chungUnknownExamplesMachine2019,
@@ -405,7 +413,7 @@
   abstract = {Over the past decades, researchers and ML practitioners have come up with better and better ways to build, understand and improve the quality of ML models, but mostly under the key assumption that the training data is distributed identically to the testing data. In many real-world applications, however, some potential training examples are unknown to the modeler, due to sample selection bias or, more generally, covariate shift, i.e., a distribution shift between the training and deployment stage. The resulting discrepancy between training and testing distributions leads to poor generalization performance of the ML model and hence biased predictions. We provide novel algorithms that estimate the number and properties of these unknown training examples---unknown unknowns. This information can then be used to correct the training set, prior to seeing any test data. The key idea is to combine species-estimation techniques with data-driven methods for estimating the feature values for the unknown unknowns. Experiments on a variety of ML models and datasets indicate that taking the unknown examples into account can yield a more robust ML model that generalizes better.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WNYCILW3\\Chung et al. - 2019 - Unknown Examples & Machine Learning Model Generali.pdf;C\:\\Users\\Fab\\Zotero\\storage\\W4V8DF6H\\1808.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WNYCILW3\\Chung et al. - 2019 - Unknown Examples & Machine Learning Model Generali.pdf;C\:\\Users\\lambr\\Zotero\\storage\\W4V8DF6H\\1808.html}
 }
 
 @book{cinelliVariationalMethodsMachine2021,
@@ -421,7 +429,7 @@
   isbn = {978-3-030-70678-4 978-3-030-70679-1},
   langid = {english},
   keywords = {Approximate inference,Artificial intelligence,Bayesian deep learning,Bayesian neural network,Computer vision,Deep neural networks,Expectation propagation,Machine theory,Variational autoencoder,Variational inference},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\KVTZZ3EA\\Cinelli et al. - 2021 - Variational Methods for Machine Learning with Appl.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\KVTZZ3EA\\Cinelli et al. - 2021 - Variational Methods for Machine Learning with Appl.pdf}
 }
 
 @book{coverElementsInformationTheory2006,
@@ -459,7 +467,7 @@
   abstract = {Generative modeling is one of the hottest topics in AI. It's now possible to teach a machine to excel at human endeavors such as painting, writing, and composing music. With this practical book, machine learning engineers and data scientists will discover how to re-create some of the most impressive examples of generative deep learning models such as variational autoencoders (VAEs), generative adversarial networks (GANs), Transformers, normalizing flows, energy based models, and diffusion models. Author David Foster demonstrates the inner workings of each technique, starting with the basics of deep learning before advancing to some of the most cutting-edge algorithms in the field. Through tips and tricks, you'll understand how to make your models learn more efficiently and become more creative. Discover how VAEs can change facial expressions in photos Build practical GAN examples from scratch to generate images based on your own dataset Create autoregressive generative models, such as LSTMs for text generation and PixelCNN models for image generation Build music generation models, using Transformers and MuseGAN Explore the inner workings of state-of-the-art architectures such as StyleGANGPT-3, and DDIM Dive into the the detail of multimodal models such as DALL.E 2 and Imagen for text-to-image generation Understand how generative world models can help agents accomplish tasks within a reinforcement learning setting Understand how the future of generative modeling might evolve, including how businesses will need to adapt to take advantage of the new technologies},
   isbn = {978-1-09-813418-1},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WIL9MQ4N\\9781098134174.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WIL9MQ4N\\9781098134174.html}
 }
 
 @misc{dehaanContrastivePredictiveCoding2021,
@@ -476,7 +484,7 @@
   abstract = {Reliable detection of anomalies is crucial when deploying machine learning models in practice, but remains challenging due to the lack of labeled data. To tackle this challenge, contrastive learning approaches are becoming increasingly popular, given the impressive results they have achieved in self-supervised representation learning settings. However, while most existing contrastive anomaly detection and segmentation approaches have been applied to images, none of them can use the contrastive losses directly for both anomaly detection and segmentation. In this paper, we close this gap by making use of the Contrastive Predictive Coding model (arXiv:1807.03748). We show that its patch-wise contrastive loss can directly be interpreted as an anomaly score, and how this allows for the creation of anomaly segmentation masks. The resulting model achieves promising results for both anomaly detection and segmentation on the challenging MVTec-AD dataset.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\32XAAULP\\de Haan and Löwe - 2021 - Contrastive Predictive Coding for Anomaly Detectio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\HTAD9LUH\\2107.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\32XAAULP\\de Haan and Löwe - 2021 - Contrastive Predictive Coding for Anomaly Detectio.pdf;C\:\\Users\\lambr\\Zotero\\storage\\HTAD9LUH\\2107.html}
 }
 
 @inproceedings{deldariTimeSeriesChange2021,
@@ -494,7 +502,7 @@
   abstract = {Change Point Detection (CPD) methods identify the times associated with changes in the trends and properties of time series data in order to describe the underlying behaviour of the system. For instance, detecting the changes and anomalies associated with web service usage, application usage or human behaviour can provide valuable insights for downstream modelling tasks. We propose a novel approach for self-supervised Time Series Change Point detection method based on Contrastive Predictive coding (TS - CP2). TS - CP2 is the first approach to employ a contrastive learning strategy for CPD by learning an embedded representation that separates pairs of embeddings of time adjacent intervals from pairs of interval embeddings separated across time. Through extensive experiments on three diverse, widely used time series datasets, we demonstrate that our method outperforms five state-of-the-art CPD methods, which include unsupervised and semi-supervised approaches. TS - CP2 is shown to improve the performance of methods that use either handcrafted statistical or temporal features by 79.4\% and deep learning-based methods by 17.0\% with respect to the F1-score averaged across the three datasets.},
   isbn = {978-1-4503-8312-7},
   keywords = {Anomaly detection,Contrastive learning,Time series change point detection,Unsupervised learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\7K5W3KIP\\Deldari et al. - 2021 - Time Series Change Point Detection with Self-Super.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\7K5W3KIP\\Deldari et al. - 2021 - Time Series Change Point Detection with Self-Super.pdf}
 }
 
 @misc{doerschTutorialVariationalAutoencoders2021,
@@ -511,7 +519,7 @@
   abstract = {In just three years, Variational Autoencoders (VAEs) have emerged as one of the most popular approaches to unsupervised learning of complicated distributions. VAEs are appealing because they are built on top of standard function approximators (neural networks), and can be trained with stochastic gradient descent. VAEs have already shown promise in generating many kinds of complicated data, including handwritten digits, faces, house numbers, CIFAR images, physical models of scenes, segmentation, and predicting the future from static images. This tutorial introduces the intuitions behind VAEs, explains the mathematics behind them, and describes some empirical behavior. No prior knowledge of variational Bayesian methods is assumed.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\GRM99QC6\\Doersch - 2021 - Tutorial on Variational Autoencoders.pdf;C\:\\Users\\Fab\\Zotero\\storage\\484AFYZ3\\1606.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\GRM99QC6\\Doersch - 2021 - Tutorial on Variational Autoencoders.pdf;C\:\\Users\\lambr\\Zotero\\storage\\484AFYZ3\\1606.html}
 }
 
 @misc{fortuinSOMVAEInterpretableDiscrete2019,
@@ -529,7 +537,7 @@
   abstract = {High-dimensional time series are common in many domains. Since human cognition is not optimized to work well in high-dimensional spaces, these areas could benefit from interpretable low-dimensional representations. However, most representation learning algorithms for time series data are difficult to interpret. This is due to non-intuitive mappings from data features to salient properties of the representation and non-smoothness over time. To address this problem, we propose a new representation learning framework building on ideas from interpretable discrete dimensionality reduction and deep generative modeling. This framework allows us to learn discrete representations of time series, which give rise to smooth and interpretable embeddings with superior clustering performance. We introduce a new way to overcome the non-differentiability in discrete representation learning and present a gradient-based version of the traditional self-organizing map algorithm that is more performant than the original. Furthermore, to allow for a probabilistic interpretation of our method, we integrate a Markov model in the representation space. This model uncovers the temporal transition structure, improves clustering performance even further and provides additional explanatory insights as well as a natural representation of uncertainty. We evaluate our model in terms of clustering performance and interpretability on static (Fashion-)MNIST data, a time series of linearly interpolated (Fashion-)MNIST images, a chaotic Lorenz attractor system with two macro states, as well as on a challenging real world medical time series application on the eICU data set. Our learned representations compare favorably with competitor methods and facilitate downstream tasks on the real world data.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\GXT72DRW\\Fortuin et al. - 2019 - SOM-VAE Interpretable Discrete Representation Lea.pdf;C\:\\Users\\Fab\\Zotero\\storage\\KR46FTA6\\1806.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\GXT72DRW\\Fortuin et al. - 2019 - SOM-VAE Interpretable Discrete Representation Lea.pdf;C\:\\Users\\lambr\\Zotero\\storage\\KR46FTA6\\1806.html}
 }
 
 @inproceedings{fuAlphaGoMonteCarlo2016,
@@ -544,7 +552,7 @@
   doi = {10.1109/WSC.2016.7822130},
   abstract = {In March of 2016, Google DeepMind's AlphaGo, a computer Go-playing program, defeated the reigning human world champion Go player, 4-1, a feat far more impressive than previous victories by computer programs in chess (IBM's Deep Blue) and Jeopardy (IBM's Watson). The main engine behind the program combines machine learning approaches with a technique called Monte Carlo tree search. Current versions of Monte Carlo tree search used in Go-playing algorithms are based on a version developed for games that traces its roots back to the adaptive multi-stage sampling simulation optimization algorithm for estimating value functions in finite-horizon Markov decision processes (MDPs) introduced by Chang et al. (2005), which was the first use of Upper Confidence Bounds (UCBs) for Monte Carlo simulation-based solution of MDPs. We review the main ideas in UCB-based Monte Carlo tree search by connecting it to simulation optimization through the use of two simple examples: decision trees and tic-tac-toe.},
   keywords = {Computers,Decision trees,Games,Google,Machine learning algorithms,Monte Carlo methods,Optimization},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\RCQU2FSF\\Fu - 2016 - AlphaGo and Monte Carlo tree search The simulatio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\NEHRKUFP\\7822130.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\RCQU2FSF\\Fu - 2016 - AlphaGo and Monte Carlo tree search The simulatio.pdf;C\:\\Users\\lambr\\Zotero\\storage\\NEHRKUFP\\7822130.html}
 }
 
 @article{gallantPerceptronbasedLearningAlgorithms1990,
@@ -560,7 +568,7 @@
   doi = {10.1109/72.80230},
   abstract = {A key task for connectionist research is the development and analysis of learning algorithms. An examination is made of several supervised learning algorithms for single-cell and network models. The heart of these algorithms is the pocket algorithm, a modification of perceptron learning that makes perceptron learning well-behaved with nonseparable training data, even if the data are noisy and contradictory. Features of these algorithms include speed algorithms fast enough to handle large sets of training data; network scaling properties, i.e. network methods scale up almost as well as single-cell models when the number of inputs is increased; analytic tractability, i.e. upper bounds on classification error are derivable; online learning, i.e. some variants can learn continually, without referring to previous data; and winner-take-all groups or choice groups, i.e. algorithms can be adapted to select one out of a number of possible classifications. These learning algorithms are suitable for applications in machine learning, pattern recognition, and connectionist expert systems.{$<>$}},
   keywords = {Algorithm design and analysis,Classification algorithms,Heart,Hybrid intelligent systems,Machine learning,Machine learning algorithms,Pattern recognition,Supervised learning,Training data,Upper bound},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\2WLX47PY\\Gallant - 1990 - Perceptron-based learning algorithms.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SZJIKCTE\\80230.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\2WLX47PY\\Gallant - 1990 - Perceptron-based learning algorithms.pdf;C\:\\Users\\lambr\\Zotero\\storage\\SZJIKCTE\\80230.html}
 }
 
 @article{gamperSoundSampleDetection2013,
@@ -572,7 +580,7 @@
   volume = {10},
   doi = {10.1145/2422105.2422109},
   abstract = {This article investigates the effect of various design parameters of auditory information display on user performance in two basic information retrieval tasks. We conducted a user test with 22 participants in which sets of sound samples were presented. In the first task, the test participants were asked to detect a given sample among a set of samples. In the second task, the test participants were asked to estimate the relative number of instances of a given sample in two sets of samples. We found that the stimulus onset asynchrony (SOA) of the sound samples had a significant effect on user performance in both tasks. For the sample detection task, the average error rate was about 10\% with an SOA of 100 ms. For the numerosity estimation task, an SOA of at least 200 ms was necessary to yield average error rates lower than 30\%. Other parameters, including the samples' sound type (synthesized speech or earcons) and spatial quality (multichannel loudspeaker or diotic headphone playback), had no substantial effect on user performance. These results suggest that diotic, or indeed monophonic, playback with appropriately chosen SOA may be sufficient in practical applications for users to perform the given information retrieval tasks, if information about the sample location is not relevant. If location information was provided through spatial playback of the samples, test subjects were able to simultaneously detect and localize a sample with reasonable accuracy.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\3CS3IIWR\\Gamper et al. - 2013 - Sound Sample Detection and Numerosity Estimation U.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\3CS3IIWR\\Gamper et al. - 2013 - Sound Sample Detection and Numerosity Estimation U.pdf}
 }
 
 @article{glorfeldMethodologySimplificationInterpretation1996,
@@ -605,7 +613,7 @@
   pages = {53--79},
   doi = {10.1007/s10287-008-0072-5},
   abstract = {The technique known as ``weight decay'' in the literature about learning from data is investigated using tools from regularization theory. Weight-decay regularization is compared with Tikhonov's regularization of the learning problem and with a mixed regularized learning technique. The accuracies of suboptimal solutions to weight-decay learning are estimated for connectionistic models with a-priori fixed numbers of computational units.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\37SWEYS5\\Gnecco and Sanguineti - 2009 - The weight-decay technique in learning from data .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\37SWEYS5\\Gnecco and Sanguineti - 2009 - The weight-decay technique in learning from data .pdf}
 }
 
 @article{grossuttiDeepLearningInfrared2022,
@@ -622,7 +630,7 @@
   doi = {10.1021/acs.jpclett.2c01328},
   urldate = {2023-04-12},
   abstract = {Infrared (IR) spectra contain detailed and extensive information about the chemical composition and bonding environment in a sample. However, this information is difficult to extract from complex heterogeneous systems because of overlapping absorptions due to different generative factors. We implement a deep learning approach to study the complex spectroscopic changes that occur in cross-linked polyethylene (PEX-a) pipe by training a Beta-variational autoencoder (Beta-VAE) on a database of PEX-a pipe spectra. We show that the Beta-VAE outperforms principal component analysis (PCA) and learns interpretable and independent representations of the generative factors of variance in the spectra. We apply the Beta-VAE encoder to a hyperspectrum of a crack in the wall of a pipe to evaluate the spatial distribution of these learned representations. This study shows how deep learning architectures like Beta-VAE can enhance the analysis of spectroscopic data of complex heterogeneous systems.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\J7NTSUB7\\Grossutti et al. - 2022 - Deep Learning and Infrared Spectroscopy Represent.pdf;C\:\\Users\\Fab\\Zotero\\storage\\FS248ZH7\\acs.jpclett.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\J7NTSUB7\\Grossutti et al. - 2022 - Deep Learning and Infrared Spectroscopy Represent.pdf;C\:\\Users\\lambr\\Zotero\\storage\\FS248ZH7\\acs.jpclett.html}
 }
 
 @article{guoDeepMultimodalRepresentation2019,
@@ -637,7 +645,7 @@
   doi = {10.1109/ACCESS.2019.2916887},
   abstract = {Multimodal representation learning, which aims to narrow the heterogeneity gap among different modalities, plays an indispensable role in the utilization of ubiquitous multimodal data. Due to the powerful representation ability with multiple levels of abstraction, deep learning-based multimodal representation learning has attracted much attention in recent years. In this paper, we provided a comprehensive survey on deep multimodal representation learning which has never been concentrated entirely. To facilitate the discussion on how the heterogeneity gap is narrowed, according to the underlying structures in which different modalities are integrated, we category deep multimodal representation learning methods into three frameworks: joint representation, coordinated representation, and encoder-decoder. Additionally, we review some typical models in this area ranging from conventional models to newly developed technologies. This paper highlights on the key issues of newly developed technologies, such as encoder-decoder model, generative adversarial networks, and attention mechanism in a multimodal representation learning perspective, which, to the best of our knowledge, have never been reviewed previously, even though they have become the major focuses of much contemporary research. For each framework or model, we discuss its basic structure, learning objective, application scenes, key issues, advantages, and disadvantages, such that both novel and experienced researchers can benefit from this survey. Finally, we suggest some important directions for future work.},
   keywords = {Data mining,Decoding,Deep learning,deep multimodal fusion,Feature extraction,multimodal adversarial learning,multimodal deep learning,Multimodal representation learning,multimodal translation,Semantics,Speech recognition,Task analysis},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\T86F6KVF\\Guo et al. - 2019 - Deep Multimodal Representation Learning A Survey.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RGAD43VL\\8715409.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\T86F6KVF\\Guo et al. - 2019 - Deep Multimodal Representation Learning A Survey.pdf;C\:\\Users\\lambr\\Zotero\\storage\\RGAD43VL\\8715409.html}
 }
 
 @article{guoVariationalAutoencoderOptimizing2020,
@@ -651,7 +659,7 @@
   doi = {10.1109/ACCESS.2020.2977671},
   abstract = {The latent variable prior of the variational autoencoder (VAE) often utilizes a standard Gaussian distribution because of the convenience in calculation, but has an underfitting problem. This paper proposes a variational autoencoder with optimizing Gaussian mixture model priors. This method utilizes a Gaussian mixture model to construct prior distribution, and utilizes the Kullback-Leibler (KL) distance between posterior and prior distribution to implement an iterative optimization of the prior distribution based on the data. The greedy algorithm is used to solve the KL distance for defining the approximate variational lower bound solution of the loss function, and for realizing the VAE with optimizing Gaussian mixture model priors. Compared with the standard VAE method, the proposed method obtains state-of-the-art results on MNIST, Omniglot, and Frey Face datasets, which shows that the VAE with optimizing Gaussian mixture model priors can learn a better model.},
   keywords = {Aggregates,Gaussian distribution,Gaussian mixture model,Kullback-Leibler distance,Neural networks,Standards,Training,Variational autoencoder},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\MPXMN3X9\\Guo et al. - 2020 - Variational Autoencoder With Optimizing Gaussian M.pdf;C\:\\Users\\Fab\\Zotero\\storage\\97EH2E8A\\9020116.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\MPXMN3X9\\Guo et al. - 2020 - Variational Autoencoder With Optimizing Gaussian M.pdf;C\:\\Users\\lambr\\Zotero\\storage\\97EH2E8A\\9020116.html}
 }
 
 @article{hearstSupportVectorMachines1998,
@@ -667,7 +675,7 @@
   doi = {10.1109/5254.708428},
   abstract = {My first exposure to Support Vector Machines came this spring when heard Sue Dumais present impressive results on text categorization using this analysis technique. This issue's collection of essays should help familiarize our readers with this interesting new racehorse in the Machine Learning stable. Bernhard Scholkopf, in an introductory overview, points out that a particular advantage of SVMs over other learning algorithms is that it can be analyzed theoretically using concepts from computational learning theory, and at the same time can achieve good performance when applied to real problems. Examples of these real-world applications are provided by Sue Dumais, who describes the aforementioned text-categorization problem, yielding the best results to date on the Reuters collection, and Edgar Osuna, who presents strong results on application to face detection. Our fourth author, John Platt, gives us a practical guide and a new technique for implementing the algorithm efficiently.},
   keywords = {Algorithm design and analysis,Character recognition,Kernel,Machine learning,Neural networks,Pattern recognition,Polynomials,Support vector machines,Training data,Web pages},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\PJJCLKE7\\Hearst et al. - 1998 - Support vector machines.pdf;C\:\\Users\\Fab\\Zotero\\storage\\UI54CHNG\\708428.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\PJJCLKE7\\Hearst et al. - 1998 - Support vector machines.pdf;C\:\\Users\\lambr\\Zotero\\storage\\UI54CHNG\\708428.html}
 }
 
 @inproceedings{heatonEmpiricalAnalysisFeature2016,
@@ -681,7 +689,7 @@
   doi = {10.1109/SECON.2016.7506650},
   abstract = {Machine learning models, such as neural networks, decision trees, random forests and gradient boosting machines accept a feature vector and provide a prediction. These models learn in a supervised fashion where a set of feature vectors with expected output is provided. It is very common practice to engineer new features from the provided feature set. Such engineered features will either augment, or replace portions of the existing feature vector. These engineered features are essentially calculated fields, based on the values of the other features. Engineering such features is primarily a manual, time-consuming task. Additionally, each type of model will respond differently to different types of engineered features. This paper reports on empirical research to demonstrate what types of engineered features are best suited to which machine learning model type. This is accomplished by generating several datasets that are designed to benefit from a particular type of engineered feature. The experiment demonstrates to what degree the machine learning model is capable of synthesizing the needed feature on its own. If a model is capable of synthesizing an engineered feature, it is not necessary to provide that feature. The research demonstrated that the studied models do indeed perform differently with various types of engineered features.},
   keywords = {Analytical models,Biological neural networks,Linear regression,Mathematical model,Neurons,Support vector machines},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\5MFP6G4S\\Heaton - 2016 - An empirical analysis of feature engineering for p.pdf;C\:\\Users\\Fab\\Zotero\\storage\\XYCK87UF\\7506650.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\5MFP6G4S\\Heaton - 2016 - An empirical analysis of feature engineering for p.pdf;C\:\\Users\\lambr\\Zotero\\storage\\XYCK87UF\\7506650.html}
 }
 
 @inproceedings{henaffDataEfficientImageRecognition2020,
@@ -696,7 +704,7 @@
   urldate = {2023-04-06},
   abstract = {Human observers can learn to recognize new categories of images from a handful of examples, yet doing so with artificial ones remains an open challenge. We hypothesize that data-efficient recognition is enabled by representations which make the variability in natural signals more predictable. We therefore revisit and improve Contrastive Predictive Coding, an unsupervised objective for learning such representations. This new implementation produces features which support state-of-the-art linear classification accuracy on the ImageNet dataset. When used as input for non-linear classification with deep neural networks, this representation allows us to use 2-5x less labels than classifiers trained directly on image pixels. Finally, this unsupervised representation substantially improves transfer learning to object detection on the PASCAL VOC dataset, surpassing fully supervised pre-trained ImageNet classifiers.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\EIZ3GV98\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf;C\:\\Users\\Fab\\Zotero\\storage\\RAJYDHYM\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\EIZ3GV98\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf;C\:\\Users\\lambr\\Zotero\\storage\\RAJYDHYM\\Henaff - 2020 - Data-Efficient Image Recognition with Contrastive .pdf}
 }
 
 @inproceedings{higginsBetaVAELearningBasic2022,
@@ -709,7 +717,7 @@
   urldate = {2023-04-22},
   abstract = {Learning an interpretable factorised representation of the independent data generative factors of the world without supervision is an important precursor for the development of artificial intelligence that is able to learn and reason in the same way that humans do. We introduce beta-VAE, a new state-of-the-art framework for automated discovery of interpretable factorised latent representations from raw image data in a completely unsupervised manner. Our approach is a modification of the variational autoencoder (VAE) framework. We introduce an adjustable hyperparameter beta that balances latent channel capacity and independence constraints with reconstruction accuracy. We demonstrate that beta-VAE with appropriately tuned beta {$>$} 1 qualitatively outperforms VAE (beta = 1), as well as state of the art unsupervised (InfoGAN) and semi-supervised (DC-IGN) approaches to disentangled factor learning on a variety of datasets (celebA, faces and chairs). Furthermore, we devise a protocol to quantitatively compare the degree of disentanglement learnt by different models, and show that our approach also significantly outperforms all baselines quantitatively. Unlike InfoGAN, beta-VAE is stable to train, makes few assumptions about the data and relies on tuning a single hyperparameter, which can be directly optimised through a hyper parameter search using weakly labelled data or through heuristic visual inspection for purely unsupervised data.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\KVW7LUBW\\Higgins et al. - 2022 - beta-VAE Learning Basic Visual Concepts with a Co.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\KVW7LUBW\\Higgins et al. - 2022 - beta-VAE Learning Basic Visual Concepts with a Co.pdf}
 }
 
 @misc{hjelmLearningDeepRepresentations2019,
@@ -726,7 +734,7 @@
   abstract = {In this work, we perform unsupervised learning of representations by maximizing mutual information between an input and the output of a deep neural network encoder. Importantly, we show that structure matters: incorporating knowledge about locality of the input to the objective can greatly influence a representation's suitability for downstream tasks. We further control characteristics of the representation by matching to a prior distribution adversarially. Our method, which we call Deep InfoMax (DIM), outperforms a number of popular unsupervised learning methods and competes with fully-supervised learning on several classification tasks. DIM opens new avenues for unsupervised learning of representations and is an important step towards flexible formulations of representation-learning objectives for specific end-goals.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\5TN6QCA2\\Hjelm et al. - 2019 - Learning deep representations by mutual informatio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\C275LSAR\\1808.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\5TN6QCA2\\Hjelm et al. - 2019 - Learning deep representations by mutual informatio.pdf;C\:\\Users\\lambr\\Zotero\\storage\\C275LSAR\\1808.html}
 }
 
 @article{hochreiterVanishingGradientProblem1998,
@@ -758,7 +766,7 @@
   doi = {10.1109/ACCESS.2019.2962617},
   abstract = {In this paper, we propose a new metric to measure goodness-of-fit for classifiers: the Real World Cost function. This metric factors in information about a real world problem, such as financial impact, that other measures like accuracy or F1 do not. This metric is also more directly interpretable for users. To optimize for this metric, we introduce the Real-World-Weight Cross-Entropy loss function, in both binary classification and single-label multiclass classification variants. Both variants allow direct input of real world costs as weights. For single-label, multiclass classification, our loss function also allows direct penalization of probabilistic false positives, weighted by label, during the training of a machine learning model. We compare the design of our loss function to the binary cross-entropy and categorical cross-entropy functions, as well as their weighted variants, to discuss the potential for improvement in handling a variety of known shortcomings of machine learning, ranging from imbalanced classes to medical diagnostic error to reinforcement of social bias. We create scenarios that emulate those issues using the MNIST data set and demonstrate empirical results of our new loss function. Finally, we discuss our intuition about why this approach works and sketch a proof based on Maximum Likelihood Estimation.},
   keywords = {class imbalance,cross-entropy,ethnic stereotypes,Machine learning,maximum likelihood estimation,Maximum likelihood estimation,Measurement,Neural networks,oversampling,Probabilistic logic,social bias,softmax,Standards,Training,undersampling},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\VFNWI6LZ\\Ho and Wookey - 2020 - The Real-World-Weight Cross-Entropy Loss Function.pdf;C\:\\Users\\Fab\\Zotero\\storage\\FEYUFSWC\\8943952.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\VFNWI6LZ\\Ho and Wookey - 2020 - The Real-World-Weight Cross-Entropy Loss Function.pdf;C\:\\Users\\lambr\\Zotero\\storage\\FEYUFSWC\\8943952.html}
 }
 
 @article{huHandlingVanishingGradient2021,
@@ -772,7 +780,7 @@
   doi = {10.1109/ACCESS.2021.3054915},
   abstract = {Sigmoid function and ReLU are commonly used activation functions in neural networks (NN). However, sigmoid function is vulnerable to the vanishing gradient problem, while ReLU has a special vanishing gradient problem that is called dying ReLU problem. Though many studies provided methods to alleviate this problem, there has not been an efficient feasible solution. Hence, we proposed a method replacing the original derivative function with an artificial derivative in a pertinent way. Our method optimized gradients of activation functions without varying activation functions nor introducing extra layers. Our investigations demonstrated that the method can effectively alleviate the vanishing gradient problem for both ReLU and sigmoid function with few computational cost.},
   keywords = {Activation function,artificial derivative,Artificial neural networks,Computational efficiency,Logistics,ReLU,sigmoid function,Task analysis,Testing,Training,vanishing gradient},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\LRL4A6MM\\Hu et al. - 2021 - Handling Vanishing Gradient Problem Using Artifici.pdf;C\:\\Users\\Fab\\Zotero\\storage\\VA3XQCNE\\9336631.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\LRL4A6MM\\Hu et al. - 2021 - Handling Vanishing Gradient Problem Using Artifici.pdf;C\:\\Users\\lambr\\Zotero\\storage\\VA3XQCNE\\9336631.html}
 }
 
 @inproceedings{indykApproximateNearestNeighbors1998,
@@ -789,10 +797,10 @@
   doi = {10.1145/276698.276876},
   urldate = {2023-05-01},
   isbn = {978-0-89791-962-3},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\LL8WFGB9\\Indyk and Motwani - 1998 - Approximate nearest neighbors towards removing th.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\LL8WFGB9\\Indyk and Motwani - 1998 - Approximate nearest neighbors towards removing th.pdf}
 }
 
-@misc{ioffeBatchNormalizationAccelerating2015,
+@misc{ioffeBatchNormalizationAccelerating2015a,
   title = {Batch {{Normalization}}: {{Accelerating Deep Network Training}} by {{Reducing Internal Covariate Shift}}},
   shorttitle = {Batch {{Normalization}}},
   author = {Ioffe, Sergey and Szegedy, Christian},
@@ -807,7 +815,7 @@
   abstract = {Training Deep Neural Networks is complicated by the fact that the distribution of each layer's inputs changes during training, as the parameters of the previous layers change. This slows down the training by requiring lower learning rates and careful parameter initialization, and makes it notoriously hard to train models with saturating nonlinearities. We refer to this phenomenon as internal covariate shift, and address the problem by normalizing layer inputs. Our method draws its strength from making normalization a part of the model architecture and performing the normalization for each training mini-batch. Batch Normalization allows us to use much higher learning rates and be less careful about initialization. It also acts as a regularizer, in some cases eliminating the need for Dropout. Applied to a state-of-the-art image classification model, Batch Normalization achieves the same accuracy with 14 times fewer training steps, and beats the original model by a significant margin. Using an ensemble of batch-normalized networks, we improve upon the best published result on ImageNet classification: reaching 4.9\% top-5 validation error (and 4.8\% test error), exceeding the accuracy of human raters.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\AXZ49JIK\\Ioffe and Szegedy - 2015 - Batch Normalization Accelerating Deep Network Tra.pdf;C\:\\Users\\Fab\\Zotero\\storage\\XEH27CBD\\1502.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\AXZ49JIK\\Ioffe and Szegedy - 2015 - Batch Normalization Accelerating Deep Network Tra.pdf;C\:\\Users\\lambr\\Zotero\\storage\\XEH27CBD\\1502.html}
 }
 
 @article{jainArtificialNeuralNetworks1996,
@@ -824,7 +832,7 @@
   doi = {10.1109/2.485891},
   abstract = {Artificial neural nets (ANNs) are massively parallel systems with large numbers of interconnected simple processors. The article discusses the motivations behind the development of ANNs and describes the basic biological neuron and the artificial computational model. It outlines network architectures and learning processes, and presents some of the most commonly used ANN models. It concludes with character recognition, a successful ANN application.},
   keywords = {Artificial neural networks,Biological neural networks,Biological system modeling,Biology computing,Computer architecture,Concurrent computing,Humans,Integrated circuit interconnections,Parallel processing,Tutorial},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\THK29UCH\\485891.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\THK29UCH\\485891.html}
 }
 
 @article{johanssonGeneralizationBoundsRepresentation2022,
@@ -839,7 +847,7 @@
   issn = {1532-4435},
   abstract = {Practitioners in diverse fields such as healthcare, economics and education are eager to apply machine learning to improve decision making. The cost and impracticality of performing experiments and a recent monumental increase in electronic record keeping has brought attention to the problem of evaluating decisions based on non-experimental observational data. This is the setting of this work. In particular, we study estimation of individual-level potential outcomes and causal effects--such as a single patient's response to alternative medication--from recorded contexts, decisions and outcomes. We give generalization bounds on the error in estimated outcomes based on distributional distance measures between re-weighted samples of groups receiving different treatments. We provide conditions under which our bounds are tight and show how they relate to results for unsupervised domain adaptation. Led by our theoretical results, we devise algorithms which learn representations and weighting functions that minimize our bounds by regularizing the representation's induced treatment group distance, and encourage sharing of information between treatment groups. Finally, an experimental evaluation on real and synthetic data shows the value of our proposed representation architecture and regularization scheme.},
   keywords = {causal effects,domain adaptation,generalization theory,overlap},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\8F566L8M\\Johansson et al. - 2022 - Generalization bounds and representation learning .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\8F566L8M\\Johansson et al. - 2022 - Generalization bounds and representation learning .pdf}
 }
 
 @inproceedings{kaadoudExplainableAINarrative2021,
@@ -855,7 +863,7 @@
   urldate = {2023-05-22},
   abstract = {EXplainable Artificial Intelligence (XAI) has recently become a very active domain, mainly due to the extensive development of black-box models such as neural networks. Recent XAI objectives have been defined in the state-of-the-art, for which specific approaches have been proposed. Implicit links can be found between XAI and other domains, especially related to knowledge and neural networks. We here aim to highlight these implicit links. We present a narrative review of research works in two domains: (i) Knowledge domain with focus on Knowledge Discovery and Representation, and (ii) Representation Learning. We discuss the similarity and joining points between these domains and XAI. We conclude that, in order to make black-boxes more transparent, XAI approaches should be more inspired and take advantage of past and recent works in Knowledge and Representation Learning domains. Through this paper, we offer an entry point to the domain of XAI for both multidisciplinary researchers and specialists in AI, as well for AI knowledgeable users.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\DQIBFF43\\Kaadoud et al. - 2021 - Explainable AI a narrative review at the crossroa.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\DQIBFF43\\Kaadoud et al. - 2021 - Explainable AI a narrative review at the crossroa.pdf}
 }
 
 @misc{karagiannakosHowGenerateImages2018,
@@ -885,7 +893,7 @@
   abstract = {In recent years, Variational Autoencoders (VAEs) have been shown to be highly effective in both standard collaborative filtering applications and extensions such as incorporation of implicit feedback. We extend VAEs to collaborative filtering with side information, for instance when ratings are combined with explicit text feedback from the user. Instead of using a user-agnostic standard Gaussian prior, we incorporate user-dependent priors in the latent VAE space to encode users' preferences as functions of the review text. Taking into account both the rating and the text information to represent users in this multimodal latent space is promising to improve recommendation quality. Our proposed model is shown to outperform the existing VAE models for collaborative filtering (up to 29.41\% relative improvement in ranking metric) along with other baselines that incorporate both user ratings and text for item recommendation.},
   isbn = {978-1-4503-6617-5},
   keywords = {Deep Learning,Item Recommendation,Probabilistic Modeling,Text Mining,Variational Autoencoders},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WZCUUWN7\\Karamanolakis et al. - 2018 - Item Recommendation with Variational Autoencoders .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WZCUUWN7\\Karamanolakis et al. - 2018 - Item Recommendation with Variational Autoencoders .pdf}
 }
 
 @misc{kimDistanceawareQuantization2021,
@@ -902,7 +910,7 @@
   abstract = {We address the problem of network quantization, that is, reducing bit-widths of weights and/or activations to lighten network architectures. Quantization methods use a rounding function to map full-precision values to the nearest quantized ones, but this operation is not differentiable. There are mainly two approaches to training quantized networks with gradient-based optimizers. First, a straight-through estimator (STE) replaces the zero derivative of the rounding with that of an identity function, which causes a gradient mismatch problem. Second, soft quantizers approximate the rounding with continuous functions at training time, and exploit the rounding for quantization at test time. This alleviates the gradient mismatch, but causes a quantizer gap problem. We alleviate both problems in a unified framework. To this end, we introduce a novel quantizer, dubbed a distance-aware quantizer (DAQ), that mainly consists of a distance-aware soft rounding (DASR) and a temperature controller. To alleviate the gradient mismatch problem, DASR approximates the discrete rounding with the kernel soft argmax, which is based on our insight that the quantization can be formulated as a distance-based assignment problem between full-precision values and quantized ones. The controller adjusts the temperature parameter in DASR adaptively according to the input, addressing the quantizer gap problem. Experimental results on standard benchmarks show that DAQ outperforms the state of the art significantly for various bit-widths without bells and whistles.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\KX7LRIQJ\\kim et al. - 2021 - Distance-aware Quantization.pdf;C\:\\Users\\Fab\\Zotero\\storage\\6P4GFQD2\\2108.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\KX7LRIQJ\\kim et al. - 2021 - Distance-aware Quantization.pdf;C\:\\Users\\lambr\\Zotero\\storage\\6P4GFQD2\\2108.html}
 }
 
 @misc{kingmaAutoEncodingVariationalBayes2022,
@@ -919,7 +927,7 @@
   abstract = {How can we perform efficient inference and learning in directed probabilistic models, in the presence of continuous latent variables with intractable posterior distributions, and large datasets? We introduce a stochastic variational inference and learning algorithm that scales to large datasets and, under some mild differentiability conditions, even works in the intractable case. Our contributions are two-fold. First, we show that a reparameterization of the variational lower bound yields a lower bound estimator that can be straightforwardly optimized using standard stochastic gradient methods. Second, we show that for i.i.d. datasets with continuous latent variables per datapoint, posterior inference can be made especially efficient by fitting an approximate inference model (also called a recognition model) to the intractable posterior using the proposed lower bound estimator. Theoretical advantages are reflected in experimental results.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\58JTVZV4\\Kingma and Welling - 2022 - Auto-Encoding Variational Bayes.pdf;C\:\\Users\\Fab\\Zotero\\storage\\C5TQ888L\\1312.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\58JTVZV4\\Kingma and Welling - 2022 - Auto-Encoding Variational Bayes.pdf;C\:\\Users\\lambr\\Zotero\\storage\\C5TQ888L\\1312.html}
 }
 
 @misc{kingmaImprovingVariationalInference2017,
@@ -935,7 +943,7 @@
   abstract = {The framework of normalizing flows provides a general strategy for flexible variational inference of posteriors over latent variables. We propose a new type of normalizing flow, inverse autoregressive flow (IAF), that, in contrast to earlier published flows, scales well to high-dimensional latent spaces. The proposed flow consists of a chain of invertible transformations, where each transformation is based on an autoregressive neural network. In experiments, we show that IAF significantly improves upon diagonal Gaussian approximate posteriors. In addition, we demonstrate that a novel type of variational autoencoder, coupled with IAF, is competitive with neural autoregressive models in terms of attained log-likelihood on natural images, while allowing significantly faster synthesis.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\344PDSGW\\Kingma et al. - 2017 - Improving Variational Inference with Inverse Autor.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SVG5N4FD\\1606.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\344PDSGW\\Kingma et al. - 2017 - Improving Variational Inference with Inverse Autor.pdf;C\:\\Users\\lambr\\Zotero\\storage\\SVG5N4FD\\1606.html}
 }
 
 @article{kingmaIntroductionVariationalAutoencoders2019,
@@ -954,7 +962,7 @@
   abstract = {Variational autoencoders provide a principled framework for learning deep latent-variable models and corresponding inference models. In this work, we provide an introduction to variational autoencoders and some important extensions.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\RVFG7F9F\\Kingma and Welling - 2019 - An Introduction to Variational Autoencoders.pdf;C\:\\Users\\Fab\\Zotero\\storage\\AQ83KMRQ\\1906.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\RVFG7F9F\\Kingma and Welling - 2019 - An Introduction to Variational Autoencoders.pdf;C\:\\Users\\lambr\\Zotero\\storage\\AQ83KMRQ\\1906.html}
 }
 
 @article{kroghWhatAreArtificial2008,
@@ -974,7 +982,7 @@
   copyright = {2008 Nature Publishing Group},
   langid = {english},
   keywords = {Agriculture,Bioinformatics,Biomedical Engineering/Biotechnology,Biomedicine,Biotechnology,general,Life Sciences},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\GHSMHC6Z\\Krogh - 2008 - What are artificial neural networks.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\GHSMHC6Z\\Krogh - 2008 - What are artificial neural networks.pdf}
 }
 
 @misc{kukackaRegularizationDeepLearning2017,
@@ -992,7 +1000,7 @@
   abstract = {Regularization is one of the crucial ingredients of deep learning, yet the term regularization has various definitions, and regularization methods are often studied separately from each other. In our work we present a systematic, unifying taxonomy to categorize existing methods. We distinguish methods that affect data, network architectures, error terms, regularization terms, and optimization procedures. We do not provide all details about the listed methods; instead, we present an overview of how the methods can be sorted into meaningful categories and sub-categories. This helps revealing links and fundamental similarities between them. Finally, we include practical recommendations both for users and for developers of new regularization methods.},
   archiveprefix = {arxiv},
   keywords = {62M45,Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,I.2.6,I.5,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\843M2H9C\\Kukačka et al. - 2017 - Regularization for Deep Learning A Taxonomy.pdf;C\:\\Users\\Fab\\Zotero\\storage\\CXTLG6R4\\1710.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\843M2H9C\\Kukačka et al. - 2017 - Regularization for Deep Learning A Taxonomy.pdf;C\:\\Users\\lambr\\Zotero\\storage\\CXTLG6R4\\1710.html}
 }
 
 @misc{laiContrastivePredictiveCoding2019,
@@ -1009,7 +1017,7 @@
   abstract = {This thesis describes our ongoing work on Contrastive Predictive Coding (CPC) features for speaker verification. CPC is a recently proposed representation learning framework based on predictive coding and noise contrastive estimation. We focus on incorporating CPC features into the standard automatic speaker verification systems, and we present our methods, experiments, and analysis. This thesis also details necessary background knowledge in past and recent work on automatic speaker verification systems, conventional speech features, and the motivation and techniques behind CPC.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computation and Language,Computer Science - Machine Learning,Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\XISIK4LT\\Lai - 2019 - Contrastive Predictive Coding Based Feature for Au.pdf;C\:\\Users\\Fab\\Zotero\\storage\\LXU26RFN\\1904.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\XISIK4LT\\Lai - 2019 - Contrastive Predictive Coding Based Feature for Au.pdf;C\:\\Users\\lambr\\Zotero\\storage\\LXU26RFN\\1904.html}
 }
 
 @inproceedings{langDimensionalityReductionPrior1989,
@@ -1021,7 +1029,7 @@
   publisher = {{Morgan-Kaufmann}},
   urldate = {2023-05-27},
   abstract = {It is  well known  that  when an  automatic  learning algorithm  is  applied  to a  fixed  corpus  of data,  the size of the corpus  places  an  upper bound  on  the  number  of degrees  of freedom  that  the  model  can  contain  if  it  is  to generalize  well.  Because  the  amount  of hardware  in  a  neural  network  typically  increases  with  the  dimensionality  of  its  inputs,  it  can be challenging to build a high-performance network for classifying  large input patterns.  In this paper, several techniques for addressing this  problem  are  discussed  in  the context of an  isolated  word  recognition  task.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WF6AYUIK\\Lang and Hinton - 1989 - Dimensionality Reduction and Prior Knowledge in E-.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WF6AYUIK\\Lang and Hinton - 1989 - Dimensionality Reduction and Prior Knowledge in E-.pdf}
 }
 
 @misc{latifDeepRepresentationLearning2021,
@@ -1039,7 +1047,7 @@
   abstract = {Research on speech processing has traditionally considered the task of designing hand-engineered acoustic features (feature engineering) as a separate distinct problem from the task of designing efficient machine learning (ML) models to make prediction and classification decisions. There are two main drawbacks to this approach: firstly, the feature engineering being manual is cumbersome and requires human knowledge; and secondly, the designed features might not be best for the objective at hand. This has motivated the adoption of a recent trend in speech community towards utilisation of representation learning techniques, which can learn an intermediate representation of the input signal automatically that better suits the task at hand and hence lead to improved performance. The significance of representation learning has increased with advances in deep learning (DL), where the representations are more useful and less dependent on human knowledge, making it very conducive for tasks like classification, prediction, etc. The main contribution of this paper is to present an up-to-date and comprehensive survey on different techniques of speech representation learning by bringing together the scattered research across three distinct research areas including Automatic Speech Recognition (ASR), Speaker Recognition (SR), and Speaker Emotion Recognition (SER). Recent reviews in speech have been conducted for ASR, SR, and SER, however, none of these has focused on the representation learning from speech -- a gap that our survey aims to bridge.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\VVD4298I\\Latif et al. - 2021 - Deep Representation Learning in Speech Processing.pdf;C\:\\Users\\Fab\\Zotero\\storage\\LLNAMCRA\\2001.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\VVD4298I\\Latif et al. - 2021 - Deep Representation Learning in Speech Processing.pdf;C\:\\Users\\lambr\\Zotero\\storage\\LLNAMCRA\\2001.html}
 }
 
 @article{le-khacContrastiveRepresentationLearning2020,
@@ -1054,7 +1062,7 @@
   doi = {10.1109/ACCESS.2020.3031549},
   abstract = {Contrastive Learning has recently received interest due to its success in self-supervised representation learning in the computer vision domain. However, the origins of Contrastive Learning date as far back as the 1990s and its development has spanned across many fields and domains including Metric Learning and natural language processing. In this paper, we provide a comprehensive literature review and we propose a general Contrastive Representation Learning framework that simplifies and unifies many different contrastive learning methods. We also provide a taxonomy for each of the components of contrastive learning in order to summarise it and distinguish it from other forms of machine learning. We then discuss the inductive biases which are present in any contrastive learning system and we analyse our framework under different views from various sub-fields of Machine Learning. Examples of how contrastive learning has been applied in computer vision, natural language processing, audio processing, and others, as well as in Reinforcement Learning are also presented. Finally, we discuss the challenges and some of the most promising future research directions ahead.},
   keywords = {Computational modeling,Contrastive learning,Data models,deep learning,Feature extraction,Learning systems,machine learning,Machine learning,Natural language processing,representation learning,self-supervised learning,Task analysis,unsupervised learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\GRTCEVRE\\Le-Khac et al. - 2020 - Contrastive Representation Learning A Framework a.pdf;C\:\\Users\\Fab\\Zotero\\storage\\WWSBG6JX\\stamp.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\GRTCEVRE\\Le-Khac et al. - 2020 - Contrastive Representation Learning A Framework a.pdf;C\:\\Users\\lambr\\Zotero\\storage\\WWSBG6JX\\stamp.html}
 }
 
 @incollection{lecunEfficientBackProp1998,
@@ -1073,7 +1081,7 @@
   isbn = {978-3-540-49430-0},
   langid = {english},
   keywords = {Conjugate Gradient,Handwritten Digit,Learning Rate,Neural Information Processing System,Newton Algorithm},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\UQZKDQAQ\\LeCun et al. - 1998 - Efficient BackProp.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\UQZKDQAQ\\LeCun et al. - 1998 - Efficient BackProp.pdf}
 }
 
 @article{lecunGradientbasedLearningApplied1998,
@@ -1089,7 +1097,7 @@
   doi = {10.1109/5.726791},
   abstract = {Multilayer neural networks trained with the back-propagation algorithm constitute the best example of a successful gradient based learning technique. Given an appropriate network architecture, gradient-based learning algorithms can be used to synthesize a complex decision surface that can classify high-dimensional patterns, such as handwritten characters, with minimal preprocessing. This paper reviews various methods applied to handwritten character recognition and compares them on a standard handwritten digit recognition task. Convolutional neural networks, which are specifically designed to deal with the variability of 2D shapes, are shown to outperform all other techniques. Real-life document recognition systems are composed of multiple modules including field extraction, segmentation recognition, and language modeling. A new learning paradigm, called graph transformer networks (GTN), allows such multimodule systems to be trained globally using gradient-based methods so as to minimize an overall performance measure. Two systems for online handwriting recognition are described. Experiments demonstrate the advantage of global training, and the flexibility of graph transformer networks. A graph transformer network for reading a bank cheque is also described. It uses convolutional neural network character recognizers combined with global training techniques to provide record accuracy on business and personal cheques. It is deployed commercially and reads several million cheques per day.},
   keywords = {Character recognition,Feature extraction,Hidden Markov models,Machine learning,Multi-layer neural network,Neural networks,Optical character recognition software,Optical computing,Pattern recognition,Principal component analysis},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\4PQDZ497\\Lecun et al. - 1998 - Gradient-based learning applied to document recogn.pdf;C\:\\Users\\Fab\\Zotero\\storage\\KD9JL38H\\726791.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\4PQDZ497\\Lecun et al. - 1998 - Gradient-based learning applied to document recogn.pdf;C\:\\Users\\lambr\\Zotero\\storage\\KD9JL38H\\726791.html}
 }
 
 @inproceedings{leeMetaGMVAEMixtureGaussian2021,
@@ -1102,7 +1110,7 @@
   urldate = {2023-05-22},
   abstract = {Unsupervised learning aims to learn meaningful representations from unlabeled data which can captures its intrinsic structure, that can be transferred to downstream tasks. Meta-learning, whose objective is to learn to generalize across tasks such that the learned model can rapidly adapt to a novel task, shares the spirit of unsupervised learning in that the both seek to learn more effective and efficient learning procedure than learning from scratch. The fundamental difference of the two is that the most meta-learning approaches are supervised, assuming full access to the labels. However, acquiring labeled dataset for meta-training not only is costly as it requires human efforts in labeling but also limits its applications to pre-defined task distributions. In this paper, we propose a principled unsupervised meta-learning model, namely Meta-GMVAE, based on Variational Autoencoder (VAE) and set-level variational inference. Moreover, we introduce a mixture of Gaussian (GMM) prior, assuming that each modality represents each class-concept in a randomly sampled episode, which we optimize with Expectation-Maximization (EM). Then, the learned model can be used for downstream few-shot classification tasks, where we obtain task-specific parameters by performing semi-supervised EM on the latent representations of the support and query set, and predict labels of the query set by computing aggregated posteriors. We validate our model on Omniglot and Mini-ImageNet datasets by evaluating its performance on downstream few-shot classification tasks. The results show that our model obtain impressive performance gains over existing unsupervised meta-learning baselines, even outperforming supervised MAML on a certain setting.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\ZZDZA3MH\\Lee et al. - 2021 - Meta-GMVAE Mixture of Gaussian VAE for Unsupervis.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\ZZDZA3MH\\Lee et al. - 2021 - Meta-GMVAE Mixture of Gaussian VAE for Unsupervis.pdf}
 }
 
 @article{leinonenLowComplexityVectorQuantized2020,
@@ -1116,7 +1124,7 @@
   doi = {10.1109/OJCOMS.2020.3020131},
   abstract = {Sparse signals, encountered in many wireless and signal acquisition applications, can be acquired via compressed sensing (CS) to reduce computations and transmissions, crucial for resource-limited devices, e.g., wireless sensors. Since the information signals are often continuous-valued, digital communication of compressive measurements requires quantization. In such a quantized compressed sensing (QCS) context, we address remote acquisition of a sparse source through vector quantized noisy compressive measurements. We propose a deep encoder-decoder architecture, consisting of an encoder deep neural network (DNN), a quantizer, and a decoder DNN, that realizes low-complexity vector quantization aiming at minimizing the mean-square error of the signal reconstruction for a given quantization rate. We devise a supervised learning method using stochastic gradient descent and backpropagation to train the system blocks. Strategies to overcome the vanishing gradient problem are proposed. Simulation results show that the proposed non-iterative DNN-based QCS method achieves higher rate-distortion performance with lower algorithm complexity as compared to standard QCS methods, conducive to delay-sensitive applications with large-scale signals.},
   keywords = {Complexity theory,Compressed sensing,data compression,Decoding,feedforward neural networks,Quantization (signal),Rate-distortion,Signal reconstruction,supervised learning,vector quantization,Wireless communication,Wireless sensor networks},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WYVKXKIB\\Leinonen and Codreanu - 2020 - Low-Complexity Vector Quantized Compressed Sensing.pdf;C\:\\Users\\Fab\\Zotero\\storage\\ND6BKYRZ\\9179815.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WYVKXKIB\\Leinonen and Codreanu - 2020 - Low-Complexity Vector Quantized Compressed Sensing.pdf;C\:\\Users\\lambr\\Zotero\\storage\\ND6BKYRZ\\9179815.html}
 }
 
 @article{linskerSelfOrganizationPerceptualNetwork1988,
@@ -1129,7 +1137,7 @@
   pages = {105--117},
   doi = {10.1109/2.36},
   abstract = {In this article, the author briefly summarizes the network ideas from an earlier publication and reviews some of the main results. This sets the stage for exploring why a feature-analyzing function emerges. He then shows that even a single developing cell of a layered network exhibits a remarkable set of optimization properties. These properties are closely related to issues in statistics, theoretical physics, adaptive signal processing, the formation of knowledge representations in artificial intelligence, and information theory. Next, he uses these results to infer an information-theoretic principle that can be applied to the network as a whole, rather than a single cell. The organizing principle he proposes is that the network connections develop in such a way as to maximize the amount of information that is preserved when signals are transformed at each processing stage, subject to certain constraints. He illustrates how this principle works for some very simple cases. Much more work will be needed to apply the principle to practical computations of biologically important cases, but the approach appears very promising. He concludes with some speculative comments on why this principle, or some variant of it, may be important for the emergence of perceptual function in biological and synthetic systems.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\4UV3LQ8S\\Linsker - 1988 - Self-Organization in a Perceptual Network..pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\4UV3LQ8S\\Linsker - 1988 - Self-Organization in a Perceptual Network..pdf}
 }
 
 @article{liSupervisedSpeechEnhancement2020,
@@ -1149,7 +1157,7 @@
   copyright = {http://creativecommons.org/licenses/by/3.0/},
   langid = {english},
   keywords = {deep learning,generalized loss function,noise shaping,residual noise control,speech distortion},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\WYQYF48Y\\Li et al. - 2020 - A Supervised Speech Enhancement Approach with Resi.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WYQYF48Y\\Li et al. - 2020 - A Supervised Speech Enhancement Approach with Resi.pdf}
 }
 
 @article{liuImprovedHierarchicalVariational2023,
@@ -1163,10 +1171,10 @@
   doi = {10.1093/bfgp/elac056},
   urldate = {2023-05-22},
   abstract = {Analysis of cell\textendash cell communication (CCC) in the tumor micro-environment helps decipher the underlying mechanism of cancer progression and drug tolerance. Currently, single-cell RNA-Seq data are available on a large scale, providing an unprecedented opportunity to predict cellular communications. There have been many achievements and applications in inferring cell\textendash cell communication based on the known interactions between molecules, such as ligands, receptors and extracellular matrix. However, the prior information is not quite adequate and only involves a fraction of cellular communications, producing many false-positive or false-negative results. To this end, we propose an improved hierarchical variational autoencoder (HiVAE) based model to fully use single-cell RNA-seq data for automatically estimating CCC. Specifically, the HiVAE model is used to learn the potential representation of cells on known ligand\textendash receptor genes and all genes in single-cell RNA-seq data, respectively, which are then utilized for cascade integration. Subsequently, transfer entropy is employed to measure the transmission of information flow between two cells based on the learned representations, which are regarded as directed communication relationships. Experiments are conducted on single-cell RNA-seq data of the human skin disease dataset and the melanoma dataset, respectively. Results show that the HiVAE model is effective in learning cell representations, and transfer entropy could be used to estimate the communication scores between cell types.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\67DFBQLY\\Liu et al. - 2023 - An improved hierarchical variational autoencoder f.pdf;C\:\\Users\\Fab\\Zotero\\storage\\K67GRI8B\\7030842.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\67DFBQLY\\Liu et al. - 2023 - An improved hierarchical variational autoencoder f.pdf;C\:\\Users\\lambr\\Zotero\\storage\\K67GRI8B\\7030842.html}
 }
 
-@misc{lowePuttingEndEndtoEnd2020,
+@misc{lowePuttingEndEndtoEnd2020a,
   title = {Putting {{An End}} to {{End-to-End}}: {{Gradient-Isolated Learning}} of {{Representations}}},
   shorttitle = {Putting {{An End}} to {{End-to-End}}},
   author = {L{\"o}we, Sindy and O'Connor, Peter and Veeling, Bastiaan S.},
@@ -1181,7 +1189,7 @@
   abstract = {We propose a novel deep learning method for local self-supervised representation learning that does not require labels nor end-to-end backpropagation but exploits the natural order in data instead. Inspired by the observation that biological neural networks appear to learn without backpropagating a global error signal, we split a deep neural network into a stack of gradient-isolated modules. Each module is trained to maximally preserve the information of its inputs using the InfoNCE bound from Oord et al. [2018]. Despite this greedy training, we demonstrate that each module improves upon the output of its predecessor, and that the representations created by the top module yield highly competitive results on downstream classification tasks in the audio and visual domain. The proposal enables optimizing modules asynchronously, allowing large-scale distributed training of very deep neural networks on unlabelled datasets.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NKST6QEI\\Löwe et al. - 2020 - Putting An End to End-to-End Gradient-Isolated Le.pdf;C\:\\Users\\Fab\\Zotero\\storage\\DGLLIKIT\\1905.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NKST6QEI\\Löwe et al. - 2020 - Putting An End to End-to-End Gradient-Isolated Le.pdf;C\:\\Users\\lambr\\Zotero\\storage\\DGLLIKIT\\1905.html}
 }
 
 @article{lucasUnderstandingPosteriorCollapse2022,
@@ -1192,7 +1200,19 @@
   urldate = {2023-04-22},
   abstract = {Posterior collapse in Variational Autoencoders (VAEs) arises when the variational distribution closely matches the uninformative prior for a subset of latent variables. This paper presents a simple and intuitive explanation for posterior collapse through the analysis of linear VAEs and their direct correspondence with Probabilistic PCA (pPCA). We identify how local maxima can emerge from the marginal log-likelihood of pPCA, which yields similar local maxima for the evidence lower bound (ELBO). We show that training a linear VAE with variational inference recovers a uniquely identifiable global maximum corresponding to the principal component directions. We provide empirical evidence that the presence of local maxima causes posterior collapse in deep non-linear VAEs. Our findings help to explain a wide range of heuristic approaches in the literature that attempt to diminish the effect of the KL term in the ELBO to reduce posterior collapse.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\9RLA5RXB\\Lucas et al. - 2022 - Understanding Posterior Collapse in Generative Lat.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\9RLA5RXB\\Lucas et al. - 2022 - Understanding Posterior Collapse in Generative Lat.pdf}
+}
+
+@inproceedings{lundbergUnifiedApproachInterpreting2017,
+  title = {A {{Unified Approach}} to {{Interpreting Model Predictions}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Lundberg, Scott M and Lee, Su-In},
+  year = {2017},
+  volume = {30},
+  publisher = {{Curran Associates, Inc.}},
+  urldate = {2023-06-04},
+  abstract = {Understanding why a model makes a certain prediction can be as crucial as the prediction's accuracy in many applications. However, the highest accuracy for large modern datasets is often achieved by complex models that even experts struggle to interpret, such as ensemble or deep learning models, creating a tension between accuracy and interpretability. In response, various methods have recently been proposed to help users interpret the predictions of complex models, but it is often unclear how these methods are related and when one method is preferable over another. To address this problem, we present a unified framework for interpreting predictions, SHAP (SHapley Additive exPlanations). SHAP assigns each feature an importance value for a particular prediction. Its novel components include: (1) the identification of a new class of additive feature importance measures, and (2) theoretical results showing there is a unique solution in this class with a set of desirable properties. The new class unifies six existing methods, notable because several recent methods in the class lack the proposed desirable properties. Based on insights from this unification, we present new methods that show improved computational performance and/or better consistency with human intuition than previous approaches.},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\UKKL8Y3N\\Lundberg en Lee - 2017 - A Unified Approach to Interpreting Model Predictio.pdf}
 }
 
 @article{luongDesigningInterpretableRecurrent2021,
@@ -1227,7 +1247,7 @@
   abstract = {Convolutional neural networks can be trained to perform histology slide classification using weak annotations with multiple instance learning (MIL). However, given the paucity of labeled histology data, direct application of MIL can easily suffer from overfitting and the network is unable to learn rich feature representations due to the weak supervisory signal. We propose to overcome such limitations with a two-stage semi-supervised approach that combines the power of data-efficient self-supervised feature learning via contrastive predictive coding (CPC) and the interpretability and flexibility of regularized attention-based MIL. We apply our two-stage CPC + MIL semi-supervised pipeline to the binary classification of breast cancer histology images. Across five random splits, we report state-of-the-art performance with a mean validation accuracy of 95\% and an area under the ROC curve of 0.968. We further evaluate the quality of features learned via CPC relative to simple transfer learning and show that strong classification performance using CPC features can be efficiently leveraged under the MIL framework even with the feature encoder frozen.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Quantitative Biology - Tissues and Organs},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\MRM6G54A\\Lu et al. - 2019 - Semi-Supervised Histology Classification using Dee.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RVZT5KGU\\1910.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\MRM6G54A\\Lu et al. - 2019 - Semi-Supervised Histology Classification using Dee.pdf;C\:\\Users\\lambr\\Zotero\\storage\\RVZT5KGU\\1910.html}
 }
 
 @article{maatenVisualizingDataUsing2008,
@@ -1241,7 +1261,7 @@
   issn = {1533-7928},
   urldate = {2023-05-14},
   abstract = {We present a new technique called "t-SNE" that visualizes high-dimensional data by giving each datapoint a location in a two or three-dimensional map. The technique is a variation of Stochastic Neighbor Embedding (Hinton and Roweis, 2002) that is much easier to optimize, and produces significantly better visualizations by reducing the tendency to crowd points together in the center of the map. t-SNE is better than existing techniques at creating a single map that reveals structure at many different scales. This is particularly important for high-dimensional data that lie on several different, but related, low-dimensional manifolds, such as images ofobjects from multiple classes seen from multiple viewpoints. For visualizing the structure of very large data sets, we show how t-SNE can use random walks on neighborhood graphs to allow the implicit structure of all of the data to influence the way in which a subset of the data is displayed. We illustrate the performance of t-SNE on a wide variety of data sets and compare it with many other non-parametric visualization techniques, including Sammon mapping, Isomap, and Locally Linear Embedding. The visualizations produced by t-SNE are significantly better than those produced by the other techniques on almost all of the data sets.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\BZFHRZBC\\Maaten and Hinton - 2008 - Visualizing Data using t-SNE.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\BZFHRZBC\\Maaten and Hinton - 2008 - Visualizing Data using t-SNE.pdf}
 }
 
 @article{marblestoneIntegrationDeepLearning2016,
@@ -1253,7 +1273,7 @@
   issn = {1662-5188},
   urldate = {2023-04-04},
   abstract = {Neuroscience has focused on the detailed implementation of computation, studying neural codes, dynamics and circuits. In machine learning, however, artificial neural networks tend to eschew precisely designed codes, dynamics or circuits in favor of brute force optimization of a cost function, often using simple and relatively uniform initial architectures. Two recent developments have emerged within machine learning that create an opportunity to connect these seemingly divergent perspectives. First, structured architectures are used, including dedicated systems for attention, recursion and various forms of short- and long-term memory storage. Second, cost functions and training procedures have become more complex and are varied across layers and over time. Here we think about the brain in terms of these ideas. We hypothesize that (1) the brain optimizes cost functions, (2) the cost functions are diverse and differ across brain locations and over development, and (3) optimization operates within a pre-structured architecture matched to the computational problems posed by behavior. In support of these hypotheses, we argue that a range of implementations of credit assignment through multiple layers of neurons are compatible with our current knowledge of neural circuitry, and that the brain's specialized systems can be interpreted as enabling efficient optimization for specific problem classes. Such a heterogeneously optimized system, enabled by a series of interacting cost functions, serves to make learning data-efficient and precisely targeted to the needs of the organism. We suggest directions by which neuroscience could seek to refine and test these hypotheses.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\LTDYZYN2\\Marblestone et al. - 2016 - Toward an Integration of Deep Learning and Neurosc.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\LTDYZYN2\\Marblestone et al. - 2016 - Toward an Integration of Deep Learning and Neurosc.pdf}
 }
 
 @inproceedings{meghananiExplorationLogMelSpectrogram2021,
@@ -1266,7 +1286,7 @@
   doi = {10.1109/SLT48900.2021.9383491},
   abstract = {In this work, we explore the effectiveness of log-Mel spectrogram and MFCC features for Alzheimer's dementia (AD) recognition on ADReSS challenge dataset. We use three different deep neural networks (DNN) for AD recognition and mini-mental state examination (MMSE) score prediction: (i) convolutional neural network followed by a long-short term memory network (CNN-LSTM), (ii) pre-trained ResNet18 network followed by LSTM (ResNet-LSTM), and (iii) pyramidal bidirectional LSTM followed by a CNN (pBLSTM-CNN). CNN-LSTM achieves an accuracy of 64.58\% with MFCC features and ResNet-LSTM achieves an accuracy of 62.5\% using log-Mel spectrograms. pBLSTM-CNN and ResNet-LSTM models achieve root mean square errors (RMSE) of 5.9 and 5.98 in the MMSE score prediction, using the log-Mel spectrograms. Our results beat the baseline accuracy (62.5\%) and RMSE (6.14) reported for acoustic features on ADReSS challenge dataset. The results suggest that log-Mel spectrograms and MFCCs are effective features for AD recognition problem when used with DNN models.},
   keywords = {Alzheimer,CNN,dementia,Dementia,log-Mel spectrogram,LSTM,Mel frequency cepstral coefficient,MFCC,MMSE,Neural networks,Predictive models,ResNet18,Root mean square,Spectrogram,Speech recognition,transfer learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\3FCSRUSM\\Meghanani et al. - 2021 - An Exploration of Log-Mel Spectrogram and MFCC Fea.pdf;C\:\\Users\\Fab\\Zotero\\storage\\UYISEU95\\9383491.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\3FCSRUSM\\Meghanani et al. - 2021 - An Exploration of Log-Mel Spectrogram and MFCC Fea.pdf;C\:\\Users\\lambr\\Zotero\\storage\\UYISEU95\\9383491.html}
 }
 
 @phdthesis{meihanwangSpeechRepresentationLearning2019,
@@ -1277,7 +1297,20 @@
   school = {Vrije Universiteit Brussel}
 }
 
-@inproceedings{nalisnickApproximateInferenceDeep2016a,
+@book{molnarInterpretableMachineLearning2022,
+  title = {Interpretable {{Machine Learning}}: {{A Guide For Making Black Box Models Explainable}}},
+  shorttitle = {Interpretable {{Machine Learning}}},
+  author = {Molnar, Christoph},
+  year = {2022},
+  month = feb,
+  publisher = {{Independently published}},
+  address = {{Munich, Germany}},
+  abstract = {Interpretable Machine Learning is a comprehensive guide to making machine learning models interpretable"Pretty convinced this is the best book out there on the subject"\textendash{} Brian Lewis, Data Scientist at Cornerstone ResearchSummaryThis book covers a range of interpretability methods, from inherently interpretable models to methods that can make any model interpretable, such as SHAP, LIME and permutation feature importance. It also includes interpretation methods specific to deep neural networks, and discusses why interpretability is important in machine learning. All interpretation methods are explained in depth and discussed critically. How do they work under the hood? What are their strengths and weaknesses? How can their outputs be interpreted?"What I love about this book is that it starts with the big picture instead of diving immediately into the nitty gritty of the methods (although all of that is there, too)."\textendash{} Andrea Farnham, Researcher at Swiss Tropical and Public Health InstituteWho the book is forThis book is essential for machine learning practitioners, data scientists, statisticians, and anyone interested in making their machine learning models interpretable. It will help readers select and apply the appropriate interpretation method for their specific project."This one has been a life saver for me to interpret models. ALE plots are just too good!"\textendash{} Sai Teja Pasul, Data Scientist at Kohl'sYou'll learn aboutThe concepts of machine leaning interpretabilityInherently interpretable modelsMethods to make any machine model interpretable, such as SHAP, LIME and permutation feature importanceInterpretation methods specific to deep neural networksWhy interpretability is important and what's behind this conceptAbout the authorThe author, Christoph Molnar, is an expert in machine learning and statistics, with a Ph.D. in interpretable machine learning.OutlineSummary1 Preface by the Author2 Introduction3 Interpretability4 Datasets5 Interpretable Models5.1 Linear Regression5.2 Logistic Regression5.3 GLM, GAM and more5.4 Decision Tree5.5 Decision Rules5.6 RuleFit5.7 Other Interpretable Models6 Model-Agnostic Methods7 Example-Based Explanations8 Global Model-Agnostic Methods8.1 Partial Dependence Plot (PDP)8.2 Accumulated Local Effects (ALE) Plot8.3.1 Feature Interaction8.4 Functional Decompositon8.5 Permutation Feature Importance8.6 Global Surrogate8.7 Prototypes and Criticisms9 Local Model-Agnostic Methods9.1 Individual Conditional Expectation (ICE)9.2 Local Surrogate (LIME)9.3 Counterfactual Explanations9.4 Scoped Rules (Anchors)9.5 Shapley Values9.6 SHAP (SHapley Additive exPlanations)10 Neural Network Interpretation10.1 Learned Features10.2 Pixel Attribution (Saliency Maps)10.3 Detecting Concepts10.4 Adversarial Examples10.5 Influential Instances11 A Look into the Crystal Ball},
+  isbn = {9798411463330},
+  langid = {english}
+}
+
+@inproceedings{nalisnickApproximateInferenceDeep2016,
   title = {Approximate {{Inference}} for {{Deep Latent Gaussian Mixtures}}},
   author = {Nalisnick, Eric T. and Hertel, L. and Smyth, Padhraic},
   year = {2016},
@@ -1294,7 +1327,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-05-01},
   abstract = {With a goal of understanding what drives generalization in deep networks, we consider several recently suggested explanations, including norm-based control, sharpness and robustness. We study how these measures can ensure generalization, highlighting the importance of scale normalization, and making a connection between sharpness and PAC-Bayes theory.  We then investigate how well the measures explain different observed phenomena.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NHV5CAQX\\Neyshabur et al. - 2017 - Exploring Generalization in Deep Learning.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NHV5CAQX\\Neyshabur et al. - 2017 - Exploring Generalization in Deep Learning.pdf}
 }
 
 @inproceedings{NIPS2012_c399862d,
@@ -1324,7 +1357,7 @@
   copyright = {2006 Springer Nature Limited},
   langid = {english},
   keywords = {Agriculture,Bioinformatics,Biomedical Engineering/Biotechnology,Biomedicine,Biotechnology,general,Life Sciences},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\6B6KNHE7\\Noble - 2006 - What is a support vector machine.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\6B6KNHE7\\Noble - 2006 - What is a support vector machine.pdf}
 }
 
 @article{nowlanSimplifyingNeuralNetworks1992,
@@ -1357,7 +1390,7 @@
   abstract = {In Bayesian machine learning, the posterior distribution is typically computationally intractable, hence variational inference is often required. In this approach, an evidence lower bound on the log likelihood of data is maximized during training. Variational Autoencoders (VAE) are one important example where variational inference is utilized. In this tutorial, we derive the variational lower bound loss function of the standard variational autoencoder. We do so in the instance of a gaussian latent prior and gaussian approximate posterior, under which assumptions the Kullback-Leibler term in the variational lower bound has a closed form solution. We derive essentially everything we use along the way; everything from Bayes' theorem to the Kullback-Leibler divergence.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\QJDAFHCH\\Odaibo - 2019 - Tutorial Deriving the Standard Variational Autoen.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SNUF72L4\\1907.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\QJDAFHCH\\Odaibo - 2019 - Tutorial Deriving the Standard Variational Autoen.pdf;C\:\\Users\\lambr\\Zotero\\storage\\SNUF72L4\\1907.html}
 }
 
 @misc{oordRepresentationLearningContrastive2019,
@@ -1374,7 +1407,7 @@
   abstract = {While supervised learning has enabled great progress in many applications, unsupervised learning has not seen such widespread adoption, and remains an important and challenging endeavor for artificial intelligence. In this work, we propose a universal unsupervised learning approach to extract useful representations from high-dimensional data, which we call Contrastive Predictive Coding. The key insight of our model is to learn such representations by predicting the future in latent space by using powerful autoregressive models. We use a probabilistic contrastive loss which induces the latent space to capture information that is maximally useful to predict future samples. It also makes the model tractable by using negative sampling. While most prior work has focused on evaluating representations for a particular modality, we demonstrate that our approach is able to learn useful representations achieving strong performance on four distinct domains: speech, images, text and reinforcement learning in 3D environments.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\YRNBNG2M\\Oord et al. - 2019 - Representation Learning with Contrastive Predictiv.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RP9HCEKT\\1807.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\YRNBNG2M\\Oord et al. - 2019 - Representation Learning with Contrastive Predictiv.pdf;C\:\\Users\\lambr\\Zotero\\storage\\RP9HCEKT\\1807.html}
 }
 
 @article{OtsuMethod2023,
@@ -1387,7 +1420,7 @@
   copyright = {Creative Commons Attribution-ShareAlike License},
   langid = {english},
   annotation = {Page Version ID: 1157256933},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\E2N9DAB7\\Otsu's_method.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\E2N9DAB7\\Otsu's_method.html}
 }
 
 @article{otsuTlresholdSelectionMethod1979,
@@ -1396,7 +1429,7 @@
   year = {1979},
   abstract = {A nonparametric and unsupervised method of automatic threshold selection for picture segmentation is presented. An optimal threshold is selected by the discriminant criterion, namely, so as to maximize the separability of the resultant classes in gray levels. The procedure is very simple, utilizing only the zeroth- and the first-order cumulative moments of the gray-level histogram. It is t straightforward to extend the method to multithreshold problems.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\MEDGICZR\\Otsu - A Tlreshold Selection Method from Gray-Level Histo.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\MEDGICZR\\Otsu - A Tlreshold Selection Method from Gray-Level Histo.pdf}
 }
 
 @misc{PapersCodeMNIST,
@@ -1405,7 +1438,7 @@
   abstract = {The MNIST database (Modified National Institute of Standards and Technology database) is a large collection of handwritten digits. It has a training set of 60,000 examples, and a test set of 10,000 examples. It is a subset of a larger NIST Special Database 3 (digits written by employees of the United States Census Bureau) and Special Database 1 (digits written by high school students) which contain monochrome images of handwritten digits. The digits have been size-normalized and centered in a fixed-size image. The original black and white (bilevel) images from NIST were size normalized to fit in a 20x20 pixel box while preserving their aspect ratio. The resulting images contain grey levels as a result of the anti-aliasing technique used by the normalization algorithm. the images were centered in a 28x28 image by computing the center of mass of the pixels, and translating the image so as to position this point at the center of the 28x28 field.},
   howpublished = {https://paperswithcode.com/dataset/mnist},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\CA79ISSF\\mnist.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\CA79ISSF\\mnist.html}
 }
 
 @article{paszkeAutomaticDifferentiationPyTorch2017,
@@ -1416,7 +1449,7 @@
   urldate = {2023-05-07},
   abstract = {In this article, we describe an automatic differentiation module of PyTorch \textemdash{} a library designed to enable rapid research on machine learning models. It builds upon a few projects, most notably Lua Torch, Chainer, and HIPS Autograd, and provides a high performance environment with easy access to automatic differentiation of models executed on different devices (CPU and GPU). To make prototyping easier, PyTorch does not follow the symbolic approach used in many other deep learning frameworks, but focuses on differentiation of purely imperative programs, with a focus on extensibility and low overhead. Note that this preprint is a draft of certain sections from an upcoming paper covering all PyTorch features.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\N7DC4HSH\\Paszke et al. - 2017 - Automatic differentiation in PyTorch.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\N7DC4HSH\\Paszke et al. - 2017 - Automatic differentiation in PyTorch.pdf}
 }
 
 @inproceedings{pervezSpectralSmoothingUnveils2021,
@@ -1431,7 +1464,7 @@
   urldate = {2023-05-22},
   abstract = {Variational autoencoders with deep hierarchies of stochastic layers have been known to suffer from the problem of posterior collapse, where the top layers fall back to the prior and become independent of input. We suggest that the hierarchical VAE objective explicitly includes the variance of the function parameterizing the mean and variance of the latent Gaussian distribution which itself is often a high variance function. Building on this we generalize VAE neural networks by incorporating a smoothing parameter motivated by Gaussian analysis to reduce higher frequency components and consequently the variance in parameterizing functions and show that this can help to solve the problem of posterior collapse. We further show that under such smoothing the VAE loss exhibits a phase transition, where the top layer KL divergence sharply drops to zero at a critical value of the smoothing parameter that is similar for the same model across datasets. We validate the phenomenon across model configurations and datasets.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\B8Z2JPRJ\\Pervez and Gavves - 2021 - Spectral Smoothing Unveils Phase Transitions in Hi.pdf;C\:\\Users\\Fab\\Zotero\\storage\\TWLQQUD4\\Pervez and Gavves - 2021 - Spectral Smoothing Unveils Phase Transitions in Hi.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\B8Z2JPRJ\\Pervez and Gavves - 2021 - Spectral Smoothing Unveils Phase Transitions in Hi.pdf;C\:\\Users\\lambr\\Zotero\\storage\\TWLQQUD4\\Pervez and Gavves - 2021 - Spectral Smoothing Unveils Phase Transitions in Hi.pdf}
 }
 
 @article{polyzotisDataLifecycleChallenges2018,
@@ -1460,7 +1493,7 @@
   doi = {10.15439/2017F567},
   abstract = {This paper describes two approaches to the AAIA'17 Data Mining Challenge. Both approaches are making extensive use of domain/background knowledge about the game to build better representation of classification problem by engineering new features. With newly constructed attributes both approaches resort to Artificial Neural Networks (ANN) to construct classification model. The resulting solutions are effective and meaningful.},
   keywords = {Crystals,Data mining,Entertainment industry,Games,Knowledge engineering,Neural networks},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\U4NDDGR2\\8104528.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\U4NDDGR2\\8104528.html}
 }
 
 @misc{radkoffLossFunctionsAudio2021,
@@ -1472,7 +1505,7 @@
   urldate = {2023-05-17},
   abstract = {An informal survey of objective functions used in Machine Learning in the audio domain.},
   howpublished = {https://soundsandwords.io//audio-loss-functions/},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\Q6D34AB7\\audio-loss-functions.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\Q6D34AB7\\audio-loss-functions.html}
 }
 
 @inproceedings{ranganathHierarchicalVariationalModels2016,
@@ -1487,7 +1520,7 @@
   urldate = {2023-05-22},
   abstract = {Black box variational inference allows researchers to easily prototype and evaluate an array of models. Recent advances allow such algorithms to scale to high dimensions. However, a central question remains: How to specify an expressive variational distribution that maintains efficient computation? To address this, we develop hierarchical variational models (HVMs). HVMs augment a variational approximation with a prior on its parameters, which allows it to capture complex structure for both discrete and continuous latent variables. The algorithm we develop is black box, can be used for any HVM, and has the same computational efficiency as the original approximation. We study HVMs on a variety of deep discrete latent variable models. HVMs generalize other expressive variational distributions and maintains higher fidelity to the posterior.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\KV8MHV8E\\Ranganath et al. - 2016 - Hierarchical Variational Models.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\KV8MHV8E\\Ranganath et al. - 2016 - Hierarchical Variational Models.pdf}
 }
 
 @misc{raoUnderstandingGradientIsolatedLearning2020,
@@ -1499,7 +1532,7 @@
   urldate = {2022-11-13},
   abstract = {Since my association with Data Science and Machine learning, the one question that has always fascinated me is the humongous amount of\ldots},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\D7XD89X5\\understanding-the-gradient-isolated-learning-of-representations-and-intuition-to-the-greedy-cb6.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\D7XD89X5\\understanding-the-gradient-isolated-learning-of-representations-and-intuition-to-the-greedy-cb6.html}
 }
 
 @article{rePreferencesVeryLow2012,
@@ -1517,7 +1550,7 @@
   abstract = {Manipulations of voice pitch have been shown to alter attractiveness ratings, but whether preferences extend to very low or very high voice pitch is unknown. Here, we manipulated voice pitch in averaged men's and women's voices by 2 Hz intervals to create a range of male and female voices speaking monopthong vowel sounds and spanning a range of frequencies from normal to very low and very high pitch. With these voices, we used the method of constant stimuli to measure preferences for voice. Nineteen university students (ages: 20\textendash 25) participated in three experiments. On average, men preferred high-pitched women's voices to low-pitched women's voices across all frequencies tested. On average, women preferred men's voices lowered in pitch, but did not prefer very low men's voices. The results of this study may reflect selection pressures for men's and women's voices, and shed light on a perceptual link between voice pitch and vocal attractiveness.},
   pmcid = {PMC3293852},
   pmid = {22403701},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NZWHIZ5Q\\Re et al. - 2012 - Preferences for Very Low and Very High Voice Pitch.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NZWHIZ5Q\\Re et al. - 2012 - Preferences for Very Low and Very High Voice Pitch.pdf}
 }
 
 @misc{rhodesVariationalNoiseContrastiveEstimation2019,
@@ -1533,7 +1566,25 @@
   abstract = {Unnormalised latent variable models are a broad and flexible class of statistical models. However, learning their parameters from data is intractable, and few estimation techniques are currently available for such models. To increase the number of techniques in our arsenal, we propose variational noise-contrastive estimation (VNCE), building on NCE which is a method that only applies to unnormalised models. The core idea is to use a variational lower bound to the NCE objective function, which can be optimised in the same fashion as the evidence lower bound (ELBO) in standard variational inference (VI). We prove that VNCE can be used for both parameter estimation of unnormalised models and posterior inference of latent variables. The developed theory shows that VNCE has the same level of generality as standard VI, meaning that advances made there can be directly imported to the unnormalised setting. We validate VNCE on toy models and apply it to a realistic problem of estimating an undirected graphical model from incomplete data.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\4NUG94Z8\\Rhodes and Gutmann - 2019 - Variational Noise-Contrastive Estimation.pdf;C\:\\Users\\Fab\\Zotero\\storage\\E5RCECL5\\1810.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\4NUG94Z8\\Rhodes and Gutmann - 2019 - Variational Noise-Contrastive Estimation.pdf;C\:\\Users\\lambr\\Zotero\\storage\\E5RCECL5\\1810.html}
+}
+
+@misc{ribeiroWhyShouldTrust2016,
+  title = {"{{Why Should I Trust You}}?": {{Explaining}} the {{Predictions}} of {{Any Classifier}}},
+  shorttitle = {"{{Why Should I Trust You}}?},
+  author = {Ribeiro, Marco Tulio and Singh, Sameer and Guestrin, Carlos},
+  year = {2016},
+  month = aug,
+  number = {arXiv:1602.04938},
+  eprint = {1602.04938},
+  primaryclass = {cs, stat},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1602.04938},
+  urldate = {2023-06-04},
+  abstract = {Despite widespread adoption, machine learning models remain mostly black boxes. Understanding the reasons behind predictions is, however, quite important in assessing trust, which is fundamental if one plans to take action based on a prediction, or when choosing whether to deploy a new model. Such understanding also provides insights into the model, which can be used to transform an untrustworthy model or prediction into a trustworthy one. In this work, we propose LIME, a novel explanation technique that explains the predictions of any classifier in an interpretable and faithful manner, by learning an interpretable model locally around the prediction. We also propose a method to explain models by presenting representative individual predictions and their explanations in a non-redundant way, framing the task as a submodular optimization problem. We demonstrate the flexibility of these methods by explaining different models for text (e.g. random forests) and image classification (e.g. neural networks). We show the utility of explanations via novel experiments, both simulated and with human subjects, on various scenarios that require trust: deciding if one should trust a prediction, choosing between models, improving an untrustworthy classifier, and identifying why a classifier should not be trusted.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\UYRAPRZD\\Ribeiro e.a. - 2016 - Why Should I Trust You Explaining the Predicti.pdf;C\:\\Users\\lambr\\Zotero\\storage\\M3Z6REW6\\1602.html}
 }
 
 @misc{ridgewaySurveyInductiveBiases2016,
@@ -1550,7 +1601,7 @@
   abstract = {With the resurgence of interest in neural networks, representation learning has re-emerged as a central focus in artificial intelligence. Representation learning refers to the discovery of useful encodings of data that make domain-relevant information explicit. Factorial representations identify underlying independent causal factors of variation in data. A factorial representation is compact and faithful, makes the causal factors explicit, and facilitates human interpretation of data. Factorial representations support a variety of applications, including the generation of novel examples, indexing and search, novelty detection, and transfer learning. This article surveys various constraints that encourage a learning algorithm to discover factorial representations. I dichotomize the constraints in terms of unsupervised and supervised inductive bias. Unsupervised inductive biases exploit assumptions about the environment, such as the statistical distribution of factor coefficients, assumptions about the perturbations a factor should be invariant to (e.g. a representation of an object can be invariant to rotation, translation or scaling), and assumptions about how factors are combined to synthesize an observation. Supervised inductive biases are constraints on the representations based on additional information connected to observations. Supervisory labels come in variety of types, which vary in how strongly they constrain the representation, how many factors are labeled, how many observations are labeled, and whether or not we know the associations between the constraints and the factors they are related to. This survey brings together a wide variety of models that all touch on the problem of learning factorial representations and lays out a framework for comparing these models based on the strengths of the underlying supervised and unsupervised inductive biases.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\6TK2K2J3\\Ridgeway - 2016 - A Survey of Inductive Biases for Factorial Represe.pdf;C\:\\Users\\Fab\\Zotero\\storage\\LLZT95BB\\1612.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\6TK2K2J3\\Ridgeway - 2016 - A Survey of Inductive Biases for Factorial Represe.pdf;C\:\\Users\\lambr\\Zotero\\storage\\LLZT95BB\\1612.html}
 }
 
 @inproceedings{rumelhartLearningInternalRepresentations1988,
@@ -1582,7 +1633,7 @@
   doi = {10.2307/2171751},
   urldate = {2023-05-01},
   abstract = {This paper introduces random versions of successive approximations and multigrid algorithms for computing approximate solutions to a class of finite and infinite horizon Markovian decision problems (MDPs). We prove that these algorithms succeed in breaking the "curse of dimensionality" for a subclass of MDPs known as discrete decision processes (DDPs).},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\BKDEV87Y\\Rust - 1997 - Using Randomization to Break the Curse of Dimensio.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\BKDEV87Y\\Rust - 1997 - Using Randomization to Break the Curse of Dimensio.pdf}
 }
 
 @inproceedings{santurkarHowDoesBatch2018,
@@ -1594,7 +1645,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-04-25},
   abstract = {Batch Normalization (BatchNorm) is a widely adopted technique that enables faster and more stable training of deep neural networks (DNNs). Despite its pervasiveness, the exact reasons for BatchNorm's effectiveness are still poorly understood. The popular belief is that this effectiveness stems from controlling the change of the layers' input distributions during training to reduce the so-called "internal covariate shift". In this work, we demonstrate that such distributional stability of layer inputs has little to do with the success of BatchNorm. Instead, we uncover a more fundamental impact of BatchNorm on the training process: it makes the optimization landscape significantly smoother. This smoothness induces a more predictive and stable behavior of the gradients, allowing for faster training.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\ITSBCI6D\\Santurkar et al. - 2018 - How Does Batch Normalization Help Optimization.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\ITSBCI6D\\Santurkar et al. - 2018 - How Does Batch Normalization Help Optimization.pdf}
 }
 
 @inproceedings{saunshiTheoreticalAnalysisContrastive2019,
@@ -1609,7 +1660,7 @@
   urldate = {2023-05-01},
   abstract = {Recent empirical works have successfully used unlabeled data to learn feature representations that are broadly useful in downstream classification tasks. Several of these methods are reminiscent of the well-known word2vec embedding algorithm: leveraging availability of pairs of semantically ``similar" data points and ``negative samples," the learner forces the inner product of representations of similar pairs with each other to be higher on average than with negative samples. The current paper uses the term contrastive learning for such algorithms and presents a theoretical framework for analyzing them by introducing latent classes and hypothesizing that semantically similar points are sampled from the same latent class. This framework allows us to show provable guarantees on the performance of the learned representations on the average classification task that is comprised of a subset of the same set of latent classes. Our generalization bound also shows that learned representations can reduce (labeled) sample complexity on downstream tasks. We conduct controlled experiments in both the text and image domains to support the theory.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\29Z9IKJJ\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf;C\:\\Users\\Fab\\Zotero\\storage\\I5GQQZMB\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\29Z9IKJJ\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf;C\:\\Users\\lambr\\Zotero\\storage\\I5GQQZMB\\Saunshi et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf}
 }
 
 @article{scottFEATUREENGINEERINGTEXT,
@@ -1617,7 +1668,7 @@
   author = {Scott, Sam and Matwin, Stan},
   abstract = {Most research in text classification has used the ``bag of words'' representation of text. This paper examines some alternative ways to represent text based on syntactic and semantic relationships between words (phrases, synonyms and hypernyms). We describe the new representations and try to justify our suspicions that they could have improved the performance of a rule-based learner. The representations are evaluated using the RIPPER rule-based learner on the Reuters-21578 and DigiTrad test corpora, but on their own the new representations are not found to produce a significant performance improvement. Finally, we try combining classifiers based on different representations using a majority voting technique. This step does produce some performance improvement on both test collections. In general, our work supports the emerging consensus in the information retrieval community that more sophisticated Natural Language Processing techniques need to be developed before better text representations can be produced. We conclude that for now, research into new learning algorithms and methods for combining existing learners holds the most promise.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\BK3KJFBY\\Scott and Matwin - FEATURE ENGINEERING FOR TEXT CLASSIFICATION.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\BK3KJFBY\\Scott and Matwin - FEATURE ENGINEERING FOR TEXT CLASSIFICATION.pdf}
 }
 
 @misc{shah92LearningGood2020,
@@ -1629,7 +1680,7 @@
   urldate = {2023-04-04},
   abstract = {Newsletter \#92 \textbullet{} Alignment Newsletter is a weekly publication with recent content relevant to AI alignment around the world. Find all Alignment Newsletter resources here. In particular, you can look\ldots},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\MMJNICYH\\an-92-learning-good-representations-with-contrastive.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\MMJNICYH\\an-92-learning-good-representations-with-contrastive.html}
 }
 
 @inproceedings{shenNaturalTTSSynthesis2018,
@@ -1643,7 +1694,25 @@
   doi = {10.1109/ICASSP.2018.8461368},
   abstract = {This paper describes Tacotron 2, a neural network architecture for speech synthesis directly from text. The system is composed of a recurrent sequence-to-sequence feature prediction network that maps character embeddings to mel-scale spectrograms, followed by a modified WaveNet model acting as a vocoder to synthesize time-domain waveforms from those spectrograms. Our model achieves a mean opinion score (MOS) of 4.53 comparable to a MOS of 4.58 for professionally recorded speech. To validate our design choices, we present ablation studies of key components of our system and evaluate the impact of using mel spectrograms as the conditioning input to WaveNet instead of linguistic, duration, and F0 features. We further show that using this compact acoustic intermediate representation allows for a significant reduction in the size of the WaveNet architecture.},
   keywords = {Acoustics,Decoding,Linguistics,Spectrogram,Tacotron 2,text-to-speech,Time-domain analysis,Training,Vocoders,WaveNet},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\AH8UM2PM\\Shen et al. - 2018 - Natural TTS Synthesis by Conditioning Wavenet on M.pdf;C\:\\Users\\Fab\\Zotero\\storage\\SSNFK352\\8461368.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\AH8UM2PM\\Shen et al. - 2018 - Natural TTS Synthesis by Conditioning Wavenet on M.pdf;C\:\\Users\\lambr\\Zotero\\storage\\SSNFK352\\8461368.html}
+}
+
+@misc{simonyanDeepConvolutionalNetworks2014,
+  title = {Deep {{Inside Convolutional Networks}}: {{Visualising Image Classification Models}} and {{Saliency Maps}}},
+  shorttitle = {Deep {{Inside Convolutional Networks}}},
+  author = {Simonyan, Karen and Vedaldi, Andrea and Zisserman, Andrew},
+  year = {2014},
+  month = apr,
+  number = {arXiv:1312.6034},
+  eprint = {1312.6034},
+  primaryclass = {cs},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1312.6034},
+  urldate = {2023-06-05},
+  abstract = {This paper addresses the visualisation of image classification models, learnt using deep Convolutional Networks (ConvNets). We consider two visualisation techniques, based on computing the gradient of the class score with respect to the input image. The first one generates an image, which maximises the class score [Erhan et al., 2009], thus visualising the notion of the class, captured by a ConvNet. The second technique computes a class saliency map, specific to a given image and class. We show that such maps can be employed for weakly supervised object segmentation using classification ConvNets. Finally, we establish the connection between the gradient-based ConvNet visualisation methods and deconvolutional networks [Zeiler et al., 2013].},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\WLGVDM38\\Simonyan e.a. - 2014 - Deep Inside Convolutional Networks Visualising Im.pdf;C\:\\Users\\lambr\\Zotero\\storage\\Y73L9B8J\\1312.html}
 }
 
 @inproceedings{sivasankaranExplainingDeepLearning2021,
@@ -1661,7 +1730,7 @@
   langid = {english},
   keywords = {Deep learning,explainable AI,feature attribution,recognition,separation,speech enhancement},
   annotation = {WOS:000841879500140},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\AHRHL8CM\\Sivasankaran et al. - 2021 - Explaining deep learning models for speech enhance.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\AHRHL8CM\\Sivasankaran et al. - 2021 - Explaining deep learning models for speech enhance.pdf}
 }
 
 @inproceedings{stackeEvaluationContrastivePredictive2020,
@@ -1676,27 +1745,10 @@
   urldate = {2023-04-06},
   abstract = {Recent advances in self-supervised learning for image data are closing the gap between unsupervised and supervised learning. However, the effectiveness of self-supervised methods has primarily been demonstrated for natural images. If the results would extrapolate to histopathology images, there could be significant benefits due to the reduced need for annotated data. In this paper, Contrastive Predictive Coding (CPC), one of the most promising stateof-the-art self-supervised methods, is extensively evaluated on histology data by varying a range of different parameters, including training objective, resolution, and data setup. From the results, we are able to draw important conclusions on the usefulness of CPC for digital pathology. We show strong evidence of the limitations of the learned representation for tumor classification, where only low-level information learned early during training, in the first CPC layers, is used. Furthermore, in our experiments, diversifying the distribution of the dataset (i.e., data from multiple organs or medical centers) does not lead to the model learning a more general representation. This study deepens the understanding of how the CPC model's objective relates to intrinsic characteristics of histology datasets and will help the development of effective self-supervised methods for histopathology.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\Y7A6ZGSE\\Stacke et al. - 2020 - Evaluation of Contrastive Predictive Coding for Hi.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\Y7A6ZGSE\\Stacke et al. - 2020 - Evaluation of Contrastive Predictive Coding for Hi.pdf}
 }
 
 @misc{steinmetzAutomaticMultitrackMixing2020,
-  title = {Automatic Multitrack Mixing with a Differentiable Mixing Console of Neural Audio Effects},
-  author = {Steinmetz, Christian J. and Pons, Jordi and Pascual, Santiago and Serr{\`a}, Joan},
-  year = {2020},
-  month = oct,
-  number = {arXiv:2010.10291},
-  eprint = {2010.10291},
-  primaryclass = {cs, eess},
-  publisher = {{arXiv}},
-  urldate = {2023-04-21},
-  abstract = {We present auraloss1, a PyTorch package that implements time and frequency domain loss functions designed for audio generation tasks. The package provides a straightforward interface, as well as multichannel support. We demonstrate its application by using each loss function to train a model on the task of emulating an analog dynamic range compressor.},
-  archiveprefix = {arxiv},
-  langid = {english},
-  keywords = {Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NR57CR4V\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
-}
-
-@misc{steinmetzAutomaticMultitrackMixing2020a,
   title = {Automatic Multitrack Mixing with a Differentiable Mixing Console of Neural Audio Effects},
   author = {Steinmetz, Christian J. and Pons, Jordi and Pascual, Santiago and Serr{\`a}, Joan},
   year = {2020},
@@ -1710,7 +1762,24 @@
   archiveprefix = {arxiv},
   langid = {english},
   keywords = {Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\2SUTWJAN\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\2SUTWJAN\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
+}
+
+@misc{steinmetzAutomaticMultitrackMixing2020a,
+  title = {Automatic Multitrack Mixing with a Differentiable Mixing Console of Neural Audio Effects},
+  author = {Steinmetz, Christian J. and Pons, Jordi and Pascual, Santiago and Serr{\`a}, Joan},
+  year = {2020},
+  month = oct,
+  number = {arXiv:2010.10291},
+  eprint = {2010.10291},
+  primaryclass = {cs, eess},
+  publisher = {{arXiv}},
+  urldate = {2023-04-21},
+  abstract = {We present auraloss1, a PyTorch package that implements time and frequency domain loss functions designed for audio generation tasks. The package provides a straightforward interface, as well as multichannel support. We demonstrate its application by using each loss function to train a model on the task of emulating an analog dynamic range compressor.},
+  archiveprefix = {arxiv},
+  langid = {english},
+  keywords = {Computer Science - Sound,Electrical Engineering and Systems Science - Audio and Speech Processing},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NR57CR4V\\Steinmetz et al. - 2020 - Automatic multitrack mixing with a differentiable .pdf}
 }
 
 @book{stuartrussellArtificialIntelligenceModern2022,
@@ -1719,7 +1788,7 @@
   year = {2022},
   edition = {Fourth},
   urldate = {2023-05-01},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\J3CUQAVY\\aima.cs.berkeley.edu.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\J3CUQAVY\\aima.cs.berkeley.edu.html}
 }
 
 @misc{teachwonderfulLetExploreInternational2021,
@@ -1745,7 +1814,7 @@
   abstract = {In machine learning, the model is not as complicated as possible. Good generalization ability means that the model not only performs well on the training data set, but also can make good prediction on new data. Regularization imposes a penalty on model's complexity or smoothness, allowing for good generalization to unseen data even when training on a finite training set or with an inadequate iteration. Deep learning has developed rapidly in recent years. Then the regularization has a broader definition: regularization is a technology aimed at improving the generalization ability of a model. This paper gave a comprehensive study and a state-of-the-art review of the regularization strategies in machine learning. Then the characteristics and comparisons of regularizations were presented. In addition, it discussed how to choose a regularization for the specific task. For specific tasks, it is necessary for regularization technology to have good mathematical characteristics. Meanwhile, new regularization techniques can be constructed by extending and combining existing regularization techniques. Finally, it concluded current opportunities and challenges of regularization technologies, as well as many open concerns and research trends.},
   langid = {english},
   keywords = {Generalization,Machine learning,Overfitting,Regularization},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\CY6F8AZC\\Tian and Zhang - 2022 - A comprehensive survey on regularization strategie.pdf;C\:\\Users\\Fab\\Zotero\\storage\\3D65IX4X\\S156625352100230X.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\CY6F8AZC\\Tian and Zhang - 2022 - A comprehensive survey on regularization strategie.pdf;C\:\\Users\\lambr\\Zotero\\storage\\3D65IX4X\\S156625352100230X.html}
 }
 
 @article{tomczakLearningInformativeFeatures2016,
@@ -1763,7 +1832,7 @@
   abstract = {In recent years deep learning paradigm achieved important empirical success in a number of practical applications such as object recognition, speech recognition and natural language processing. A lot of effort has been put on understanding theoretical aspects of this success, however, still there is no common view on how deep architectures should be trained and thus many open questions remain. One hypothesis focuses on formulating good criterion (prior) that may help to learn a set of features capable of disentangling hidden factors. Following this line of thinking, in this paper, we propose to add a penalty (regularization) term to the log-likelihood function that enforces hidden units to maximize entropy and to be pairwise uncorrelated, for given observables. We hypothesize that the proposed framework for learning informative features results in more discriminative data representation that maintains its generative capabilities. In order to verify our hypothesis we apply the regularization term to the Restricted Boltzmann Machine (RBM) and carry out empirical study on three classification problems: character recognition, object recognition, and document classification. The experiments confirm that the proposed approach indeed increases discriminative and generative performance in comparison to RBM trained without any regularization and with the weight-decay, the sparse regularization, the max-norm regularization, Dropout and Dropconnect.},
   langid = {english},
   keywords = {Entropy-based regularization,Orthonormality regularization,Restricted Boltzmann machine,Unsupervised learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\HINGD9JE\\Tomczak - 2016 - Learning Informative Features from Restricted Bolt.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\HINGD9JE\\Tomczak - 2016 - Learning Informative Features from Restricted Bolt.pdf}
 }
 
 @inproceedings{tomczakVAEVampPrior2018,
@@ -1778,7 +1847,7 @@
   urldate = {2023-05-22},
   abstract = {Many different methods to train deep generative models have been introduced in the past. In this paper, we propose to extend the variational auto-encoder (VAE) framework with a new type of prior which we call "Variational Mixture of Posteriors" prior, or VampPrior for short. The VampPrior consists of a mixture distribution (e.g., a mixture of Gaussians) with components given by variational posteriors conditioned on learnable pseudo-inputs. We further extend this prior to a two layer hierarchical model and show that this architecture with a coupled prior and posterior, learns significantly better models. The model also avoids the usual local optima issues related to useless latent dimensions that plague VAEs. We provide empirical studies on six datasets, namely, static and binary MNIST, OMNIGLOT, Caltech 101 Silhouettes, Frey Faces and Histopathology patches, and show that applying the hierarchical VampPrior delivers state-of-the-art results on all datasets in the unsupervised permutation invariant setting and the best results or comparable to SOTA methods for the approach with convolutional networks.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\2579CNM5\\Tomczak and Welling - 2018 - VAE with a VampPrior.pdf;C\:\\Users\\Fab\\Zotero\\storage\\3UJFAZY3\\Tomczak and Welling - 2018 - VAE with a VampPrior.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\2579CNM5\\Tomczak and Welling - 2018 - VAE with a VampPrior.pdf;C\:\\Users\\lambr\\Zotero\\storage\\3UJFAZY3\\Tomczak and Welling - 2018 - VAE with a VampPrior.pdf}
 }
 
 @misc{tschannenRecentAdvancesAutoencoderBased2018,
@@ -1795,7 +1864,7 @@
   abstract = {Learning useful representations with little or no supervision is a key challenge in artificial intelligence. We provide an in-depth review of recent advances in representation learning with a focus on autoencoder-based models. To organize these results we make use of meta-priors believed useful for downstream tasks, such as disentanglement and hierarchical organization of features. In particular, we uncover three main mechanisms to enforce such properties, namely (i) regularizing the (approximate or aggregate) posterior distribution, (ii) factorizing the encoding and decoding distribution, or (iii) introducing a structured prior distribution. While there are some promising results, implicit or explicit supervision remains a key enabler and all current methods use strong inductive biases and modeling assumptions. Finally, we provide an analysis of autoencoder-based representation learning through the lens of rate-distortion theory and identify a clear tradeoff between the amount of prior knowledge available about the downstream tasks, and how useful the representation is for this task.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\DDUVT5AT\\Tschannen et al. - 2018 - Recent Advances in Autoencoder-Based Representatio.pdf;C\:\\Users\\Fab\\Zotero\\storage\\V2YIM77C\\1812.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\DDUVT5AT\\Tschannen et al. - 2018 - Recent Advances in Autoencoder-Based Representatio.pdf;C\:\\Users\\lambr\\Zotero\\storage\\V2YIM77C\\1812.html}
 }
 
 @inproceedings{vahdatNVAEDeepHierarchical2020,
@@ -1809,7 +1878,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-05-22},
   abstract = {Normalizing flows, autoregressive models, variational autoencoders (VAEs), and deep energy-based models are among competing likelihood-based frameworks for deep generative learning. Among them, VAEs have the advantage of fast and tractable sampling and easy-to-access encoding networks. However, they are currently outperformed by other models such as normalizing flows and autoregressive models. While the majority of the research in VAEs is focused on the statistical challenges, we explore the orthogonal direction of carefully designing neural architectures for hierarchical VAEs. We propose Nouveau VAE (NVAE), a deep hierarchical VAE built for image generation using depth-wise separable convolutions and batch normalization. NVAE is equipped with a residual parameterization of Normal distributions and its training is stabilized by spectral regularization. We show that NVAE achieves state-of-the-art results among non-autoregressive likelihood-based models on the MNIST, CIFAR-10, CelebA 64, and CelebA HQ datasets and it provides a strong baseline on FFHQ. For example, on CIFAR-10, NVAE pushes the state-of-the-art from 2.98 to 2.91 bits per dimension, and it produces high-quality images on CelebA HQ. To the best of our knowledge, NVAE is the first successful VAE applied to natural images as large as 256x256 pixels. The source code is publicly available.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\2Z8KDF5D\\Vahdat and Kautz - 2020 - NVAE A Deep Hierarchical Variational Autoencoder.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\2Z8KDF5D\\Vahdat and Kautz - 2020 - NVAE A Deep Hierarchical Variational Autoencoder.pdf}
 }
 
 @article{valiDeepLearningLand2020,
@@ -1830,7 +1899,7 @@
   copyright = {http://creativecommons.org/licenses/by/3.0/},
   langid = {english},
   keywords = {convolutional neural networks,data fusion,deep Learning,end-to-end learning,feature engineering,ground-truth scarcity,hyperspectral data,LULC classification,machine learning,multispectral data,remote sensing data},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\VJBFKY87\\Vali et al. - 2020 - Deep Learning for Land Use and Land Cover Classifi.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\VJBFKY87\\Vali et al. - 2020 - Deep Learning for Land Use and Land Cover Classifi.pdf}
 }
 
 @inproceedings{verleysenCurseDimensionalityData2005,
@@ -1848,7 +1917,7 @@
   isbn = {978-3-540-32106-4},
   langid = {english},
   keywords = {Data Analysis Tool,Gaussian Kernel,Norm Phenomenon,Stock Market Index,Time Series Prediction},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\5WN5758I\\Verleysen and François - 2005 - The Curse of Dimensionality in Data Mining and Tim.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\5WN5758I\\Verleysen and François - 2005 - The Curse of Dimensionality in Data Mining and Tim.pdf}
 }
 
 @misc{volodymyrkuleshovVariationalAutoencoder2023,
@@ -1858,7 +1927,7 @@
   journal = {The variational auto-encoder},
   urldate = {2023-05-04},
   howpublished = {https://ermongroup.github.io/cs228-notes/extras/vae/},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\JRDFV2QY\\vae.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\JRDFV2QY\\vae.html}
 }
 
 @misc{wangContrastVAEContrastiveVariational2022,
@@ -1875,7 +1944,7 @@
   abstract = {Aiming at exploiting the rich information in user behaviour sequences, sequential recommendation has been widely adopted in real-world recommender systems. However, current methods suffer from the following issues: 1) sparsity of user-item interactions, 2) uncertainty of sequential records, 3) long-tail items. In this paper, we propose to incorporate contrastive learning into the framework of Variational AutoEncoders to address these challenges simultaneously. Firstly, we introduce ContrastELBO, a novel training objective that extends the conventional single-view ELBO to two-view case and theoretically builds a connection between VAE and contrastive learning from a two-view perspective. Then we propose Contrastive Variational AutoEncoder (ContrastVAE in short), a two-branched VAE model with contrastive regularization as an embodiment of ContrastELBO for sequential recommendation. We further introduce two simple yet effective augmentation strategies named model augmentation and variational augmentation to create a second view of a sequence and thus making contrastive learning possible. Experiments on four benchmark datasets demonstrate the effectiveness of ContrastVAE and the proposed augmentation methods. Codes are available at https://github.com/YuWang-1024/ContrastVAE},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Information Retrieval,Computer Science - Machine Learning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\U6ZB8GPZ\\Wang et al. - 2022 - ContrastVAE Contrastive Variational AutoEncoder f.pdf;C\:\\Users\\Fab\\Zotero\\storage\\YDPKPFPL\\2209.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\U6ZB8GPZ\\Wang et al. - 2022 - ContrastVAE Contrastive Variational AutoEncoder f.pdf;C\:\\Users\\lambr\\Zotero\\storage\\YDPKPFPL\\2209.html}
 }
 
 @inproceedings{weigendGeneralizationWeightEliminationApplication1990,
@@ -1887,7 +1956,7 @@
   publisher = {{Morgan-Kaufmann}},
   urldate = {2023-05-27},
   abstract = {Inspired by the information theoretic idea of minimum description length, we add  a term  to the back propagation cost function that penalizes network complexity.  We  give  the  details  of the  procedure,  called  weight-elimination,  describe  its  dynamics, and clarify the meaning of the parameters involved. From a Bayesian  perspective,  the complexity term  can  be usefully interpreted as  an  assumption  about prior distribution of the weights.  We  use  this  procedure  to  predict  the  sunspot time series and the notoriously noisy series of currency exchange rates.},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\3TPRN39K\\Weigend et al. - 1990 - Generalization by Weight-Elimination with Applicat.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\3TPRN39K\\Weigend et al. - 1990 - Generalization by Weight-Elimination with Applicat.pdf}
 }
 
 @article{weiIntegrationDomainKnowledgeGuided2021,
@@ -1904,7 +1973,7 @@
   urldate = {2023-05-01},
   abstract = {As a machine-learning-driven decision-making problem, the surface electromyography (sEMG)-based hand movement recognition is one of the key issues in robust control of noninvasive neural interfaces such as myoelectric prosthesis and rehabilitation robot. Despite the recent success in sEMG-based hand movement recognition using end-to-end deep feature learning technologies based on deep learning models, the performance of today's sEMG-based hand movement recognition system is still limited by the noisy, random, and nonstationary nature of sEMG signals and researchers have come up with a number of methods that improve sEMG-based hand movement via feature engineering. Aiming at achieving higher sEMG-based hand movement recognition accuracies while enabling a trade-off between performance and computational complexity, this study proposed a progressive fusion network (PFNet) framework, which improves sEMG-based hand movement recognition via integration of domain knowledge-guided feature engineering and deep feature learning. In particular, it learns high-level feature representations from raw sEMG signals and engineered time-frequency domain features via a feature learning network and a domain knowledge network, respectively, and then employs a 3-stage progressive fusion strategy to progressively fuse the two networks together and obtain the final decisions. Extensive experiments were conducted on five sEMG datasets to evaluate our proposed PFNet, and the experimental results showed that the proposed PFNet could achieve the average hand movement recognition accuracies of 87.8\%, 85.4\%, 68.3\%, 71.7\%, and 90.3\% on the five datasets, respectively, which outperformed those achieved by the state of the arts.},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\IPFZQPXH\\Wei et al. - 2021 - Towards Integration of Domain Knowledge-Guided Fea.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\IPFZQPXH\\Wei et al. - 2021 - Towards Integration of Domain Knowledge-Guided Fea.pdf}
 }
 
 @article{weiRecentAdvancesVariational2021,
@@ -1919,7 +1988,7 @@
   doi = {10.1109/ACCESS.2020.3048309},
   abstract = {Variational autoencoders (VAEs) are deep latent space generative models that have been immensely successful in multiple exciting applications in biomedical informatics such as molecular design, protein design, medical image classification and segmentation, integrated multi-omics data analyses, and large-scale biological sequence analyses, among others. The fundamental idea in VAEs is to learn the distribution of data in such a way that new meaningful data with more intra-class variations can be generated from the encoded distribution. The ability of VAEs to synthesize new data with more representation variance at state-of-art levels provides hope that the chronic scarcity of labeled data in the biomedical field can be resolved. Furthermore, VAEs have made nonlinear latent variable models tractable for modeling complex distributions. This has allowed for efficient extraction of relevant biomedical information from learned features for biological data sets, referred to as unsupervised feature representation learning. In this article, we review the various recent advancements in the development and application of VAEs for biomedical informatics. We discuss challenges and future opportunities for biomedical research with respect to VAEs.},
   keywords = {Bioinformatics,Biological system modeling,biomedical informatics,Data models,data representation,Decoding,Deep learning,generative models,latent space,Mathematical model,representation learning,Training,unsupervised learning,variational autoencoders (VAEs)},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\K3ZNRVJA\\Wei and Mahmood - 2021 - Recent Advances in Variational Autoencoders With R.pdf;C\:\\Users\\Fab\\Zotero\\storage\\6DB7RA94\\9311619.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\K3ZNRVJA\\Wei and Mahmood - 2021 - Recent Advances in Variational Autoencoders With R.pdf;C\:\\Users\\lambr\\Zotero\\storage\\6DB7RA94\\9311619.html}
 }
 
 @inproceedings{wuGreedyHierarchicalVariational2021,
@@ -1930,7 +1999,7 @@
   pages = {2318--2328},
   urldate = {2023-05-22},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\8D3RCCDF\\Wu et al. - 2021 - Greedy Hierarchical Variational Autoencoders for L.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\8D3RCCDF\\Wu et al. - 2021 - Greedy Hierarchical Variational Autoencoders for L.pdf}
 }
 
 @article{wuImprovingInterpretabilityRegularization2018,
@@ -1946,7 +2015,7 @@
   doi = {10.1109/TASLP.2017.2774919},
   abstract = {Deep learning approaches yield state-of-the-art performance in a range of tasks, including automatic speech recognition. However, the highly distributed representation in a deep neural network (DNN) or other network variations is difficult to analyze, making further parameter interpretation and regularization challenging. This paper presents a regularization scheme acting on the activation function output to improve the network interpretability and regularization. The proposed approach, referred to as activation regularization, encourages activation function outputs to satisfy a target pattern. By defining appropriate target patterns, different learning concepts can be imposed on the network. This method can aid network interpretability and also has the potential to reduce overfitting. The scheme is evaluated on several continuous speech recognition tasks: the Wall Street Journal continuous speech recognition task, eight conversational telephone speech tasks from the IARPA Babel program and a U.S. English broadcast news task. On all the tasks, the activation regularization achieved consistent performance gains over the standard DNN baselines.},
   keywords = {Activation regularisation,deep learning,interpretability,neural network,Neural networks,Speech,Speech processing,Speech recognition,Training,Transforms,visualisation},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\9UMJCC7U\\Wu et al. - 2018 - Improving Interpretability and Regularization in D.pdf;C\:\\Users\\Fab\\Zotero\\storage\\T473AUHH\\8114209.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\9UMJCC7U\\Wu et al. - 2018 - Improving Interpretability and Regularization in D.pdf;C\:\\Users\\lambr\\Zotero\\storage\\T473AUHH\\8114209.html}
 }
 
 @inproceedings{yeInfoVAEGANLearningJoint2021,
@@ -1961,10 +2030,10 @@
   doi = {10.1109/ICIP42928.2021.9506169},
   abstract = {Learning disentangled and interpretable representations is an important step towards accomplishing comprehensive data representations on the manifold. In this paper, we propose a novel representation learning algorithm which combines the inference abilities of Variational Autoencoders (VAE) with the generalization capability of Generative Adversarial Networks (GAN). The proposed model, called InfoVAEGAN, consists of three networks: Encoder, Generator and Discriminator. InfoVAEGAN aims to jointly learn discrete and continuous interpretable representations in an unsupervised manner by using two different data-free log-likelihood functions onto the variables sampled from the generator's distribution. We propose a two-stage algorithm for optimizing the inference network separately from the generator training. Moreover, we enforce the learning of interpretable representations through the maximization of the mutual information between the existing latent variables and those created through generative and inference processes.},
   keywords = {Disentangled representations,Generative adversarial networks,Generators,Hybrid VAE-GAN generative models,Inference algorithms,Inference mechanisms,Manifolds,Mutual information,Tools,Training},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\KAIZD6X6\\Ye and Bors - 2021 - InfoVAEGAN Learning Joint Interpretable Represent.pdf;C\:\\Users\\Fab\\Zotero\\storage\\PNITGTEZ\\9506169.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\KAIZD6X6\\Ye and Bors - 2021 - InfoVAEGAN Learning Joint Interpretable Represent.pdf;C\:\\Users\\lambr\\Zotero\\storage\\PNITGTEZ\\9506169.html}
 }
 
-@article{yuanBridgeGANInterpretableRepresentation2020,
+@article{yuanBridgeGANInterpretableRepresentation2020a,
   title = {Bridge-{{GAN}}: {{Interpretable Representation Learning}} for {{Text-to-Image Synthesis}}},
   shorttitle = {Bridge-{{GAN}}},
   author = {Yuan, Mingkuan and Peng, Yuxin},
@@ -1978,7 +2047,7 @@
   doi = {10.1109/TCSVT.2019.2953753},
   abstract = {Text-to-image synthesis is to generate images with the consistent content as the given text description, which is a highly challenging task with two main issues: visual reality and content consistency. Recently, it is available to generate images with high visual reality due to the significant progress of generative adversarial networks. However, translating text description to image with high content consistency is still ambitious. For addressing the above issues, it is reasonable to establish a transitional space with interpretable representation as a bridge to associate text and image. So we propose a text-to-image synthesis approach named Bridge-like Generative Adversarial Networks (Bridge-GAN). Its main contributions are: (1) A transitional space is established as a bridge for improving content consistency, where the interpretable representation can be learned by guaranteeing the key visual information from given text descriptions. (2) A ternary mutual information objective is designed for optimizing the transitional space and enhancing both the visual reality and content consistency. It is proposed under the goal to disentangle the latent factors conditioned on text description for further interpretable representation learning. Comprehensive experiments on two widely-used datasets verify the effectiveness of our Bridge-GAN with the best performance.},
   keywords = {Bridge circuits,Bridge-GAN,Image synthesis,interpretable representation learning,Mutual information,Semantics,Task analysis,Text-to-image synthesis,Training,Visualization},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\GAGWYLD9\\Yuan and Peng - 2020 - Bridge-GAN Interpretable Representation Learning .pdf;C\:\\Users\\Fab\\Zotero\\storage\\CP52ACI5\\8902154.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\GAGWYLD9\\Yuan and Peng - 2020 - Bridge-GAN Interpretable Representation Learning .pdf;C\:\\Users\\lambr\\Zotero\\storage\\CP52ACI5\\8902154.html}
 }
 
 @incollection{zhangArtificialNeuralNetwork2018,
@@ -1995,7 +2064,7 @@
   abstract = {Multivariate time series analysis in climate and environmental research always requires to process huge amount of data. Inspired by human nervous system, the artificial neural network methodology is a powerful tool to handle this kind of difficult and challenge problems and has been widely used to investigate mechanism of climate change and predict the climate change trend. The main advantage is that artificial neural networks make full use of some unknown information hidden in climate data although they cannot extract it. In this chapter, we will introduce various neural networks, including linear networks, radial basis function networks, generalized regression networks, Kohonen self-organizing networks, learning vector quantization networks, and Hopfield networks.},
   isbn = {978-3-319-67340-0},
   langid = {english},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\T876TTZJ\\Zhang - 2018 - Artificial Neural Network.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\T876TTZJ\\Zhang - 2018 - Artificial Neural Network.pdf}
 }
 
 @article{zhangOmiEmbedUnifiedMultiTask2021,
@@ -2016,7 +2085,7 @@
   copyright = {http://creativecommons.org/licenses/by/3.0/},
   langid = {english},
   keywords = {cancer classification,deep learning,multi-omics data,multi-task learning,survival prediction},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\TUZKG7PV\\Zhang et al. - 2021 - OmiEmbed A Unified Multi-Task Deep Learning Frame.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\TUZKG7PV\\Zhang et al. - 2021 - OmiEmbed A Unified Multi-Task Deep Learning Frame.pdf}
 }
 
 @article{zhangSlowFeatureAnalysis2012,
@@ -2032,7 +2101,7 @@
   doi = {10.1109/TPAMI.2011.157},
   abstract = {Slow Feature Analysis (SFA) extracts slowly varying features from a quickly varying input signal [1]. It has been successfully applied to modeling the visual receptive fields of the cortical neurons. Sufficient experimental results in neuroscience suggest that the temporal slowness principle is a general learning principle in visual perception. In this paper, we introduce the SFA framework to the problem of human action recognition by incorporating the discriminative information with SFA learning and considering the spatial relationship of body parts. In particular, we consider four kinds of SFA learning strategies, including the original unsupervised SFA (U-SFA), the supervised SFA (S-SFA), the discriminative SFA (D-SFA), and the spatial discriminative SFA (SD\textendash SFA), to extract slow feature functions from a large amount of training cuboids which are obtained by random sampling in motion boundaries. Afterward, to represent action sequences, the squared first order temporal derivatives are accumulated over all transformed cuboids into one feature vector, which is termed the Accumulated Squared Derivative (ASD) feature. The ASD feature encodes the statistical distribution of slow features in an action sequence. Finally, a linear support vector machine (SVM) is trained to classify actions represented by ASD features. We conduct extensive experiments, including two sets of control experiments, two sets of large scale experiments on the KTH and Weizmann databases, and two sets of experiments on the CASIA and UT-interaction databases, to demonstrate the effectiveness of SFA for human action recognition. Experimental results suggest that the SFA-based approach (1) is able to extract useful motion patterns and improves the recognition performance, (2) requires less intermediate processing steps but achieves comparable or even better performance, and (3) has good potential to recognize complex multiperson activities.},
   keywords = {Feature extraction,Human action recognition,Humans,Neurons,Pattern recognition,slow feature analysis.,Spatiotemporal phenomena,Vectors,Visualization},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\NQBMBLMJ\\Zhang and Tao - 2012 - Slow Feature Analysis for Human Action Recognition.pdf;C\:\\Users\\Fab\\Zotero\\storage\\RCB6IWT4\\6136516.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NQBMBLMJ\\Zhang and Tao - 2012 - Slow Feature Analysis for Human Action Recognition.pdf;C\:\\Users\\lambr\\Zotero\\storage\\RCB6IWT4\\6136516.html}
 }
 
 @book{zhengFeatureEngineeringMachine2018,
@@ -2062,7 +2131,7 @@
   doi = {10.1109/TAFFC.2018.2828819},
   abstract = {Recent evidence in mental health assessment have demonstrated that facial appearance could be highly indicative of depressive disorder. While previous methods based on the facial analysis promise to advance clinical diagnosis of depressive disorder in a more efficient and objective manner, challenges in visual representation of complex depression pattern prevent widespread practice of automated depression diagnosis. In this paper, we present a deep regression network termed DepressNet to learn a depression representation with visual explanation. Specifically, a deep convolutional neural network equipped with a global average pooling layer is first trained with facial depression data, which allows for identifying salient regions of input image in terms of its severity score based on the generated depression activation map (DAM). We then propose a multi-region DepressNet, with which multiple local deep regression models for different face regions are jointly leaned and their responses are fused to improve the overall recognition performance. We evaluate our method on two benchmark datasets, and the results show that our method significantly boosts state-of-the-art performance of the visual-based depression recognition. Most importantly, the DAM induced by our learned deep model may help reveal the visual depression pattern on faces and understand the insights of automated depression diagnosis.},
   keywords = {Computer architecture,deep convolutional neural network,depression activation map,Depression recognition,Face,face recognition,Face recognition,Feature extraction,Image recognition,Videos,Visualization},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\N2B8BAMH\\Zhou et al. - 2020 - Visually Interpretable Representation Learning for.pdf;C\:\\Users\\Fab\\Zotero\\storage\\YD2SGVUC\\8344107.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\N2B8BAMH\\Zhou et al. - 2020 - Visually Interpretable Representation Learning for.pdf;C\:\\Users\\lambr\\Zotero\\storage\\YD2SGVUC\\8344107.html}
 }
 
 @inproceedings{zhuS3VAESelfSupervisedSequential2020,
@@ -2073,7 +2142,7 @@
   year = {2020},
   pages = {6538--6547},
   urldate = {2023-05-27},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\E39Y4XAW\\Zhu et al. - 2020 - S3VAE Self-Supervised Sequential VAE for Represen.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\E39Y4XAW\\Zhu et al. - 2020 - S3VAE Self-Supervised Sequential VAE for Represen.pdf}
 }
 
 @article{zouConvolutionalNeuralNetwork2018,
@@ -2090,5 +2159,5 @@
   abstract = {Convolutional neural networks (CNNs) have been a focus area of machine learning in recent years, and they are widely used in vision and speech processing because of their superior performance. However, CNNs are usually resource-heavy to ensure higher accuracy, i.e., an accurate network with millions of parameters requires high performance computing devices. This prevents the use of CNNs in resource-limited hardware. In this paper, we propose a novel CNN simplification method to prune feature maps with relatively low discriminability magnitudes, which can produce a simplified CNN with reduced computational cost. Specifically, we define the critical points among the discriminability values of feature maps in each convolutional layer, and use these critical points to easily find the best pruning number of feature maps. Our experimental results show that in each convolutional layer of the VGG model, 15.6\% to 59.7\% of feature maps can be pruned without any loss of accuracy in classification tasks.},
   langid = {english},
   keywords = {Convolutional neural network,Critical points,Discriminability,Feature maps pruning},
-  file = {C\:\\Users\\Fab\\Zotero\\storage\\P9ZINAV9\\S0045790617326393.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\P9ZINAV9\\S0045790617326393.html}
 }

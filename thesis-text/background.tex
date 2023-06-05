@@ -1,11 +1,13 @@
 
-\chapter{Background}
+\chapter{Background} \label{cha:2}
 
-% TODO
-\textbf{[TODO] OUTLINE + WHY IMPORTANT TO UNDERSTAND}
+Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance obtained from GIM while leveraging the interpretability obtained from Variational Autoencoders (VAE). In this section, we discuss the necessary background required to understand these concepts, as they will set the basis for our own contribution.
+
+
 
 \section{Entropy, relative entropy and mutual information}
-We first discuss specific definitions from information theory. These concepts will be relevant to understand contrastive predictive coding, which we discuss in a following section. The formal definitions are obtained from the book ``Elements of Information Theory" \citep{coverElementsInformationTheory2006}. The equations that contain a log function are assumed to be under base two.
+We first discuss specific definitions from information theory. These concepts will be relevant to understand CPC and VAEs, which we discuss in a following section. The formal definitions are obtained from the book ``Elements of Information Theory" \citep{coverElementsInformationTheory2006}. The equations that contain a log function are assumed to be under base two.
+
 \subsection{Shannon's Entropy}
 Entropy measures the average amount of information required to describe a random variable \citep{coverElementsInformationTheory2006}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
 \begin{equation}

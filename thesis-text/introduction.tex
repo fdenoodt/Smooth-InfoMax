@@ -5,75 +5,133 @@
 \pagenumbering{arabic}
 
 
-%%
-Black box models have seen incredible strength in recent years, even surpassing humans in multiple domains.
-% potentially reaching general artif ai
-Some recent examples include ChatGPT having a better test score X, AlphaGo beating the world champion Go player in 2016 \citep{fuAlphaGoMonteCarlo2016} etc.
 
-grand master level in star craft
+Black-box models have shown incredible performance in recent years, surpassing humans in various domains. Notable breakthroughs include AlphaGo defeating the world champion Go player in 2016 \citep{fuAlphaGoMonteCarlo2016}, and ChatGPT, which can assist with coding, reason through problems and and generate well-written documents.
 
-alpha fold: protein problem (protein folding?)
+These models are typically trained using deep neural networks in an end-to-end fashion. Despite their impressive success, their lack of interpretability pose a significant challenge. The internal workings of these models are often not well understood, limiting their applicability in high-stakes decision-making scenarios, such as medical diagnosis, law or defence. A simple binary answer does not suffice; we need to ensure these models make decisions for the right reasons \cite{alammarExplainableAIGuide2021}. Additionally, a comprehensive understanding of these models is essential if humans wish to learn from them, for instance by applying strategies similar to those learned by AlphaGo.
 
-4 examples large impact:
- - ai can process data faster than humans. humans cannot read all books
- 
- - time to sequence dna in half
+While models that are interpretable by design do exist (e.g., logistic regression, linear classifiers and decision trees), they are limited by their simplicity and are not always able to model the complex problems in our world. Therefore, for certain problems, more complex and less interpretable models are required.
 
- - complex simulation: gpt3: answer questions, write code, translate (all at same time)
- 	- deepmind's gato: atari games, stacking games, all same ANN
- 	
+To gain better understanding of these less interpretable models, various post-hoc approaches have been explored. These approaches aim to find explanations for models that are not interpretable by design, for instance through techniques such as visual explanations, text explanations and feature relevance explanations \citep{barredoarrietaExplainableArtificialIntelligence2020a}. These approaches can be categorised as ``model-agnostic", which find explanations irrespective of the model type, or ``model-specific", which make assumptions about the underlying workings of the model, for instance by analysing the activations of a neural networks.
 
+Two well-known agnostic model approaches are SHapley Additive exPlanations (SHAP) and Local Interpretable Model-Agnostic Explanations (LIME). These approaches aim to explain individual predictions by assigning a positive or negative contribution score to each input feature with respect to the output prediction \cite{lundbergUnifiedApproachInterpreting2017, molnarInterpretableMachineLearning2022}. High contribution scores indicate features that have a significant impact, enabling humans to analyse which features the model found important.
 
+SHAP achieves this through ... % TODO
 
-These approaches are typically trained using deep neural networks in an end-to-end fashion. Although very successful, their internal workings are usually not well understood due/Unfortunately, these systems still lack in explainability.
+Meanwhile, LIME determines its relevance scores by training an interpretable model that approximates the original model. This is done by creating a dataset consisting of perturbed input samples and their corresponding predicted output  \citep{ribeiroWhyShouldTrust2016}. The interpretable model can for instance be a decision tree \citep{molnarInterpretableMachineLearning2022}.
 
-However, if humans wish to potentially take inspiration from these learned models, for instance by copying similar strategies in Alpha Go, a better understanding of these models is absolutely required.
+While model-agnostic approaches do not make assumptions on the black-box model, model-specific approaches do, and can therefore exploit more information resulting in more efficiently or potentially more accurate explanations.
+
+Saliency maps, also known under the names pixel attribution maps or sensitivity maps, just like SHAP and LIME are used to obtain a correspondence score for each input feature. However,
+
+In particular, for convolutional neural networks, \cite{simonyanDeepConvolutionalNetworks2014} obtain the relevance scores by computing a gradient of predicted class with respect to the input features (or in their case pixels). The result is a number of partial derivative for each pixel indicating how much the score will increase (or decrease) given changes from the image. From this gradient a saliency map or heath map can be constructed highlighting the important areas that led to a decision. 
 
 
-Multiple attempts have been made, (give few results in XAI)
 
-% limitation 1) of XAI
-However, strategies usually offer a visual solution that works well for visual images, but for sequential data becomes harder.
 
-% limitation 2) of XAI
-While understanding ANN's output gives part of the answer, still not quite true explainable, .. how does internal mechanism work?
- 
+Model-specific:
+Saliency maps:
+	- Gradient only: Grad-CAM for convolutional neural networks "If I were to increase the color values of the pixel, the predicted class probability would go up (for positive gradient) or down (for negative gradient). The larger the absolute value of the gradient, the stronger the effect of a change of this pixel." - book
+	- gradient salancy: neural networks
+			its a map and highlights different regions on images
+			saliency: how important pixel was
+		- integraded gradients: look at training gradients as gives importance
+	- attention
 
-In this thesis we introduce V-GIM, an unsupervised approach to learning representations for high dimensional sequential data, based on the mutual information maximisation introduced in Contrastive Predictive Coding.
+% ****MUST STILL BE CORRECTED****:
+	These methods works have led us to be able to observe which features or pixels had the largest contribution to a models decision, and already give us some insights in how these black-box models operate. 
+	
+	% limitation 1) of XAI
+	However, these strategies typically offer a visual solution that works well for images. Generating explanations for sequential data, such as raw speech waves, has been less explored due to the added complexity, as visualisations of a raw speech wave may not be as informative as images.
+	
+	% limitation 2) of XAI
+	Additionally, while finding the important features related to a decision provides us some insights into the black-box model, it still lacks full transparency. These approaches offer limited understanding of the internal mechanisms. In particular, for neural networks we should be able to understand the internal activations and representations they form.
+	
+	%%% Towards representation learning
+		Neural networks learn abstract features internally, which is why a large part of the feature engineering is not necessary in deep learning, compared to traditional techniques such as SVM and Decision Trees % ref book.
+		
+		These learned features are useful on their own and could be applied for other classification tasks as well. For instance, a convolutional neural network tasked to predict tiger or elephant, may learn features such as edges, nose etc that could potentially be used for classifying dogs vs cats as well. 
+		
+		Representation learning is concerned with finding lower dimensional features for high level data, independent on the task, which can be used for a wide range of purposes such as classification, regression or clustering.
+	
+	
+	In addition, these post-hoc explainability approaches are not directly compatible with the representations obtained from representation learning, a field which concerns itself of finding a mapping function between high dimensional data (eg: images or speech audio) to a lower dimension representation \cite{le-khacContrastiveRepresentationLearning2020}. This mapping function is commonly a neural network, and additionally, the representations are obtained used for a simple classifier for instance, but are usually non-interpretable to humans as well. 
+	
+		Explainability becomes an even larger concern in representation learning, which learn lower-dimensional representations for data, that can be used for instance for a classifier. As the output representations obtained from these models are non-interpretable, the above explainability approaches become useless. 
 
-a self-supervised representation learning approach which learns representations for data. Through the introduction of stochasticity in the neural network and splitting up a convential neural network architecture by depth, the outputs and 
+% END OF TOODO
+This thesis focuses on the representations obtained from the mutual information maximisation approach introduced by \cite{oordRepresentationLearningContrastive2019} in Contrastive Predictive Coding (CPC). CPC has demonstrated remarkable success in a wide range of domains, and is currently considered the state-of-the-art method for representation learning from sequential data without labels \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. However, the underlying representations obtained from optimising the InfoNCE objective in CPC have not been thoroughly studied.
 
-In particular, in representation learning 
+To address these challenges, we introduce Variational Greedy InfoMax (V-GIM), a representation learning framework that learns interpretable representations by enforcing constraints on the latent space. V-GIM splits the architecture into modules, each trained greedily using a novel loss function that promotes interpretable representations. This allows for analysis of activations at different depths in the architecture, enhancing interpretability for both the final representations and internal activations. In this thesis, we examine V-GIM's performance and analyse the interpretability of its learned representations, with a focus on raw speech waves.
 
-----
-Our contributions our the following:
+
+
+Our contributions are the following:
 \begin{itemize}
-	\item V-GIM enables better understanding of the learned representations, allowing to observe the learned data in each dimension, for both the final representations as internal activations. Thus providing better interpretability compared to other interpretable techniques such as InfoGAN, ...
-	\item V-GIM offers computational benefits such as internal batch normalisation, outperforming its non-variational counterpart GIM. V-GIM's stochastic approach results in a more variability, potentially serving as data augmentation tool for downstream tasks with little labelled data.
-	\item We provide insights in V-GIM's learned representations, making suggestions on which data in incorporated in which dimensions and which information may no longer be in the representations.
+	\item V-GIM enables better understanding of the learned representations, enabling observation of the information in each dimension, both in the final representations and internal activations. % This provides better interpretability compared to other interpretable techniques such as InfoGAN, ...
+	\item V-GIM offers computational benefits, including internal batch normalisation, outperforming its non-variational counterpart GIM in certain cases. V-GIM's stochastic approach results in a more variability, potentially serving as data augmentation tool for downstream tasks with little labelled data.
+	\item We provide insights in V-GIM's learned representations, making suggestions on which data is incorporated in which activations and which information may no longer be present in the representations.
 \end{itemize}
----
-
-interpretability is a concern, to understand neural network. This problem has only become more relevant in recent years, as in representation learning for instance, not only are the internal works of the ANNs unknown, but also its outputs. (eg autoencoder)
-
-To understand neural networks, we must first understand its representations before we can understand how it derives its answers. While multiple representation learning algorithms (infoGAN) aim to find a solution to the first question, these approaches provide little information in the internal workings of the ANN.
-
-We attempt to go a step further,
-In this thesis we introduce V-GIM, by splitting up ANN into modules each obtaining interpretable representations, also providing interpretability inside the network.
-
-----
 
 
-In recent years, CPC has been shown to be a successful self-supervised learning approach in a wide range of domains \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. Löwe et al. contribute to this work by showing that modules can be trained greedily, each with their own instance of the InfoNCE loss, enabling modules to be trained in parallel, or sequentially. Moreover, Wang \citep{meihanwangSpeechRepresentationLearning2019} empirically demonstrates that GIM learns good speech representations for the speech dataset we use in our own experiments \ref{cha:experim_details_vgim}.
+%interpretability is a concern, to understand neural network. This problem has only become more relevant in recent years, as in representation learning for instance, not only are the internal works of the ANNs unknown, but also its outputs. (eg autoencoder)
+%
+%To understand neural networks, we must first understand its representations before we can understand how it derives its answers. While multiple representation learning algorithms (InfoGAN) aim to find a solution to the first question, these approaches provide little information in the internal workings of the ANN.
+%
+%We attempt to go a step further,
+%In this thesis we introduce V-GIM, by splitting up ANN into modules each obtaining interpretable representations, also providing interpretability inside the network.
 
-However, the underlying representations obtained from optimising this InfoNCE objective have not yet been studied in great detail. In this thesis we aim to gain better understanding in these representations by enforcing constraints to the latent space, resulting in a space that is easier to analyse and understand.
+The structure of this thesis is as follows: in chapter \ref{cha:2}, we provide an overview of the necessary background information needed to fully understand our work, which is described in chapter \ref{cha:3}. In chapter \ref{cha:4}, we examine the performance of V-GIM compared to its non-variational counterpart GIM and provide an analysis of the learned representations. Chapter \ref{cha:5} presents a literature review of related work and compares it to V-GIM. Finally, in chapter \ref{cha:6} we conclude this thesis with a discussion on V-GIM's main findings and make suggestions for future work.\footnote{The structure of this thesis is based on Sindy Löwe's master's thesis in Artificial Intelligence from the University of Amsterdam.}. 
 
-\footnote{The structure of this thesis is based on the structure in Sindy Löwe's master's thesis from the University of Amsterdam.}
+
+
+% nice text for background?
+
+%Contrastive Predictive Coding (CPC), a successful self-supervised approach that compresses high 
+%
+%CPC can compress high dimensional data by maximally preserving the mutual information with the past and the future. We will discuss the mathematical foundations of CPC in more detail in the the following section.
+%In recent years, CPC has been shown to be a successful self-supervised learning approach in a wide range of domains \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. \cite{lowePuttingEndEndtoEnd2020a} contribute to this work splitting up a conventional neural network by depth and showing that the resulting modules can be trained greedily, each with their own instance of the InfoNCE loss, enabling modules to be trained in parallel, or sequentially. Moreover, Wang \citep{meihanwangSpeechRepresentationLearning2019} empirically demonstrates that GIM learns good speech representations for the speech dataset we use in our own experiments \ref{cha:experim_details_vgim}. However, the underlying representations obtained from optimising this InfoNCE objective have not yet been studied in great detail. 
+%
+%In this thesis we aim to gain better understanding in these representations by enforcing constraints to the latent space, resulting in a space that is easier to analyse and understand.
+
+
+
+%----- bs:
+%n unsupervised approach to learning representations for high dimensional sequential data, based on the mutual information maximisation introduced in Contrastive Predictive Coding.
+%
+%a self-supervised representation learning approach which learns representations for data. Through the introduction of stochasticity in the neural network and splitting up a conventional neural network architecture by depth, the outputs and 
+
+
+
+
+
+
+
+
+
+
+
+
+%--------------
+%
+%alpha fold: protein problem (protein folding?)
+%
+%4 examples large impact:
+%- ai can process data faster than humans. humans cannot read all books
+%
+%- time to sequence dna in half
+%
+%- complex simulation: gpt3: answer questions, write code, translate (all at same time)
+%- deepmind's gato: atari games, stacking games, all same ANN
+%----------------------
 
 %While, previous interpretable representation learning has focused on learning representations for images, we work with sequential audio data, which is notoriously more complex as visualisation schemes no longe work, and small artificats in the audio may disturb observations.
 
+%----------------------
 
+%which aim to explain a model's decision. Methods range from adding constraints to internal workings, obtaining better interpretability, to developing additional techniques on top of the models to explain their predictions.
 
+%----------------------
 
 
 %What is a literature review?

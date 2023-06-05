@@ -1,6 +1,20 @@
+%(van die YT VID) + book: https://christophm.github.io/interpretable-ml-book/neural-networks.html
+%What about internals (look at neural representations):
+%Our method is more like this approach, both explaining internals
+%- feature visualisation
+%focus on specific neuron, and use it to generate images to activate it.
+%use the behaviour of that model and find image that activates the neuron.
+%-> isolate neurons that detect textures etc.
+%(distill.pub/2017/feature-visualisation, distill/2021/multimodal-neurons)
+%
+%
+%
+%%Additionally, researchers have explored methods to explain black box models.
+%%- Relevance weighting, ... 
 
+%^^ hun prentjes die ze genereren die de maximum activatie generenen, zijn geen echte prentjes, en zou wrs niet even goed interpreteerbaar zijn voor audio data, vermits her oor gevoeliger is voor disturbance en dus minder goed kan verstaan.
 %*******************************************************************************
-\chapter{Relation to existing work}
+\chapter{Relation to existing work} \label{cha:5}
 
 We have studied the representations obtained by maximising the InfoNCE loss function. We achieved this through the addition of a regularisation term to the loss function, resulting in a space that is easier to analyse and understand. In this chapter, we give an overview of the existing literature that is relevant to our research. We begin with a discussion of representation learning techniques related to mutual information maximisation, and slowly digress into interpretable representations. Furthermore, we give an overview of the existing regularisation techniques used for both improved generalisation and better representations. Finally, we give an overview of alternative priors that have been introduced to the VAE framework in the past decade.
 
