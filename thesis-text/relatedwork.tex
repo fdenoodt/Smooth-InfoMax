@@ -53,6 +53,50 @@ We have studied the representations obtained by maximising the InfoNCE loss func
 	Continuing in the exploration of Gaussian mixture models, alternative priors have also been investigated. \cite{guoVariationalAutoencoderOptimizing2020} and \cite{leeMetaGMVAEMixtureGaussian2021} experiment with Gaussian mixture model priors, resulting in improved performance. Additionally, \cite{tomczakVAEVampPrior2018} introduce VampPrior, choosing the prior as a mixture of variational posteriors. This approach improves performance and mitigates issues related to useless dimensions, which is a well-known problem in VAEs and is also observed in V-GIM.
 	
 
+------------------------
+
+Understanding/Explaining Deep Neural Networks for speech:
+- Visualizing Automatic Speech Recognition – Means for a Better Understanding? \citep{markertVisualizingAutomaticSpeech2021} % ze gebruiken salience map op spectrogram. ziet voor welke frequencies gevoel is. maar geeft dus eig maar weinig inzichten. laatstaan als ze dat op de ruwe speech waves doen.
+
+- krugAnalyzingVisualizingDeep2021 : SNAPS for visualising data that is not supposed to be visualised such as audio.
+	"Using spectrograms, it is possible to use saliency map methods because spectrograms allow experts with domain knowledge to visually interpret audio, as well [33–35]" % --> ik kan hun referneces gebruiken
+
+
+------ post hoc explainability techniques (copied from introduction)
+
+To gain better understanding of these less interpretable models, various post-hoc approaches have been explored. These approaches aim to find explanations for models that are not interpretable by design, for instance through techniques such as visual explanations, text explanations and feature relevance explanations \citep{barredoarrietaExplainableArtificialIntelligence2020a}. These approaches can be categorised as ``model-agnostic", which find explanations irrespective of the model type, or ``model-specific", which make assumptions about the underlying workings of the model, for instance by analysing the activations of a neural networks.
+
+Two well-known agnostic model approaches are SHapley Additive exPlanations (SHAP) and Local Interpretable Model-Agnostic Explanations (LIME). These approaches aim to explain individual predictions by assigning a positive or negative contribution score to each input feature with respect to the output prediction \cite{lundbergUnifiedApproachInterpreting2017, molnarInterpretableMachineLearning2022}. High contribution scores indicate features that have a significant impact, enabling humans to analyse which features the model found important.
+
+SHAP achieves this through ... % TODO
+
+Meanwhile, LIME determines its relevance scores by training an interpretable model that approximates the original model. This is done by creating a dataset consisting of perturbed input samples and their corresponding predicted output  \citep{ribeiroWhyShouldTrust2016}. The interpretable model can for instance be a decision tree \citep{molnarInterpretableMachineLearning2022}.
+
+While model-agnostic approaches do not make assumptions on the black-box model, model-specific approaches do, and can therefore exploit more information resulting in more efficiently or potentially more accurate explanations.
+
+Saliency maps, also known under the names pixel attribution maps or sensitivity maps, just like SHAP and LIME are used to obtain a correspondence score for each input feature. However,
+
+In particular, for convolutional neural networks, \cite{simonyanDeepConvolutionalNetworks2014} obtain the relevance scores by computing a gradient of predicted class with respect to the input features (or in their case pixels). The result is a number of partial derivative for each pixel indicating how much the score will increase (or decrease) given changes from the image. From this gradient a saliency map or heath map can be constructed highlighting the important areas that led to a decision. 
+
+
+
+
+Model-specific:
+Saliency maps:
+- Gradient only: Grad-CAM for convolutional neural networks "If I were to increase the color values of the pixel, the predicted class probability would go up (for positive gradient) or down (for negative gradient). The larger the absolute value of the gradient, the stronger the effect of a change of this pixel." - book
+- gradient salancy: neural networks
+its a map and highlights different regions on images
+saliency: how important pixel was
+- integraded gradients: look at training gradients as gives importance
+- attention
+-----------------------------
+
+
+
+
+
+
+
 
 
 
