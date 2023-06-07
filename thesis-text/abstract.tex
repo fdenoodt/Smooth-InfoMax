@@ -1,0 +1,42 @@
+\chapter*{ Abstract}
+
+% mine
+This thesis introduces Variational Greedy InfoMax (V-GIM), a self-supervised representation learning method for sequential data that incorporates an interpretability constraint into the design of the network. V-GIM's architecture is split up into modules, each individually optimised to promote interpretability by imposing constraints on their respective latent spaces. This approach enables the analysis of underlying structures in internal and final representations.
+
+Inspired by Variational Autoencoders (VAEs), V-GIM's representations from each module are samples from Gaussian distributions. These representations are optimised to maximise the mutual information between temporally nearby patches \cite{lowePuttingEndEndtoEnd2020a}. However, V-GIM introduces an additional constraint by optimising the distributions to approximate the standard normal, thereby constraining the latent spaces of each module.
+
+
+By enforcing these latent space constraints, V-GIM ensures that sampling a random point from the standard normal distribution within a specific latent space is likely to correspond to a meaningful data point in the original space, similar to the points in the dataset. This enforcement also promotes smooth transitions in the latent space with respect to the mutual information. Consequently, when interpolating between two latent representations within a given module, the resulting point is more likely to correspond to dataset points in the original space. V-GIM's latent space is utilised to train a decoder, enabling the analysis of the underlying structure of representations at different levels in the architecture while ensuring good generalisation.
+
+Additionally, we motivate that V-GIM's latent space constraint is related to theories from VAEs leading to disentangled representations, which could potentially enable an easier analysis of the model through post-hoc explainability approaches. 
+
+% TODO: insights: speak a bit about interpretability analysis?
+We provide insights into V-GIM's internal representations and demonstrate that V-GIM achieves similar performance to its competitors and outperforms them in the deeper modules due to V-GIM's internal batch normalisation mechanism. Lastly, we examine V-GIM's representation variance as a data augmentation tool for downstream tasks with little labelled data.
+
+
+
+
+% This approach results in interpretable representations at different layers in the network architecture, allowing for easier analysis of the internal workings of the neural network.
+
+%We demonstrate that V-GIM's latent space constraints enables easier analysis of the model through post-hoc explainability approaches. 
+%The latent space constraints ensure that the dataset covers the entire region around in origin in the latent space. As such, interpolating between two latent representations correspond to a meaningful data point in the original space, similar to the dataset. 
+
+
+%Through the latent space constraints, the dataset is more encouraged to take in the entire latent space around the origin, ensuring that 
+%randomly sampling a data point in 
+%A decoder is trained
+
+%This results in a predictable latent space, in which the dataset is likely to take in the entire latent space around the origin. Post-Hoc
+
+
+
+%V-GIM is split up into modules, which are each greedily trained with a novel contrastive loss function, maximising the mutual information while imposing constraints to their latent space. The latent space from each module is optimised to be standard normal, 
+
+
+% *** FOR INTRODUCTION OR ABSTRACT? ***
+% V-GIM's latent space constraints ensure that a decoder trained on this space would generalise well to unseen data and predict new data points similar to the dataset, improving interpretability of reconstructions, allowing for meaningful interpolations between representations.
+
+% vgims latent space constraint ensures that sampling a random point from a standard normal distribution is likely to correspond to a meaningful data point in the original space. As such, decoding the interpolation of two latent representations is more likely to result into a meaningful reconstruction, improving interpretability obtained form the decoder. Enabling us to analyse the underlying structure of internal and final representations.
+
+
+% (and ensure that the data corresponding to high neuron activations correspond to data points that are similar to the dataset)
