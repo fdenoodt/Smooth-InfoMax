@@ -16,7 +16,7 @@
 		
 
 
-\section{Towards decoupled training for probabilistic representations} \label{cha:vgim_decoupled_training_for_probabil_repr}
+\section{Towards Decoupled Training for Probabilistic Representations} \label{cha:vgim_decoupled_training_for_probabil_repr}
 	% Our contribution
 		In what follows next we introduce Variational Greedy InfoMax (V-GIM), maintaining the state-of-the-art performance obtained from optimising InfoNCE, while leveraging the interpretable and disentangled benefits from VAEs. This is achieved by optimising a novel loss function, \textit{Variational-InfoNCE}, a combination of InfoNCE and the regularisation term from VAEs. Additionally, by splitting up the neural network into modules, as introduced in \citep{lowePuttingEndEndtoEnd2020a}, we greedily optimise each module with its own instance of this loss function. As a result, the interpretability benefits from VAEs will also be applicable in-between modules. This is in contrast to VAEs where solely the final output representations are interpretable.		
 				
@@ -77,7 +77,7 @@
 			
 	
 		
-\section{The loss function} \label{cha:vgim_learning_objective}
+\section{The Loss Function} \label{cha:vgim_learning_objective}
 	Instead of training the neural network's modules end-to-end with a global loss function, each module is optimised greedily with its own personal loss function. Through the introduction of the novel \textit{Variational-InfoNCE} loss, mutual information between temporally nearby representations is maximised, while regularising the latent space to be approximate to the standard Gaussian $\standardnormal$. The Variational-InfoNCE loss is defined as follows:
 	
 	\begin{equation} % variational_gim_loss % TODO: die k's is niet echt correct/onvolledig
@@ -113,7 +113,7 @@
 		As such, this term can be directly computed and does not need to be approximated through Monto Carlo. The gradient for the two terms can then be computed using an automatic differentiation tool such as PyTorch \citep{paszkeAutomaticDifferentiationPyTorch2017}.
 			
 	
-	\subsection{Properties of the latent space} \label{cha:contin_space}	
+	\subsection{Properties of the Latent Space} \label{cha:contin_space}	
 	In this section, we present two important conjectures regarding the structure of the latent space defined by each of V-GIM's modules. For each module $\gencm$ (or analogously for $\gar$), an input space $\Z^{m-1}$ is mapped to a latent space $\Z^m$ as follows: 
 	$$g_{enc}^m: \Z^{m-1} \rightarrow \Z^m$$
 	Here, $\Z^0$ equals the feature space $\X$. The two conjectures hold true when $\Lvnce$ is optimal. They will serve as the main argument for why V-GIM's representations are interpretable, discussed in section \ref{cha:vgim_benefits}. Meanwhile, traditional techniques such as CPC and GIM lack these interpretable benefits.
@@ -140,7 +140,7 @@
 
 
 		
-\section{Computational benefits} \label{cha:vgim_benefits}
+\section{Computational Benefits} \label{cha:vgim_benefits}
 	Each module in V-GIM is greedily trained through the variational InfoNCE loss. This approach, as suggested by \cite{lowePuttingEndEndtoEnd2020a}, offers several computational benefits, including decoupled and asynchronous distributed training. Modules can then be trained in parallel on multiple devices, or sequentially on a single device. This is particularly interesting for memory-constrained devices, 
 	as it enables the training of architectures that exceed the available memory capacity. Furthermore, V-GIM mitigates the vanishing gradient problem, a well-known issue in deep architectures, by preventing the flow of gradients between modules \citep{huHandlingVanishingGradient2021}.
 	

@@ -76,7 +76,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	
 
 	\section{Results GIM and V-GIM}	
-	\subsection{Training error} \label{cha:experiments_vgim_train_err}
+	\subsection{Training Error} \label{cha:experiments_vgim_train_err}
 	% 4 Loss functions (2 modules, gim+vgim)
 		
 		
@@ -103,7 +103,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	%\ref{fig:tsne_two_module_kld_0}: can see that the second model harms performance. We believe this can be explained via the learning rate. \ref{fig:tsne_two_module_kld_0033}, there we see that the second module performs better separation, indicating that the intermediate KL convergence constraint (causing the normal Gaussian distributions) also serves as a batch normalisation term, thus resulting in faster convergence.
 		
 	
-	\subsection{Classification performance} \label{cha:exper_classifier}
+	\subsection{Classification Performance} \label{cha:exper_classifier}
 	Table \ref{tab:classifier_accuracies} presents the accuracies of the linear classifier, which aims to predict the syllable corresponding to the latent representation. There are a total of 9 different syllables, such that a random model would obtain an accuracy of 11\%. While the t-SNE plots in figure \ref{fig:four_tsne_plots} have demonstrated that vowels can be distinguished relatively easily, differentiating consonants poses a greater challenge. As a result, both GIM and V-GIM show mediocre test accuracies, ranging between 53\% and 54\% in the first module, and further decreasing in the second module. These accuracy values, coupled with the t-SNE plots, indicate that information regarding the consonants may no longer be adequately captured in GIM and V-GIM's latent representations. Moreover, the performance continues to decline when considering the accuracies obtained from the two second modules.
 	
 	\input{graphs/accuracies}
@@ -121,7 +121,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		\input{distributions}
 
 
-	\section{Generalisation study} \label{cha:generalisation_study}
+	\section{Generalisation Study} \label{cha:generalisation_study}
 		In contrast to GIM, V-GIM's latent representations are samples from a distribution, resulting in a single patch of data having multiple latent representations. In this section, we examine whether a linear classifier with little annotated training data can benefit from this representation variability introduced by V-GIM. We train multiple multi-class classifiers with the same experimental details as discussed in section \ref{cha:experim_details_vgim} but with a modification to the annotated training set. Each classifier is trained on a subset of the dataset, varying between 1 data point per class, all the way up to 128 data points. The batch size is set to the size of the subset. Training details for GIM and V-GIM remain unchanged, including the size of the training set, which does not require any labels.
 		
 		The test accuracies are shown in figure \ref{fig:subsets_experiment}. Overall, we observe no performance benefit from V-GIM's representation variance. Performance in GIM and V-GIM's first modules remains consistent, regardless of the subset size. Meanwhile, differences in the second module are more prominent. However, this is related to the internal batch normalisation mechanism, discussed in section \ref{cha:experiments_vgim_train_err}, resulting in faster convergence of V-GIM's modules.
@@ -151,7 +151,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 	
 
 
-\section{V-GIM's Interpretability analysis} 
+\section{V-GIM's Interpretability Analysis} 
 	In the following sections, we delve deeper into V-GIM's latent representations, aiming to gain an understanding of the captured information and understand underlying structures. This is achieved by employing a decoder on top of each of V-GIM's modules. By altering a representation's component values and observing the effect through the decoder, we can analyse the contained information in each individual dimension. As we argued in section \ref{cha:vgim_benefits}, this is only possible because V-GIM's latent space is optimised to be approximate to the standard normal. The decoder can then generalise to the altered representations as long as the representations are close to the origin.
 	
 	\subsection{Decoders for V-GIM} \label{cha:experiments_interp_analy_decoder}
@@ -174,7 +174,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		%TODO: IF I HAVE TIME, I COULD DISPLAY SOME VISUALS OF PREDICTIONS IT HAS MADE, BUT CURRENTLY, THEY DON'T LOOK VERY GOOD.
 
 			
-	\subsection{V-GIM representation analysis through decoder}
+	\subsection{V-GIM Representation Analysis}
 		Decoding latent representations into their original representation as a speech wave allows us to perceive the remaining information in the representation. It is worth mentioning that the reliability of this analysis is dependent on the performance of the decoder. If it is not able to reconstruct certain features, this does not necessarily mean the information is not contained in the latent representation. 
 		
 		Training and validation loss curves for both decoders are shown in figure \ref{fig:decoder_loss_functions}. Overall, in both decoders, we observed that audio files could be reconstructed and the pronounced syllables were recognisable when listening to them. However, reconstructed sounds were noisier and information about the speaker's identity was unrecognisable, suggesting that this information is either no longer contained in the latent representations, or the decoders are not able to replicate it. Additionally, while vowels were easily identifiable by listening to the audio, we observed that the decoder occasionally generated incorrect consonants. For instance, decoding the latent representation for ``gu" could occasionally result in an incorrectly generated ``bu" or ``du". These observations are in line with the t-SNE plots classification performance we discussed in the previous section, further suggesting that consonant information may no longer be present in the latent representations.
@@ -195,7 +195,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 		
 		\input{graphs/interpolation_graphs}
 	
-	\subsection{Vowel experiment}
+	\subsection{Vowel Experiment}
 		To gain better insight into which dimensions incorporate vowel information, we train a linear classifier to predict whether the vowel corresponding to a syllable's latent representation is an ``a", ``i" or  ``u"\footnote{The phoneme sounds ``a", ``i" and ``u" are represented as ``a", ``i" and ``$\mho$" in the international phonetic alphabet (IPA) \citep{teachwonderfulLetExploreInternational2021}}. Implementation details are the same as the linear classifier in section \ref{cha:experim_details_vgim}, but with only the three classes and without a bias term. The classifier is trained on the latent representations from V-GIM's first module. Additionally, representations are max pooled over the time domain, resulting in a single 32-dimensional feature vector for each syllable. After training, a Softmax function is appended to normalise predictions into probability values. After convergence, the classifier obtained a test accuracy of 85.38\%.
 		
 		Figure \ref{fig:vowelclassifierweights} displays the weights of the linear classifier. The weights are scaled between -1 and 1. Each row corresponds to the weights corresponding to an individual prediction class. Equivalently, when considering a graph representation for the classifier, the weights on the edges corresponding to a particular output node, are the values in a single row. Consequently, values close to 1 or -1 indicate a high (positive or negative) correlation between the target class and the corresponding dimension. 

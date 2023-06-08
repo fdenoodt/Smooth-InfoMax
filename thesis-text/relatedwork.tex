@@ -14,12 +14,12 @@
 
 %^^ hun prentjes die ze genereren die de maximum activatie generenen, zijn geen echte prentjes, en zou wrs niet even goed interpreteerbaar zijn voor audio data, vermits her oor gevoeliger is voor disturbance en dus minder goed kan verstaan.
 %*******************************************************************************
-\chapter{Relation to existing work} \label{cha:5}
+\chapter{Relation to Existing Work} \label{cha:5}
 
 We have studied the representations obtained by maximising the InfoNCE loss function. We achieved this through the addition of a regularisation term to the loss function, resulting in a space that is easier to analyse and understand. In this chapter, we give an overview of the existing literature that is relevant to our research. We begin with a discussion of representation learning techniques related to mutual information maximisation and slowly digress into interpretable representations. Furthermore, we give an overview of the existing regularisation techniques used for both improved generalisation and better representations. Finally, we give an overview of alternative priors that have been introduced to the VAE framework in the past decade.
 
 
-\section{Mutual information and interpretable representation learning}
+\section{Mutual Information and Interpretable Representation Learning}
 	%\cite{lowePuttingEndEndtoEnd2020}
 	%\citep{lowePuttingEndEndtoEnd2020}
 	%\citeyear{lowePuttingEndEndtoEnd2020}
@@ -30,7 +30,7 @@ We have studied the representations obtained by maximising the InfoNCE loss func
 	
 	In addition, InfoGAN's learning approach results in interpretable representations. Manipulating an individual dimension in the latent space results in changes to a specific feature of the generated data while leaving other features unaffected. This approach is similar to how V-GIM achieves interpretability using an optional decoder. However, V-GIM takes this a step further by composing its architecture into one or more modules, each with its own interpretable representations. This enables the understanding of the final representations, but also the internal parts of the neural network, providing increased interpretability.
 	
-	Building upon InfoGAN's concepts, Bridge-GAN introduces an intermediate latent space, or ``bridge" between text and images. This approach enables the synthesis of interpretable and disentangled representations for text-to-image synthesis \citep{yuanBridgeGANInterpretableRepresentation2020}. Meanwhile, InfoVAEGAN's representations are learned by combining the framework of Generative Adversarial Networks with concepts from VAEs, enabling the learning of interpretable data variations \citep{yeInfoVAEGANLearningJoint2021}. Similar to V-GIM, latent representations are samples from a distribution, such that a single data point can have multiple latent representations.
+	Building upon InfoGAN's concepts, Bridge-GAN introduces an intermediate latent space, or ``bridge" between text and images. This approach enables the synthesis of interpretable and disentangled representations for text-to-image synthesis \citep{yuanBridgeGANInterpretableRepresentation2020a}. Meanwhile, InfoVAEGAN's representations are learned by combining the framework of Generative Adversarial Networks with concepts from VAEs, enabling the learning of interpretable data variations \citep{yeInfoVAEGANLearningJoint2021}. Similar to V-GIM, latent representations are samples from a distribution, such that a single data point can have multiple latent representations.
 	
 	Continuing in the line of interpretable representation learning, Timeline uses recurrent neural networks with an attention mechanism to aggregate sequential health data to interpretable representations \citep{baiInterpretableRepresentationLearning2018}. Its interpretability is achieved through analysis of the weights associated with different medical codes. Similarly, \cite{agrawalInterpretableRepresentationLearning2020} apply relevance weighting on raw speech data, allowing for interpretation of the representations during forward propagation. 
 	
@@ -45,7 +45,7 @@ We have studied the representations obtained by maximising the InfoNCE loss func
 	\cite{tianComprehensiveSurveyRegularization2022} discuss sparse vector-based regularisation, which imposes constraints on the activations. This is useful for applications requiring sparse representations, such as data compression. Continuing in the line of activation regularisation, \cite{tomczakLearningInformativeFeatures2016} introduces a regularisation term that encourages activations to maximise entropy, resulting in uncorrelated and disentangled representations. Meanwhile, \cite{wuImprovingInterpretabilityRegularization2018} introduce a regularisation term putting constraints on the output activations to improve the interpretability of representations.
 
 
-\section{Alternative priors and posteriors in VAEs} \label{cha:rel_alt_priors}
+\section{Alternative Priors and Posteriors in VAEs} \label{cha:rel_alt_priors}
 	Taking inspiration from VAEs, V-GIM minimises the KL-divergence with its posterior distribution and a fixed prior $\prior=\standardnormal$. This results in a latent space that can be better understood. In recent years, several contributions have been made to VAEs concerning different priors or posteriors.
 	
 	In VAEs, the posterior $\qphizx$ serves as an approximation to the true posterior $\pphizx$ \citep{odaiboTutorialDerivingStandard2019}. This approximate posterior is most commonly chosen as a simple factorised Gaussian for mathematical convenience. However, this is often an oversimplification of the true posterior \citep{nalisnickApproximateInferenceDeep2016a}. \cite{kingmaIntroductionVariationalAutoencoders2019} demonstrate that the approximate posterior can be extended to a Gaussian with a full covariance matrix. Additionally, \cite{nalisnickApproximateInferenceDeep2016a} propose a Gaussian mixture model, which combines several Gaussians, as an approximate posterior, enabling the modelling of multimodal posterior distributions.

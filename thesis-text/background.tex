@@ -5,7 +5,7 @@ Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance ob
 
 
 
-\section{Entropy, relative entropy and mutual information}
+\section{Entropy, Relative Entropy and Mutual Information}
 We first discuss specific definitions from information theory. These concepts will be relevant to understand VAEs and CPC, which we discuss in sections \ref{cha:bg_vae} and \ref{cha:bg_nce}. The formal definitions are obtained from the book ``Elements of Information Theory" \citep{coverElementsInformationTheory2006}. The equations that contain a log function are assumed to be under base two.
 
 \subsection{Shannon's Entropy}
@@ -40,7 +40,7 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 %[book: p16: note should rename figure to axes to ” H(x) vs …”]
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
-\subsection{Relative entropy and mutual information} \label{cha:rel_entrop}
+\subsection{Relative Entropy and Mutual Information} \label{cha:rel_entrop}
 Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \citep{coverElementsInformationTheory2006}. The KL divergence quantifies the ``dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
 
 \begin{equation}
@@ -64,7 +64,7 @@ As described by Cover and Thomas in their book ``Elements of Information Theory"
 
 
 
-\section{Supervised machine learning and generalisation challenges}
+\section{Supervised Machine Learning and Generalisation Challenges}
 
 %\textbf{TODO: purpose of section: introduce f: X -$>$ Y, but D-train is merely a subset of the data. A good f generalises well to entire D. when data is complex, many not enough labels... -> representation learning.}
 
@@ -84,7 +84,7 @@ We shall now discuss traditional supervised learning approaches, as these will l
 % towards vc dimension: smaller x results in better generalisation theories, requires smaller data
 	Furthermore, when the number of dimensions of the input space $\mathcal{X}$ increases, the supervised task becomes even more challenging, requiring a larger $\Dtrain$ to ensure good generalisation. This inability of Machine Learning algorithms to manage high-dimensional data is commonly referred to as the \textit{curse of dimensionality} \citep{rustUsingRandomizationBreak1997, aremuMachineLearningApproach2020, stuartrussellArtificialIntelligenceModern2022}.
 	
-\subsection{Fully connected Neural Networks}
+\subsection{Fully Connected Neural Networks}
 	% Deep learning	 
 		Artificial Neural Networks (ANNs) address this problem of finding $\f$, by representing it as a fixed set of parameters, known as layers, which consist of a series of transformation matrices and non-linearities \citep{jainArtificialNeuralNetworks1996, kroghWhatAreArtificial2008, zhangArtificialNeuralNetwork2018}. During inference, at each layer $l$ a transformation matrix $\W^l$ is applied to the output vector from the previous layer $\vect{a}^{l-1}$. This is shown in the equation below.
 		$$ \vect{z}^l = \W^l \vect{a}^{l-1} $$
@@ -117,7 +117,7 @@ We shall now discuss traditional supervised learning approaches, as these will l
 		% TODO: kan anders omshcijrven: "while the details of... are not important for our contributions in this thesis, it is important to recognise that a good choice for the loss function is important, as this will decide on meaningful learning
 
 	
-	\subsection{Towards lower dimensional feature spaces}
+	\subsection{Towards Lower Dimensional Feature Spaces}
 	
 	Supervised learning through ANNs is often successful, even when dealing with complex problems. However, achieving high performance on the training set does not guarantee good generalisation to new data. As problems become more complex, the use of larger amounts of labelled data is required to ensure good generalisation. For complex feature vectors, a more sophisticated architecture may be necessary, which in turn requires even more data to prevent overfitting. % TODO: MAYBE I NEED A REFERENCE?
 	
@@ -127,7 +127,7 @@ We shall now discuss traditional supervised learning approaches, as these will l
 	However, feature engineering is a time-consuming and often manual process that requires domain knowledge and expertise \citep{przybyszewskiUseDomainKnowledge2017, weiIntegrationDomainKnowledgeGuided2021}. In the following section we discuss how part of the manual labour of finding good representations from data can be relieved with unsupervised learning approaches, which automate this process. These representations could then be used as the input for a supervised predictor $\f$ or \textit{downstream task} \citep{zhangOmiEmbedUnifiedMultiTask2021}.
 
 
-\section{Representation learning through reconstruction error} \label{cha:bg_reconstr}
+\section{Representation Learning through Reconstruction Error} \label{cha:bg_reconstr}
 
 % TODO: OPMERKING BART: WAT IS HET VERSCHIL TUSSEN REPRESENTATIE EN LATENT REPR?
 
@@ -447,9 +447,9 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 
 
-\section{Representation learning through Noise-contrastive estimation} \label{cha:bg_nce}
+\section{Representation learning through Noise Contrastive Estimation} \label{cha:bg_nce}
 
-\subsection{Contrastive predictive coding}
+\subsection{Contrastive Predictive Coding}
 
 %\textbf{[What: CPC: repr for sequences]} \\
 	In what follows next, we discuss Contrastive Predictive Coding (CPC), a representation learning approach that we use as the basis for our own experiment in the following chapter.
