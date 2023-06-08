@@ -8,7 +8,7 @@ Inspired by Variational Autoencoders (VAEs), V-GIM's representations from each m
 
 By enforcing these latent space constraints, V-GIM ensures that sampling a random point from the standard normal distribution within a specific latent space is likely to correspond to a meaningful data point in the original space, similar to the points in the dataset. This enforcement also promotes smooth transitions in the latent space with respect to the mutual information. Consequently, when interpolating between two latent representations within a given module, the resulting point is more likely to correspond to dataset points in the original space. V-GIM's latent space is utilised to train a decoder, enabling the analysis of the underlying structure of representations at different levels in the architecture while ensuring good generalisation.
 
-Additionally, we motivate that V-GIM's latent space constraint is related to theories from VAEs leading to disentangled representations, which could potentially enable an easier analysis of the model through post-hoc explainability approaches. 
+Additionally, we motivate that V-GIM's latent space constraint is related to theories from VAEs leading to disentangled representations, which could potentially enable easier analysis of the model through post-hoc explainability approaches. 
 
 % TODO: insights: speak a bit about interpretability analysis?
 We provide insights into V-GIM's internal representations and demonstrate that V-GIM achieves similar performance to its competitors and outperforms them in the deeper modules due to V-GIM's internal batch normalisation mechanism. Lastly, we examine V-GIM's representation variance as a data augmentation tool for downstream tasks with little labelled data.
