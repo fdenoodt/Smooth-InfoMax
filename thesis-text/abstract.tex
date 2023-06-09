@@ -1,19 +1,26 @@
 \chapter*{ Abstract}
+This thesis introduces Variational Greedy InfoMax (V-GIM), a self-supervised representation learning method that incorporates an interpretability constraint into both the network and the loss function. V-GIM's architecture is split up into modules, each individually optimised to promote interpretability by imposing constraints on their respective latent spaces. This approach enables the analysis of the underlying structures in the internal and final representations.
 
-% mine
-This thesis introduces Variational Greedy InfoMax (V-GIM), a self-supervised representation learning method for sequential data that incorporates an interpretability constraint into the design of the network. V-GIM's architecture is split up into modules, each individually optimised to promote interpretability by imposing constraints on their respective latent spaces. This approach enables the analysis of the underlying structures in the internal and final representations.
-
-Inspired by Variational Autoencoders (VAEs), V-GIM's representations from each module are samples from Gaussian distributions. These representations are optimised to maximise the mutual information between temporally nearby patches \citep{lowePuttingEndEndtoEnd2020a}. However, V-GIM introduces an additional constraint by optimising the distributions to approximate the standard normal, thereby constraining the latent spaces of each module.
+Inspired by Variational Autoencoders (VAE), V-GIM represents each module's representations as samples from Gaussian distributions. These representations are optimised to maximise the mutual information between temporally nearby patches using the InfoNCE bound introduced in \citep{oordRepresentationLearningContrastive2019}. However, V-GIM introduces a regularisation term to the loss function, encouraging distributions to approximate the standard normal distribution, thereby constraining the latent space of each module.
 
 
-By enforcing these latent space constraints, V-GIM ensures that sampling a random point from the standard normal distribution within a specific latent space is likely to correspond to a meaningful data point in the original space, similar to the points in the dataset. This enforcement also promotes smooth transitions in the latent space with respect to the mutual information. Consequently, when interpolating between two latent representations within a given module, the resulting point is more likely to correspond to dataset points in the original space. V-GIM's latent space is utilised to train a decoder, enabling the analysis of the underlying structure of representations at different levels in the architecture while ensuring good generalisation.
+By enforcing these latent space constraints, V-GIM ensures that sampling a random point from the standard normal distribution within a specific latent space is likely to correspond to a meaningful data point in the original space, similar to the points in the dataset. This constraint also promotes smooth transitions in the latent space with respect to the mutual information. V-GIM's latent space is utilised to train a decoder, enabling the analysis of the underlying structure of representations at different levels in the architecture while ensuring good generalisation.
 
-Additionally, we motivate that V-GIM's latent space constraint is related to theories from VAEs leading to disentangled representations, which could potentially enable easier analysis of the model through post-hoc explainability approaches. 
+Additionally, we argue that V-GIM's latent space constraint is related to theories from VAEs leading to disentangled representations, which could potentially enable easier analysis of the model through post-hoc explainability approaches. 
 
-% TODO: insights: speak a bit about interpretability analysis?
-We provide insights into V-GIM's internal representations and demonstrate that V-GIM achieves similar performance to its competitors and outperforms them in the deeper modules due to V-GIM's internal batch normalisation mechanism. Lastly, we examine V-GIM's representation variance as a data augmentation tool for downstream tasks with little labelled data.
+We evaluate V-GIM's performance on sequential speech data. V-GIM achieves similar performance to its less interpretable counterpart, GIM, and even outperforms it in deeper modules due to V-GIM's internal batch normalisation mechanism. We examine the potential of V-GIM's representation variance as a data augmentation tool for downstream tasks with limited labelled data and demonstrate that the variability in representations does not contribute to improved performance.
+
+Finally, we provide insights into V-GIM's internal representations. We demonstrate that the representations learn to differentiate between vowel information while consonant information appears to be less prominent. Additionally, we discuss which internal neurons are sensitive to which vowels, further demonstrating the interpretability of V-GIM.
+
+Our code is available via \href{https://github.com/oBoii/Variational-Greedy-InfoMax}{GitHub}.
+ 
 
 
+
+
+%Consequently, when interpolating between two latent representations within a given module, the resulting point is more likely to correspond to dataset points in the original space. 
+
+ 
 
 
 % This approach results in interpretable representations at different layers in the network architecture, allowing for easier analysis of the internal workings of the neural network.
