@@ -9,7 +9,7 @@ Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance ob
 We first discuss specific definitions from information theory. These concepts will be relevant to understand VAEs and CPC, which we discuss in sections \ref{cha:bg_vae} and \ref{cha:bg_nce}. The formal definitions are obtained from the book ``Elements of Information Theory" \citep{coverElementsInformationTheory2006}. The equations that contain a log function are assumed to be under base two.
 
 \subsection{Shannon's Entropy}
-Entropy measures the average amount of information required to describe a random variable \citep{coverElementsInformationTheory2006}. The entropy H(X) of a discrete random variable $X$, is formally defined as follows: 
+Entropy measures the average amount of information required to describe a random variable \citep{coverElementsInformationTheory2006}. The entropy $H(X)$ of a discrete random variable $X$, is formally defined as follows: 
 \begin{equation}
 	H(X) = -\sum_{x\in\mathcal{X}} p(x) \log p(x)  \label{eq:entropy}
 \end{equation}
@@ -40,27 +40,27 @@ To understand why equation \ref{eq:surprise} does indeed correspond to a measure
 %[book: p16: note should rename figure to axes to ” H(x) vs …”]
 Figure \ref{fig:EntropyvsP} displays when entropy reaches its maximum for the case of a random variable with 2 outcomes. We can see that the entropy, and thus, the information is largest when the probability of the two outcomes is equal to each other, namely $p(x_1)=p(x_2)=0.5$. Note that for a random variable $X$ with more than two events, $H(X)$ can be larger than one.
 
-\subsection{Relative Entropy and Mutual Information} \label{cha:rel_entrop}
-Relative entropy, also known as the Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p$ and $q$ denote a probability density function over the same sample space $\mathcal{X}$ \citep{coverElementsInformationTheory2006}. The KL divergence quantifies the ``dissimilarity" or "divergence" between the two distributions. Note that $D(p||q)$ does not necessarily correspond to $D(q||p)$ and thus the metric is not symmetrical.
+\subsection{Kullback Leibler Divergence and Mutual Information} \label{cha:rel_entrop}
+The Kullback Leibler (KL) divergence, is defined in equation \ref{eq:kl}, where $p(\cdot)$ and $q(\cdot)$ denote probability density functions over the same sample space $\mathcal{X}$ \citep{coverElementsInformationTheory2006}. The KL divergence quantifies the ``dissimilarity" or ``divergence" between the two distributions. Note that $\kl{p(\cdot)}{q(\cdot)}$ does not necessarily equal $\kl{q(\cdot)}{p(\cdot)}$ and thus the metric is not symmetrical.
 
 \begin{equation}
-	\kl{q}{p} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
+	\kl{p(\cdot)}{q(\cdot)} = \sum_{x\in\mathcal{X}}p(x) \log \frac{p(x)}{q(x)} \label{eq:kl}
 \end{equation}
 
 
 
 % was rephrased by chat gpt
-The mutual information (MI) between two random variables $X$ and $Y$ can be computed as the KL divergence between their joint probability distribution, $p_{X,Y}(x,y)$, and the product of their marginal probability distributions, $p_X(x)$ and $p_Y(y)$, which is denoted as $p_X(x)p_Y(y)$ \citep{coverElementsInformationTheory2006}. The equation for mutual information then becomes:
+The mutual information (MI) between two random variables $X$ and $Y$ can be computed as the KL divergence between their joint probability distribution, $p_{X,Y}(x,y)$, and the product of their marginal probability distributions, $p_X(x)$ and $p_Y(y)$ \citep{coverElementsInformationTheory2006}. The equation for mutual information then becomes:
 
 \begin{equation}
 	I(X; Y) =  \kl{p_{X, Y}(x, y)}{p_X(x) p_Y(y)}
 \end{equation}
 
-As described by Cover and Thomas in their book ``Elements of Information Theory" \citep{coverELEMENTSINFORMATIONTHEORY}, MI quantifies the amount of information $Y$ describes about $X$. An alternative definition is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for MI, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. In sections \ref{cha:bg_reconstr} and \ref{cha:bg_nce}, we discuss how these concepts from information theory are applied in representation learning.
-
+As described by Cover and Thomas in their book ``Elements of Information Theory" \citep{coverElementsInformationTheory2006}, MI quantifies the amount of information $Y$ describes about $X$. An alternative definition is illustrated in \ref{eq:MI_reduce}. The equation provides us with an intuitive meaning for MI, corresponding to the surprise caused by $X$, which is reduced by the knowledge of $Y$. 
 \begin{equation}
 	I(X;Y)= H(X) - H(X|Y) \label{eq:MI_reduce}
 \end{equation}
+In sections \ref{cha:bg_reconstr} and \ref{cha:bg_nce}, we discuss how these concepts from information theory are applied in representation learning.
 
 
 
@@ -77,9 +77,9 @@ As described by Cover and Thomas in their book ``Elements of Information Theory"
 We shall now discuss traditional supervised learning approaches, as these will lay the groundwork for the representation learning discussed in the following section. 
 
 \subsection{Generalisation and curse of dimensionality}
-	Consider a dataset $\D = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$, with $\vecti{x} \in \X$ correspond to a feature vector from the feature space $\mathcal{X}$ and $\vecti{y} \in \mathcal{Y}$ its class label. Supervised machine learning problems consider the task of finding a function
+	Consider a dataset $\D = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$, where $\vecti{x} \in \X$ corresponds to a feature vector from the feature space $\mathcal{X}$ and $\vecti{y} \in \mathcal{Y}$ its class label. Supervised machine learning problems consider the task of finding a function
 	$$f: \mathcal{X} \rightarrow \mathcal{Y} \label{eq:fxy} $$
-	such that given a feature vector $\vecti{x}$, a label $\vecti{y}$ can be \textit{inferred}. However, the entire dataset $\D$ is typically not available to us, and $\f$ must be derived from only a partial dataset $\Dtrain \subset \D$. A good $\f$ should not only ensure few errors on the training set $\Dtrain$, but it should also \textit{generalise} well to unseen $\vecti{x} \in \mathcal{X}$ \citep{neyshaburExploringGeneralizationDeep2017, chungUnknownExamplesMachine2019, barbieroModelingGeneralizationMachine2020}.
+	such that given a feature vector $\vecti{x}$, a label $\vecti{y}$ can be inferred. However, the entire dataset $\D$ is typically not available to us, and $\f$ must be derived from only a partial dataset $\Dtrain \subset \D$. This make finding a good $\f$ much more challenging, as a function which performs well on $\Dtrain $ does not necessarily generalise well to unseen data  \citep{neyshaburExploringGeneralizationDeep2017, chungUnknownExamplesMachine2019, barbieroModelingGeneralizationMachine2020}.
 
 % towards vc dimension: smaller x results in better generalisation theories, requires smaller data
 	Furthermore, when the number of dimensions of the input space $\mathcal{X}$ increases, the supervised task becomes even more challenging, requiring a larger $\Dtrain$ to ensure good generalisation. This inability of Machine Learning algorithms to manage high-dimensional data is commonly referred to as the \textit{curse of dimensionality} \citep{rustUsingRandomizationBreak1997, aremuMachineLearningApproach2020, stuartrussellArtificialIntelligenceModern2022}.
@@ -121,7 +121,7 @@ We shall now discuss traditional supervised learning approaches, as these will l
 	
 	Supervised learning through ANNs is often successful, even when dealing with complex problems. However, achieving high performance on the training set does not guarantee good generalisation to new data. As problems become more complex, the use of larger amounts of labelled data is required to ensure good generalisation. For complex feature vectors, a more sophisticated architecture may be necessary, which in turn requires even more data to prevent overfitting. % TODO: MAYBE I NEED A REFERENCE?
 	
-	In cases where labelled data is scarce, ANNs may appear to perform well on the training set, but their generalisation performance to data outside the training set can be poor. The performance of ANNs is thus heavily dependent on the choice of data representation \citep{bengioRepresentationLearningReview2013}. As a consequence, a lot of effort in the machine learning pipeline is invested in feature engineering \citep{zhengFeatureEngineeringMachine2018}, which involves extracting useful features from the feature space $\mathcal{X}$, removing redundant information, and reducing the dimensionality of the feature space \citep{valiDeepLearningLand2020} to obtain a good representation $\vect{z} \in \mathcal{Z}$ that is easier to work with. Rather than learning the mapping function directly on the data, $\vect{x} \in \mathcal{X}$ is first transformed into a lower-dimensional representation $\vect{z} \in \mathcal{Z}$. The mapping function from equation \ref{eq:fxy} is now:
+	In cases where labelled data is scarce, ANNs may appear to perform well on the training set, but their generalisation performance to data outside the training set can be poor. The performance of ANNs is thus heavily dependent on the choice of data representation \citep{bengioRepresentationLearningReview2013a}. As a consequence, a lot of effort in the machine learning pipeline is invested in feature engineering \citep{zhengFeatureEngineeringMachine2018}, which involves extracting useful features from the feature space $\mathcal{X}$, removing redundant information, and reducing the dimensionality of the feature space \citep{valiDeepLearningLand2020} to obtain a good representation $\vect{z} \in \mathcal{Z}$ that is easier to work with. Rather than learning the mapping function directly on the data, $\vect{x} \in \mathcal{X}$ is first transformed into a lower-dimensional representation $\vect{z} \in \mathcal{Z}$. The mapping function from equation \ref{eq:fxy} is now:
 	$$f: \mathcal{Z} \rightarrow \mathcal{Y} \label{eq:fxz} $$
 	
 	However, feature engineering is a time-consuming and often manual process that requires domain knowledge and expertise \citep{przybyszewskiUseDomainKnowledge2017, weiIntegrationDomainKnowledgeGuided2021}. In the following section we discuss how part of the manual labour of finding good representations from data can be relieved with unsupervised learning approaches, which automate this process. These representations could then be used as the input for a supervised predictor $\f$ or \textit{downstream task} \citep{zhangOmiEmbedUnifiedMultiTask2021}.
@@ -134,11 +134,11 @@ We shall now discuss traditional supervised learning approaches, as these will l
 % while supervised learning learning finds f given x -> y. performance gains may be obtained by manually transformating T(x) = z s.t f(z) = y. Self supervised representation learning attempts to automate the process of finding T.
 
 %[what is repr learning]
-One of the challenges in supervised learning is the constant need of large amounts of labelled data $\Dtrain = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$. When this set is scarce, or the task becomes too complex to ensure good generalisation, transforming the feature space $\X$ to a lower-dimensional space $\Z$ can be a good solution to aid with learning for the downstream task $\f$. Meanwhile, an abundant amount of unlabelled data may already exist. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as a basis for learning.
+One of the challenges in supervised learning is the constant need of large amounts of labelled data $\Dtrain = \{ \left( \vect{x}^{(1)}, \vect{y}^{(1)} \right), \left( \vect{x}^{(2)}, \vect{y}^{(2)} \right), \dots \}$. When this set is scarce, or the task becomes too complex to ensure good generalisation, transforming the feature space $\X$ into a lower-dimensional space $\Z$ can be a good solution to aid with learning for the downstream task $\f$. Meanwhile, an abundant amount of unlabelled data may already exist. Hence, when a labelled dataset is small, we would like to leverage a larger unlabelled dataset as a basis for learning.
 
 In this section we investigate two self-supervised learning paradigms which learn the following transformation function solely from a feature space $\X$ and thus do not require any labels:
 $$T: \X \rightarrow \Z$$
-such that the simplified representations obtained from $\T$ can serve as the input for a downstream task as follows:
+The simplified representations obtained from $\T$ can then serve as the input for a downstream task as follows:
 \begin{align*}
 	T(\vect{x}) &=  \vect{z} \\
 	f(\vect{z}) &= \vect{y} 
@@ -169,7 +169,7 @@ While capable of learning compressed representations, autoencoders do not pose a
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{screenshot021}
-	\caption{ Latent space of autoencoder (left) and VAE (right), learned from the MNIST dataset \citep{lecunGradientbasedLearningApplied1998}, a dataset consisting of images of handwritten digits between 0 and 9. The ANNs have not received any explicit information of the labels of the dataset. 
+	\caption{ Latent space of autoencoder (left) and VAE (right), learned from the MNIST dataset, a dataset consisting of images of handwritten digits between 0 and 9 \citep{lecunGradientbasedLearningApplied1998}. The ANNs have not received any explicit information of the labels of the dataset. 
 	%The VAE's latent space, depicted in the right image, is optimised to be standard normally distributed. The latent vectors $\vect{z}$ are distributed according to the two-dimensional normal distribution $\sample{\vect{z}}{\standardnormal}$, where $\bm{\mu}$ is the two-dimensional zero vector. $\identitymtx$ is the $2 \times 2$ covariance matrix with ones on the diagonal and zeroes elsewhere.
 }
 	\label{fig:latent_space_2d}
@@ -185,11 +185,13 @@ While capable of learning compressed representations, autoencoders do not pose a
 %4) can be used for latent space, or also 
 %4) link with maximising likelihood -> p(x) and how minimises kl divergence between approx and kl divergence
 
-Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information necessary to reconstruct the data. VAEs maintain the same structure as autoencoders, consisting of encoder $E(\vect{x}) = \vect{z}$ and decoder $D(\vect{z}) = \vect{\tilde{x}}$. However, an additional constraint is applied to the latent space $\Z$ \citep{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. The latent representations $E(\vect{x}) = \vect{z}$ are samples from multivariate distributions, which we will denote by 
-$$\sample{\vect{z}}{\qvae}$$
-Thus, given a feature vector $\x$, we obtain its corresponding encoding or latent representation $\z$ by taking a sample from a distribution. We will define $q$ in more detail in a following paragraph. The encoder function $\E$ in VAEs is thus nondeterministic and computing $E(\vect{x}) = \vect{z}$ twice may result in two different $\z$s both corresponding to the same $\x$. In a following paragraph, we will discuss how to achieve this nondeterministic behaviour using ANNs.
+Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information necessary to reconstruct the data. VAEs maintain the same structure as autoencoders, consisting of an encoder $E(\vect{x}) = \vect{z}$ and decoder $D(\vect{z}) = \vect{\tilde{x}}$. However, an additional constraint is applied to the latent space $\Z$ \citep{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. The latent representations $E(\vect{x}) = \vect{z}$ are samples from multivariate distributions, which we will denote by 
 
-By defining the latent representations as samples from distributions, we can pose the same constraints on the quality of the representations $\z \in \Z$ as in traditional autoencoders, but also additional constraints on how the latent space $\Z$ is organised. The additional constraints posed by VAEs on $\Z$ will result in a more interpretable space, where $\z$'s underlying components can be better understood. This will be achieved by enforcing each distribution $\qvaeEmptyZandXI$ corresponding to a particular $\vecti{x}$, to be ``similar" to a chosen prior distribution $p(\z)$. Typically, the prior $p(\z)$ is set to the standard normal distribution $\standardnormal$ \citep{davidfosterVariationalAutoencoders2023}. The result of this setup can be observed in the latent space depicted in the right plot of figure \ref{fig:latent_space_2d} where all $\z$s are attracted to the origin.
+$$\sample{\vect{z}}{\qvae} \quad \text{or equivalently: } \quad \sample{\vect{z}}{\qvaeBlank}$$
+
+Thus, given a feature vector $\x$, we obtain its corresponding \textit{encoding} or \textit{latent representation} $\z$ by taking a sample from a distribution. This distribution is commonly known as the \textit{posterior} distribution, we will define it in more detail in a following paragraph. The encoder function $\E$ in VAEs is thus nondeterministic and computing $E(\vect{x}) = \vect{z}$ twice may result in two different $\z$s both corresponding to the same $\x$. In a following paragraph, we will discuss how to achieve this nondeterministic behaviour using ANNs.
+
+By defining the latent representations as samples from distributions, we can pose the same constraints on the quality of the representations $\z \in \Z$ as in traditional autoencoders, but also additional constraints on how the latent space $\Z$ is organised. The additional constraints posed by VAEs on $\Z$ will result in a more interpretable space, where $\z$'s underlying components can be better understood. This will be achieved by enforcing each distribution $\qvaeEmptyZandXI$ corresponding to a particular $\vecti{x}$, to be ``similar" to a chosen \textit{prior} distribution $p(\z)$. Typically, the prior $p(\z)$ is set to the standard normal distribution $\standardnormal$ \citep{davidfosterVariationalAutoencoders2023}. The result of this setup can be observed in the latent space depicted in the right plot of figure \ref{fig:latent_space_2d} where all $\z$s are attracted to the origin.
 
 In the following subsections, we will explore VAEs in more detail. We begin with a discussion on the process of imposing constraints on $\Z$, which leads to the VAE loss function. Next, we investigate how ANNs can be utilised to simulate sampling from distributions. Finally, we examine how VAEs enable the creation of interpretable representations and how they can be used to generate novel data.
 
@@ -199,7 +201,8 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 \subsubsection{The loss function}	
 % def q
 
-	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \citep{volodymyrkuleshovVariationalAutoencoder2023}. We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the following definition:
+	So far, we have learned that Variational Autoencoders (VAEs) use an encoder $E(\x) = \z$ to create a latent representation $\z$ of the input feature vector $\x$, where $\z$ is a sample from the distribution $\sample{\z}{\qvae}$. %Equivalently, for each $\x$, there exists a unique distribution $q(\z)$ that characterizes $\qvae$ \citep{volodymyrkuleshovVariationalAutoencoder2023}. 
+	We can then define $\qvae$ as a Gaussian with independent components, parametrised by $\mufat$ and covariance matrix $\diagsigma$. We obtain the following definition:
 	\begin{equation}
 		\qvae = \normalNoI \label{eq:definition_q}
 	\end{equation}
@@ -221,7 +224,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 		\reconstr \label{eq:reconstr}	
 	\end{equation}
 
-	In a traditional autoencoder we optimise $D(E(\vecti{x})) = \vecti{\tilde{x}}$ such that $\vecti{x} \approx \vecti{\tilde{x}}$. We will now show that the reconstruction term in equation \ref{eq:reconstr} achieves a similar goal for VAEs. Here, $\pthetaxzi$ is a distribution over $\vecti{z}$ where $\vecti{x}$ is a constant, and the latent representation $E(\vecti{x}) = \vecti{z}$ is sampled from the Gaussian distribution $\sample{\vecti{z}}{\qphizxblank}$. The objective is to ensure that $D(\vecti{z}) \approx \vecti{x}$. However, since $\vecti{z}$ is sampled from a Gaussian distribution, the $\vecti{z}$'s close to the mean $\mui$ are more likely to be sampled than those further away. Thus, for these $\vecti{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high, or equivalently we want $\pthetaxzi \approx 1$ \citep{cinelliVariationalMethodsMachine2021}. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability. In practice, this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
+	In a traditional autoencoder we optimise $D(E(\vecti{x})) = \vecti{\tilde{x}}$ such that $\vecti{x} \approx \vecti{\tilde{x}}$. We will now show that the reconstruction term in equation \ref{eq:reconstr} achieves a similar goal for VAEs. Here, $\pthetaxzi$ is a distribution over $\vecti{z}$ where $\vecti{x}$ is fixed, and the latent representation $\vecti{z} = E(\vecti{x})$ is sampled from the Gaussian distribution $\sample{\vecti{z}}{\qphizxblank}$. The objective is to ensure that $D(\vecti{z}) \approx \vecti{x}$. However, since $\vecti{z}$ is sampled from a Gaussian distribution, the $\vecti{z}$'s close to the mean $\mui$ are more likely to be sampled than those further away. Thus, for these $\vecti{z}$'s, we'd like the probability of corresponding to the actual $\vecti{x}$ to be high, or equivalently we want $\pthetaxzi \approx 1$ \citep{cinelliVariationalMethodsMachine2021}. Finally, by adding a negative sign in front, maximising this probability is equivalent to minimising the negative probability. In practice, this term is approximated through mini-batches with the mean squared error. %todo: look into max like estim, as there hopefully i can find a meaningful defintion for "maximising..."
 	
 
 % 2) latent space
@@ -251,7 +254,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 %\textbf{How: predict distributions}
 
 \subsubsection{Simulating distributions through neural networks}
-	Computing $E(\xith)$ results in encoding $\zith$ which is sampled from $\sample{\zith}{\qvaeEmptyZandXI}$. We will now discuss how ANNs can emulate the stochastic behaviour of sampling from a distribution. As discussed in equation \ref{eq:definition_q}, distribution $\qvaeEmptyZandXI$ is parametrised as a Gaussian with mean $\mui$ and covariance matrix $\diagsigmai$. The entire distribution can thus be modelled by an ANN which takes as input $\xith$ and generates the two corresponding vectors $\mui$ and $\sigmai$. Finally, a sample $\vecti{z}$ can be obtained as follows:
+	Computing $E(\xith)$ results in an encoding $\zith$ which is sampled from $\sample{\zith}{\qvaeEmptyZandXI}$. We will now discuss how ANNs can emulate the stochastic behaviour of sampling from a distribution. As discussed in equation \ref{eq:definition_q}, distribution $\qvaeEmptyZandXI$ is parametrised as a factorised Gaussian with mean $\mui$ and covariance matrix $\diagsigmai$. The entire distribution can thus be modelled by an ANN which takes as input $\xith$ and generates the two corresponding vectors $\mui$ and $\sigmai$. Finally, a sample $\vecti{z}$ can be obtained as follows:
 	\begin{equation}
 		\vecti{z} = \mui + \sigmai \odot \epiloni
 	\end{equation}
@@ -411,12 +414,12 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 
 \subsubsection{Disentanglement of latent representations and posterior collapse} \label{cha:disentang}
-	Higgins et al. extend the VAE framework through the introduction of a slight modification of the loss function, resulting in $\beta$-VAE \citep{higginsBetaVAELearningBasic2022}. An additional hyper-parameter $\beta$ is introduced to the VAE's loss function to control the weight of the regularisation term:
+	\cite{higginsBetaVAELearningBasic2022} extend the VAE framework through the introduction of a slight modification of the loss function, resulting in $\beta$-VAE. An additional hyper-parameter $\beta$ is introduced to the VAE's loss function which controls the weight of the regularisation term:
 	$$
 	\mathcal{L}_{\theta, \phi} (\vecti{x}) = \betaelboexplicit
 	$$
 	
-	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \citep{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin colour and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
+	Setting the prior to a standard normal distribution ($p(\z) = \standardnormal$) encourages disentangled representations, where each variable is sensitive to a specific generative factor \citep{higginsBetaVAELearningBasic2022, bengioRepresentationLearningReview2013a}. For example, in an image of a face, altering one component of the representation would only change the smile, while other features like skin colour and brightness remain constant. Such disentangled representations are interpretable, making it easier to understand the underlying structure of the representation and what information each variable contains.
 	
 	However, a trade-off must be made between accuracy and disentanglement. A small $\beta$ value (close to 0) results in high a reconstruction accuracy but weak constraints on disentanglement, while a large $\beta$ value (above 1) puts large emphasises on disentanglement at the cost of accuracy. If $\beta$ becomes too large, the posteriors $\qphizx$ corresponding to each data point $\vecti{x}$ can become equal to the prior $p(\vect{z})$, resulting in no information contribution, which is known as posterior collapse \citep{lucasUnderstandingPosteriorCollapse2022}.
 	
@@ -448,12 +451,10 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 
 \section{Representation learning through Noise Contrastive Estimation} \label{cha:bg_nce}
+In the following two sections, we discuss Contrastive Predictive Coding (CPC) and Greedy InfoMax (GIM). We will use GIM as the basis for our own experiment in the following chapter. However, GIM continues from the concepts introduced in CPC and a good understanding is needed to understand the contributions of GIM.
+
 
 \subsection{Contrastive Predictive Coding}
-
-%\textbf{[What: CPC: repr for sequences]} \\
-	In what follows next, we discuss Contrastive Predictive Coding (CPC), a representation learning approach that we use as the basis for our own experiment in the following chapter.
-	% TODO: cpc differs from autoencoders in two key ways: reconstruct + time series data
 	CPC is an unsupervised learning approach, again with the objective of learning (lower-dimensional) representations from high dimensional data \citep{oordRepresentationLearningContrastive2019}. While the objective is thus the same as for the autoencoders discussed in the previous section, CPC achieves its representations entirely differently. An autoencoder's objective is to define a compressed representation from which the original data can be recovered. However, when working with sequential data $\x_1,\x_2,~\dots, ~\xt,~\dots$, simply compressing patches $\x_i$ of the sequence without considering the relation with nearby patches can result in suboptimal encodings, as contextual information between patches is not encoded directly into the representation \citep{shah92LearningGood2020}.
 	%ChatGPT generated: In contrast, CPC considers the relationship between patches of the sequence to capture contextual information, making it a better option for representing time-series data.
 
@@ -473,7 +474,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	\zt = g_{enc}(\xt) .
 	$$
 	
-	$g_{enc}( \cdot )$ is for instance a Convolutional Neural Network (CNN). The latent representations $\z_1..\z_n$ are obtained independently from each other and do not yet contain any contextual information. This is achieved through $g_{ar}( \cdot )$, an auto-regressor, which encodes all previous $\z_1 \dots \zt$ into a single representation $\ct$:
+	$g_{enc}( \cdot )$ is for instance a ConvNet. The latent representations $\z_1 \dots \z_n$ are obtained independently from each other and do not yet contain any contextual information. This is achieved through $g_{ar}( \cdot )$, an autoregressor, which encodes all previous $\z_1 \dots \zt$ into a single representation $\ct$:
 	
 	$$
 	\ct = g_{ar}(\z_1 \dots \zt)
@@ -489,16 +490,16 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	Consider we would like to define useful representations for sequential data such as speech signals. Then it is not unlikely to believe that the conveyed information at time step $t$ and $t+k$ contains some redundancy, such as pitch, frequency, tone, etc. \citep{raoUnderstandingGradientIsolatedLearning2020}. Meanwhile, large changes of the signal in a small time window may be the result of noise. Sequential data which poses these slowly varying features are commonly referred to as ``slow-features" \citep{zhangSlowFeatureAnalysis2012}. CPC leverages these slowly varying features, by encoding the underlying shared information between different patches while at the same time discarding low-level information and noise that is more local \citep{oordRepresentationLearningContrastive2019}.
 
 
-\subsubsection{The learning objective}
+\subsubsection{The loss function}
 %\textbf{[discriminate pos from neg samples + formal MI]}\\
 	% the latent representations are optimised through a similarity function f. It will turn on that optimising the similarity between two representations is equivalent to maximising their mutual information.
 	
 	
-	CPC will learn to preserve information between temporally nearby representations, by solving another task. In particular, CPC learns to discriminate subsequent \textit{positive} samples $\ztk$ from \textit{negative} random samples $\zj$. This is achieved through a similarity function $f_k(\cdot)$, which scores the similarity between two latent representations \citep{lowePuttingEndEndtoEnd2020a}. It is defined as a log bilinear model as follows:
+	CPC learns preserve information between temporally nearby representations, by solving another task. In particular, CPC learns to discriminate subsequent \textit{positive} samples $\ztk$ from \textit{negative} random samples $\zj$. This is achieved through a similarity function $f_k(\cdot)$, which scores the similarity between two latent representations \citep{lowePuttingEndEndtoEnd2020a}. It is defined as a log bilinear model as follows:
 	\begin{equation} % f_k
 		\fkdefinition \label{eq:fk}
 	\end{equation}
-	where $W_k$ is a weight matrix which is learned. $f_k( \zj , \ct )$ thus quantifies how likely the context $\ct$ corresponds to a random vector $\zj$. Due to the slowly varying data assumption, a good representation for successive representations $\ztk$ and $\ct$ is one where $f_k( \ztone, \ctone)$ is high and $f_k( \zj, \ct)$ is small for random $\zj$. Or equivalently, maximising the shared information between temporally nearby patches, while discarding the temporal noise results in large values $f_k( \ztone, \ctone)$.
+	where $W_k$ is a weight matrix which is learned. $f_k( \zj , \ct )$ thus quantifies how likely the context $\ct$ corresponds to a random vector $\zj$. Due to the slowly varying data assumption, a good representation for successive representations $\ztk$ and $\ct$ is one where $f_k( \ztone, \ct)$ is high and $f_k( \zj, \ct)$ is small for random $\zj$. Or equivalently, maximising the shared information between temporally nearby patches, while discarding the temporal noise results in large values $f_k( \ztone, \ctone)$.
 	%Had er miss ergens bij gekund: Finding the correct $\ztone$ in a batch of random $zjs$, given $\ct$ is thus equivalent to "predicting the future given the past" (is related to predictive coding).
 	
 	%	CPC learns to discriminate subsequent 'positive' samples $x_{t+1}$ from 'negative' random samples $\x_j$, hence the name “contrastive noise estimation”. CPC exploits this so called ‘slow-features’ property, by encoding the common information between nearby parts of the signal, while also ignoring the noise which is more local. It will turn out that maximising this shared information, corresponds the notion of mutual information, we discussed earlier. We discuss this more in more detail in a following subsection.
@@ -524,13 +525,13 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 		\centering
 		\input{graphs/cpc_single_module}
 
-		\caption{Overview of CPC. The encoder, autoregressor and $f$ are ANNs and their parameters are optimised via $\Lnce$.}
+		\caption{Overview of CPC. The encoder, autoregressor and $f_k(\cdot)$ are ANNs and their parameters are optimised via $\Lnce$.}
 		\label{fig:cpc-my-overview}
 	\end{figure}
 	
 	
 \subsubsection{Ties with mutual information} \label{cha:bg_cpc_ties_w_mi}
-	Earlier we argued that CPC's encodings will preserve shared information between temporally nearby patches, while discarding the local noise. \cite{oordRepresentationLearningContrastive2019} make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, \citeauthor{oordRepresentationLearningContrastive2019} prove that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$. 
+	Earlier we argued that CPC's latent representations will preserve shared information between temporally nearby patches, while discarding the local noise. \cite{oordRepresentationLearningContrastive2019} make this claim even stronger by making ties with mutual information, which we discussed in a previous chapter. In particular, \citeauthor{oordRepresentationLearningContrastive2019} prove that optimising InfoNCE is equivalent to maximising the mutual information between $\ct$ and $\ztone$: 
 	
 	\begin{equation} % MI
 		I(\ztone; \ct) = \sum_{\ztone, \ct} p(\ztone, \ct) \log \frac{p(\ztone \mid \ctone)}{p(\ztone)}
@@ -550,7 +551,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 	
 	% onjuist?
 	%This equation can be interpreted as follows: there exists a constant $r \in \R^+$ such that $r \times \fzc = \pzcdivpz$. Indeed, when the similarity between $x_{t+k}$ and $c_t$ is large, $f_k$ is large, and thus also $p(z_{t+k}|c_t)$, which is normalized by $\pztk$.
-	\cite{oordRepresentationLearningContrastive2019} and \cite{lowePuttingEndEndtoEnd2020a} utilise this proportionality relation to reformulate $-\Lnce$ as a lower bound on the mutual information between $\ztone$ and $\ct$ as follows:
+	\cite{oordRepresentationLearningContrastive2019} utilise this proportionality relation to reformulate $-\Lnce$ as a lower bound on the mutual information between $\ztone$ and $\ct$ as follows:
 	
 	\begin{equation}
 		I(\ztone; \ct) \ge \log(N) - \Lnce
@@ -566,9 +567,9 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 \subsection{Greedy InfoMax}
 	% successes
-	So far we discussed how CPC encodes patches of sequential data into latent representations by maximising the mutual information between temporally nearby representations. This method has shown great success in recent years and is considered state-of-the-art in self-supervised learning for encoding sequential data \citep{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021b, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. 
+	So far we discussed how CPC encodes patches of sequential data into latent representations by maximising the mutual information between temporally nearby representations. This method has shown great success in recent years and is considered state-of-the-art in self-supervised learning for encoding sequential data \citep{stackeEvaluationContrastivePredictive2020}. Additionally, CPC has been successfully applied to multiple use cases \citep{stackeEvaluationContrastivePredictive2020, dehaanContrastivePredictiveCoding2021, luSemiSupervisedHistologyClassification2019, bhatiSegmentalContrastivePredictive2021, deldariTimeSeriesChange2021, henaffDataEfficientImageRecognition2020}. This is achieved by minimising the InfoNCE loss discussed earlier in equation \ref{eq:NCE_loss}. Through this \textit{global} loss function all parameters are optimised end-to-end via backpropagation. 
 	
-	Even though empirical evidence has shown that backpropagation is highly effective \citep{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \citep{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \citep{lowePuttingEndEndtoEnd2020a}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \citep{lowePuttingEndEndtoEnd2020a}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \citep{lowePuttingEndEndtoEnd2020a}.
+	Even though empirical evidence has shown that backpropagation is highly effective \citep{NIPS2012_c399862d, ioffeBatchNormalizationAccelerating2015a}, it still suffers from multiple constraints. Firstly, there is a biological perspective to consider, as the human brain lacks a global objective function that can be optimised by backpropagating an error signal \citep{marblestoneIntegrationDeepLearning2016}. This is especially significant when considering how children can learn to categorise from a few examples, whereas end-to-end backpropagation often requires extensive datasets to achieve good generalisation \citep{lowePuttingEndEndtoEnd2020a}. Moreover, end-to-end backpropagation also suffers from computational constraints, such as requiring the entire computational graph, including all parameters, activations and gradients to fit in memory \citep{lowePuttingEndEndtoEnd2020a}. Additionally, during the training process of a neural network, each layer has to wait for the gradients of its subsequent layer, which reduces locality and impedes the efficiency of hardware accelerator design \citep{lowePuttingEndEndtoEnd2020a}.
 		
 		
 	
@@ -595,7 +596,7 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 
 	
 	%[greedy training]
-		Each module $\gencm$ is \textit{greedily} optimised with an adaptation of the InfoNCE Loss. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss.
+		Each module $\gencm$ is \textit{greedily} optimised with an adaptation of the InfoNCE loss, introduced in CPC. This idea is depicted in figure \ref{fig:gim-overview}, which displays $M$ modules, each trained with their own instance of the InfoNCE loss.
 		
 		In contrast to CPC where a single loss function $\Lnce$ and scoring function $\fkblank$ are required, we now require $\Lnce^m$ and $\fkmblank$ for each module. The equations to optimise for $\gencm$ then become:
 		\begin{align}
@@ -607,13 +608,10 @@ In the following subsections, we will explore VAEs in more detail. We begin with
 		$$
 		f_k^{M+1}\left(\ztk^M, \ct \right)=\exp \left({\ztk^M}^T W_k^{M+1} c_t \right)
 		$$
-
-		% Mutual Info Maxim
-			% TODO: MOET ALLEMAAL WAT BETER AAN ELKAAR GELINKT WORDEN. 
-			As a result of this approach, the mutual information $I(\ztk^m,\zt^m)$ is maximised, rather than $I(\ztk, \ct)$ as in CPC. % TODO: if time permits: more explenation on maximises also ztk^m and ztk^m-1
+		As a result of this approach, the mutual information $I(\ztk^m,\zt^m)$ is maximised, rather than $I(\ztk, \ct)$ as in CPC. 
 		
 		% Memory benefits
-			As a result of GIM's greedy approach, modules can be trained in parallel, but also sequentially. By training one module after the other, the memory cost can be decreased during training which is beneficial for memory-constrained scenarios. Furthermore, when a higher level of abstraction is needed, additional modules can be appended to the architecture later on without having to fine-tune previous modules.
+		As a result of GIM's greedy approach, modules can be trained in parallel, but also sequentially. By training one module after the other, the memory cost can be decreased during training which is beneficial for memory-constrained scenarios. Furthermore, when a higher level of abstraction is needed, additional modules can be appended to the architecture later on without having to fine-tune previous modules. In the following chapter, we discuss how we can maintain these benefits in V-GIM, while also allowing for better interpretability.
 
 	
 
