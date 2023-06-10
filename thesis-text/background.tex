@@ -1,7 +1,7 @@
 
 \chapter{Background} \label{cha:2}
 
-Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance obtained from GIM while leveraging the interpretability obtained from Variational Autoencoders (VAE). In this section, we discuss the necessary background required to understand these concepts, as they will set the basis for our own contribution.
+Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance obtained from GIM while leveraging the interpretability obtained from Variational Autoencoders (VAE). We achieve this by combining ideas from both methods into a single framework. In this section, we discuss the necessary background required to understand these concepts, as they will set the basis for our own contribution. We commence by addressing the challenges in supervised machine learning problems with respect to generalisation and make motivations on how representation learning can address these issues. We then give a short intermezzo on information theory, which will be relevant for understanding the information theoretic motivations in CPC and VAEs.
 
 
 
@@ -60,7 +60,7 @@ Our proposed approach, V-GIM, aims to obtain the state-of-the-art performance ob
 		
 		\subsection{Towards Lower Dimensional Feature Spaces}
 		
-		Supervised learning through ANNs is often successful, even when dealing with complex problems. However, achieving high performance on the training set does not guarantee good generalisation to new data. As problems become more complex, the use of larger amounts of labelled data is required to ensure good generalisation. For complex feature vectors, a more sophisticated architecture may be necessary, which in turn requires even more data to prevent overfitting. % TODO: MAYBE I NEED A REFERENCE?
+		Supervised learning through ANNs can be very successful, even when dealing with complex problems. However, achieving high performance on the training set does not guarantee good generalisation to new data. As problems become more complex, the use of larger amounts of labelled data is required to ensure good generalisation. For complex feature vectors, a more sophisticated architecture may be necessary, which in turn requires even more data to prevent overfitting. % TODO: MAYBE I NEED A REFERENCE?
 		
 		In cases where labelled data is scarce, ANNs may appear to perform well on the training set, but their generalisation performance to data outside the training set can be poor. The performance of ANNs is thus heavily dependent on the choice of data representation \citep{bengioRepresentationLearningReview2013a}. As a consequence, a lot of effort in the machine learning pipeline is invested in feature engineering \citep{zhengFeatureEngineeringMachine2018}, which involves extracting useful features from the feature space $\mathcal{X}$, removing redundant information, and reducing the dimensionality of the feature space \citep{valiDeepLearningLand2020} to obtain a good representation $\vect{z} \in \mathcal{Z}$ that is easier to work with. Rather than learning the mapping function directly on the data, $\vect{x} \in \mathcal{X}$ is first transformed into a lower-dimensional representation $\vect{z} \in \mathcal{Z}$. The mapping function from equation \ref{eq:fxy} is now:
 		$$f: \mathcal{Z} \rightarrow \mathcal{Y} \label{eq:fxz} $$
