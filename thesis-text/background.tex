@@ -191,7 +191,7 @@ While capable of learning compressed representations, autoencoders do not pose a
 
 Similar to traditional autoencoders, variational autoencoders (VAE) learn representations that contain the important information necessary to reconstruct the data. VAEs maintain the same structure as autoencoders, consisting of an encoder $E(\vect{x}) = \vect{z}$ and decoder $D(\vect{z}) = \vect{\tilde{x}}$. However, an additional constraint is applied to the latent space $\Z$ \citep{doerschTutorialVariationalAutoencoders2021, davidfosterVariationalAutoencoders2023, kingmaAutoEncodingVariationalBayes2022, kingmaIntroductionVariationalAutoencoders2019, cinelliVariationalMethodsMachine2021}. The latent representations $E(\vect{x}) = \vect{z}$ are samples from multivariate distributions, which we will denote by 
 
-$$\sample{\vect{z}}{\qvae} \quad \text{or equivalently: } \quad \sample{\vect{z}}{\qvaeBlank}$$
+$$\sample{\vect{z}}{\qvae} \quad \text{which is also written as: } \quad \sample{\vect{z}}{\qvaeBlank}$$
 
 Thus, given a feature vector $\x$, we obtain its corresponding \textit{encoding} or \textit{latent representation} $\z$ by taking a sample from a distribution. This distribution is commonly known as the \textit{posterior} distribution, we will define it in more detail in a following paragraph. The encoder function $\E$ in VAEs is thus nondeterministic and computing $E(\vect{x}) = \vect{z}$ twice may result in two different $\z$s both corresponding to the same $\x$. In a following paragraph, we will discuss how to achieve this nondeterministic behaviour using ANNs.
 

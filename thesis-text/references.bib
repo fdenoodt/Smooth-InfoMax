@@ -104,7 +104,7 @@
   publisher = {{Curran Associates, Inc.}},
   urldate = {2023-05-27},
   abstract = {Self-supervised disentangled representation learning is a critical task in sequence modeling. The learnt representations contribute to better model interpretability as well as the data generation, and improve the sample efficiency for downstream tasks. We propose a novel sequence representation learning method, named Contrastively Disentangled Sequential Variational Autoencoder (C-DSVAE), to extract and separate the static (time-invariant) and dynamic (time-variant) factors in the latent space. Different from previous sequential variational autoencoder methods, we use a novel evidence lower bound which maximizes the mutual information between the input and the latent factors, while penalizes the mutual information between the static and dynamic factors. We leverage contrastive estimations of the mutual information terms in training, together with simple yet effective augmentation techniques, to introduce additional inductive biases. Our experiments show that C-DSVAE significantly outperforms the previous state-of-the-art methods on multiple metrics.},
-  file = {C\:\\Users\\lambr\\Zotero\\storage\\A85KM9YG\\Bai et al. - 2021 - Contrastively Disentangled Sequential Variational .pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\A85KM9YG\\2110.12091.pdf}
 }
 
 @inproceedings{baiInterpretableRepresentationLearning2018,
@@ -220,6 +220,24 @@
   archiveprefix = {arxiv},
   keywords = {Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,I.2.10},
   file = {C\:\\Users\\lambr\\Zotero\\storage\\PAQ448BB\\Bau e.a. - 2017 - Network Dissection Quantifying Interpretability o.pdf;C\:\\Users\\lambr\\Zotero\\storage\\HETTLTNZ\\1704.html}
+}
+
+@misc{belghaziMINEMutualInformation2021,
+  title = {{{MINE}}: {{Mutual Information Neural Estimation}}},
+  shorttitle = {{{MINE}}},
+  author = {Belghazi, Mohamed Ishmael and Baratin, Aristide and Rajeswar, Sai and Ozair, Sherjil and Bengio, Yoshua and Courville, Aaron and Hjelm, R. Devon},
+  year = {2021},
+  month = aug,
+  number = {arXiv:1801.04062},
+  eprint = {1801.04062},
+  primaryclass = {cs, stat},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1801.04062},
+  urldate = {2023-06-11},
+  abstract = {We argue that the estimation of mutual information between high dimensional continuous random variables can be achieved by gradient descent over neural networks. We present a Mutual Information Neural Estimator (MINE) that is linearly scalable in dimensionality as well as in sample size, trainable through back-prop, and strongly consistent. We present a handful of applications on which MINE can be used to minimize or maximize mutual information. We apply MINE to improve adversarially trained generative models. We also use MINE to implement Information Bottleneck, applying it to supervised classification; our results demonstrate substantial improvement in flexibility and performance in these settings.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\55ADM2RV\\Belghazi e.a. - 2021 - MINE Mutual Information Neural Estimation.pdf;C\:\\Users\\lambr\\Zotero\\storage\\IWIIISQQ\\1801.html}
 }
 
 @article{bengioCurseDimensionalityLocal,
@@ -565,6 +583,31 @@
   file = {C\:\\Users\\lambr\\Zotero\\storage\\GRM99QC6\\Doersch - 2021 - Tutorial on Variational Autoencoders.pdf;C\:\\Users\\lambr\\Zotero\\storage\\484AFYZ3\\1606.html}
 }
 
+@inproceedings{donskerAsymptoticEvaluationCertain1976,
+  title = {Asymptotic Evaluation of Certain {{Markov}} Process Expectations for Large Time\textemdash{{III}}},
+  booktitle = {Communications on {{Pure}} and {{Applied Mathematics}}},
+  author = {Donsker, M. D. and Varadhan, S. R. S.},
+  year = {1976},
+  month = jul,
+  volume = {29},
+  pages = {389--461},
+  issn = {00103640, 10970312},
+  doi = {10.1002/cpa.3160290405},
+  urldate = {2023-06-11},
+  abstract = {Semantic Scholar extracted view of "Asymptotic evaluation of certain Markov process expectations for large time" by M. Donsker et al.},
+  langid = {english}
+}
+
+@article{erhanVisualizingHigherLayerFeatures2009,
+  title = {Visualizing {{Higher-Layer Features}} of a {{Deep Network}}},
+  author = {Erhan, Dumitru and Bengio, Y. and Courville, Aaron and Vincent, Pascal},
+  year = {2009},
+  month = jan,
+  journal = {Technical Report, Univerist\'e de Montr\'eal},
+  abstract = {Deep architectures have demonstrated state-of-the-art results in a variety of settings, especially with vision datasets. Beyond the model definitions and the quantitative analyses, there is a need for qualitative comparisons of the solutions learned by various deep architectures. The goal of this paper is to find good qualita-tive interpretations of high level features represented by such models. To this end, we contrast and compare several techniques applied on Stacked Denoising Auto-encoders and Deep Belief Networks, trained on several vision datasets. We show that, perhaps counter-intuitively, such interpretation is possible at the unit level, that it is simple to accomplish and that the results are consistent across various techniques. We hope that such techniques will allow researchers in deep architec-tures to understand more of how and why deep architectures work.},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\Q3VXSCUX\\Erhan e.a. - 2009 - Visualizing Higher-Layer Features of a Deep Networ.pdf}
+}
+
 @misc{fortuinSOMVAEInterpretableDiscrete2019,
   title = {{{SOM-VAE}}: {{Interpretable Discrete Representation Learning}} on {{Time Series}}},
   shorttitle = {{{SOM-VAE}}},
@@ -777,7 +820,7 @@
   abstract = {In this work, we perform unsupervised learning of representations by maximizing mutual information between an input and the output of a deep neural network encoder. Importantly, we show that structure matters: incorporating knowledge about locality of the input to the objective can greatly influence a representation's suitability for downstream tasks. We further control characteristics of the representation by matching to a prior distribution adversarially. Our method, which we call Deep InfoMax (DIM), outperforms a number of popular unsupervised learning methods and competes with fully-supervised learning on several classification tasks. DIM opens new avenues for unsupervised learning of representations and is an important step towards flexible formulations of representation-learning objectives for specific end-goals.},
   archiveprefix = {arxiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
-  file = {C\:\\Users\\lambr\\Zotero\\storage\\5TN6QCA2\\Hjelm et al. - 2019 - Learning deep representations by mutual informatio.pdf;C\:\\Users\\lambr\\Zotero\\storage\\C275LSAR\\1808.html}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\5TN6QCA2\\1808.06670.pdf;C\:\\Users\\lambr\\Zotero\\storage\\C275LSAR\\1808.html}
 }
 
 @article{hochreiterVanishingGradientProblem1998,
@@ -795,6 +838,13 @@
   urldate = {2023-05-25},
   abstract = {Recurrent nets are in principle capable to store past inputs to produce the currently desired output. Because of this property recurrent nets are used in time series prediction and process control. Practical applications involve temporal dependencies spanning many time steps, e.g. between relevant inputs and desired outputs. In this case, however, gradient based learning methods take too much time. The extremely increased learning time arises because the error vanishes as it gets propagated back. In this article the de-caying error flow is theoretically analyzed. Then methods trying to overcome vanishing gradients are briefly discussed. Finally, experiments comparing conventional algorithms and alternative methods are presented. With advanced methods long time lag problems can be solved in reasonable time.},
   keywords = {long short-term memory,long-term dependencies,Recurrent neural nets,vanishing gradient}
+}
+
+@misc{HomeNetflix,
+  title = {Home - {{Netflix}}},
+  urldate = {2023-06-10},
+  howpublished = {https://www.netflix.com/browse},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\8YU64M8R\\browse.html}
 }
 
 @article{hoRealWorldWeightCrossEntropyLoss2020,
@@ -1563,6 +1613,22 @@
   abstract = {Machine learning has become an essential tool for gleaning knowledge from data and tackling a diverse set of computationally hard tasks. However, the accuracy of a machine learned model is deeply tied to the data that it is trained on. Designing and building robust processes and tools that make it easier to analyze, validate, and transform data that is fed into large-scale machine learning systems poses data management challenges. Drawn from our experience in developing data-centric infrastructure for a production machine learning platform at Google, we summarize some of the interesting research challenges that we encountered, and survey some of the relevant literature from the data management and machine learning communities. Specifically, we explore challenges in three main areas of focus - data understanding, data validation and cleaning, and data preparation. In each of these areas, we try to explore how different constraints are imposed on the solutions depending on where in the lifecycle of a model the problems are encountered and who encounters them.}
 }
 
+@misc{pooleVariationalBoundsMutual2019,
+  title = {On {{Variational Bounds}} of {{Mutual Information}}},
+  author = {Poole, Ben and Ozair, Sherjil and van den Oord, Aaron and Alemi, Alexander A. and Tucker, George},
+  year = {2019},
+  month = may,
+  number = {arXiv:1905.06922},
+  eprint = {1905.06922},
+  primaryclass = {cs, stat},
+  publisher = {{arXiv}},
+  urldate = {2023-06-11},
+  abstract = {Estimating and optimizing Mutual Information (MI) is core to many problems in machine learning; however, bounding MI in high dimensions is challenging. To establish tractable and scalable objectives, recent work has turned to variational bounds parameterized by neural networks, but the relationships and tradeoffs between these bounds remains unclear. In this work, we unify these recent developments in a single framework. We find that the existing variational lower bounds degrade when the MI is large, exhibiting either high bias or high variance. To address this problem, we introduce a continuum of lower bounds that encompasses previous bounds and flexibly trades off bias and variance. On high-dimensional, controlled problems, we empirically characterize the bias and variance of the bounds and their gradients and demonstrate the effectiveness of our new bounds for estimation and representation learning.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\QIBQAQL9\\Poole e.a. - 2019 - On Variational Bounds of Mutual Information.pdf;C\:\\Users\\lambr\\Zotero\\storage\\362DNRLW\\1905.html}
+}
+
 @inproceedings{przybyszewskiUseDomainKnowledge2017,
   title = {Use of Domain Knowledge and Feature Engineering in Helping {{AI}} to Play {{Hearthstone}}},
   booktitle = {2017 {{Federated Conference}} on {{Computer Science}} and {{Information Systems}} ({{FedCSIS}})},
@@ -1751,6 +1817,27 @@
   file = {C\:\\Users\\lambr\\Zotero\\storage\\BK3KJFBY\\Scott and Matwin - FEATURE ENGINEERING FOR TEXT CLASSIFICATION.pdf}
 }
 
+@article{selvarajuGradCAMVisualExplanations2020,
+  title = {Grad-{{CAM}}: {{Visual Explanations}} from {{Deep Networks}} via {{Gradient-based Localization}}},
+  shorttitle = {Grad-{{CAM}}},
+  author = {Selvaraju, Ramprasaath R. and Cogswell, Michael and Das, Abhishek and Vedantam, Ramakrishna and Parikh, Devi and Batra, Dhruv},
+  year = {2020},
+  month = feb,
+  journal = {International Journal of Computer Vision},
+  volume = {128},
+  number = {2},
+  eprint = {1610.02391},
+  primaryclass = {cs},
+  pages = {336--359},
+  issn = {0920-5691, 1573-1405},
+  doi = {10.1007/s11263-019-01228-7},
+  urldate = {2023-06-11},
+  abstract = {We propose a technique for producing "visual explanations" for decisions from a large class of CNN-based models, making them more transparent. Our approach - Gradient-weighted Class Activation Mapping (Grad-CAM), uses the gradients of any target concept, flowing into the final convolutional layer to produce a coarse localization map highlighting important regions in the image for predicting the concept. Grad-CAM is applicable to a wide variety of CNN model-families: (1) CNNs with fully-connected layers, (2) CNNs used for structured outputs, (3) CNNs used in tasks with multimodal inputs or reinforcement learning, without any architectural changes or re-training. We combine Grad-CAM with fine-grained visualizations to create a high-resolution class-discriminative visualization and apply it to off-the-shelf image classification, captioning, and visual question answering (VQA) models, including ResNet-based architectures. In the context of image classification models, our visualizations (a) lend insights into their failure modes, (b) are robust to adversarial images, (c) outperform previous methods on localization, (d) are more faithful to the underlying model and (e) help achieve generalization by identifying dataset bias. For captioning and VQA, we show that even non-attention based models can localize inputs. We devise a way to identify important neurons through Grad-CAM and combine it with neuron names to provide textual explanations for model decisions. Finally, we design and conduct human studies to measure if Grad-CAM helps users establish appropriate trust in predictions from models and show that Grad-CAM helps untrained users successfully discern a 'stronger' nodel from a 'weaker' one even when both make identical predictions. Our code is available at https://github.com/ramprs/grad-cam/, along with a demo at http://gradcam.cloudcv.org, and a video at youtu.be/COjUB9Izk6E.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\JY8LT8GP\\Selvaraju e.a. - 2020 - Grad-CAM Visual Explanations from Deep Networks v.pdf;C\:\\Users\\lambr\\Zotero\\storage\\T7BMEYNH\\1610.html}
+}
+
 @misc{shah92LearningGood2020,
   title = {[{{AN}} \#92]: {{Learning}} Good Representations with Contrastive Predictive Coding},
   shorttitle = {[{{AN}} \#92]},
@@ -1825,6 +1912,24 @@
   keywords = {Deep learning,explainable AI,feature attribution,recognition,separation,speech enhancement},
   annotation = {WOS:000841879500140},
   file = {C\:\\Users\\lambr\\Zotero\\storage\\AHRHL8CM\\Sivasankaran et al. - 2021 - Explaining deep learning models for speech enhance.pdf}
+}
+
+@misc{springenbergStrivingSimplicityAll2015,
+  title = {Striving for {{Simplicity}}: {{The All Convolutional Net}}},
+  shorttitle = {Striving for {{Simplicity}}},
+  author = {Springenberg, Jost Tobias and Dosovitskiy, Alexey and Brox, Thomas and Riedmiller, Martin},
+  year = {2015},
+  month = apr,
+  number = {arXiv:1412.6806},
+  eprint = {1412.6806},
+  primaryclass = {cs},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1412.6806},
+  urldate = {2023-06-11},
+  abstract = {Most modern convolutional neural networks (CNNs) used for object recognition are built using the same principles: Alternating convolution and max-pooling layers followed by a small number of fully connected layers. We re-evaluate the state of the art for object recognition from small images with convolutional networks, questioning the necessity of different components in the pipeline. We find that max-pooling can simply be replaced by a convolutional layer with increased stride without loss in accuracy on several image recognition benchmarks. Following this finding -- and building on other recent work for finding simple network structures -- we propose a new architecture that consists solely of convolutional layers and yields competitive or state of the art performance on several object recognition datasets (CIFAR-10, CIFAR-100, ImageNet). To analyze the network we introduce a new variant of the "deconvolution approach" for visualizing features learned by CNNs, which can be applied to a broader range of network structures than existing approaches.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\CWXZWKTG\\Springenberg e.a. - 2015 - Striving for Simplicity The All Convolutional Net.pdf;C\:\\Users\\lambr\\Zotero\\storage\\6NKYTLP3\\1412.html}
 }
 
 @inproceedings{stackeEvaluationContrastivePredictive2020,
@@ -2270,7 +2375,7 @@
   year = {2020},
   pages = {6538--6547},
   urldate = {2023-05-27},
-  file = {C\:\\Users\\lambr\\Zotero\\storage\\E39Y4XAW\\Zhu et al. - 2020 - S3VAE Self-Supervised Sequential VAE for Represen.pdf}
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\E39Y4XAW\\2005.11437.pdf}
 }
 
 @article{zouConvolutionalNeuralNetwork2018,
