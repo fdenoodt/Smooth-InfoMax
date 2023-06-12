@@ -2,7 +2,7 @@
 	\chapter{Syllable classification through histogram segmentation} \label{appendix:split_syllables}
 	The syllable classifiers in sections \ref{cha:exper_classifier} and \ref{cha:generalisation_study} take as input a fixed-length speech wave of a syllable. However, the words in the speech dataset are not yet split up into syllables, and we must do this ourselves.
 	
-	To split up the sound files in the dataset, we make use of Otsu's histogram segmentation algorithm \citep{otsuTlresholdSelectionMethod1979}. Afterwards, the split speech waves are padded with zeros in the front and back such that each wave has the same length. The files are padded to contain 8800 samples (at a sample rate of 16 kHz.).
+	To split up the sound files in the dataset, we make use of Otsu's histogram segmentation algorithm \citep{otsuThresholdSelectionMethod197}. Afterwards, the split speech waves are padded with zeros in the front and back such that each wave has the same length. The files are padded to contain 8800 samples (at a sample rate of 16 kHz.).
 	
 	Otsu's algorithm is traditionally used for segmentation applications on greyscale images. Given a single image, it chooses a particular intensity threshold and classifies all pixels into one of two classes depending on whether their intensity values are smaller or larger than the threshold. The threshold is chosen to be the one that minimises the intra-class variance \citep{binduEfficientMedicalImage2012}. 
 	

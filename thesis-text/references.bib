@@ -1321,6 +1321,7 @@
   author = {Lucas, James and Tucker, George and Grosse, Roger and Norouzi, Mohammad},
   year = {2022},
   month = jul,
+  journal = {International Conference on Learning Representations},
   urldate = {2023-04-22},
   abstract = {Posterior collapse in Variational Autoencoders (VAEs) arises when the variational distribution closely matches the uninformative prior for a subset of latent variables. This paper presents a simple and intuitive explanation for posterior collapse through the analysis of linear VAEs and their direct correspondence with Probabilistic PCA (pPCA). We identify how local maxima can emerge from the marginal log-likelihood of pPCA, which yields similar local maxima for the evidence lower bound (ELBO). We show that training a linear VAE with variational inference recovers a uniquely identifiable global maximum corresponding to the principal component directions. We provide empirical evidence that the presence of local maxima causes posterior collapse in deep non-linear VAEs. Our findings help to explain a wide range of heuristic approaches in the literature that attempt to diminish the effect of the KL term in the ELBO to reduce posterior collapse.},
   langid = {english},
@@ -1459,6 +1460,21 @@
   abstract = {Deep latent Gaussian models (DLGMs) composed of density and inference networks [14]\textemdash the pipeline that defines a Variational Autoencoder [8]\textemdash have achieved notable success on tasks ranging from image modeling [3] to semi-supervised classification [6, 11]. However, the approximate posterior in these models is usually chosen to be a factorized Gaussian, thereby imposing strong constraints on the posterior form and its ability to represent the true posterior, which is often multimodal. Recent work has attempted to improve the quality of the posterior approximation by altering the Stochastic Gradient Variational Bayes (SGVB) optimization objective. Burda et al. [2] proposed an importance weighted objective, and Li and Turner [10] then generalized the importance sampling approach to a family of {$\alpha$}-divergences. Yet, changing the optimization objective is not the only way to attenuate posterior restrictions. Instead, the posterior form itself can be made richer. For instance, Kingma et al. [7] employ full-covariance Gaussian posteriors, and Nalisnick \& Smyth [13] use (truncated) GEM random variables. This paper continues this later line of work by using a Gaussian mixture latent space. We describe learning and inference for not only the traditional mixture model but also Dirichlet Process mixtures [1] (with posterior truncation). Our deep Latent Gaussian mixture model (DLGMM) generalizes previous work such as Factor Mixture Analysis [12] and Deep Gaussian Mixtures [15] to arbitrary differentiable inter-layer transformations.}
 }
 
+@inproceedings{nalisnickApproximateInferenceDeep2016b,
+  title = {Approximate {{Inference}} for {{Deep Latent Gaussian Mixtures}}},
+  author = {Nalisnick, Eric T. and Hertel, L. and Smyth, Padhraic},
+  year = {2016},
+  urldate = {2023-06-12},
+  abstract = {Deep latent Gaussian models (DLGMs) composed of density and inference networks [14]\textemdash the pipeline that defines a Variational Autoencoder [8]\textemdash have achieved notable success on tasks ranging from image modeling [3] to semi-supervised classification [6, 11]. However, the approximate posterior in these models is usually chosen to be a factorized Gaussian, thereby imposing strong constraints on the posterior form and its ability to represent the true posterior, which is often multimodal. Recent work has attempted to improve the quality of the posterior approximation by altering the Stochastic Gradient Variational Bayes (SGVB) optimization objective. Burda et al. [2] proposed an importance weighted objective, and Li and Turner [10] then generalized the importance sampling approach to a family of {$\alpha$}-divergences. Yet, changing the optimization objective is not the only way to attenuate posterior restrictions. Instead, the posterior form itself can be made richer. For instance, Kingma et al. [7] employ full-covariance Gaussian posteriors, and Nalisnick \& Smyth [13] use (truncated) GEM random variables. This paper continues this later line of work by using a Gaussian mixture latent space. We describe learning and inference for not only the traditional mixture model but also Dirichlet Process mixtures [1] (with posterior truncation). Our deep Latent Gaussian mixture model (DLGMM) generalizes previous work such as Factor Mixture Analysis [12] and Deep Gaussian Mixtures [15] to arbitrary differentiable inter-layer transformations.}
+}
+
+@article{nalisnickApproximateInferenceDeepa,
+  title = {Approximate {{Inference}} for {{Deep Latent Gaussian Mixtures}}},
+  author = {Nalisnick, Eric and Hertel, Lars and Smyth, Padhraic},
+  langid = {english},
+  file = {C\:\\Users\\lambr\\Zotero\\storage\\NY3JLDSL\\Nalisnick e.a. - Approximate Inference for Deep Latent Gaussian Mix.pdf}
+}
+
 @inproceedings{neyshaburExploringGeneralizationDeep2017,
   title = {Exploring {{Generalization}} in {{Deep Learning}}},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
@@ -1564,10 +1580,11 @@
   file = {C\:\\Users\\lambr\\Zotero\\storage\\E2N9DAB7\\Otsu's_method.html}
 }
 
-@article{otsuTlresholdSelectionMethod1979,
-  title = {A {{Tlreshold Selection Method}} from {{Gray-Level Histograms}}},
+@article{otsuThresholdSelectionMethod1979,
+  title = {A {{Threshold Selection Method}} from {{Gray-Level Histograms}}},
   author = {Otsu, Nobuyuki},
   year = {1979},
+  journal = {Institute of Electrical and Electronics Engineers},
   abstract = {A nonparametric and unsupervised method of automatic threshold selection for picture segmentation is presented. An optimal threshold is selected by the discriminant criterion, namely, so as to maximize the separability of the resultant classes in gray levels. The procedure is very simple, utilizing only the zeroth- and the first-order cumulative moments of the gray-level histogram. It is t straightforward to extend the method to multithreshold problems.},
   langid = {english},
   file = {C\:\\Users\\lambr\\Zotero\\storage\\MEDGICZR\\Otsu - A Tlreshold Selection Method from Gray-Level Histo.pdf}
@@ -1587,6 +1604,7 @@
   author = {Paszke, Adam and Gross, Sam and Chintala, Soumith and Chanan, Gregory and Yang, Edward and DeVito, Zachary and Lin, Zeming and Desmaison, Alban and Antiga, Luca and Lerer, Adam},
   year = {2017},
   month = oct,
+  journal = {Conference on Neural Information Processing Systems},
   urldate = {2023-05-07},
   abstract = {In this article, we describe an automatic differentiation module of PyTorch \textemdash{} a library designed to enable rapid research on machine learning models. It builds upon a few projects, most notably Lua Torch, Chainer, and HIPS Autograd, and provides a high performance environment with easy access to automatic differentiation of models executed on different devices (CPU and GPU). To make prototyping easier, PyTorch does not follow the symbolic approach used in many other deep learning frameworks, but focuses on differentiation of purely imperative programs, with a focus on extensibility and low overhead. Note that this preprint is a draft of certain sections from an upcoming paper covering all PyTorch features.},
   langid = {english},
