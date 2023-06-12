@@ -4,7 +4,7 @@
 	
 	To split up the sound files in the dataset, we make use of Otsu's histogram segmentation algorithm \citep{otsuTlresholdSelectionMethod1979}. Afterwards, the split speech waves are padded with zeros in the front and back such that each wave has the same length. The files are padded to contain 8800 samples (at a sample rate of 16 kHz.).
 	
-	Otsu's algorithm is traditionally used for segmentation applications on greyscale images. Given an individual image, it chooses a particular intensity threshold and classifies all pixels into one of two classes depending on whether their intensity values are smaller or larger than the threshold. The threshold is chosen to be the one that minimises the intra-class variance \cite{OtsuMethod2023}. 
+	Otsu's algorithm is traditionally used for segmentation applications on greyscale images. Given a single image, it chooses a particular intensity threshold and classifies all pixels into one of two classes depending on whether their intensity values are smaller or larger than the threshold. The threshold is chosen to be the one that minimises the intra-class variance \citep{OtsuMethod2023}. 
 	
 	We explore an alternative domain for the algorithm and use it to find an amplitude threshold in the speech waves. The recordings are consistent in loudness and each file contains exactly three syllables of the form ``consonant - vowel". It, therefore, suffices to find a single threshold per audio file that classifies the amplitudes as vowel or consonant.
 	
