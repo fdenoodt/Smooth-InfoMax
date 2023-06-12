@@ -282,20 +282,18 @@ In this thesis, we introduced V-GIM, a self-supervised approach for interpretabl
 
 %By encoding each data point to its latent representation and creating a histogram for of the representations per dimension, we observed that V-GIM does indeed enforce each dimension to be standard normal, indicating that implications with respect to interpretability using the decoder are indeed applicable. 
 
-
-\section{Final Conclusion}
-
 %can we improve interpretability of learning approaches through incorporating explainability requirements into the network, for CPC.
 
-We introduced Variational Greedy InfoMax, a self-supervised representation learning approach which incorporates interpretability requirements into the design of the network. This approach enables the analysis of the internal representations through a decoder, ensuring that the decodings are not only meaningful but also that we can use them to gain valuable insights into the underlying structure these representations.
+\section{Final Conclusion}
+We have introduced Variational Greedy InfoMax (V-GIM), a self-supervised representation learning approach which incorporates interpretability requirements into the design of the model. V-GIM builds upon the greedy layer-wise learning approach of GIM, benefiting from decoupled and asynchronous distributed training while addressing the vanishing gradient problem. Additionally, V-GIM benefits from VAEs' disentangled representations and representation variability.
+
+By applying constraints to the latent space of each module, V-GIM's greedy learning approach results in an internal batch normalisation mechanism. This mechanism, leads to improved performance of the deeper modules, outperforming V-GIM's non-variational counterpart, GIM. However, the representation variability obtained from V-GIM's stochastic representations does not appear to improve the performance of downstream tasks in scenarios where labelled data is scarce. Future work should investigate this in more detail, as these findings could potentially be attributed to the nature of the downstream task rather than the quality of the representations themselves.
+
+V-GIM's improved interpretability is achieved through its ability to analyse internal representations using a decoder. By imposing latent space constraints, V-GIM ensures meaningful decodings that provide valuable insights into the underlying structure of these representations, which is not the case in GIM. We found that V-GIM learned internal representations which were sensitive to specific vowels, while consonant information was lacking. Furthermore, individual dimensions in the representations captured information on specific frequency bins or entire neighbourhoods of frequency bins. Meanwhile, certain dimensions did not appear to contain any information at all. This shows that the individual concepts that neurons are sensitive to, can be observed for both the output and internal neurons, thus allowing us to gain a deeper understanding of the internal mechanisms learned by these networks. Consequently, this brings us one step closer to comprehending the complex workings of neural networks.
 
 
+%enabling us to better understand these networks internally, by observing the internal mechanisms these networks have learned. Ultimately, this brings us one step closer to comprehending the internal workings of neural networks.
 
-In particular, we found that V-GIM learned internal representations which were sensitive to specific vowels, while consonant information was lacking. Furthermore, individual dimensions in the representations captured information on specific frequency bins or entire neighbourhoods of frequency bins. Meanwhile, certain dimensions did not appear to contain any information at all. This shows that the individual concepts that neurons are sensitive to, can be observed for both the output neurons but also the internal neurons, enabling us to better understand these networks internally, by observing the internal mechanisms these networks have learned.
-
-In addition to the interpretability benefits, V-GIM's greedy learning approach combined with the constraints applied to the latent space of each module, results in an internal batch normalisation mechanism. This mechanism, leads to improved performance of the deeper modules, outperforming V-GIM's non-variational counterpart, Greedy InfoMax.
-
-However, it is important to note that the representation variability obtained from V-GIM's stochastic representations does not appear to improve the performance of downstream tasks in scenarios where labelled data is scarce. Future work should investigate this in more detail, as these findings could potentially be attributed to the nature of the downstream task rather than the quality of the representations themselves.
 
 %
 %V-GIM enables easier analysis of the model through post-hoc explainability approaches, for instance, through a decoder.
