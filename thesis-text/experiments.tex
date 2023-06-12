@@ -90,7 +90,7 @@ In this chapter, we evaluate the effectiveness of the latent representations obt
 
 
 		
-	\subsection{t-SNE} % TODO: moet single syllable uitleggen met opsplitsing
+	\subsection{t-SNE} \label{cha:exper_tsne} % TODO: moet single syllable uitleggen met opsplitsing
 	We project the latent representations obtained from each module to a two-dimensional plane using t-SNE \citep{maatenVisualizingDataUsing2008}. This enables us to observe potential clusters, as similar data points are mapped close together, while dissimilar points remain far away. Similar to the syllable classifier discussed in section \ref{cha:experim_details_vgim}, t-SNE is trained on flattened representations that are split into individual syllables, without performing any pooling. We run t-SNE with random initialisation, perplexity of 30 and a learning rate of 200 for 1000 iterations.
 	
 	The graphs for GIM and V-GIM are displayed in figure \ref{fig:four_tsne_plots}. T-SNE was not provided with any information about the class labels. Syllables containing the vowel ``a" are represented with a red tint, ``u" with green, and ``i" with blue. We observe similar results in the first module of both GIM and V-GIM. T-SNE identifies two clusters, with one cluster corresponding to syllables containing an ``a" and the other cluster to containing ``u" or ``i". Within the ``u/i" cluster, there is still a grouping of ``u" and ``i" data points. However, distinguishing between ``b", ``d" or ``g" is more challenging as data points within the clusters are entangled.
