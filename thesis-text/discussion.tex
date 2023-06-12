@@ -16,7 +16,7 @@ In this thesis, we introduced V-GIM, a self-supervised approach for interpretabl
 
 
 
-\section{Representation analysis}
+\section{Representation analysis} \label{cha:disc_repr_anal}
 	
 	% no b, wel a
 	We analysed V-GIM's representations using t-SNE plots, linear classifiers, and decoders trained on top of V-GIM's representations. We observed that the representations contained vowel information but lacked consonant information. This was observed in both the t-SNE plots and the linear classifier results. We suggest that this is related to the duration of the phonemes. The InfoNCE objective, from which our loss function is derived, maximises the MI between temporally nearby patches, assuming the presence of common information in nearby data. However, the vowels in the dataset are typically pronounced for longer duration than the consonants, and thus, representations where a consonant is being pronounced have less information in common with nearby representations as in those representations the consonant may not be pronounced any more. These findings align with \cite{lowePuttingEndEndtoEnd2020a} who suggested that optimisation of the InfoNCE objective favours global information over local information. 
