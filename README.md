@@ -39,7 +39,7 @@ sensitive to which vowels, further demonstrating the interpretability of V-GIM.
 
 <img src="assets\image-20230613110122953.png" alt="image-20230613110122953" style="zoom: 33%;" />
 
-<img src="./../../../../AppData/Roaming/Typora/typora-user-images/image-20230613111315897.png" alt="image-20230613111315897" style="zoom:33%;" />
+<img src="./assets/image-20230613111315897.png" alt="image-20230613111315897" style="zoom:33%;" />
 
 
 
