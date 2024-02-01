@@ -5,7 +5,7 @@ import torchaudio
 from collections import defaultdict
 
 from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
-from helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
+from utils.helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
 
 
 def default_loader(path):

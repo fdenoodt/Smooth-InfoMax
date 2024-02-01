@@ -4,18 +4,13 @@ This file is used to analyse the hidden representation of the audio signal.
 - It stores the hidden representation of the audio signal for each batch in a tensor.
 - The tensor is then visualised using a scatter plot.
 """
-import os
 import random
-import numpy as np
 from sklearn.manifold import TSNE
-import torch
-from GIM_encoder import GIM_Encoder
-from helper_functions import *
+from utils.helper_functions import *
 from options import OPTIONS as OPT
 from options_anal_hidd_repr import OPTIONS as OPT_ANAL
 from arg_parser import arg_parser
 from data import get_dataloader
-import torch.nn as nn
 
 random.seed(0)
 

@@ -1,8 +1,6 @@
 # %%
 import soundfile as sf
-import IPython.display as ipd
-from GIM_encoder import GIM_Encoder
-from options import OPTIONS as opt
+from encoder.GIM_encoder import GIM_Encoder
 import torch
 import matplotlib.pyplot as plt
 import librosa

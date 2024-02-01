@@ -1,9 +1,7 @@
 # %%
-from helper_functions import *
-from decoder_architectures import *
+from decoder.decoder_architectures import *
 import torch
-from options import OPTIONS as opt
-from GIM_encoder import GIM_Encoder
+from encoder.GIM_encoder import GIM_Encoder
 from utils import logger
 from data import get_dataloader
 import random

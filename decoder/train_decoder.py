@@ -1,19 +1,14 @@
 # %%
-import time
 import importlib
-from GIM_encoder import GIM_Encoder
-import decoder_architectures
-import helper_functions
-from options import OPTIONS as opt
+from decoder import decoder_architectures
+from utils import helper_functions
 from options_autoencoder import OPTIONS as options_autoencoder
-import torch
 
 from arg_parser import arg_parser
 from data import get_dataloader
-import numpy as np
 import random
 
-from eval_autoencoder import generate_predictions
+from eval_decoder import generate_predictions
 
 
 random.seed(0)
@@ -22,8 +17,8 @@ if(True):
     importlib.reload(decoder_architectures)
     importlib.reload(helper_functions)
 
-    from decoder_architectures import *
-    from helper_functions import *
+    from decoder.decoder_architectures import *
+    from utils.helper_functions import *
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

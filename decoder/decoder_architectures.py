@@ -1,6 +1,6 @@
 # %%
 import torchaudio.transforms as T
-from helper_functions import *
+from utils.helper_functions import *
 from decoder_architectures import *
 import torch.nn.functional as F
 import torch.nn as nn

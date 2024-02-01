@@ -1,4 +1,4 @@
-from decoder_architectures import MEL_LOSS, SimpleV2DecoderTwoModules
+from decoder.decoder_architectures import MEL_LOSS, SimpleV2DecoderTwoModules
 
 EXPERIMENT_NAME = "GIM_DECODER_simple_v2_TWO_MODULES"
 

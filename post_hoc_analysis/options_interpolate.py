@@ -2,7 +2,7 @@
 # INTERPOLATE FIRST MODULE.
 
 import torch
-from decoder_architectures import SimpleV2Decoder, SimpleV2DecoderTwoModules, SimpleV3DecoderTwoModules
+from decoder.decoder_architectures import SimpleV2Decoder
 
 # Pair w/ split = 1, architecture v2
 CPC_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"

@@ -1,9 +1,8 @@
 import tikzplotlib
-import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-from helper_functions import create_log_dir
+from utils.helper_functions import create_log_dir
 
 
 """

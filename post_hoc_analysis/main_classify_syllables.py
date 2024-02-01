@@ -1,18 +1,8 @@
-from eval_autoencoder import generate_predictions
 from arg_parser import arg_parser
-import helper_functions
-import decoder_architectures
-import importlib
-import time
-import numpy as np
-import random
-import torch
-from GIM_encoder import GIM_Encoder
 from data import get_dataloader
 from options_classify_syllables import get_options
-import matplotlib.pyplot as plt
-from decoder_architectures import *
-from helper_functions import *
+from decoder.decoder_architectures import *
+from utils.helper_functions import *
 from utils import utils
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

@@ -4,7 +4,7 @@ import pathlib
 import torchaudio
 import torch
 
-from helper_functions import resample
+from utils.helper_functions import resample
 
 
 class GuassianNoise:

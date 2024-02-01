@@ -1,12 +1,10 @@
 # %%
 import torch
-from GIM_encoder import GIM_Encoder
+from encoder.GIM_encoder import GIM_Encoder
 from data import get_dataloader
-from decoder_architectures import SimpleV2Decoder
-from helper_functions import create_log_dir
+from decoder.decoder_architectures import SimpleV2Decoder
+from utils.helper_functions import create_log_dir
 from options_interpolate import get_options
-from IPython.display import Audio
-import numpy as np
 import soundfile as sf
 
 
@@ -103,8 +101,7 @@ if __name__ == "__main__":
 
     # %%
     from __future__ import print_function
-    from ipywidgets import interact, interactive, fixed, interact_manual
-    import ipywidgets as widgets
+    from ipywidgets import interact
     import matplotlib.pyplot as plt
     import random
 
