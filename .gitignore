@@ -11,7 +11,7 @@ GIM/idk.pt
 GIM/options copy.py
 GIM/options copy 2.py
 thesis-text/.DS_Store
-
+.idea/*
 
 
 ## Core latex/pdflatex auxiliary files:
@@ -505,3 +505,4 @@ if __name__ == '__main__':
 
 ```
 
+desktop.ini
