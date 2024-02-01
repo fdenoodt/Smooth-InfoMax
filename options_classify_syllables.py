@@ -63,7 +63,7 @@
 
 
 # def get_options():
-#     options = {
+#     configs = {
 #         'device':  torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
 #         'cpc_model_path': CPC_MODEL_PATH,
 #         'predict_distributions': predict_distributions,
@@ -89,7 +89,7 @@
 #         'batch_size': BATCH_SIZE,  # only used if "all", else overwritten
 #         'subset': 'all'  # 1, 2, .. 'all'
 #     }
-#     return options
+#     return configs
 
 
 

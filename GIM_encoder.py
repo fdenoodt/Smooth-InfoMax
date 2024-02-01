@@ -64,7 +64,7 @@ class GIM_Encoder():
 
 if __name__ == "__main__":
 
-    from options import OPTIONS as opt
+    from configs import OPTIONS as opt
     # from data.de_boer_decoder_sounds import DeBoerDecoderDataset
     # import os
 
