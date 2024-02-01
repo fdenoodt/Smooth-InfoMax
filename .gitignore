@@ -13,6 +13,10 @@ GIM/options copy 2.py
 thesis-text/.DS_Store
 .idea/*
 
+*.wav
+datasets/*
+*.pyc
+
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
