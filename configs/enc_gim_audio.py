@@ -1,63 +1,34 @@
 import torch
+
 from encoder.architecture_config import ArchitectureConfig, ModuleConfig
 
-# WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
-# if not: inconsitent results
-# (see options_decoder.py > `gim_model_path`)
-
-# EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_kld_weight=0.0033 !!'
 NUM_EPOCHS = 4
 START_EPOCH = 0
-BATCH_SIZE = 8  # 171
+AUTO_REGRESSOR_AFTER_MODULE = False
+BATCH_SIZE = 8
 
 ROOT_LOGS = r"C:\\sim_logs\\"
 
-# Simple architecture v2 # 20480 -> 105 (first module)
-kernel_sizes = [10, 8, 3]
-strides = [4, 3, 1]
-padding = [2, 2, 1]
-max_pool_k_size = 8
-max_pool_stride = 4
-cnn_hidden_dim = 32
-regressor_hidden_dim = 16
-predict_distributions = True
-
-module1 = ModuleConfig(
-    max_pool_k_size=max_pool_k_size, max_pool_stride=max_pool_stride,
-    kernel_sizes=kernel_sizes, strides=strides, padding=padding,
-    cnn_hidden_dim=cnn_hidden_dim, regressor_hidden_dim=regressor_hidden_dim, is_autoregressor=False,
-    prediction_step=12, predict_distributions=predict_distributions)
-
-# Second module architectures: (v2 / v3)
-# v2
-# kernel_sizes = [8, 8, 3]
-# strides = [3, 3, 1]
-# padding = [2, 2, 1]
-# max_pool_k_size = None
-# max_pool_stride = None
-
-# v3
-kernel_sizes = [6, 6, 3]
-strides = [2, 2, 1]
-padding = [2, 2, 1]
-max_pool_k_size = None
+# Original dimensions given in CPC paper (Oord et al.).
+kernel_sizes = [10, 8, 4, 4, 4] # 20480 -> 128
+strides = [5, 4, 2, 2, 2]
+padding = [2, 2, 2, 2, 1]
 max_pool_stride = None
-module2 = ModuleConfig(
-    max_pool_k_size=max_pool_k_size, max_pool_stride=max_pool_stride,
-    kernel_sizes=kernel_sizes, strides=strides, padding=padding,
-    cnn_hidden_dim=cnn_hidden_dim, regressor_hidden_dim=regressor_hidden_dim, is_autoregressor=False,
-    prediction_step=12, predict_distributions=True)
+max_pool_k_size = None
+cnn_hidden_dim = 512
+predict_distributions = False
 
-ARCHITECTURE = ArchitectureConfig(
-    modules=[module1, module2])
+# Splits each layer into a separate module
+modules = ModuleConfig.get_modules_from_list(kernel_sizes, strides, padding, cnn_hidden_dim, predict_distributions)
+ARCHITECTURE = ArchitectureConfig(modules=modules)
+
 
 LEARNING_RATE = 2e-4  # 0.01  # 0.003 # old: 0.0001
-DECAY_RATE = 0.99
-KLD_WEIGHT = 0.0033  # 0.0033  # 0.0025
-TRAIN_W_NOISE = False
+DECAY_RATE = 0.99 # no decay: 1.0
+KLD_WEIGHT = 0.0033 # 0.0033  # 0.0025
 
 # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
-DATA_SET = 'de_boer_sounds_reshuffled'
+DATA_SET = 'librispeech'
 SPLIT_IN_SYLLABLES = False
 PERFORM_ANALYSIS = True
 
@@ -78,10 +49,10 @@ def get_options(experiment_name):
         'learning_rate': LEARNING_RATE,
         'decay_rate': DECAY_RATE,
 
-        'train_w_noise': TRAIN_W_NOISE,
+        'train_w_noise': False,
         'split_in_syllables': SPLIT_IN_SYLLABLES,
 
-        'model_num': '',
+        'model_num': '', # for loading a specific model from a specific epoch and continue training
         'model_type': 0,
         'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
 
@@ -99,20 +70,24 @@ def get_options(experiment_name):
         'batch_size_multiGPU': BATCH_SIZE,  # 22,
         'batch_size': BATCH_SIZE,
 
+
         'perform_analysis': PERFORM_ANALYSIS,
         # configs for analysis
         'ANAL_LOG_PATH': f'{ROOT_LOGS}/{experiment_name}/analyse_hidden_repr/',
         'ANAL_ENCODER_MODEL_DIR': f"{ROOT_LOGS}/{experiment_name}",
         'ANAL_EPOCH_VERSION': START_EPOCH + NUM_EPOCHS - 1,
+        'ANAL_AUTO_REGRESSOR_AFTER_MODULE': AUTO_REGRESSOR_AFTER_MODULE,
         'ANAL_ONLY_LAST_PREDICTION_FROM_TIME_WINDOW': False,
 
         'ANAL_SAVE_ENCODINGS': True,
         'ANAL_VISUALISE_LATENT_ACTIVATIONS': False,
         'ANAL_VISUALISE_TSNE': True,
         'ANAL_VISUALISE_TSNE_ORIGINAL_DATA': False,
-        'ANAL_VISUALISE_HISTOGRAMS': False  # TODO
+        'ANAL_VISUALISE_HISTOGRAMS': False # TODO
     }
     return options
+
+
 
 
 if __name__ == '__main__':

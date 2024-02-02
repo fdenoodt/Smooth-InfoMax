@@ -1,90 +1,76 @@
 import torch
 import torch.nn as nn
 
+from encoder.architecture_config import ArchitectureConfig
 from models import independent_module, independent_module_regressor
 from utils import utils
 
 
 class FullModel(nn.Module):
     def __init__(
-        self,
-        opt,
-        calc_accuracy=False,
+            self,
+            opt,
+            calc_accuracy=False,
     ):
         """
         Entire CPC model that can be split into smaller chunks for training
         """
         super(FullModel, self).__init__()
 
-        self.opt = opt
-        assert self.opt["model_splits"] in [
-            1, 2, 3], "Invalid option for opt['model_splits']"
-
-        architecture = opt["architecture_module_1"]
-        kernel_sizes = architecture["kernel_sizes"]
-        strides = architecture["strides"]
-        padding = architecture["padding"]
-        cnn_hidden_dim = architecture["cnn_hidden_dim"]
-        regressor_hidden_dim = architecture["regressor_hidden_dim"]
-        max_pool_k_size = architecture["max_pool_k_size"]
-        max_pool_stride = architecture["max_pool_stride"]
-        prediction_step = architecture["prediction_step"]
-
         # load model
         self.fullmodel = nn.ModuleList([])
 
-        self.fullmodel.append(
-            independent_module.IndependentModule(
-                opt,
-                enc_kernel_sizes=kernel_sizes,  # [10, 8, 4, 4, 4]
-                enc_strides=strides,  # [5, 4, 2, 2, 2]
-                enc_padding=padding,  # [2, 2, 2, 2, 1]
-                nb_channels_cnn=cnn_hidden_dim,  # 512
-                nb_channels_regress=regressor_hidden_dim,  # 256
-                max_pool_k_size=max_pool_k_size,
-                max_pool_stride=max_pool_stride,
-                calc_accuracy=calc_accuracy,
-                prediction_step=prediction_step,
-            )
+        self.opt = opt
+        architecture: ArchitectureConfig = opt["architecture"]
+        # CNN modules
+        for idx, module_config in enumerate(architecture.modules):
+            # Auto-regressor module
+            if module_config.is_autoregressor:
+                m = module_config
+                # assert no distributions
+                assert not m.predict_distributions, "Distributions not implemented for autoregressor"
+                self.fullmodel.append(
+                    independent_module_regressor.AutoregressorIndependentModule(
+                        opt,
+                        nb_channels_cnn=m.cnn_hidden_dim,
+                        nb_channels_regress=m.regressor_hidden_dim,
+                        calc_accuracy=calc_accuracy,
+                        prediction_step=m.prediction_step))
+
+            # Regular module (CNN)
+            else:
+                indep_module = FullModel.cnn_module_from_config(opt, module_config, calc_accuracy, idx == 0)
+                self.fullmodel.append(indep_module)
+
+    @staticmethod
+    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module):
+        kernel_sizes = module_config.kernel_sizes
+        strides = module_config.strides
+        padding = module_config.padding
+        cnn_hidden_dim = module_config.cnn_hidden_dim
+
+        assert module_config.regressor_hidden_dim is not None  # TODO: implement regressor_hidden_dim
+        regressor_hidden_dim = module_config.regressor_hidden_dim
+
+        max_pool_k_size = module_config.max_pool_k_size
+        max_pool_stride = module_config.max_pool_stride
+        prediction_step = module_config.prediction_step
+
+        module = independent_module.IndependentModule(
+            opt,
+            enc_input=1 if is_first_module else cnn_hidden_dim,  # 1 if first layer, else cnn_hidden_dim
+            enc_kernel_sizes=kernel_sizes,  # [10, 8, 4, 4, 4]
+            enc_strides=strides,  # [5, 4, 2, 2, 2]
+            enc_padding=padding,  # [2, 2, 2, 2, 1]
+            nb_channels_cnn=cnn_hidden_dim,  # 512
+            nb_channels_regress=regressor_hidden_dim,  # 256
+            max_pool_k_size=max_pool_k_size,
+            max_pool_stride=max_pool_stride,
+            calc_accuracy=calc_accuracy,
+            prediction_step=prediction_step,
+            predict_distributions=module_config.predict_distributions
         )
-
-        if self.opt["model_splits"] >= 2:
-            enc_input = cnn_hidden_dim
-
-            architecture = opt["architecture_module_2"]
-            kernel_sizes = architecture["kernel_sizes"]
-            strides = architecture["strides"]
-            padding = architecture["padding"]
-            cnn_hidden_dim = architecture["cnn_hidden_dim"]
-            regressor_hidden_dim = architecture["regressor_hidden_dim"]
-            max_pool_k_size = architecture["max_pool_k_size"]
-            max_pool_stride = architecture["max_pool_stride"]
-            prediction_step = architecture["prediction_step"]
-
-            self.fullmodel.append(
-                independent_module.IndependentModule(
-                    opt,
-                    enc_input=enc_input,
-                    enc_kernel_sizes=kernel_sizes,
-                    enc_strides=strides,
-                    enc_padding=padding,
-                    nb_channels_cnn=cnn_hidden_dim,
-                    nb_channels_regress=regressor_hidden_dim,
-                    max_pool_k_size=max_pool_k_size,
-                    max_pool_stride=max_pool_stride,
-                    calc_accuracy=calc_accuracy,
-                    prediction_step=prediction_step,
-                )
-            )
-
-        if self.opt["model_splits"] == 3:  # append auto-regressor
-            self.fullmodel.append(
-                independent_module_regressor.AutoregressorIndependentModule(
-                    opt,
-                    nb_channels_cnn=cnn_hidden_dim,
-                    nb_channels_regress=regressor_hidden_dim,
-                    calc_accuracy=calc_accuracy,
-                    prediction_step=prediction_step))
+        return module
 
     def forward(self, x):
         model_input = x
@@ -96,6 +82,7 @@ class FullModel(nn.Module):
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
         for idx, layer in enumerate(self.fullmodel):
+
             loss[:, idx], accuracy[:, idx], z = layer(model_input)
             model_input = z.permute(0, 2, 1).detach()  # (22, 55, 512)
 

@@ -11,12 +11,13 @@ class Logger:
     def __init__(self, opt):
         self.opt = opt
 
+        nb_modules = len(opt["architecture"].modules)
         if opt["validate"]:
-            self.val_loss = [[] for i in range(opt["model_splits"])]
+            self.val_loss = [[] for i in range(nb_modules)]
         else:
             self.val_loss = None
 
-        self.train_loss = [[] for i in range(opt["model_splits"])]
+        self.train_loss = [[] for i in range(nb_modules)]
 
         if opt["start_epoch"] > 0:
             self.loss_last_training = np.load(
@@ -39,7 +40,7 @@ class Logger:
             self.loss_last_training = None
 
             if opt["validate"]:
-                self.val_loss = [[] for i in range(opt["model_splits"])]
+                self.val_loss = [[] for i in range(nb_modules)]
             else:
                 self.val_loss = None
 

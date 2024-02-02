@@ -32,14 +32,8 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
 
     for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
 
-        # store model
-        # if epoch % opt["log_every_x_epochs"] == 0:
-        #     # save model
-        #     torch.save(model.state_dict(), opt["model_path"] + f"temp_model_{epoch}.pt")
-
-
-
-        loss_epoch = [0 for _ in range(opt["model_splits"])]
+        nb_modules = len(opt["architecture"].modules)
+        loss_epoch = [0 for _ in range(nb_modules)]
 
         for step, (audio, _, _, _) in enumerate(train_loader):
 
@@ -83,7 +77,7 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
             validation_loss = val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
-        if(epoch % opt['log_every_x_epochs'] == 0):
+        if (epoch % opt['log_every_x_epochs'] == 0):
             logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
@@ -114,9 +108,12 @@ def main(options):
     model, optimizer = load_audio_model.load_model_and_optimizer(
         options, learning_rate)
 
+    assert not options["train_w_noise"], "Noise not supported yet."
+
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        options, dataset=options["data_set"], train_noise=options["train_w_noise"], split_and_pad=options["split_in_syllables"])
+        options, dataset=options["data_set"], train_noise=options["train_w_noise"],
+        split_and_pad=options["split_in_syllables"])
 
     try:
         # Train the model
@@ -142,6 +139,7 @@ def init(options):
     torch.cuda.manual_seed(options["seed"])
     np.random.seed(options["seed"])
     random.seed(options["seed"])
+
 
 def run_configuration(options):
     init(options)

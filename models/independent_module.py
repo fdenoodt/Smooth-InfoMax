@@ -16,14 +16,14 @@ from models import (
 class IndependentModule(nn.Module):
     def __init__(
         self, opt,
-        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12
-    ):
+        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, predict_distributions, enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
         super(IndependentModule, self).__init__()
 
         self.opt = opt
         self.calc_accuracy = calc_accuracy
         self.nb_channels_cnn = nb_channels_cnn
         self.nb_channels_regressor = nb_channels_regress
+        self.predict_distributions = predict_distributions
 
         # encoder, out: B x L x C = (22, 55, 512)
         self.encoder = cnn_encoder.CNNEncoder(
@@ -37,18 +37,9 @@ class IndependentModule(nn.Module):
             max_pool_stride=max_pool_stride,
         )
 
-        if self.opt["auto_regressor_after_module"]:
-            self.autoregressor = autoregressor.Autoregressor(
-                opt=opt, input_size=self.nb_channels_cnn, hidden_dim=self.nb_channels_regressor
-            )
-
-            # hidden dim of the autoregressor is the input dim of the loss
-            self.loss = loss_InfoNCE.InfoNCE_Loss(
-                opt, hidden_dim=self.nb_channels_regressor, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
-        else:
-            # hidden dim of the encoder is the input dim of the loss
-            self.loss = loss_InfoNCE.InfoNCE_Loss(
-                opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
+        # hidden dim of the encoder is the input dim of the loss
+        self.loss = loss_InfoNCE.InfoNCE_Loss(
+            opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
 
     def get_latents(self, x):  # Latents now return distribution parameters
         """
@@ -64,8 +55,6 @@ class IndependentModule(nn.Module):
 
         mu = mu.permute(0, 2, 1)  # (b, 55, 512)
         log_var = log_var.permute(0, 2, 1)
-
-        assert self.opt["auto_regressor_after_module"] == False, "Not implemented yet"
 
         return [(mu, log_var), (mu, log_var)]
 
@@ -94,7 +83,7 @@ class IndependentModule(nn.Module):
         # B x L x C = Batch size x #channels x length
         (c_mu, c_log_var), (z_mu, z_log_var) = self.get_latents(x)  # B x L x C
 
-        if self.opt['predict_distributions']:
+        if self.predict_distributions:
             c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
             z = self.reparameterize(z_mu, z_log_var)
 

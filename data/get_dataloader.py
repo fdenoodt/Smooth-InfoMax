@@ -16,8 +16,7 @@ def _dataloaders(opt, train_specific_dir, test_specific_dir, train_sub_dir, test
         # ONLY NOISE FOR TRAINING DATASETS!
         background_noise=train_noise, white_guassian_noise=train_noise,
         background_noise_path=os.path.join(
-            opt["data_input_dir"],
-            "musan"),
+            opt["data_input_dir"], "musan"),
         split_into_syllables=split_and_pad
     )
 
@@ -77,6 +76,7 @@ def _get_de_boer_sounds_data_loaders(opt, reshuffled=None, split_and_pad=True, t
     else:
         specific_directory = ""
 
+    print(f"using {specific_directory} directory")
     return _dataloaders(opt, specific_directory, specific_directory, "train", "test", split_and_pad, train_noise, shuffle)
 
 
@@ -88,6 +88,7 @@ def _get_libri_dataloaders(opt):
     :return: train_loader, train_dataset,
     test_loader, test_dataset - corresponds to validation or test set depending on opt.validate
     """
+    print("Loading LibriSpeech dataset...")
     num_workers = 1
 
     print("Using Train+Val / Test Split")

@@ -5,9 +5,9 @@ import torch
 def val_by_InfoNCELoss(opt, model, test_loader):
     total_step = len(test_loader)
 
-    model_splits = opt["model_splits"]
+    nb_modules = len(opt["architecture"].modules)
 
-    loss_epoch = [0 for i in range(model_splits)]
+    loss_epoch = [0 for i in range(nb_modules)]
     starttime = time.time()
 
     for step, (audio, _, _, _) in enumerate(test_loader):
@@ -19,9 +19,9 @@ def val_by_InfoNCELoss(opt, model, test_loader):
 
         loss_epoch += loss.data.cpu().numpy()
 
-    for i in range(model_splits):
+    for i in range(nb_modules):
         print(
-            f"Validation Loss Model {i}: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[i] / total_step:.4f}"
+            f"Validation Loss Module {i}: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[i] / total_step:.4f}"
         )
 
     validation_loss = [x/total_step for x in loss_epoch]
