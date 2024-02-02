@@ -74,11 +74,11 @@ def _save_encodings(opt_anal, root_dir, data_type, encoder: GIM_Encoder, data_lo
                        f"{target_dir}/batch_org_audio_{idx}.pt")
 
 
-def generate_and_save_encodings(opt_anal, encoder_model_path):
-    encoder: GIM_Encoder = GIM_Encoder(opt, path=encoder_model_path)
+def generate_and_save_encodings(opt_enc, opt_anal, encoder_model_path):
+    encoder: GIM_Encoder = GIM_Encoder(opt_enc, path=encoder_model_path)
     split = True
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds_reshuffled", shuffle=False, split_and_pad=split, train_noise=False)
+        opt_enc, dataset="de_boer_sounds_reshuffled", shuffle=False, split_and_pad=split, train_noise=False)
 
     target_dir = f"{opt_anal['LOG_PATH']}/hidden_repr/{'split' if split else 'full'}"
 
@@ -318,7 +318,7 @@ def run_visualisations(opt, opt_anal):
     ENCODER_MODEL_PATH = f"{opt_anal['ENCODER_MODEL_DIR']}/{ENCODER_NAME}"
 
     if opt_anal['SAVE_ENCODINGS']:
-        generate_and_save_encodings(opt_anal, ENCODER_MODEL_PATH)
+        generate_and_save_encodings(opt, opt_anal, ENCODER_MODEL_PATH)
 
     if opt_anal['VISUALISE_LATENT_ACTIVATIONS'] or opt_anal['VISUALISE_TSNE'] or opt_anal['VISUALISE_HISTOGRAMS']:
         generate_visualisations(opt_anal)

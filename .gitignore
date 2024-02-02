@@ -341,7 +341,7 @@ import torch
 
 # WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
 # if not: inconsitent results
-# (see options_autoencoder.py > `gim_model_path`) 
+# (see options_decoder.py > `gim_model_path`)
 EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_TWO_MODULES_kld_weight=0.0033_latent_dim=32 !!'
 NUM_EPOCHS = 1
 START_EPOCH = 0

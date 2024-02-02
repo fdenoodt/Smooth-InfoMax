@@ -127,7 +127,8 @@ def main(options):
 
     logs.create_log(model)
 
-    save_latents_and_generate_visualisations(options)
+    # TODO:
+    # Save_latents_and_generate_visualisations(options)
 
 
 def init(options):

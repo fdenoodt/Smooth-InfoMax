@@ -2,7 +2,7 @@
 import importlib
 from decoder import decoder_architectures
 from utils import helper_functions
-from options_autoencoder import OPTIONS as options_autoencoder
+from options_decoder import OPTIONS as options_autoencoder
 
 from arg_parser import arg_parser
 from data import get_dataloader

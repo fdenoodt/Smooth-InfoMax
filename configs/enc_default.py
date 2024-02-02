@@ -2,12 +2,10 @@ import torch
 
 # WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
 # if not: inconsitent results
-# (see options_autoencoder.py > `gim_model_path`)
+# (see options_decoder.py > `gim_model_path`)
 
 # EXPERIMENT_NAME = 'de_boer_reshuf_simple_v2_kld_weight=0.0033 !!'
-EXPERIMENT_NAME = 'temp'
-
-NUM_EPOCHS = 8
+NUM_EPOCHS = 4
 START_EPOCH = 0
 AUTO_REGRESSOR_AFTER_MODULE = False
 BATCH_SIZE = 8 #171
