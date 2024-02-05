@@ -29,7 +29,6 @@ def default_flist_reader(flist):
 class LibriDataset(Dataset):
     def __init__(
         self,
-        opt,
         root,
         flist,
         audio_length=20480,
@@ -37,8 +36,6 @@ class LibriDataset(Dataset):
         loader=default_loader,
     ):
         self.root = root
-        self.opt = opt
-        './datasets/LibriSpeech100_labels_split/train_val_train.txt'
 
         self.file_list, self.speaker_dict = flist_reader(flist)
 

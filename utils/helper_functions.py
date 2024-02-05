@@ -30,7 +30,7 @@ class LogHandler():
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
         self.criterion = criterion
-        self.logging_path = f"{opt['log_path']}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{layer_depth}"
+        self.logging_path = f"{opt.log_path}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{layer_depth}"
         create_log_dir(self.logging_path)
 
     def __call__(self, model, epoch, optimizer, train_loss, val_loss, train_acc=None, val_acc=None) -> None:
@@ -107,7 +107,7 @@ class EpochPrinter():
     def __call__(self, step, epoch) -> Any:
         opt = self.options
         if step % self.print_idx == 0:
-            max_epochs = opt['num_epochs'] + opt['start_epoch']
+            max_epochs = opt['num_epochs'] + opt.encoder_config.start_epoch
             print(f"Epoch[{epoch + 1}/{max_epochs}], Step[{step}/{self.total_step }], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
 
 

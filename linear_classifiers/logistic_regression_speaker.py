@@ -23,7 +23,7 @@ def train(opt, context_model, loss):
             loss.zero_grad()
 
             ### get latent representations for current audio
-            model_input = audio.to(opt["device"])
+            model_input = audio.to(opt.device)
 
             with torch.no_grad():
                 z = context_model.module.forward_through_n_layers(
@@ -75,7 +75,7 @@ def test(opt, context_model, loss, data_loader):
             loss.zero_grad()
 
             ### get latent representations for current audio
-            model_input = audio.to(opt["device"])
+            model_input = audio.to(opt.device)
 
             with torch.no_grad():
                 z = context_model.module.forward_through_n_layers(
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     opt['learning_rate'] = 1e-3
 
 
-    arg_parser.create_log_path(opt, add_path_var="linear_model")
+    arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     # random seeds
     torch.manual_seed(opt["seed"])

@@ -4,6 +4,8 @@ import time
 import numpy as np
 import random
 import gc
+
+from configs.config_classes import OptionsConfig, Dataset
 from post_hoc_analysis.main_anal_hidd_repr import run_visualisations
 
 # own modules
@@ -15,7 +17,7 @@ from validation.val_by_syllables import val_by_latent_syllables
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
 
-def train(opt, logs, model, optimizer, train_loader, test_loader):
+def train(opt: OptionsConfig, logs, model, optimizer, train_loader, test_loader):
     '''Train the model'''
     total_step = len(train_loader)
 
@@ -26,30 +28,32 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
 
     starttime = time.time()
 
-    decay_rate = opt["decay_rate"]
+    decay_rate = opt.encoder_config.decay_rate
     scheduler = torch.optim.lr_scheduler.ExponentialLR(
         optimizer, gamma=decay_rate)
 
-    for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
+    start_epoch = opt.encoder_config.start_epoch
+    num_epochs = opt.encoder_config.num_epochs
+    for epoch in range(start_epoch, num_epochs + start_epoch):
 
-        nb_modules = len(opt["architecture"].modules)
+        nb_modules = len(opt.encoder_config.architecture.modules)
         loss_epoch = [0 for _ in range(nb_modules)]
 
         for step, (audio, _, _, _) in enumerate(train_loader):
 
             # validate training progress by plotting latent representation of various speakers
-            if step % latent_val_idx == 0 and opt["data_set"] == "de_boer_sounds":
+            if step % latent_val_idx == 0 and opt.encoder_config.dataset.dataset == Dataset.DE_BOER:
                 val_by_latent_syllables(opt, test_loader, model, epoch, step)
 
             if step % print_idx == 0:
                 print(
-                    f"Epoch [{epoch + 1}/{opt['num_epochs'] + opt['start_epoch']}], Step [{step}/{total_step}], Time (s): {time.time() - starttime:.1f}"
+                    f"Epoch [{epoch + 1}/{num_epochs + start_epoch}], Step [{step}/{total_step}], Time (s): {time.time() - starttime:.1f}"
                 )
 
             starttime = time.time()
 
             # shape: (batch_size, 1, 8800)
-            model_input = audio.to(opt["device"])
+            model_input = audio.to(opt.device)
             loss = model(model_input)  # loss for each module
 
             # Average over the losses from different GPUs
@@ -73,15 +77,17 @@ def train(opt, logs, model, optimizer, train_loader, test_loader):
         logs.append_train_loss([x / total_step for x in loss_epoch])
 
         # validate by testing the CPC performance on the validation set
-        if opt["validate"]:
+        if opt.validate:
             validation_loss = val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
-        if (epoch % opt['log_every_x_epochs'] == 0):
+        if (epoch % opt.log_every_x_epochs == 0):
             logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
 def save_latents_and_generate_visualisations(opt):
+    # TODO
+    raise NotImplementedError
     if opt['perform_analysis']:
         options_anal = {
             'LOG_PATH': opt['ANAL_LOG_PATH'],
@@ -99,21 +105,21 @@ def save_latents_and_generate_visualisations(opt):
         run_visualisations(opt, options_anal)
 
 
-def main(options):
+def main(options: OptionsConfig):
     logs = logger.Logger(options)
 
-    learning_rate = options["learning_rate"]
-
     # load model
-    model, optimizer = load_audio_model.load_model_and_optimizer(
-        options, learning_rate)
+    model, optimizer = load_audio_model.load_model_and_optimizer(options)
 
-    assert not options["train_w_noise"], "Noise not supported yet."
+    train_w_noise = options.encoder_config.train_w_noise
+    assert not train_w_noise, "Noise not supported yet."
 
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        options, dataset=options["data_set"], train_noise=options["train_w_noise"],
-        split_and_pad=options["split_in_syllables"])
+        options,
+        config=options.encoder_config.dataset,
+        train_noise=train_w_noise,
+        split_and_pad=options.encoder_config.dataset.split_in_syllables)
 
     try:
         # Train the model
@@ -128,19 +134,19 @@ def main(options):
     # Save_latents_and_generate_visualisations(options)
 
 
-def init(options):
+def init(options: OptionsConfig):
     torch.cuda.empty_cache()
     gc.collect()
 
     arg_parser.create_log_path(options)
 
     # set random seeds
-    torch.manual_seed(options["seed"])
-    torch.cuda.manual_seed(options["seed"])
-    np.random.seed(options["seed"])
-    random.seed(options["seed"])
+    torch.manual_seed(options.seed)
+    torch.cuda.manual_seed(options.seed)
+    np.random.seed(options.seed)
+    random.seed(options.seed)
 
 
-def run_configuration(options):
+def run_configuration(options: OptionsConfig):
     init(options)
     main(options)

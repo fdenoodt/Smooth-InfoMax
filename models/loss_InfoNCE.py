@@ -2,18 +2,19 @@ import torch.nn as nn
 import torch
 import numpy as np
 
+from configs.config_classes import OptionsConfig
 from models import loss
 from utils import utils
 
 
 class InfoNCE_Loss(loss.Loss):
-    def __init__(self, opt, hidden_dim, enc_hidden, calc_accuracy, prediction_step):
+    def __init__(self, opt: OptionsConfig, hidden_dim, enc_hidden, calc_accuracy, prediction_step):
         super(InfoNCE_Loss, self).__init__()
 
         self.opt = opt
         self.hidden_dim = hidden_dim
         self.enc_hidden = enc_hidden
-        self.neg_samples = self.opt['negative_samples']
+        self.neg_samples = self.opt.encoder_config.negative_samples
         self.calc_accuracy = calc_accuracy
         self.prediction_step = prediction_step
 
@@ -21,7 +22,7 @@ class InfoNCE_Loss(loss.Loss):
             self.hidden_dim, self.enc_hidden * self.prediction_step, bias=False
         )
 
-        if self.opt['subsample']:
+        if self.opt.encoder_config.subsample:
             self.subsample_win = 128
 
         self.loss = nn.LogSoftmax(dim=1)
@@ -52,7 +53,7 @@ class InfoNCE_Loss(loss.Loss):
         :param input_tensor: tensor to be broadcasted, generally of shape B x L x C
         :return: reshaped tensor of shape (B*L) x C
         """
-        assert input_tensor.size(0) == self.opt['batch_size']
+        assert input_tensor.size(0) == self.opt.encoder_config.dataset.batch_size
         assert len(input_tensor.size()) == 3
 
         return input_tensor.reshape(-1, input_tensor.size(2))
@@ -136,10 +137,11 @@ class InfoNCE_Loss(loss.Loss):
         cur_device = utils.get_device(self.opt, Wc)
 
         total_loss = 0
+        batch_size = self.opt.encoder_config.dataset.batch_size
 
         accuracies = torch.zeros(self.prediction_step, 1)
         true_labels = torch.zeros(
-            (seq_len * self.opt['batch_size'],), device=cur_device
+            (seq_len * batch_size,), device=cur_device
         ).long()
 
         z_neg, _, _ = self.get_neg_z(full_z, cur_device)
@@ -158,7 +160,7 @@ class InfoNCE_Loss(loss.Loss):
             results = torch.cat((pos_samples, neg_samples), 1)
             loss = self.loss(results)[:, 0]
 
-            total_samples = (seq_len - k) * self.opt['batch_size']
+            total_samples = (seq_len - k) * batch_size
             loss = -loss.sum() / total_samples
             total_loss += loss
 
@@ -166,7 +168,7 @@ class InfoNCE_Loss(loss.Loss):
             if self.calc_accuracy:
                 predicted = torch.argmax(results, 1)
                 correct = (
-                    (predicted == true_labels[: (seq_len - k) * self.opt['batch_size']])
+                    (predicted == true_labels[: (seq_len - k) * batch_size])
                     .sum()
                     .item()
                 )

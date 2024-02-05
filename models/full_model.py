@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+from configs.config_classes import OptionsConfig
 from encoder.architecture_config import ArchitectureConfig
 from models import independent_module, independent_module_regressor
 from utils import utils
@@ -9,7 +10,7 @@ from utils import utils
 class FullModel(nn.Module):
     def __init__(
             self,
-            opt,
+            opt:OptionsConfig,
             calc_accuracy=False,
     ):
         """
@@ -21,7 +22,7 @@ class FullModel(nn.Module):
         self.fullmodel = nn.ModuleList([])
 
         self.opt = opt
-        architecture: ArchitectureConfig = opt["architecture"]
+        architecture: ArchitectureConfig = opt.encoder_config.architecture
         # CNN modules
         for idx, module_config in enumerate(architecture.modules):
             # Auto-regressor module

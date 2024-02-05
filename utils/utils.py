@@ -7,10 +7,10 @@ import torch
 
 
 def get_device(opt, input_tensor):
-    if opt["device"].type != "cpu":
+    if opt.device.type != "cpu":
         cur_device = input_tensor.get_device()
     else:
-        cur_device = opt["device"]
+        cur_device = opt.device
 
     return cur_device
 
@@ -59,15 +59,15 @@ def scatter(opt, x, colors, label):
 
     # save fig
     plt.savefig(
-        os.path.join(opt["log_path_latent"], f"latent_space_{label}.png"), dpi=120
+        os.path.join(opt.log_path_latent, f"latent_space_{label}.png"), dpi=120
     )
 
     # save data to numpy csv (x, colors)
-    np.savetxt(os.path.join(opt["log_path_latent"],
+    np.savetxt(os.path.join(opt.log_path_latent,
                f"latent_space_x_{label}.csv"), x, delimiter=",")
 
     np.savetxt(os.path.join(
-        opt["log_path_latent"], f"latent_space_colors_{label}.csv"), colors, delimiter=",")
+        opt.log_path_latent, f"latent_space_colors_{label}.csv"), colors, delimiter=",")
 
     plt.close()
 

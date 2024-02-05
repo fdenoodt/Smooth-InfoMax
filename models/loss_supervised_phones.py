@@ -18,7 +18,7 @@ class Phones_Loss(loss.Loss):
         # create linear classifier
         self.linear_classifier = nn.Sequential(
             nn.Linear(self.hidden_dim, 41)
-        ).to(self.opt["device"])  # 41 different phones to differentiate
+        ).to(self.opt.device)  # 41 different phones to differentiate
 
         self.phones_loss = nn.CrossEntropyLoss()
 
@@ -50,7 +50,7 @@ class Phones_Loss(loss.Loss):
                 ]
             )
 
-        targets = targets.to(self.opt["device"]).reshape(-1)
+        targets = targets.to(self.opt.device).reshape(-1)
 
         # forward pass
         c = c.permute(0, 2, 1)

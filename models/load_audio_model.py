@@ -1,12 +1,14 @@
 import torch
 
+from configs.config_classes import Loss
 from models import full_model
 from utils import model_utils
 
 
 def load_model_and_optimizer(
-    opt, lr, reload_model=False, calc_accuracy=False, num_GPU=None
+        opt, reload_model=False, calc_accuracy=False, num_GPU=None
 ):
+    lr = opt.encoder_config.learning_rate
     # Initialize model.
     model = full_model.FullModel(
         opt,
@@ -14,7 +16,7 @@ def load_model_and_optimizer(
     )
 
     # Run on only one GPU for supervised losses.
-    if opt["loss"] == 2 or opt["loss"] == 1:
+    if opt.loss in [Loss.SUPERVISED_PHONES, Loss.SUPERVISED_SPEAKER]:
         num_GPU = 1
 
     model, num_GPU = model_utils.distribute_over_GPUs(

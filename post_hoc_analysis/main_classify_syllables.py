@@ -114,7 +114,7 @@ def train(opt, encoder, classifier, logs, train_loader, test_loader, learning_ra
     training_accuracies = []
     validation_accuracies = []
 
-    for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
+    for epoch in range(opt.encoder_config.start_epoch, opt["num_epochs"] + opt.encoder_config.start_epoch):
         training_l = 0.0
         training_acc = 0.0
         for step, (gt_audio_batch, _, syllable_idx, _) in enumerate(train_loader):
@@ -191,7 +191,7 @@ def run_configuration(options, experiment_name):
 
     arg_parser.create_log_path(options)
 
-    create_log_dir(opt['log_path'])
+    create_log_dir(opt.log_path)
 
     logs = logger.Logger(options)
 

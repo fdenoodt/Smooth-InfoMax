@@ -11,7 +11,7 @@ def parser_reload_args(parser):
         help="Epoch to start GIM training from: "
         "v=0 - start training from scratch, "
         "v>0 - load pre-trained model that was trained for v epochs and continue training "
-        "(path to model is specified in opt['model_path'])",
+        "(path to model is specified in opt.model_path)",
     )
     group.add_option(
         "--model_path",

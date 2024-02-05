@@ -14,7 +14,7 @@ class Speaker_Loss(loss.Loss):
         self.calc_accuracy = calc_accuracy
 
         self.linear_classifier = nn.Sequential(nn.Linear(self.hidden_dim, 251)).to(
-            opt["device"]
+            opt.device
         )
 
         self.label_num = 1

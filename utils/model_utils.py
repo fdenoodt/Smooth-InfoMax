@@ -2,25 +2,27 @@ import torch
 import torch.nn as nn
 import os
 
+from configs.config_classes import OptionsConfig
 
-def distribute_over_GPUs(opt, model, num_GPU):
+
+def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
     ## distribute over GPUs
-    if opt["device"].type != "cpu":
+    if opt.device.type != "cpu":
         if num_GPU is None:
             model = nn.DataParallel(model)
             num_GPU = torch.cuda.device_count()
-            opt["batch_size_multiGPU"] = opt["batch_size"] * num_GPU
+            opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size * num_GPU
         else:
             assert (
-                num_GPU <= torch.cuda.device_count()
+                    num_GPU <= torch.cuda.device_count()
             ), "You cant use more GPUs than you have."
             model = nn.DataParallel(model, device_ids=list(range(num_GPU)))
-            opt["batch_size_multiGPU"] = opt["batch_size"] * num_GPU
+            opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size * num_GPU
     else:
         model = nn.DataParallel(model)
-        opt["batch_size_multiGPU"] = opt["batch_size"]
+        opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size
 
-    model = model.to(opt["device"])
+    model = model.to(opt.device)
     print("Let's use", num_GPU, "GPUs!")
 
     return model, num_GPU
@@ -51,16 +53,16 @@ def makeDeltaOrthogonal(weights, gain):
         weights.mul_(gain)
 
 
-def reload_weights(opt, model, optimizer, reload_model):
+def reload_weights(opt: OptionsConfig, model, optimizer, reload_model):
     ## reload weights for training of the linear classifier
-    if (opt["model_type"] == 0) and reload_model:  # or opt["model_type"] == 2)
-        print("Loading weights from ", opt['model_path'])
+    if (opt.model_type == 0) and reload_model:  # or opt.model_type == 2)
+        print("Loading weights from ", opt.model_path)
 
-        if opt['experiment'] == "audio":
+        if opt.experiment == "audio":
             model.load_state_dict(
                 torch.load(
-                    os.path.join(opt['model_path'], "model_{}.ckpt".format(opt['model_num'])),
-                    map_location=opt["device"].type,
+                    os.path.join(opt.model_path, f"model_{opt.encoder_config.model_num}.ckpt"),
+                    map_location=opt.device.type,
                 )
             )
         else:
@@ -68,24 +70,24 @@ def reload_weights(opt, model, optimizer, reload_model):
                 model.module.encoder[idx].load_state_dict(
                     torch.load(
                         os.path.join(
-                            opt['model_path'],
-                            "model_{}_{}.ckpt".format(idx, opt['model_num']),
+                            opt.model_path,
+                            "model_{}_{}.ckpt".format(idx, opt.encoder_config.model_num),
                         ),
-                         map_location=opt["device"].type,
+                        map_location=opt.device.type,
                     )
                 )
 
     ## reload weights and optimizers for continuing training
-    elif opt["start_epoch"] > 0:
-        print("Continuing training from epoch ", opt["start_epoch"])
+    elif opt.encoder_config.start_epoch > 0:
+        print("Continuing training from epoch ", opt.encoder_config.start_epoch)
 
-        if opt['experiment'] == "audio":
+        if opt.experiment == "audio":
             model.load_state_dict(
                 torch.load(
                     os.path.join(
-                        opt['model_path'], "model_{}.ckpt".format(opt["start_epoch"])
+                        opt.model_path, "model_{}.ckpt".format(opt.encoder_config.start_epoch)
                     ),
-                    map_location=opt["device"].type,
+                    map_location=opt.device.type,
                 ),
                 strict=False,
             )
@@ -94,20 +96,20 @@ def reload_weights(opt, model, optimizer, reload_model):
                 model.module.encoder[idx].load_state_dict(
                     torch.load(
                         os.path.join(
-                            opt['model_path'],
-                            "model_{}_{}.ckpt".format(idx, opt["start_epoch"]),
+                            opt.model_path,
+                            f"model_{idx}_{opt.encoder_config.start_epoch}.ckpt",
                         ),
-                        map_location=opt["device"].type,
+                        map_location=opt.device.type,
                     )
                 )
 
         optimizer.load_state_dict(
             torch.load(
                 os.path.join(
-                    opt['model_path'],
-                    "optim_{}.ckpt".format(opt["start_epoch"]),
+                    opt.model_path,
+                    "optim_{}.ckpt".format(opt.encoder_config.start_epoch),
                 ),
-                map_location=opt["device"].type,
+                map_location=opt.device.type,
             )
         )
     else:

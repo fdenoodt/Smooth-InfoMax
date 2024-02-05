@@ -3,6 +3,9 @@ import time
 import os
 import numpy as np
 
+from options import OPTIONS
+
+
 ## own modules
 from data import get_dataloader, phone_dict
 from utils import logger, utils
@@ -28,13 +31,13 @@ def train(opt, phone_dict, context_model, model):
             audio, filename = train_dataset.get_full_size_test_item(i)
 
             ### get latent representations for current audio
-            model_input = audio.to(opt["device"])
+            model_input = audio.to(opt.device)
             model_input = torch.unsqueeze(model_input, 0)
 
             targets = torch.LongTensor(phone_dict[filename])
-            targets = targets.to(opt["device"]).reshape(-1)
+            targets = targets.to(opt.device).reshape(-1)
 
-            if opt["model_type"] == 2:  ##fully supervised training
+            if opt.model_type == 2:  ##fully supervised training
                 for idx, layer in enumerate(context_model.module.fullmodel):
                     context, z = layer.get_latents(model_input)
                     model_input = z.permute(0, 2, 1)
@@ -107,7 +110,7 @@ def test(opt, phone_dict, context_model, model):
             model.zero_grad()
 
             ### get latent representations for current audio
-            model_input = audio.to(opt["device"])
+            model_input = audio.to(opt.device)
             model_input = torch.unsqueeze(model_input, 0)
 
             targets = torch.LongTensor(phone_dict[filename])
@@ -123,7 +126,7 @@ def test(opt, phone_dict, context_model, model):
 
                 context = context.detach()
 
-                targets = targets.to(opt["device"]).reshape(-1)
+                targets = targets.to(opt.device).reshape(-1)
                 inputs = context.reshape(-1, n_features)
 
                 # forward pass
@@ -149,12 +152,14 @@ def test(opt, phone_dict, context_model, model):
 
 
 if __name__ == "__main__":
+    opt = OPTIONS
 
-    opt = arg_parser.parse_args()
-    arg_parser.create_log_path(opt, add_path_var="linear_model")
+    #opt = arg_parser.parse_args()
+    arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 
-    opt["batch_size"] = 8
-    opt["num_epochs"] = 1 #20
+    # TODO: these should be different numbers than the ones used for the GIM model
+    # opt["batch_size"] = 8
+    # opt["num_epochs"] = 1 #20
 
     # random seeds
     torch.manual_seed(opt["seed"])
@@ -162,9 +167,10 @@ if __name__ == "__main__":
     np.random.seed(opt["seed"])
 
     # load self-supervised GIM model
+    learning_rate = opt["learning_rate"]
     context_model, _ = load_audio_model.load_model_and_optimizer(opt, reload_model=True)
 
-    if opt["model_type"] != 2:  # == 2 trains a fully supervised model
+    if opt.model_type != 2:  # == 2 trains a fully supervised model
         context_model.eval()
 
     # 41 different phones to differentiate
@@ -172,12 +178,12 @@ if __name__ == "__main__":
     n_features = context_model.module.reg_hidden
 
     # create linear classifier
-    model = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes)).to(opt["device"])
+    model = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes)).to(opt.device)
     model.apply(weights_init)
 
     criterion = torch.nn.CrossEntropyLoss()
 
-    if opt["model_type"] == 2:
+    if opt.model_type == 2:
         params = list(context_model.parameters()) + list(model.parameters())
     else:
         params = model.parameters()
@@ -186,7 +192,9 @@ if __name__ == "__main__":
 
     # load dataset
     phone_dict = phone_dict.load_phone_dict(opt)
-    _, train_dataset, _, test_dataset = get_dataloader.get_libri_dataloaders(opt)
+    # _, train_dataset, _, test_dataset = get_dataloader.get_libri_dataloaders(opt)
+    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt, opt["data_set"]) # librispeech
+
 
     logs = logger.Logger(opt)
     accuracy = 0
@@ -203,8 +211,8 @@ if __name__ == "__main__":
 
     logs.create_log(model, accuracy=accuracy, final_test=True)
 
-    if opt["model_type"] == 2:
+    if opt.model_type == 2:
         print("Saving supervised model")
         torch.save(
-            context_model.state_dict(), os.path.join(opt["log_path"], "context_model.ckpt")
+            context_model.state_dict(), os.path.join(opt.log_path, "context_model.ckpt")
         )

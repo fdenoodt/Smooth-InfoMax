@@ -3,6 +3,7 @@ import os
 import os.path
 import torchaudio
 from collections import defaultdict
+from configs.config_classes import DataSetConfig
 
 from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
 from utils.helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
@@ -31,7 +32,7 @@ class DeBoerDataset(Dataset):
 
     def __init__(
         self,
-        opt,
+        dataset_options: DataSetConfig,
         root,
         directory="train",
         loader=default_loader,
@@ -42,7 +43,7 @@ class DeBoerDataset(Dataset):
         split_into_syllables=False,
     ):
         self.root = root
-        self.opt = opt
+        self.opt = dataset_options
         self.target_sample_rate = target_sample_rate
         self.background_noise = background_noise
         self.white_guassian_noise = white_guassian_noise
@@ -88,7 +89,7 @@ class DeBoerDataset(Dataset):
         full_word = filename.split("_")[0]  # bagigi
         if self.split_into_syllables:
             pronounced_syllable = filename[-2:]  # ba
-            if self.opt['labels'] == 'syllables':
+            if self.opt.labels == 'syllables':
                 pronounced_syllable = translate_syllable_to_number(
                     pronounced_syllable)  # 0
             else:

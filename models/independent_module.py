@@ -3,6 +3,7 @@ from torch import Tensor
 import torch
 import torch.nn as nn
 
+from configs.config_classes import OptionsConfig
 # https://github.com/AntixK/PyTorch-VAE/blob/master/models/vanilla_vae.py,
 # https://medium.com/dataseries/convolutional-autoencoder-in-pytorch-on-mnist-dataset-d65145c132ac
 
@@ -15,7 +16,7 @@ from models import (
 
 class IndependentModule(nn.Module):
     def __init__(
-        self, opt,
+        self, opt:OptionsConfig,
         enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, predict_distributions, enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
         super(IndependentModule, self).__init__()
 
@@ -98,7 +99,7 @@ class IndependentModule(nn.Module):
             # reconstruction loss
             total_loss, accuracies = self.loss.get_loss(z, c)
 
-            kld_weight = self.opt['kld_weight']
+            kld_weight = self.opt.encoder_config.kld_weight
 
             # Combine the losses
             total_loss = total_loss + kld_weight * kld_loss

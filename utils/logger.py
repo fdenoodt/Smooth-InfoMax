@@ -5,31 +5,33 @@ import numpy as np
 import copy
 import tikzplotlib
 
+from configs.config_classes import OptionsConfig
 
 
 class Logger:
-    def __init__(self, opt):
+    def __init__(self, opt: OptionsConfig):
         self.opt = opt
 
-        nb_modules = len(opt["architecture"].modules)
-        if opt["validate"]:
+        modules = opt.encoder_config.architecture.modules
+        nb_modules = len(modules)
+        if opt.validate:
             self.val_loss = [[] for i in range(nb_modules)]
         else:
             self.val_loss = None
 
         self.train_loss = [[] for i in range(nb_modules)]
 
-        if opt["start_epoch"] > 0:
+        if opt.encoder_config.start_epoch > 0:
             self.loss_last_training = np.load(
-                os.path.join(opt['model_path'], "train_loss.npy"), allow_pickle=True
+                os.path.join(opt.model_path, "train_loss.npy"), allow_pickle=True
             ).tolist()
             self.train_loss[: len(self.loss_last_training)] = copy.deepcopy(
                 self.loss_last_training
             )
 
-            if opt["validate"]:
+            if opt.validate:
                 self.val_loss_last_training = np.load(
-                    os.path.join(opt['model_path'], "val_loss.npy"), allow_pickle=True
+                    os.path.join(opt.model_path, "val_loss.npy"), allow_pickle=True
                 ).tolist()
                 self.val_loss[: len(self.val_loss_last_training)] = copy.deepcopy(
                     self.val_loss_last_training
@@ -39,7 +41,7 @@ class Logger:
         else:
             self.loss_last_training = None
 
-            if opt["validate"]:
+            if opt.validate:
                 self.val_loss = [[] for i in range(nb_modules)]
             else:
                 self.val_loss = None
@@ -67,37 +69,37 @@ class Logger:
         classification_model=None,
     ):
 
-        print("Saving model and log-file to " + self.opt["log_path"])
+        print("Saving model and log-file to " + self.opt.log_path)
 
         # Save the model checkpoint
-        if self.opt['experiment'] == "vision":
+        if self.opt.experiment == "vision":
             for idx, layer in enumerate(model.module.encoder):
                 torch.save(
                     layer.state_dict(),
                     os.path.join(
-                        self.opt["log_path"], "model    _{}_{}.ckpt".format(idx, epoch)
+                        self.opt.log_path, "model_{}_{}.ckpt".format(idx, epoch)
                     ),
                 )
-        elif self.opt['experiment'] == "RMSE_decoder": 
+        elif self.opt.experiment == "RMSE_decoder":
             torch.save(
                 model.state_dict(),
-                os.path.join(self.opt["log_path"], "model_{}.ckpt".format(epoch)),
+                os.path.join(self.opt.log_path, "model_{}.ckpt".format(epoch)),
             )
             
         else:
             torch.save(
                 model.state_dict(),
-                os.path.join(self.opt["log_path"], "model_{}.ckpt".format(epoch)),
+                os.path.join(self.opt.log_path, "model_{}.ckpt".format(epoch)),
             )
 
         ### remove old model files to keep dir uncluttered
         if (epoch - self.num_models_to_keep) % 10 != 0:
             try:
-                if self.opt['experiment'] == "vision":
+                if self.opt.experiment == "vision":
                     for idx, _ in enumerate(model.module.encoder):
                         os.remove(
                             os.path.join(
-                                self.opt["log_path"],
+                                self.opt.log_path,
                                 "model_{}_{}.ckpt".format(
                                     idx, epoch - self.num_models_to_keep
                                 ),
@@ -106,7 +108,7 @@ class Logger:
                 else:
                     os.remove(
                         os.path.join(
-                            self.opt["log_path"],
+                            self.opt.log_path,
                             "model_{}.ckpt".format(epoch - self.num_models_to_keep),
                         )
                     )
@@ -118,7 +120,7 @@ class Logger:
             torch.save(
                 classification_model.state_dict(),
                 os.path.join(
-                    self.opt["log_path"], "classification_model_{}.ckpt".format(epoch)
+                    self.opt.log_path, "classification_model_{}.ckpt".format(epoch)
                 ),
             )
 
@@ -126,7 +128,7 @@ class Logger:
             try:
                 os.remove(
                     os.path.join(
-                        self.opt["log_path"],
+                        self.opt.log_path,
                         "classification_model_{}.ckpt".format(
                             epoch - self.num_models_to_keep
                         ),
@@ -138,13 +140,13 @@ class Logger:
         if optimizer is not None:
             torch.save(
                 optimizer.state_dict(),
-                os.path.join(self.opt["log_path"], "optim_{}.ckpt".format(epoch)),
+                os.path.join(self.opt.log_path, "optim_{}.ckpt".format(epoch)),
             )
 
             try:
                 os.remove(
                     os.path.join(
-                        self.opt["log_path"],
+                        self.opt.log_path,
                         "optim_{}.ckpt".format(epoch - self.num_models_to_keep),
                     )
                 )
@@ -152,7 +154,7 @@ class Logger:
                 print("not enough models there yet, nothing to delete")
 
         # Save hyper-parameters
-        path = os.path.join(self.opt["log_path"], "log.txt")
+        path = os.path.join(self.opt.log_path, "log.txt")
         with open(path, "w+") as cur_file:
             cur_file.write(str(self.opt))
             if accuracy is not None:
@@ -166,22 +168,22 @@ class Logger:
 
         # Save losses throughout training and plot
         self.np_save(
-            os.path.join(self.opt["log_path"], "train_loss"), np.array(self.train_loss, dtype=object)
+            os.path.join(self.opt.log_path, "train_loss"), np.array(self.train_loss, dtype=object)
         )
 
         if self.val_loss is not None:
             self.np_save(
-                os.path.join(self.opt["log_path"], "val_loss"), np.array(self.val_loss, dtype=object)
+                os.path.join(self.opt.log_path, "val_loss"), np.array(self.val_loss, dtype=object)
             )
 
         self.draw_loss_curve()
 
         if accuracy is not None:
-            self.np_save(os.path.join(self.opt["log_path"], "accuracy"), accuracy)
+            self.np_save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
 
         if final_test:
-            self.np_save(os.path.join(self.opt["log_path"], "final_accuracy"), accuracy)
-            self.np_save(os.path.join(self.opt["log_path"], "final_loss"), final_loss)
+            self.np_save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
+            self.np_save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
 
     def draw_loss_curve(self):
         for idx, loss in enumerate(self.train_loss):
@@ -202,12 +204,12 @@ class Logger:
             plt.xlabel("epoch")
             plt.ylabel("loss")
             plt.legend(loc="upper right")
-            # plt.axis([0, max(200,len(loss)+self.opt["start_epoch"]), 0, -round(np.log(1/(self.opt["negative_samples"]+1)),1)])
+            # plt.axis([0, max(200,len(loss)+self.opt.encoder_config.start_epoch), 0, -round(np.log(1/(self.opt["negative_samples"]+1)),1)])
 
             # save image
-            plt.savefig(os.path.join(self.opt["log_path"], f"loss_{idx}.png"))
+            plt.savefig(os.path.join(self.opt.log_path, f"loss_{idx}.png"))
             try:
-                tikzplotlib.save(os.path.join(self.opt["log_path"], f"loss_{idx}.tex"))
+                tikzplotlib.save(os.path.join(self.opt.log_path, f"loss_{idx}.tex"))
             except:
                 pass
             plt.close()

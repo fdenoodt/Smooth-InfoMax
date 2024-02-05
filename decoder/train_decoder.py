@@ -63,7 +63,7 @@ def train(opt, encoder, decoder, logs, train_loader, test_loader, learning_rate,
 
     training_losses = []
     validation_losses = []
-    for epoch in range(opt["start_epoch"], opt["num_epochs"] + opt["start_epoch"]):
+    for epoch in range(opt.encoder_config.start_epoch, opt["num_epochs"] + opt.encoder_config.start_epoch):
 
         scheduler = torch.optim.lr_scheduler.ExponentialLR(
             optimizer, gamma=decay_rate)
@@ -115,18 +115,18 @@ def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, crit
     torch.cuda.empty_cache()
 
     arg_parser.create_log_path(opt)
-    opt['experiment'] = experiment_name
-    opt['save_dir'] = f'{experiment_name}_experiment'
-    opt['log_path'] = opt['log_path'] + "/DECODER"
-    opt['log_path_latent'] = opt['log_path'] + "/latent_space"
+    opt.experiment = experiment_name
+    opt.save_dir = f'{experiment_name}_experiment'
+    opt.log_path = opt.log_path + "/DECODER"
+    opt['log_path_latent'] = opt.log_path + "/latent_space"
 
-    # opt['log_path'] = f'./logs/{experiment_name}_experiment'
+    # opt.log_path = f'./logs/{experiment_name}_experiment'
     # opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
     opt['num_epochs'] = num_epochs
     opt['batch_size'] = 171
     opt['batch_size_multiGPU'] = opt['batch_size']
 
-    create_log_dir(opt['log_path'])
+    create_log_dir(opt.log_path)
 
     logs = logger.Logger(opt)
 

@@ -20,7 +20,7 @@ def val_by_latent_syllables(opt, dataloader, model, epoch, step):
     # one batch
     with torch.no_grad():
         _, (audios, _, pronounced_syllables, _) = next(enumerate(dataloader))
-        model_input = audios.to(opt["device"])
+        model_input = audios.to(opt.device)
 
         # iterate over layers
         for idx, layer in enumerate(model.module.fullmodel):
