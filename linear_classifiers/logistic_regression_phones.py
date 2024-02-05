@@ -3,7 +3,8 @@ import time
 import os
 import numpy as np
 
-from options import OPTIONS
+from configs.config_classes import OptionsConfig, ModelType
+from options import get_options
 
 ## own modules
 from data import get_dataloader, phone_dict
@@ -18,10 +19,12 @@ def weights_init(m):
         torch.nn.init.xavier_normal_(m.weight.data)
 
 
-def train(opt, phone_dict, context_model, model):
+def train(opt: OptionsConfig, phone_dict, context_model, model):
+    assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     total_step = len(train_dataset.file_list)
 
-    for epoch in range(opt["num_epochs"]):
+    num_epochs = opt.encoder_config.num_epochs
+    for epoch in range(num_epochs):
         loss_epoch = 0
 
         for i, k in enumerate(train_dataset.file_list):
@@ -36,20 +39,22 @@ def train(opt, phone_dict, context_model, model):
             targets = torch.LongTensor(phone_dict[filename])
             targets = targets.to(opt.device).reshape(-1)
 
-            if opt.model_type == 2:  ##fully supervised training
+            if opt.model_type == ModelType.FULLY_SUPERVISED:  ##fully supervised training
                 for idx, layer in enumerate(context_model.module.fullmodel):
                     context, z = layer.get_latents(model_input)
                     model_input = z.permute(0, 2, 1)
-            else:
+            else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
                 with torch.no_grad():
                     for idx, layer in enumerate(context_model.module.fullmodel):
                         if idx + 1 < len(context_model.module.fullmodel):
                             _, z = layer.get_latents(
-                                model_input, calc_autoregressive=False
+                                model_input
                             )
                             model_input = z.permute(0, 2, 1)
+
+                    # Single module:
                     context, _ = context_model.module.fullmodel[idx].get_latents(
-                        model_input, calc_autoregressive=True
+                        model_input
                     )
                 context = context.detach()
 
@@ -82,7 +87,7 @@ def train(opt, phone_dict, context_model, model):
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
                         epoch + 1,
-                        opt["num_epochs"],
+                        num_epochs,
                         i,
                         total_step,
                         time.time() - starttime,
@@ -151,14 +156,12 @@ def test(opt, phone_dict, context_model, model):
 
 
 if __name__ == "__main__":
-    opt = OPTIONS
+    opt = get_options(experiment_name='temp LIBRISPEECH')
     assert opt.classifier_config is not None, "Classifier config is not set"
+    assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
 
-    # opt = arg_parser.parse_args()
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 
-    # TODO: these should be different numbers than the ones used for the GIM model
-    # random seeds
     torch.manual_seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
     np.random.seed(opt.seed)
@@ -167,12 +170,11 @@ if __name__ == "__main__":
     learning_rate = opt.classifier_config.learning_rate
     context_model, _ = load_audio_model.load_model_and_optimizer(opt, reload_model=True)
 
-    if opt.model_type != 2:  # == 2 trains a fully supervised model
-        context_model.eval()
+    context_model.eval()
 
     # 41 different phones to differentiate
     n_classes = 41
-    n_features = context_model.module.reg_hidden
+    n_features = context_model.module.nb_channels_regress
 
     # create linear classifier
     model = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes)).to(opt.device)
@@ -180,15 +182,15 @@ if __name__ == "__main__":
 
     criterion = torch.nn.CrossEntropyLoss()
 
-    if opt.model_type == 2:
+    if opt.model_type == ModelType.FULLY_SUPERVISED:
         params = list(context_model.parameters()) + list(model.parameters())
-    else:
+    else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
         params = model.parameters()
 
     optimizer = torch.optim.Adam(params, lr=1e-4)
 
     # load dataset
-    phone_dict = phone_dict.load_phone_dict(opt)
+    phone_dict = phone_dict.load_phone_dict(opt.classifier_config.dataset)
     _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt.classifier_config.dataset)
 
     logs = logger.Logger(opt)
@@ -206,7 +208,7 @@ if __name__ == "__main__":
 
     logs.create_log(model, accuracy=accuracy, final_test=True)
 
-    if opt.model_type == 2:
+    if opt.model_type == ModelType.FULLY_SUPERVISED:
         print("Saving supervised model")
         torch.save(
             context_model.state_dict(), os.path.join(opt.log_path, "context_model.ckpt")

@@ -67,7 +67,6 @@ ENCODER_CONFIG = EncoderConfig(
     learning_rate=2e-4,  # 0.01  # 0.003 # old: 0.0001,
     decay_rate=0.99,
     train_w_noise=False,
-    model_num='',  # For loading a specific model from a specific epoch and continue training
     dataset=DATASET
 )
 
@@ -76,9 +75,8 @@ def get_options(experiment_name):
     options = OptionsConfig(
         seed=2,
         validate=True,
-        loss=Loss.INFONCE,
+        loss=Loss.INFO_NCE,
         encoder_config=ENCODER_CONFIG,
-        model_type=0,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
         save_dir=experiment_name,

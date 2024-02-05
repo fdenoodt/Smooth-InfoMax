@@ -7,7 +7,7 @@ from encoder.architecture_config import ArchitectureConfig
 
 class Loss(Enum):
     # InfoNCE loss, supervised loss using the phone labels, supervised loss using the phone labels
-    INFONCE = 0
+    INFO_NCE = 0
     SUPERVISED_PHONES = 1
     SUPERVISED_SPEAKER = 2
 
@@ -18,6 +18,12 @@ class Dataset(Enum):
     DE_BOER = 2
     DE_BOER_RESHUFFLED = 3
     DE_BOER_RESHUFFLED_V2 = 4
+
+
+class ModelType(Enum):
+    FULLY_SUPERVISED = 1  # Both the downstream and the encoder are trained
+    ONLY_DOWNSTREAM_TASK = 2  # Only the downstream task, encoder is frozen
+    ONLY_ENCODER = 3  # Only the encoder is trained
 
 
 class DataSetConfig:
@@ -37,7 +43,7 @@ class DataSetConfig:
 class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample, architecture: ArchitectureConfig,
                  kld_weight, learning_rate, decay_rate,
-                 train_w_noise, model_num, dataset: DataSetConfig):
+                 train_w_noise, dataset: DataSetConfig):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
         self.negative_samples = negative_samples
@@ -47,25 +53,25 @@ class EncoderConfig:
         self.learning_rate = learning_rate
         self.decay_rate = decay_rate
         self.train_w_noise = train_w_noise
-        self.model_num = model_num
         self.dataset = dataset
 
 
 class ClassifierConfig:
-    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig):
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
+        self.encoder_num = encoder_num
 
 
 class OptionsConfig:
-    def __init__(self,
-                 seed, validate, loss: Loss, encoder_config, model_type, device, experiment, save_dir, log_path,
+    def __init__(self, model_type: ModelType, seed, validate, loss: Loss, encoder_config, device, experiment,
+                 save_dir, log_path,
                  log_every_x_epochs, model_path, classifier_config: Optional[ClassifierConfig]):
+        self.model_type: ModelType = model_type
         self.seed = seed
         self.validate = validate
         self.loss = loss
-        self.model_type = model_type
         self.device = device
         self.experiment = experiment
         self.save_dir = save_dir

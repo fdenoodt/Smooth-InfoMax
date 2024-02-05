@@ -5,7 +5,7 @@ import numpy as np
 import random
 import gc
 
-from configs.config_classes import OptionsConfig, Dataset
+from configs.config_classes import OptionsConfig, Dataset, ModelType
 from post_hoc_analysis.main_anal_hidd_repr import run_visualisations
 
 # own modules
@@ -107,6 +107,8 @@ def save_latents_and_generate_visualisations(opt):
 
 def main(options: OptionsConfig):
     logs = logger.Logger(options)
+
+    assert options.model_type == ModelType.ONLY_ENCODER, "Only encoder training is supported."
 
     # load model
     model, optimizer = load_audio_model.load_model_and_optimizer(options)

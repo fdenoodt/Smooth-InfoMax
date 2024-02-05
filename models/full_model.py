@@ -10,7 +10,7 @@ from utils import utils
 class FullModel(nn.Module):
     def __init__(
             self,
-            opt:OptionsConfig,
+            opt: OptionsConfig,
             calc_accuracy=False,
     ):
         """
@@ -18,10 +18,11 @@ class FullModel(nn.Module):
         """
         super(FullModel, self).__init__()
 
-        # load model
-        self.fullmodel = nn.ModuleList([])
+        self.fullmodel: nn.ModuleList = nn.ModuleList([])
+        self.opt: OptionsConfig = opt
+        self.nb_channels_cnn: int = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
+        self.nb_channels_regress: int = opt.encoder_config.architecture.modules[0].regressor_hidden_dim
 
-        self.opt = opt
         architecture: ArchitectureConfig = opt.encoder_config.architecture
         # CNN modules
         for idx, module_config in enumerate(architecture.modules):
@@ -44,7 +45,7 @@ class FullModel(nn.Module):
                 self.fullmodel.append(indep_module)
 
     @staticmethod
-    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module):
+    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module) -> independent_module.IndependentModule:
         kernel_sizes = module_config.kernel_sizes
         strides = module_config.strides
         padding = module_config.padding
@@ -83,7 +84,6 @@ class FullModel(nn.Module):
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
         for idx, layer in enumerate(self.fullmodel):
-
             loss[:, idx], accuracy[:, idx], z = layer(model_input)
             model_input = z.permute(0, 2, 1).detach()  # (22, 55, 512)
 

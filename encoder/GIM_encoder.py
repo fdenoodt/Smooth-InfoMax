@@ -79,7 +79,7 @@ if __name__ == "__main__":
 #         encoder,
 #         opt=opt,
 #         root=os.path.join(
-#             opt["data_input_dir"],
+#             opt.data_input_dir,
 #             "corpus",
 #         ),
 #         directory="train"

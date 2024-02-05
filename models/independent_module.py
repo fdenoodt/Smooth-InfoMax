@@ -59,6 +59,7 @@ class IndependentModule(nn.Module):
 
         return [(mu, log_var), (mu, log_var)]
 
+
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
         """
         Reparameterization trick to sample from N(mu, var) from

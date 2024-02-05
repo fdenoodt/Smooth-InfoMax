@@ -53,15 +53,24 @@ def makeDeltaOrthogonal(weights, gain):
         weights.mul_(gain)
 
 
-def reload_weights(opt: OptionsConfig, model, optimizer, reload_model):
+def reload_weights_for_training_encoder(opt: OptionsConfig, model, optimizer, reload_model):
+    return _reload_weights(True, opt, model, optimizer, reload_model)
+
+
+def reload_weights_for_training_classifier(opt: OptionsConfig, model, optimizer, reload_model):
+    return _reload_weights(False, opt, model, optimizer, reload_model)
+
+
+def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, optimizer, reload_model):
     ## reload weights for training of the linear classifier
-    if (opt.model_type == 0) and reload_model:  # or opt.model_type == 2)
+    # old: if (opt.model_type == 0) and reload_model:  # or opt.model_type == 2)
+    if not (purpose_is_train_encoder) and reload_model:  # or opt.model_type == 2)
         print("Loading weights from ", opt.model_path)
 
         if opt.experiment == "audio":
             model.load_state_dict(
                 torch.load(
-                    os.path.join(opt.model_path, f"model_{opt.encoder_config.model_num}.ckpt"),
+                    os.path.join(opt.model_path, f"model_{opt.classifier_config.encoder_num}.ckpt"),
                     map_location=opt.device.type,
                 )
             )
@@ -71,7 +80,7 @@ def reload_weights(opt: OptionsConfig, model, optimizer, reload_model):
                     torch.load(
                         os.path.join(
                             opt.model_path,
-                            "model_{}_{}.ckpt".format(idx, opt.encoder_config.model_num),
+                            f"model_{idx}_{opt.classifier_config.encoder_num}.ckpt",
                         ),
                         map_location=opt.device.type,
                     )

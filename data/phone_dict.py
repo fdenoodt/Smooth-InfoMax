@@ -1,8 +1,11 @@
 import pickle
 import os
 
-def load_phone_dict(opt):
-    dir_name = os.path.join(opt["data_input_dir"], "Phone_dict/")
+from configs.config_classes import DataSetConfig
+
+
+def load_phone_dict(d_config: DataSetConfig):
+    dir_name = os.path.join(d_config.data_input_dir, "Phone_dict/")
     filename = os.path.join(dir_name, "phone_dict.pkl")
 
     if not os.path.exists(filename):
@@ -10,7 +13,7 @@ def load_phone_dict(opt):
             os.makedirs(dir_name)
         return create_dict_from_phones(
             os.path.join(
-                opt["data_input_dir"],
+                d_config.data_input_dir,
                 "LibriSpeech100_labels_split/converted_aligned_phones.txt",
             ),
             filename,
@@ -28,6 +31,7 @@ def save_obj(obj, save_path):
 def create_dict_from_phones(phone_path, save_path):
     phone_dict = {}
     print("Creating phone dictionary")
+
     with open(phone_path, "r") as rf:
         for idx, line in enumerate(rf.readlines()):
             tmp = line.replace("\n", "").split(" ")

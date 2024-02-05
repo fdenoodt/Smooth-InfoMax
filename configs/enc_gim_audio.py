@@ -1,6 +1,7 @@
 import torch
 
-from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig
+from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
+    ModelType
 from encoder.architecture_config import ArchitectureConfig, ModuleConfig
 
 ROOT_LOGS = r"C:\\sim_logs\\"
@@ -34,23 +35,24 @@ ENCODER_CONFIG = EncoderConfig(
     learning_rate=2e-4,  # 0.01  # 0.003 # old: 0.0001,
     decay_rate=1,
     train_w_noise=False,
-    model_num='',  # For loading a specific model from a specific epoch and continue training
-    dataset=DATASET
+    dataset=DATASET,
 )
 
 CLASSIFIER_CONFIG = ClassifierConfig(
     num_epochs=10,
     learning_rate=0.01,
-    dataset=DATASET  # same batch size as encoder
+    dataset=DATASET,  # same batch size as encoder
+    encoder_num="0"  # For loading a specific model from a specific epoch, to use by the classifier
 )
 
 
-def get_options(experiment_name):
+def get_options(experiment_name) -> OptionsConfig:
     options = OptionsConfig(
         seed=2,
         validate=True,
-        loss=Loss.INFONCE,
-        model_type=0,
+        model_type=ModelType.ONLY_DOWNSTREAM_TASK,
+        loss=Loss.INFO_NCE,
+
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
         save_dir=experiment_name,
