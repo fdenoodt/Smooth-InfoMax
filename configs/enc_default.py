@@ -52,7 +52,6 @@ module2 = ModuleConfig(
 ARCHITECTURE = ArchitectureConfig(modules=[module1, module2])
 
 DATASET = DataSetConfig(
-    data_input_dir='./datasets/',
     dataset=Dataset.DE_BOER_RESHUFFLED,
     split_in_syllables=False,
     batch_size=8,
@@ -86,6 +85,7 @@ def get_options(experiment_name):
         log_path=f'{ROOT_LOGS}/{experiment_name}',
         log_every_x_epochs=1,
         model_path=f'{ROOT_LOGS}/{experiment_name}/',
+        classifier_config=None
     )
     return options
 

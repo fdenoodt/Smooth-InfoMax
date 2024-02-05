@@ -5,7 +5,6 @@ import numpy as np
 
 from options import OPTIONS
 
-
 ## own modules
 from data import get_dataloader, phone_dict
 from utils import logger, utils
@@ -64,7 +63,7 @@ def train(opt, phone_dict, context_model, model):
             so we cut our predictions to the right length.
             Cutting from the front gave better results empirically.
             """
-            output = output[-targets.size(0) :]  # output[ :targets.size(0)]
+            output = output[-targets.size(0):]  # output[ :targets.size(0)]
 
             loss = criterion(output, targets)
 
@@ -132,7 +131,7 @@ def test(opt, phone_dict, context_model, model):
                 # forward pass
                 output = model(inputs)
 
-            output = output[-targets.size(0) :]
+            output = output[-targets.size(0):]
 
             # calculate accuracy
             _, predicted = torch.max(output.data, 1)
@@ -153,21 +152,19 @@ def test(opt, phone_dict, context_model, model):
 
 if __name__ == "__main__":
     opt = OPTIONS
+    assert opt.classifier_config is not None, "Classifier config is not set"
 
-    #opt = arg_parser.parse_args()
+    # opt = arg_parser.parse_args()
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 
     # TODO: these should be different numbers than the ones used for the GIM model
-    # opt["batch_size"] = 8
-    # opt["num_epochs"] = 1 #20
-
     # random seeds
-    torch.manual_seed(opt["seed"])
-    torch.cuda.manual_seed(opt["seed"])
-    np.random.seed(opt["seed"])
+    torch.manual_seed(opt.seed)
+    torch.cuda.manual_seed(opt.seed)
+    np.random.seed(opt.seed)
 
     # load self-supervised GIM model
-    learning_rate = opt["learning_rate"]
+    learning_rate = opt.classifier_config.learning_rate
     context_model, _ = load_audio_model.load_model_and_optimizer(opt, reload_model=True)
 
     if opt.model_type != 2:  # == 2 trains a fully supervised model
@@ -193,8 +190,7 @@ if __name__ == "__main__":
     # load dataset
     phone_dict = phone_dict.load_phone_dict(opt)
     # _, train_dataset, _, test_dataset = get_dataloader.get_libri_dataloaders(opt)
-    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt, opt["data_set"]) # librispeech
-
+    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt, opt.classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0

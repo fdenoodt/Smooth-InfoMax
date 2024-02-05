@@ -21,8 +21,8 @@ class Dataset(Enum):
 
 
 class DataSetConfig:
-    def __init__(self, data_input_dir, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None):
-        self.data_input_dir = data_input_dir
+    def __init__(self, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None):
+        self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
@@ -34,29 +34,9 @@ class DataSetConfig:
             "split_in_syllables can only be True for de_boer_sounds dataset"
 
 
-class OptionsConfig:
-    def __init__(self,
-                 seed, validate, loss: Loss, encoder_config, model_type, device, experiment, save_dir, log_path,
-                 log_every_x_epochs, model_path):
-        self.seed = seed
-        self.validate = validate
-        self.loss = loss
-        self.encoder_config: EncoderConfig = encoder_config
-        self.model_type = model_type
-        self.device = device
-        self.experiment = experiment
-        self.save_dir = save_dir
-        self.log_path = log_path
-        self.log_path_latent = os.path.join(log_path, "latent_space")
-
-        self.log_every_x_epochs = log_every_x_epochs
-        self.model_path = model_path
-
-
 class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample, architecture: ArchitectureConfig,
-                 kld_weight, learning_rate,
-                 decay_rate,
+                 kld_weight, learning_rate, decay_rate,
                  train_w_noise, model_num, dataset: DataSetConfig):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
@@ -69,3 +49,31 @@ class EncoderConfig:
         self.train_w_noise = train_w_noise
         self.model_num = model_num
         self.dataset = dataset
+
+
+class ClassifierConfig:
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig):
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
+        self.dataset = dataset
+
+
+class OptionsConfig:
+    def __init__(self,
+                 seed, validate, loss: Loss, encoder_config, model_type, device, experiment, save_dir, log_path,
+                 log_every_x_epochs, model_path, classifier_config: Optional[ClassifierConfig]):
+        self.seed = seed
+        self.validate = validate
+        self.loss = loss
+        self.model_type = model_type
+        self.device = device
+        self.experiment = experiment
+        self.save_dir = save_dir
+        self.log_path = log_path
+        self.log_path_latent = os.path.join(log_path, "latent_space")
+
+        self.log_every_x_epochs = log_every_x_epochs
+        self.model_path = model_path
+
+        self.encoder_config: EncoderConfig = encoder_config
+        self.classifier_config: ClassifierConfig = classifier_config

@@ -115,9 +115,9 @@ if __name__ == "__main__":
     arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     # random seeds
-    torch.manual_seed(opt["seed"])
-    torch.cuda.manual_seed(opt["seed"])
-    np.random.seed(opt["seed"])
+    torch.manual_seed(opt.seed)
+    torch.cuda.manual_seed(opt.seed)
+    np.random.seed(opt.seed)
 
 
     ## load model

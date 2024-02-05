@@ -1,6 +1,6 @@
 import torch
 
-from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss
+from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig
 from encoder.architecture_config import ArchitectureConfig, ModuleConfig
 
 ROOT_LOGS = r"C:\\sim_logs\\"
@@ -19,7 +19,6 @@ modules = ModuleConfig.get_modules_from_list(kernel_sizes, strides, padding, cnn
 ARCHITECTURE = ArchitectureConfig(modules=modules)
 
 DATASET = DataSetConfig(
-    data_input_dir='./datasets/',
     dataset=Dataset.LIBRISPEECH,
     split_in_syllables=False,
     batch_size=8,
@@ -39,13 +38,18 @@ ENCODER_CONFIG = EncoderConfig(
     dataset=DATASET
 )
 
+CLASSIFIER_CONFIG = ClassifierConfig(
+    num_epochs=10,
+    learning_rate=0.01,
+    dataset=DATASET  # same batch size as encoder
+)
+
 
 def get_options(experiment_name):
     options = OptionsConfig(
         seed=2,
         validate=True,
         loss=Loss.INFONCE,
-        encoder_config=ENCODER_CONFIG,
         model_type=0,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
@@ -53,6 +57,9 @@ def get_options(experiment_name):
         log_path=f'{ROOT_LOGS}/{experiment_name}',
         log_every_x_epochs=1,
         model_path=f'{ROOT_LOGS}/{experiment_name}/',
+
+        encoder_config=ENCODER_CONFIG,
+        classifier_config=CLASSIFIER_CONFIG
     )
 
     return options
