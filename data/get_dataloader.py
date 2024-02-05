@@ -53,7 +53,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def _get_de_boer_sounds_data_loaders(opt: OptionsConfig, reshuffled=None, split_and_pad=True, train_noise=True,
+def _get_de_boer_sounds_data_loaders(d_config: DataSetConfig, reshuffled=None, split_and_pad=True, train_noise=True,
                                      shuffle=True,
                                      subset_size=None):
     ''' Retrieve dataloaders where audio signals are split into syllables '''
@@ -61,12 +61,11 @@ def _get_de_boer_sounds_data_loaders(opt: OptionsConfig, reshuffled=None, split_
 
     if split_and_pad:
         if subset_size:
-            print(f"Using subset of size {subset_size} and batch size {opt.encoder_config.dataset.batch_size}")
+            print(f"Using subset of size {subset_size} and batch size {d_config.batch_size}")
             train_specific_directory = "subsets/"
             train_sub_dir = f"{subset_size}"  # eg: subsets/all
             test_specific_directory = "split up data padded reshuffled"
-            dataset_config = opt.encoder_config.dataset
-            return _dataloaders(dataset_config, train_specific_directory, test_specific_directory, train_sub_dir,
+            return _dataloaders(d_config, train_specific_directory, test_specific_directory, train_sub_dir,
                                 "test", split_and_pad, train_noise, shuffle)
         else:
             print("************************")
@@ -85,8 +84,7 @@ def _get_de_boer_sounds_data_loaders(opt: OptionsConfig, reshuffled=None, split_
         specific_directory = ""
 
     print(f"using {specific_directory} directory")
-    dataset_config = opt.encoder_config.dataset
-    return _dataloaders(dataset_config, specific_directory, specific_directory, "train", "test", split_and_pad, train_noise,
+    return _dataloaders(d_config, specific_directory, specific_directory, "train", "test", split_and_pad, train_noise,
                         shuffle)
 
 
@@ -142,14 +140,14 @@ def _get_libri_dataloaders(options: DataSetConfig):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_dataloader(opt: OptionsConfig, config: DataSetConfig, **kwargs):
+def get_dataloader(config: DataSetConfig, **kwargs):
     d = config.dataset
     if d == Dataset.DE_BOER:
-        return _get_de_boer_sounds_data_loaders(opt, **kwargs)
+        return _get_de_boer_sounds_data_loaders(config, **kwargs)
     elif d == Dataset.DE_BOER_RESHUFFLED:  # used for training CPC
-        return _get_de_boer_sounds_data_loaders(opt, reshuffled="v1", **kwargs)
+        return _get_de_boer_sounds_data_loaders(config, reshuffled="v1", **kwargs)
     elif d == Dataset.DE_BOER_RESHUFFLED_V2:  # used for training CPC Decoder
-        return _get_de_boer_sounds_data_loaders(opt, reshuffled="v2", **kwargs)
+        return _get_de_boer_sounds_data_loaders(config, reshuffled="v2", **kwargs)
     elif d == Dataset.LIBRISPEECH:
         return _get_libri_dataloaders(config)
     else:

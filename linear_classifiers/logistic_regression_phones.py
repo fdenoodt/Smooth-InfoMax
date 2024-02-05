@@ -189,8 +189,7 @@ if __name__ == "__main__":
 
     # load dataset
     phone_dict = phone_dict.load_phone_dict(opt)
-    # _, train_dataset, _, test_dataset = get_dataloader.get_libri_dataloaders(opt)
-    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt, opt.classifier_config.dataset)
+    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt.classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0

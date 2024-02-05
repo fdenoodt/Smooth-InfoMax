@@ -116,7 +116,6 @@ def main(options: OptionsConfig):
 
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        options,
         config=options.encoder_config.dataset,
         train_noise=train_w_noise,
         split_and_pad=options.encoder_config.dataset.split_in_syllables)
