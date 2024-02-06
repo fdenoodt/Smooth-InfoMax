@@ -3,10 +3,10 @@ import time
 import os
 import numpy as np
 
-from configs.config_classes import OptionsConfig, ModelType
-from options import get_options
 
 ## own modules
+from configs.config_classes import OptionsConfig, ModelType, Dataset
+from options import get_options
 from data import get_dataloader, phone_dict
 from utils import logger, utils
 from arg_parser import arg_parser
@@ -52,12 +52,12 @@ def train(opt: OptionsConfig, phone_dict, context_model, model):
                             )
                             model_input = z.permute(0, 2, 1)
 
-                    # Single module:
                     context, _ = context_model.module.fullmodel[idx].get_latents(
                         model_input
                     )
                 context = context.detach()
 
+            # eg: (1, 1542, 512) -> (1542, 512)
             inputs = context.reshape(-1, n_features)
 
             # forward pass
@@ -159,6 +159,7 @@ if __name__ == "__main__":
     opt = get_options(experiment_name='temp LIBRISPEECH')
     assert opt.classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
+    assert opt.classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 

@@ -3,17 +3,22 @@ import time
 import numpy as np
 
 ## own modules
+from configs.config_classes import OptionsConfig, ModelType, Dataset
+from models.full_model import FullModel
+from models.loss_supervised_speaker import Speaker_Loss
+from options import get_options
 from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model, loss_supervised_speaker
 
 
-def train(opt, context_model, loss):
+def train(opt: OptionsConfig, context_model, loss: Speaker_Loss):
     total_step = len(train_loader)
     print_idx = 100
 
-    for epoch in range(opt["num_epochs"]):
+    num_epochs = opt.encoder_config.num_epochs
+    for epoch in range(num_epochs):
         loss_epoch = 0
         acc_epoch = 0
         for i, (audio, filename, _, audio_idx) in enumerate(train_loader):
@@ -26,10 +31,8 @@ def train(opt, context_model, loss):
             model_input = audio.to(opt.device)
 
             with torch.no_grad():
-                z = context_model.module.forward_through_n_layers(
-                    model_input, 5
-                )
-
+                full_model: FullModel = context_model.module
+                z = full_model.forward_through_all_modules(model_input)
             z = z.detach()
 
             # forward pass
@@ -47,7 +50,7 @@ def train(opt, context_model, loss):
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
                         epoch + 1,
-                        opt["num_epochs"],
+                        num_epochs,
                         i,
                         total_step,
                         time.time() - starttime,
@@ -78,9 +81,8 @@ def test(opt, context_model, loss, data_loader):
             model_input = audio.to(opt.device)
 
             with torch.no_grad():
-                z = context_model.module.forward_through_n_layers(
-                    model_input, 5
-                )
+                full_model: FullModel = context_model.module
+                z = full_model.forward_through_all_modules(model_input)
 
             z = z.detach()
 
@@ -106,11 +108,10 @@ def test(opt, context_model, loss, data_loader):
 
 if __name__ == "__main__":
 
-    opt = arg_parser.parse_args()
-    opt["batch_size"] = 64
-    opt["num_epochs"] = 50
-    opt['learning_rate'] = 1e-3
-
+    opt = get_options(experiment_name='temp LIBRISPEECH')
+    assert opt.classifier_config is not None, "Classifier config is not set"
+    assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
+    assert opt.classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
@@ -119,9 +120,8 @@ if __name__ == "__main__":
     torch.cuda.manual_seed(opt.seed)
     np.random.seed(opt.seed)
 
-
     ## load model
-    context_model, optimizer = load_audio_model.load_model_and_optimizer(
+    context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         reload_model=True,
         calc_accuracy=True,
@@ -129,16 +129,17 @@ if __name__ == "__main__":
     )
     context_model.eval()
 
-    n_features = context_model.module.reg_hidden
+    n_features = context_model.module.nb_channels_regress
 
-    loss = loss_supervised_speaker.Speaker_Loss(
+    loss: Speaker_Loss = loss_supervised_speaker.Speaker_Loss(
         opt, n_features, calc_accuracy=True
     )
 
-    optimizer = torch.optim.Adam(loss.parameters(), lr=opt['learning_rate'])
+    learning_rate = opt.classifier_config.learning_rate
+    optimizer = torch.optim.Adam(loss.parameters(), lr=learning_rate)
 
     # load dataset
-    train_loader, _, test_loader, _ = get_dataloader.get_libri_dataloaders(opt)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0

@@ -1,12 +1,14 @@
 import torch.nn as nn
 import torch
 
+from configs.config_classes import OptionsConfig
 from data import get_dataloader
 from models import loss
 from utils import utils
 
+
 class Speaker_Loss(loss.Loss):
-    def __init__(self, opt, hidden_dim, calc_accuracy):
+    def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy):
         super(Speaker_Loss, self).__init__()
 
         self.opt = opt
@@ -28,8 +30,8 @@ class Speaker_Loss(loss.Loss):
 
         # model is initialized before the dataset is loaded,
         # so we initialize the speaker_id_dict with a separate version of the dataset
-        opt["batch_size_multiGPU"] = opt["batch_size"] * factor
-        _, train_dataset, _, _ = get_dataloader.get_libri_dataloaders(opt)
+        opt.classifier_config.dataset.batch_size_multiGPU = opt.classifier_config.dataset.batch_size * factor
+        _, train_dataset, _, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset)
         self.speaker_id_dict = {}
         for idx, key in enumerate(train_dataset.speaker_dict):
             self.speaker_id_dict[key] = idx

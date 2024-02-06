@@ -47,6 +47,10 @@ class DataSetConfig:
             labels=self.labels
         )
 
+    def __str__(self):
+        return f"DataSetConfig(dataset={self.dataset}, split_in_syllables={self.split_in_syllables}, " \
+               f"batch_size={self.batch_size}, labels={self.labels})"
+
 
 class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample, architecture: ArchitectureConfig,

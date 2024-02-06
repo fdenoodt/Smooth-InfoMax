@@ -27,7 +27,7 @@ DATASET = DataSetConfig(
 
 ENCODER_CONFIG = EncoderConfig(
     start_epoch=0,
-    num_epochs=4,
+    num_epochs=5,
     negative_samples=10,
     subsample=True,
     architecture=ARCHITECTURE,
@@ -38,15 +38,23 @@ ENCODER_CONFIG = EncoderConfig(
     dataset=DATASET,
 )
 
-CLASSIFIER_CONFIG = ClassifierConfig(
-    num_epochs=10,
+CLASSIFIER_CONFIG_PHONES = ClassifierConfig(
+    num_epochs=20,
     learning_rate=0.01,
     # deep copy of the dataset, to avoid changing the original dataset
     dataset=DATASET.__copy__(),
     encoder_num="0"  # For loading a specific model from a specific epoch, to use by the classifier
 )
 
-CLASSIFIER_CONFIG.dataset.batch_size = CLASSIFIER_CONFIG.dataset.batch_size * 4  # double batch size for classifier
+CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
+    num_epochs=50,
+    learning_rate=1e-3,
+    dataset=DATASET.__copy__(),
+    encoder_num="0"  # For loading a specific model from a specific epoch, to use by the classifier
+)
+CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
+
+CLASSIFIER_CONFIG = CLASSIFIER_CONFIG_SPEAKERS
 
 
 def get_options(experiment_name) -> OptionsConfig:

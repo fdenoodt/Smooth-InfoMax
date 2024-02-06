@@ -45,7 +45,8 @@ class FullModel(nn.Module):
                 self.fullmodel.append(indep_module)
 
     @staticmethod
-    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module) -> independent_module.IndependentModule:
+    def cnn_module_from_config(opt, module_config, calc_accuracy,
+                               is_first_module) -> independent_module.IndependentModule:
         kernel_sizes = module_config.kernel_sizes
         strides = module_config.strides
         padding = module_config.padding
@@ -88,3 +89,14 @@ class FullModel(nn.Module):
             model_input = z.permute(0, 2, 1).detach()  # (22, 55, 512)
 
         return loss
+
+    def forward_through_all_modules(self, x):
+        model_input = x
+
+        for idx, layer in enumerate(self.fullmodel):
+            if idx + 1 < len(self.fullmodel):
+                _, z = layer.get_latents(model_input)
+                model_input = z.permute(0, 2, 1)
+
+        context, _ = self.fullmodel[idx].get_latents(model_input)
+        return context
