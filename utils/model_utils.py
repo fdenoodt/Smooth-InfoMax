@@ -1,8 +1,10 @@
+from typing import Optional
+
 import torch
 import torch.nn as nn
 import os
 
-from configs.config_classes import OptionsConfig
+from configs.config_classes import OptionsConfig, ClassifierConfig
 
 
 def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
@@ -54,14 +56,15 @@ def makeDeltaOrthogonal(weights, gain):
 
 
 def reload_weights_for_training_encoder(opt: OptionsConfig, model, optimizer, reload_model):
-    return _reload_weights(True, opt, model, optimizer, reload_model)
+    return _reload_weights(True, opt, model, optimizer, reload_model, None)
 
 
-def reload_weights_for_training_classifier(opt: OptionsConfig, model, optimizer, reload_model):
-    return _reload_weights(False, opt, model, optimizer, reload_model)
+def reload_weights_for_training_classifier(opt: OptionsConfig, model, optimizer, reload_model, classifier_config: ClassifierConfig):
+    return _reload_weights(False, opt, model, optimizer, reload_model, classifier_config)
 
 
-def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, optimizer, reload_model):
+def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, optimizer,
+                    reload_model, classifier_config: Optional[ClassifierConfig]):
     ## reload weights for training of the linear classifier
     # old: if (opt.model_type == 0) and reload_model:  # or opt.model_type == 2)
     if not (purpose_is_train_encoder) and reload_model:  # or opt.model_type == 2)
@@ -70,7 +73,7 @@ def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, o
         if opt.experiment == "audio":
             model.load_state_dict(
                 torch.load(
-                    os.path.join(opt.model_path, f"model_{opt.classifier_config.encoder_num}.ckpt"),
+                    os.path.join(opt.model_path, f"model_{classifier_config.encoder_num}.ckpt"),
                     map_location=opt.device.type,
                 )
             )
@@ -80,7 +83,7 @@ def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, o
                     torch.load(
                         os.path.join(
                             opt.model_path,
-                            f"model_{idx}_{opt.classifier_config.encoder_num}.ckpt",
+                            f"model_{idx}_{classifier_config.encoder_num}.ckpt",
                         ),
                         map_location=opt.device.type,
                     )

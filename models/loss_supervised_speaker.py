@@ -30,7 +30,7 @@ class Speaker_Loss(loss.Loss):
 
         # model is initialized before the dataset is loaded,
         # so we initialize the speaker_id_dict with a separate version of the dataset
-        opt.classifier_config.dataset.batch_size_multiGPU = opt.classifier_config.dataset.batch_size * factor
+        opt.speakers_classifier_config.dataset.batch_size_multiGPU = opt.speakers_classifier_config.dataset.batch_size * factor
         _, train_dataset, _, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset)
         self.speaker_id_dict = {}
         for idx, key in enumerate(train_dataset.speaker_dict):

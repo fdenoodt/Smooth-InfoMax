@@ -111,7 +111,7 @@ def main(options: OptionsConfig):
     assert options.model_type == ModelType.ONLY_ENCODER, "Only encoder training is supported."
 
     # load model
-    model, optimizer = load_audio_model.load_model_and_optimizer(options)
+    model, optimizer = load_audio_model.load_model_and_optimizer(options, None)
 
     train_w_noise = options.encoder_config.train_w_noise
     assert not train_w_noise, "Noise not supported yet."

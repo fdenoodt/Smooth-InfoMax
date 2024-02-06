@@ -3,7 +3,6 @@ import time
 import os
 import numpy as np
 
-
 ## own modules
 from configs.config_classes import OptionsConfig, ModelType, Dataset
 from options import get_options
@@ -19,7 +18,8 @@ def weights_init(m):
         torch.nn.init.xavier_normal_(m.weight.data)
 
 
-def train(opt: OptionsConfig, phone_dict, context_model, model):
+def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Logger, train_dataset, criterion,
+          optimizer, n_features):
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     total_step = len(train_dataset.file_list)
 
@@ -100,7 +100,7 @@ def train(opt: OptionsConfig, phone_dict, context_model, model):
         logs.create_log(model, epoch=epoch, accuracy=accuracy)
 
 
-def test(opt, phone_dict, context_model, model):
+def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     model.eval()
 
     total = 0
@@ -122,10 +122,10 @@ def test(opt, phone_dict, context_model, model):
             with torch.no_grad():
                 for idx, layer in enumerate(context_model.module.fullmodel):
                     if idx + 1 < len(context_model.module.fullmodel):
-                        _, z = layer.get_latents(model_input) #, calc_autoregressive=False
+                        _, z = layer.get_latents(model_input)  # , calc_autoregressive=False
                         model_input = z.permute(0, 2, 1)
                 context, _ = context_model.module.fullmodel[idx].get_latents(
-                    model_input #, calc_autoregressive=True
+                    model_input  # , calc_autoregressive=True
                 )
 
                 context = context.detach()
@@ -155,11 +155,12 @@ def test(opt, phone_dict, context_model, model):
     return accuracy
 
 
-if __name__ == "__main__":
-    opt = get_options(experiment_name='temp LIBRISPEECH')
-    assert opt.classifier_config is not None, "Classifier config is not set"
+def main(experiment_name: str):
+    opt = get_options(experiment_name=experiment_name)
+    classifier_config = opt.phones_classifier_config
+    assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert opt.classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
+    assert classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 
@@ -168,8 +169,7 @@ if __name__ == "__main__":
     np.random.seed(opt.seed)
 
     # load self-supervised GIM model
-    learning_rate = opt.classifier_config.learning_rate
-    context_model, _ = load_audio_model.load_model_and_optimizer(opt, reload_model=True)
+    context_model, _ = load_audio_model.load_model_and_optimizer(opt, classifier_config, reload_model=True)
 
     context_model.eval()
 
@@ -191,18 +191,18 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(params, lr=1e-4)
 
     # load dataset
-    phone_dict = phone_dict.load_phone_dict(opt.classifier_config.dataset)
-    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt.classifier_config.dataset)
+    phone_dictionary = phone_dict.load_phone_dict(classifier_config.dataset)
+    _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0
 
     try:
         # Train the model
-        train(opt, phone_dict, context_model, model)
+        train(opt, phone_dictionary, context_model, model, logs, train_dataset, criterion, optimizer, n_features)
 
         # Test the model
-        accuracy = test(opt, phone_dict, context_model, model)
+        accuracy = test(opt, phone_dictionary, context_model, model, test_dataset, n_features)
 
     except KeyboardInterrupt:
         print("Training interrupted, saving log files")
@@ -214,3 +214,7 @@ if __name__ == "__main__":
         torch.save(
             context_model.state_dict(), os.path.join(opt.log_path, "context_model.ckpt")
         )
+
+
+if __name__ == "__main__":
+    main('temp LIBRISPEECH')

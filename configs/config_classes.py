@@ -84,7 +84,7 @@ class ClassifierConfig:
 class OptionsConfig:
     def __init__(self, model_type: ModelType, seed, validate, loss: Loss, encoder_config, device, experiment,
                  save_dir, log_path,
-                 log_every_x_epochs, model_path, classifier_config: Optional[ClassifierConfig]):
+                 log_every_x_epochs, model_path, phones_classifier_config: Optional[ClassifierConfig], speakers_classifier_config: Optional[ClassifierConfig]):
         self.model_type: ModelType = model_type
         self.seed = seed
         self.validate = validate
@@ -99,4 +99,5 @@ class OptionsConfig:
         self.model_path = model_path
 
         self.encoder_config: EncoderConfig = encoder_config
-        self.classifier_config: ClassifierConfig = classifier_config
+        self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
+        self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config

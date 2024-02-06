@@ -1,14 +1,15 @@
 import torch
 
-from configs.config_classes import Loss
+from typing import Optional
+from configs.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig
 from models import full_model
 from models.full_model import FullModel
 from utils import model_utils
 
 
 def load_model_and_optimizer(
-        opt, reload_model=False, calc_accuracy=False, num_GPU=None
-) -> (FullModel, torch.optim.Optimizer):
+        opt: OptionsConfig, classifier_config: Optional[ClassifierConfig], reload_model=False, calc_accuracy=False,
+        num_GPU=None) -> (FullModel, torch.optim.Optimizer):
     lr = opt.encoder_config.learning_rate
     # Initialize model.
     model: FullModel = full_model.FullModel(
@@ -25,8 +26,11 @@ def load_model_and_optimizer(
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    model, optimizer = model_utils.reload_weights_for_training_classifier(
-        opt, model, optimizer, reload_model)
+    if opt.model_type == ModelType.ONLY_ENCODER:
+        model, optimizer = model_utils.reload_weights_for_training_encoder(opt, model, optimizer, reload_model)
+    else:  # ModelType.ONLY_DOWNSTREAM_TASK or ModelType.FULLY_SUPERVISED
+        model, optimizer = model_utils.reload_weights_for_training_classifier(
+            opt, model, optimizer, reload_model, classifier_config)
 
     model.train()
     print(model)

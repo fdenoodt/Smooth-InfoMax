@@ -13,7 +13,7 @@ from arg_parser import arg_parser
 from models import load_audio_model, loss_supervised_speaker
 
 
-def train(opt: OptionsConfig, context_model, loss: Speaker_Loss):
+def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer):
     total_step = len(train_loader)
     print_idx = 100
 
@@ -106,12 +106,13 @@ def test(opt, context_model, loss, data_loader):
     return loss_epoch, accuracy
 
 
-if __name__ == "__main__":
-
-    opt = get_options(experiment_name='temp LIBRISPEECH')
-    assert opt.classifier_config is not None, "Classifier config is not set"
-    assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert opt.classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
+def main(experiment_name: str):
+    opt: OptionsConfig = get_options(experiment_name=experiment_name)
+    classifier_config = opt.speakers_classifier_config
+    assert opt.speakers_classifier_config is not None, "Classifier config is not set"
+    assert opt.model_type in [ModelType.FULLY_SUPERVISED,
+                              ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
+    assert opt.speakers_classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
@@ -123,6 +124,7 @@ if __name__ == "__main__":
     ## load model
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
+        classifier_config,
         reload_model=True,
         calc_accuracy=True,
         num_GPU=1,
@@ -135,18 +137,18 @@ if __name__ == "__main__":
         opt, n_features, calc_accuracy=True
     )
 
-    learning_rate = opt.classifier_config.learning_rate
+    learning_rate = opt.speakers_classifier_config.learning_rate
     optimizer = torch.optim.Adam(loss.parameters(), lr=learning_rate)
 
     # load dataset
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.classifier_config.dataset)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.speakers_classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0
 
     try:
         # Train the model
-        train(opt, context_model, loss)
+        train(opt, context_model, loss, logs, train_loader, optimizer)
 
         # Test the model
         result_loss, accuracy = test(opt, context_model, loss, test_loader)
@@ -155,3 +157,7 @@ if __name__ == "__main__":
         print("Training interrupted, saving log files")
 
     logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
+
+
+if __name__ == "__main__":
+    main('temp LIBRISPEECH')

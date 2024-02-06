@@ -54,8 +54,6 @@ CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
 )
 CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
-CLASSIFIER_CONFIG = CLASSIFIER_CONFIG_SPEAKERS
-
 
 def get_options(experiment_name) -> OptionsConfig:
     options = OptionsConfig(
@@ -72,7 +70,8 @@ def get_options(experiment_name) -> OptionsConfig:
         model_path=f'{ROOT_LOGS}/{experiment_name}/',
 
         encoder_config=ENCODER_CONFIG,
-        classifier_config=CLASSIFIER_CONFIG
+        phones_classifier_config=CLASSIFIER_CONFIG_PHONES,
+        speakers_classifier_config=CLASSIFIER_CONFIG_SPEAKERS
     )
 
     return options
