@@ -59,9 +59,7 @@ def get_options(experiment_name) -> OptionsConfig:
     options = OptionsConfig(
         seed=2,
         validate=True,
-        model_type=ModelType.ONLY_DOWNSTREAM_TASK,
         loss=Loss.INFO_NCE,
-
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
         save_dir=experiment_name,

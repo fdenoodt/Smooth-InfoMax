@@ -106,6 +106,7 @@ def save_latents_and_generate_visualisations(opt):
 
 
 def main(options: OptionsConfig):
+    options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
     assert options.model_type == ModelType.ONLY_ENCODER, "Only encoder training is supported."

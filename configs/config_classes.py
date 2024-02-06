@@ -21,9 +21,11 @@ class Dataset(Enum):
 
 
 class ModelType(Enum):
+    UNDEFINED = 0
     FULLY_SUPERVISED = 1  # Both the downstream and the encoder are trained
     ONLY_DOWNSTREAM_TASK = 2  # Only the downstream task, encoder is frozen
     ONLY_ENCODER = 3  # Only the encoder is trained
+
 
 
 class DataSetConfig:
@@ -82,10 +84,10 @@ class ClassifierConfig:
 
 
 class OptionsConfig:
-    def __init__(self, model_type: ModelType, seed, validate, loss: Loss, encoder_config, device, experiment,
+    def __init__(self, seed, validate, loss: Loss, encoder_config, device, experiment,
                  save_dir, log_path,
                  log_every_x_epochs, model_path, phones_classifier_config: Optional[ClassifierConfig], speakers_classifier_config: Optional[ClassifierConfig]):
-        self.model_type: ModelType = model_type
+        self.model_type: ModelType = ModelType.UNDEFINED # will be set in the main function
         self.seed = seed
         self.validate = validate
         self.loss = loss
@@ -101,3 +103,10 @@ class OptionsConfig:
         self.encoder_config: EncoderConfig = encoder_config
         self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
+
+    def __str__(self):
+        return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \
+               f"loss={self.loss}, encoder_config={self.encoder_config}, device={self.device}, " \
+               f"experiment={self.experiment}, save_dir={self.save_dir}, log_path={self.log_path}, " \
+               f"log_every_x_epochs={self.log_every_x_epochs}, model_path={self.model_path}, " \
+               f"phones_classifier_config={self.phones_classifier_config}, speakers_classifier_config={self.speakers_classifier_config})"

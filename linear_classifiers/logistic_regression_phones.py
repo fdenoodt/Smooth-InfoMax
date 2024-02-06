@@ -155,9 +155,12 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     return accuracy
 
 
-def main(experiment_name: str):
+def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt = get_options(experiment_name=experiment_name)
+    opt.model_type = model_type
+
     classifier_config = opt.phones_classifier_config
+
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"

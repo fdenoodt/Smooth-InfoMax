@@ -1,6 +1,6 @@
 import torch
 
-from configs.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig
+from configs.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ModelType
 from encoder.architecture_config import ArchitectureConfig, ModuleConfig
 
 # WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
@@ -83,7 +83,8 @@ def get_options(experiment_name):
         log_path=f'{ROOT_LOGS}/{experiment_name}',
         log_every_x_epochs=1,
         model_path=f'{ROOT_LOGS}/{experiment_name}/',
-        classifier_config=None
+        phones_classifier_config=None,
+        speakers_classifier_config=None,
     )
     return options
 

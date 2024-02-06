@@ -106,9 +106,12 @@ def test(opt, context_model, loss, data_loader):
     return loss_epoch, accuracy
 
 
-def main(experiment_name: str):
+def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt: OptionsConfig = get_options(experiment_name=experiment_name)
+    opt.model_type = model_type
+
     classifier_config = opt.speakers_classifier_config
+
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"

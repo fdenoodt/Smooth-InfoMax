@@ -156,7 +156,7 @@ class Logger:
         # Save hyper-parameters
         path = os.path.join(self.opt.log_path, "log.txt")
         with open(path, "w+") as cur_file:
-            cur_file.write(str(self.opt.classifier_config))
+            cur_file.write(str(self.opt))
             if accuracy is not None:
                 cur_file.write("Top 1 -  accuracy: " + str(accuracy))
             if acc5 is not None:
