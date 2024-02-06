@@ -41,9 +41,12 @@ ENCODER_CONFIG = EncoderConfig(
 CLASSIFIER_CONFIG = ClassifierConfig(
     num_epochs=10,
     learning_rate=0.01,
-    dataset=DATASET,  # same batch size as encoder
+    # deep copy of the dataset, to avoid changing the original dataset
+    dataset=DATASET.__copy__(),
     encoder_num="0"  # For loading a specific model from a specific epoch, to use by the classifier
 )
+
+CLASSIFIER_CONFIG.dataset.batch_size = CLASSIFIER_CONFIG.dataset.batch_size * 4  # double batch size for classifier
 
 
 def get_options(experiment_name) -> OptionsConfig:

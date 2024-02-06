@@ -16,8 +16,9 @@ from models import (
 
 class IndependentModule(nn.Module):
     def __init__(
-        self, opt:OptionsConfig,
-        enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, predict_distributions, enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
+            self, opt: OptionsConfig,
+            enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress, predict_distributions,
+            enc_input=1, max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
         super(IndependentModule, self).__init__()
 
         self.opt = opt
@@ -40,9 +41,21 @@ class IndependentModule(nn.Module):
 
         # hidden dim of the encoder is the input dim of the loss
         self.loss = loss_InfoNCE.InfoNCE_Loss(
-            opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy, prediction_step=prediction_step)
+            opt, hidden_dim=self.nb_channels_cnn, enc_hidden=self.nb_channels_cnn, calc_accuracy=calc_accuracy,
+            prediction_step=prediction_step)
 
-    def get_latents(self, x):  # Latents now return distribution parameters
+    def get_latents(self, x) -> (Tensor, Tensor):
+        (c_mu, c_log_var), (z_mu, z_log_var) = self._get_latent_params(x)
+
+        if self.predict_distributions:
+            sample = self._reparameterize(c_mu, c_log_var)
+        else:
+            sample = c_mu
+
+        # return [(mu, log_var), (mu, log_var)]
+        return sample, sample
+
+    def _get_latent_params(self, x: Tensor) -> ((Tensor, Tensor), (Tensor, Tensor)):
         """
         Calculate the latent representation of the input (using both the encoder and the autoregressive model)
         :param x: batch with sampled audios (dimensions: B x C x L)
@@ -57,10 +70,9 @@ class IndependentModule(nn.Module):
         mu = mu.permute(0, 2, 1)  # (b, 55, 512)
         log_var = log_var.permute(0, 2, 1)
 
-        return [(mu, log_var), (mu, log_var)]
+        return (mu, log_var), (mu, log_var)
 
-
-    def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
+    def _reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
         """
         Reparameterization trick to sample from N(mu, var) from
         N(0,1).
@@ -83,18 +95,17 @@ class IndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        (c_mu, c_log_var), (z_mu, z_log_var) = self.get_latents(x)  # B x L x C
+        (c_mu, c_log_var), (z_mu, z_log_var) = self._get_latent_params(x)  # B x L x C
 
         if self.predict_distributions:
-            c = self.reparameterize(c_mu, c_log_var)  # (B, L, 512)
-            z = self.reparameterize(z_mu, z_log_var)
+            c = self._reparameterize(c_mu, c_log_var)  # (B, L, 512)
+            z = self._reparameterize(z_mu, z_log_var)
 
             log_var = c_log_var
             mu = c_mu
 
             # KL-divergence loss
-            kld_loss = torch.mean(-0.5 * torch.sum(1 +
-                                  log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+            kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
             kld_loss = kld_loss.mean()  # shape: (1)
 
             # reconstruction loss

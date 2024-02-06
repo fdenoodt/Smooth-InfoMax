@@ -51,6 +51,7 @@ class Logger:
 
     def np_save(self, path, data):
         np.save(path, data)
+        print(len(data))
         for idx, item in enumerate(data):
             try: # just for the decoder
                 np.savetxt(f"{path}_{idx}.csv", item, delimiter=",")
@@ -156,7 +157,7 @@ class Logger:
         # Save hyper-parameters
         path = os.path.join(self.opt.log_path, "log.txt")
         with open(path, "w+") as cur_file:
-            cur_file.write(str(self.opt))
+            cur_file.write(str(self.opt.classifier_config))
             if accuracy is not None:
                 cur_file.write("Top 1 -  accuracy: " + str(accuracy))
             if acc5 is not None:
@@ -179,11 +180,16 @@ class Logger:
         self.draw_loss_curve()
 
         if accuracy is not None:
-            self.np_save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
+            # self.np_save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
+            np.save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
+
+
 
         if final_test:
-            self.np_save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
-            self.np_save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
+            # self.np_save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
+            np.save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
+            # self.np_save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
+            np.save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
 
     def draw_loss_curve(self):
         for idx, loss in enumerate(self.train_loss):

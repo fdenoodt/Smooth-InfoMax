@@ -46,12 +46,7 @@ class GIM_Encoder():
         model_input = audio_batch.to(device)
 
         for idx, module in enumerate(self.encoder.module.fullmodel):
-            (c_mu, c_log_var), _ = module.get_latents(model_input)
-
-            if self.opt['predict_distributions'] and self.opt['model_splits'] <= 2: # TODO
-                latent = module.reparameterize(c_mu, c_log_var)
-            else:
-                latent = c_mu
+            latent, _ = module.get_latents(model_input)  # returns a latent representation
 
             latent_per_module.append(latent)
 
@@ -59,12 +54,13 @@ class GIM_Encoder():
 
         return latent_per_module  # out: b, l, c
 
+
 # %%
 
 
 if __name__ == "__main__":
-
     from configs import OPTIONS as opt
+
     # from data.de_boer_decoder_sounds import DeBoerDecoderDataset
     # import os
 
@@ -72,7 +68,6 @@ if __name__ == "__main__":
     org_batch = torch.rand((64, 1, 10240))
     enc = encoder(org_batch)
     # enc = encoder.encode(org_batch)
-
 
 #     print("Using Train+Val / Test Split")
 #     train_dataset = DeBoerDecoderDataset(

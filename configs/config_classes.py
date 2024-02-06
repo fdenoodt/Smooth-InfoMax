@@ -39,6 +39,14 @@ class DataSetConfig:
             assert dataset in [Dataset.DE_BOER, Dataset.DE_BOER_RESHUFFLED]
             "split_in_syllables can only be True for de_boer_sounds dataset"
 
+    def __copy__(self):
+        return DataSetConfig(
+            dataset=self.dataset,
+            split_in_syllables=self.split_in_syllables,
+            batch_size=self.batch_size,
+            labels=self.labels
+        )
+
 
 class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample, architecture: ArchitectureConfig,
@@ -62,6 +70,11 @@ class ClassifierConfig:
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
+
+    # to string
+    def __str__(self):
+        return f"ClassifierConfig(num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, " \
+               f"dataset={self.dataset}, encoder_num={self.encoder_num})"
 
 
 class OptionsConfig:

@@ -24,16 +24,8 @@ def val_by_latent_syllables(opt, dataloader, model, epoch, step):
 
         # iterate over layers
         for idx, layer in enumerate(model.module.fullmodel):
-
             # B x L x C
-            (c_mu, c_log_var), (z_mu, z_log_var) = layer.get_latents(model_input)
-
-            if opt['architecture']['predict_distributions'] and opt['model_splits'] <= 2: # TODO
-                context = layer.reparameterize(c_mu, c_log_var)
-                z = layer.reparameterize(z_mu, z_log_var)
-            else:
-                context = c_mu
-                z = z_mu
+            (context, z) = layer.get_latents(model_input)
 
             model_input = z.permute(0, 2, 1)
             latent_rep = context.permute(0, 2, 1).cpu().numpy()

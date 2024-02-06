@@ -122,10 +122,10 @@ def test(opt, phone_dict, context_model, model):
             with torch.no_grad():
                 for idx, layer in enumerate(context_model.module.fullmodel):
                     if idx + 1 < len(context_model.module.fullmodel):
-                        _, z = layer.get_latents(model_input, calc_autoregressive=False)
+                        _, z = layer.get_latents(model_input) #, calc_autoregressive=False
                         model_input = z.permute(0, 2, 1)
                 context, _ = context_model.module.fullmodel[idx].get_latents(
-                    model_input, calc_autoregressive=True
+                    model_input #, calc_autoregressive=True
                 )
 
                 context = context.detach()
