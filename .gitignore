@@ -16,6 +16,7 @@ thesis-text/.DS_Store
 *.wav
 datasets/*
 *.pyc
+sim_logs/*
 
 
 ## Core latex/pdflatex auxiliary files:
