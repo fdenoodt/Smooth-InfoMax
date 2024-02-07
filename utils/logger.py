@@ -3,7 +3,10 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
-import tikzplotlib
+try:
+    import tikzplotlib
+except:
+    print("tikzplotlib not installed, will not save loss as tex")
 
 from configs.config_classes import OptionsConfig
 

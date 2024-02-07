@@ -1,4 +1,7 @@
-import tikzplotlib
+try:
+    import tikzplotlib
+except:
+    print("tikzplotlib not installed, will not save loss as tex")
 import os
 import matplotlib.pyplot as plt
 

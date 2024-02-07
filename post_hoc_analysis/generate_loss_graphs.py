@@ -6,8 +6,11 @@ The script iterates over all {idx} file pairs, loads in the data and generates a
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import tikzplotlib
 
+try:
+    import tikzplotlib
+except:
+    print("tikzplotlib not installed, will not save loss as tex")
 
 # def draw_loss_curve(self, train_loss, val_loss):
 #     # assert len(train_loss) == len(val_loss)
@@ -33,16 +36,16 @@ root = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!\DE
 
 # iterate over all files in the folder
 for file in os.listdir(root):
-    if file.endswith(".csv") and file.startswith("train_loss"): # first starts with checks VGIM, second checks decoder
-          # get the index of the file
-          idx = file.split("_")[2].split(".")[0]
-          # load in the train and val loss
-          train_loss = np.loadtxt(os.path.join(root, f"train_loss_{idx}.csv"))
-          val_loss = np.loadtxt(os.path.join(root, f"val_loss_{idx}.csv"))
+    if file.endswith(".csv") and file.startswith("train_loss"):  # first starts with checks VGIM, second checks decoder
+        # get the index of the file
+        idx = file.split("_")[2].split(".")[0]
+        # load in the train and val loss
+        train_loss = np.loadtxt(os.path.join(root, f"train_loss_{idx}.csv"))
+        val_loss = np.loadtxt(os.path.join(root, f"val_loss_{idx}.csv"))
     elif file.endswith(".csv") and file.startswith("training_loss"):
-            train_loss = np.loadtxt(os.path.join(root, "training_loss.csv"))
-            val_loss = np.loadtxt(os.path.join(root, "validation_loss.csv"))
-            idx = "0"
+        train_loss = np.loadtxt(os.path.join(root, "training_loss.csv"))
+        val_loss = np.loadtxt(os.path.join(root, "validation_loss.csv"))
+        idx = "0"
     else:
         continue
 
@@ -65,7 +68,12 @@ for file in os.listdir(root):
     # grid on
     plt.grid(False)
 
-    tikzplotlib.save(os.path.join(root, f"loss_{idx}.tex"))
+    # save image
+    plt.savefig(os.path.join(root, f"loss_{idx}.png"))
+    try:
+        tikzplotlib.save(os.path.join(root, f"loss_{idx}.tex"))
+    except:
+        pass
     plt.show()
 
-          # plt.close()
+    # plt.close()
