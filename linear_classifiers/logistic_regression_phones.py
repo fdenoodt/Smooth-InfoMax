@@ -23,7 +23,7 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     total_step = len(train_dataset.file_list)
 
-    num_epochs = opt.encoder_config.num_epochs
+    num_epochs = opt.phones_classifier_config.num_epochs
     for epoch in range(num_epochs):
         loss_epoch = 0
 
@@ -163,7 +163,7 @@ def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM
 
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
+    assert classifier_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 

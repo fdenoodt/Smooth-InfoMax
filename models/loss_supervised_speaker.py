@@ -31,10 +31,16 @@ class Speaker_Loss(loss.Loss):
         # model is initialized before the dataset is loaded,
         # so we initialize the speaker_id_dict with a separate version of the dataset
         opt.speakers_classifier_config.dataset.batch_size_multiGPU = opt.speakers_classifier_config.dataset.batch_size * factor
-        _, train_dataset, _, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset)
+        _, train_dataset, _, test_dataset = get_dataloader.get_dataloader(opt.encoder_config.dataset)
         self.speaker_id_dict = {}
         for idx, key in enumerate(train_dataset.speaker_dict):
             self.speaker_id_dict[key] = idx
+
+        # When dataset is a subset of LibriSpeech, speaker_id_dict may not contain all speakers
+        # Need to add the missing speakers to the speaker_id_dict
+        for idx, key in enumerate(test_dataset.speaker_dict):
+            if key not in self.speaker_id_dict:
+                self.speaker_id_dict[key] = len(self.speaker_id_dict)
 
     def get_loss(self, x, z, c, filename, start_idx):
         total_loss, accuracies = self.calc_supervised_speaker_loss(c, filename)
@@ -53,7 +59,8 @@ class Speaker_Loss(loss.Loss):
 
         targets = torch.zeros(len(filename)).long()
         for idx, _ in enumerate(filename):
-            targets[idx] = self.speaker_id_dict[filename[idx].split("-")[0]]
+            speaker_id = filename[idx].split("-")[0]
+            targets[idx] = self.speaker_id_dict[speaker_id]
         targets = targets.to(cur_device).squeeze()
 
         # forward pass

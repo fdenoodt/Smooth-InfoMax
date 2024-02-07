@@ -15,9 +15,10 @@ class Loss(Enum):
 class Dataset(Enum):
     # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
     LIBRISPEECH = 1
-    DE_BOER = 2
-    DE_BOER_RESHUFFLED = 3
-    DE_BOER_RESHUFFLED_V2 = 4
+    LIBRISPEECH_SUBSET = 3
+    DE_BOER = 4
+    DE_BOER_RESHUFFLED = 5
+    DE_BOER_RESHUFFLED_V2 = 6
 
 
 class ModelType(Enum):

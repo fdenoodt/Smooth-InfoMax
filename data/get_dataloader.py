@@ -100,23 +100,27 @@ def _get_libri_dataloaders(options: DataSetConfig):
     num_workers = 1
 
     print("Using Train+Val / Test Split")
+
+    libri_dir = "LibriSpeech/train-clean-100"
+    labels_dir = "LibriSpeech100_labels_split" if options.dataset == Dataset.LIBRISPEECH else "LibriSpeech100_labels_split_subset"
+
     train_dataset = librispeech.LibriDataset(
         os.path.join(
             options.data_input_dir,
-            "LibriSpeech/train-clean-100",
+            libri_dir,
         ),
         os.path.join(
-            options.data_input_dir, "LibriSpeech100_labels_split/train_split.txt"
+            options.data_input_dir, f"{labels_dir}/train_split.txt"
         ),
     )
 
     test_dataset = librispeech.LibriDataset(
         os.path.join(
             options.data_input_dir,
-            "LibriSpeech/train-clean-100",
+            libri_dir,
         ),
         os.path.join(
-            options.data_input_dir, "LibriSpeech100_labels_split/test_split.txt"
+            options.data_input_dir, f"{labels_dir}/test_split.txt"
         ),
     )
 
@@ -148,7 +152,7 @@ def get_dataloader(config: DataSetConfig, **kwargs):
         return _get_de_boer_sounds_data_loaders(config, reshuffled="v1", **kwargs)
     elif d == Dataset.DE_BOER_RESHUFFLED_V2:  # used for training CPC Decoder
         return _get_de_boer_sounds_data_loaders(config, reshuffled="v2", **kwargs)
-    elif d == Dataset.LIBRISPEECH:
+    elif d in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
         return _get_libri_dataloaders(config)
     else:
         raise ValueError("Unknown dataset")

@@ -20,7 +20,7 @@ modules = ModuleConfig.get_modules_from_list(kernel_sizes, strides, padding, cnn
 ARCHITECTURE = ArchitectureConfig(modules=modules)
 
 DATASET = DataSetConfig(
-    dataset=Dataset.LIBRISPEECH,
+    dataset=Dataset.LIBRISPEECH_SUBSET,
     split_in_syllables=False,
     batch_size=8,
 )

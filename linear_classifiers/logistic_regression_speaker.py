@@ -17,7 +17,8 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
     total_step = len(train_loader)
     print_idx = 100
 
-    num_epochs = opt.encoder_config.num_epochs
+    num_epochs = opt.speakers_classifier_config.num_epochs
+
     for epoch in range(num_epochs):
         loss_epoch = 0
         acc_epoch = 0
@@ -89,6 +90,7 @@ def test(opt, context_model, loss, data_loader):
             # forward pass
             total_loss, step_accuracy = loss.get_loss(model_input, z, z, filename, audio_idx)
 
+
             accuracy += step_accuracy.item()
             loss_epoch += total_loss.item()
 
@@ -115,7 +117,7 @@ def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert opt.speakers_classifier_config.dataset.dataset == Dataset.LIBRISPEECH, "Dataset not supported"
+    assert opt.speakers_classifier_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
