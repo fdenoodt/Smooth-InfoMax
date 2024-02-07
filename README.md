@@ -55,10 +55,12 @@ sensitive to which vowels, further demonstrating the interpretability of V-GIM.
 
 ```bash
 git clone https://github.com/oBoii/Smooth-InfoMax
-cd Smooth-InfoMax
-
 ./download_audio_data.sh
 ./audio_traineval.sh
+```
+
+```bash
+cd Smooth-InfoMax/ && git fetch && git pull && chmod +x ./audio_traineval.sh && ./audio_traineval.sh
 ```
 
 

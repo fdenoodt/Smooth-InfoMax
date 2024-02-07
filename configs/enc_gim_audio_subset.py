@@ -33,7 +33,7 @@ modules.append(
 ARCHITECTURE = ArchitectureConfig(modules=modules)
 
 DATASET = DataSetConfig(
-    dataset=Dataset.LIBRISPEECH,
+    dataset=Dataset.LIBRISPEECH_SUBSET,
     split_in_syllables=False,
     batch_size=8,
 )
