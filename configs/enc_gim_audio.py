@@ -4,7 +4,7 @@ from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, Option
     ModelType
 from encoder.architecture_config import ArchitectureConfig, ModuleConfig
 
-ROOT_LOGS = r"C:\\sim_logs\\"
+ROOT_LOGS = r"./sim_logs/"
 
 # Original dimensions given in CPC paper (Oord et al.).
 kernel_sizes = [10, 8, 4, 4, 4]
