@@ -47,3 +47,25 @@ sensitive to which vowels, further demonstrating the interpretability of V-GIM.
 
 <img src="./assets/image-20230613110900073.png" alt="image-20230613110900073" style="zoom: 67%;" />
 
+
+
+
+
+## Installation
+
+```bash
+git clone https://github.com/oBoii/Smooth-InfoMax
+cd Smooth-InfoMax
+
+./download_audio_data.sh
+./audio_traineval.sh
+```
+
+
+
+```undefined
+watch -n 0.5 nvidia-smi
+```
+
+
+

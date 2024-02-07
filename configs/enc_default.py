@@ -71,7 +71,7 @@ ENCODER_CONFIG = EncoderConfig(
 )
 
 
-def get_options(experiment_name):
+def _get_options(experiment_name):
     options = OptionsConfig(
         seed=2,
         validate=True,

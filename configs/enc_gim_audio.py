@@ -71,7 +71,7 @@ CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
 CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
 
-def get_options(experiment_name) -> OptionsConfig:
+def _get_options(experiment_name) -> OptionsConfig:
     options = OptionsConfig(
         seed=2,
         validate=True,

@@ -109,7 +109,7 @@ def test(opt, context_model, loss, data_loader):
 
 
 def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
-    opt: OptionsConfig = get_options(experiment_name=experiment_name)
+    opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
     classifier_config = opt.speakers_classifier_config
