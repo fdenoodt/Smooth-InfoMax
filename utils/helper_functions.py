@@ -14,8 +14,11 @@ import time
 from torchvision import transforms
 import torchaudio
 import seaborn as sns
-import tikzplotlib
 
+try:
+    import tikzplotlib # some versions of Python have issues with this import
+except:
+    print("tikzplotlib not installed, will not be able to save as .tex")
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -25,7 +28,8 @@ class LogHandler():
     This class handles the logging of the training process.
     '''
 
-    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate, layer_depth=1) -> None:
+    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate,
+                 layer_depth=1) -> None:
         self.opt = opt
         self.total_step = len(train_loader)
         self.logs: logger.Logger = logs
@@ -108,7 +112,8 @@ class EpochPrinter():
         opt = self.options
         if step % self.print_idx == 0:
             max_epochs = opt['num_epochs'] + opt.encoder_config.start_epoch
-            print(f"Epoch[{epoch + 1}/{max_epochs}], Step[{step}/{self.total_step }], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
+            print(
+                f"Epoch[{epoch + 1}/{max_epochs}], Step[{step}/{self.total_step}], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
 
 
 def create_log_dir(path):  # created via chat gpt
@@ -180,8 +185,9 @@ def compute_normalizer(train_loader, encoder):
 
 def det_np(data):
     ''' convert tensor to numpy '''
-    #detach + numpy
+    # detach + numpy
     return data.to('cpu').detach().numpy()
+
 
 # def plot_fft():
 #     wave = audios[0][0].to('cpu').numpy()
@@ -200,10 +206,12 @@ def fft_magnitude(sequence):
     x_mag = x_mag[:int(len(x_mag) / 2)]
     return x_mag
 
+
 # if 16khz, only 8000 frequencies possible -> sample rate should be twice as large as the highest frequency
 
 
-def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True, fig_size=None, y_lims=None, type1="line", type2="line"):
+def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted", dir=None, file=None, show=True,
+                                 fig_size=None, y_lims=None, type1="line", type2="line"):
     ''' Plot two graphs side by side '''
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle(title)
@@ -236,7 +244,8 @@ def plot_two_graphs_side_by_side(sequence1, sequence2, title="True vs Predicted"
     plt.clf()
 
 
-def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, title="True vs Predicted", dir=None, file=None, show=True):
+def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, title="True vs Predicted", dir=None,
+                                  file=None, show=True):
     ''' Plot four graphs side by side '''
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
@@ -261,8 +270,8 @@ def plot_four_graphs_side_by_side(sequence1, sequence2, sequence3, sequence4, ti
 
 def colour_palette():
     return np.array([np.array([1, 0.3712, 0.34]),  # ba
-                     np.array([0.34, 0.34, 1]),    # bi
-                     np.array([0.34, 1, 0.34]),    # bu
+                     np.array([0.34, 0.34, 1]),  # bi
+                     np.array([0.34, 1, 0.34]),  # bu
                      np.array([0.86, 0.34, 0.34]),  # da
                      np.array([0.34, 0.34, 0.86]),  # di
                      np.array([0.34, 0.86, 0.34]),  # du
@@ -335,8 +344,6 @@ def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
         except:
             pass
 
-
-
     if show:
         plt.show()
 
@@ -357,7 +364,7 @@ def histogram(sequence, title, dir=None, file=None, show=True):
 
     # Compute the PDF of a standard normal distribution
     x = np.linspace(-4, 4, 1000)
-    pdf = np.exp(-0.5 * x**2) / np.sqrt(2 * np.pi)
+    pdf = np.exp(-0.5 * x ** 2) / np.sqrt(2 * np.pi)
 
     # Plot the standard normal PDF
     ax.plot(x, pdf, color='r', linewidth=2)
@@ -382,6 +389,7 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     plt.clf()
     plt.cla()
 
+
 # def histogram(sequence, title, dir=None, file=None, show=True):
 #     # We choose a color palette with seaborn.
 #     plt.figure(figsize=(8, 8))
@@ -400,12 +408,12 @@ def histogram(sequence, title, dir=None, file=None, show=True):
 #     plt.clf()
 #     plt.cla()
 
-    # ax = plt.subplot(aspect="equal")
+# ax = plt.subplot(aspect="equal")
 
-    # plt.xlim(-25, 25)
-    # plt.ylim(-25, 25)
-    # ax.axis("off")
-    # ax.axis("tight")
+# plt.xlim(-25, 25)
+# plt.ylim(-25, 25)
+# ax.axis("off")
+# ax.axis("tight")
 
 
 def save_audio(audio, dir, file, sample_rate=16000):
@@ -425,15 +433,18 @@ def translate_syllable_to_number(syllable):
                           "da": 3, "di": 4, "du": 5, "ga": 6, "gi": 7, "gu": 8}
     return syllable_to_number[syllable]
 
+
 def translate_number_to_syllable(index):
     # syllable can be the following: ba, bi, bu, da, di, du, ga, gi, gu
     number_to_syllable = {0: "ba", 1: "bi", 2: "bu",
                           3: "da", 4: "di", 5: "du", 6: "ga", 7: "gi", 8: "gu"}
     return number_to_syllable[index]
 
+
 def translate_syllable_vowel_number(syllable):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
     return 0 if "a" in syllable else 1 if "i" in syllable else 2
+
 
 def translate_vowel_number_to_vowel(number):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
