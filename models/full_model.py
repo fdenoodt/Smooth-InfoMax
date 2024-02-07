@@ -86,7 +86,7 @@ class FullModel(nn.Module):
 
         for idx, layer in enumerate(self.fullmodel):
             loss[:, idx], accuracy[:, idx], z = layer(model_input)
-            model_input = z.permute(0, 2, 1).detach()  # (22, 55, 512)
+            model_input = z.permute(0, 2, 1).detach()
 
         return loss
 

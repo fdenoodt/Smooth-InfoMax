@@ -44,7 +44,7 @@ padding = [2, 2, 1]
 max_pool_k_size = None
 max_pool_stride = None
 module2 = ModuleConfig(
-    max_pool_k_size=max_pool_k_size, max_pool_stride=max_pool_stride,
+    max_pool_k_size=None, max_pool_stride=None,
     kernel_sizes=kernel_sizes, strides=strides, padding=padding,
     cnn_hidden_dim=cnn_hidden_dim, regressor_hidden_dim=regressor_hidden_dim, is_autoregressor=False,
     prediction_step=12, predict_distributions=True)

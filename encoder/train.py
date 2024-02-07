@@ -6,6 +6,7 @@ import random
 import gc
 
 from configs.config_classes import OptionsConfig, Dataset, ModelType
+from models.full_model import FullModel
 from post_hoc_analysis.main_anal_hidd_repr import run_visualisations
 
 # own modules
@@ -17,7 +18,7 @@ from validation.val_by_syllables import val_by_latent_syllables
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
 
-def train(opt: OptionsConfig, logs, model, optimizer, train_loader, test_loader):
+def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, test_loader):
     '''Train the model'''
     total_step = len(train_loader)
 
@@ -105,7 +106,7 @@ def save_latents_and_generate_visualisations(opt):
         run_visualisations(opt, options_anal)
 
 
-def main(options: OptionsConfig):
+def _main(options: OptionsConfig):
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
@@ -136,7 +137,7 @@ def main(options: OptionsConfig):
     # Save_latents_and_generate_visualisations(options)
 
 
-def init(options: OptionsConfig):
+def _init(options: OptionsConfig):
     torch.cuda.empty_cache()
     gc.collect()
 
@@ -150,5 +151,5 @@ def init(options: OptionsConfig):
 
 
 def run_configuration(options: OptionsConfig):
-    init(options)
-    main(options)
+    _init(options)
+    _main(options)

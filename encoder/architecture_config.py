@@ -6,6 +6,15 @@ class ModuleConfig:
                  max_pool_k_size: Optional[int], max_pool_stride: Optional[int], kernel_sizes: list,
                  strides: list, padding: list, cnn_hidden_dim: int, regressor_hidden_dim: Optional[int],
                  is_autoregressor: bool, prediction_step: int, predict_distributions: bool):
+
+        assert len(kernel_sizes) == len(strides) == len(padding)
+        if is_autoregressor:
+            assert len(kernel_sizes) == 0
+            assert len(strides) == 0
+            assert len(padding) == 0
+            assert max_pool_k_size is None
+            assert max_pool_stride is None
+
         self.max_pool_k_size = max_pool_k_size
         self.max_pool_stride = max_pool_stride
         self.kernel_sizes = kernel_sizes

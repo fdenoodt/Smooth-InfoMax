@@ -165,4 +165,4 @@ def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM
 
 
 if __name__ == "__main__":
-    main('temp LIBRISPEECH')
+    main('temp')
