@@ -20,8 +20,7 @@ class FullModel(nn.Module):
 
         self.fullmodel: nn.ModuleList = nn.ModuleList([])
         self.opt: OptionsConfig = opt
-        self.nb_channels_cnn: int = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
-        self.nb_channels_regress: int = opt.encoder_config.architecture.modules[0].regressor_hidden_dim
+        self.output_dim: int = opt.encoder_config.architecture.modules[-1].regressor_hidden_dim
 
         architecture: ArchitectureConfig = opt.encoder_config.architecture
         # CNN modules

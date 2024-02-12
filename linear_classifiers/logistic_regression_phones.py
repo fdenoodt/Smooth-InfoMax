@@ -178,7 +178,7 @@ def main( model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     # 41 different phones to differentiate
     n_classes = 41
-    n_features = context_model.module.nb_channels_regress
+    n_features = context_model.module.output_dim
 
     # create linear classifier
     model = torch.nn.Sequential(torch.nn.Linear(n_features, n_classes)).to(opt.device)

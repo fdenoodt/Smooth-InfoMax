@@ -136,7 +136,7 @@ def main(experiment_name: str, model_type: ModelType = ModelType.ONLY_DOWNSTREAM
     )
     context_model.eval()
 
-    n_features = context_model.module.nb_channels_regress
+    n_features = context_model.module.output_dim
 
     loss: Speaker_Loss = loss_supervised_speaker.Speaker_Loss(
         opt, n_features, calc_accuracy=True

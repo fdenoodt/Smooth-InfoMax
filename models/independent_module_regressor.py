@@ -44,7 +44,7 @@ class AutoregressorIndependentModule(nn.Module):
         """
         z = z.permute(0, 2, 1)
         c = self.autoregressor(z)
-        return (c, z), -1 # tuple to work with interface of non regressor with distributions
+        return c, z
 
     def forward(self, x):
         """
