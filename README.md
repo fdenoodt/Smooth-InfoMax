@@ -60,7 +60,7 @@ git clone https://github.com/oBoii/Smooth-InfoMax
 ```
 
 ```bash
-cd Smooth-InfoMax/ && git fetch && git pull && chmod +x ./audio_traineval.sh && ./audio_traineval.sh
+cd /project_ghent/Smooth-InfoMax/ && git fetch && git pull && chmod +x ./audio_traineval.sh && ./audio_traineval.sh
 ```
 
 

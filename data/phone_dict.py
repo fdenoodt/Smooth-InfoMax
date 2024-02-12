@@ -1,10 +1,12 @@
 import pickle
 import os
 
-from configs.config_classes import DataSetConfig
+from configs.config_classes import DataSetConfig, Dataset
 
 
 def load_phone_dict(d_config: DataSetConfig):
+    assert d_config.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
+
     dir_name = os.path.join(d_config.data_input_dir, "Phone_dict/")
     filename = os.path.join(dir_name, "phone_dict.pkl")
 
@@ -14,7 +16,7 @@ def load_phone_dict(d_config: DataSetConfig):
         return create_dict_from_phones(
             os.path.join(
                 d_config.data_input_dir,
-                "LibriSpeech100_labels_split/converted_aligned_phones.txt",
+                f"LibriSpeech100_labels_split{'_subset' if d_config.dataset == Dataset.LIBRISPEECH_SUBSET else ''}/converted_aligned_phones.txt",
             ),
             filename,
         )
