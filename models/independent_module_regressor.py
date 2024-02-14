@@ -57,7 +57,7 @@ class AutoregressorIndependentModule(nn.Module):
         """
 
         # B x L x C = Batch size x #channels x length
-        (c, z), _ = self.get_latents(x)  # B x L x C
+        c, z = self.get_latents(x)  # B x L x C
 
         total_loss, accuracies = self.loss.get_loss(z, c)
 
