@@ -42,6 +42,9 @@ class LibriDataset(Dataset):
         self.loader = loader
         self.audio_length = audio_length
 
+        self.mean = -1456218.7500
+        self.std = 135303504.0
+
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
         filename = f"{speaker_id}-{dir_id}-{sample_id}"
@@ -62,6 +65,9 @@ class LibriDataset(Dataset):
 
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
+        audio = (audio - self.mean) / self.std
+
+        # TODO: OUR START INDEX IS NOT THE SAME AS THEIRS, MAYBE WE SHOULD USE THE SAME INDEX
         return audio, filename, speaker_id, 0
         # return audio, filename, pronounced_syllable, full_word
 
