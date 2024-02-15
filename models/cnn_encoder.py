@@ -33,13 +33,12 @@ class CNNEncoder(nn.Module):
                 ),
             )
 
+            if max_pool_k_size:
+                assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
 
-        if max_pool_k_size:
-            assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
-
-            # add maxpool to encoder
-            self.encoder.add_module(
-                f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
+                # add maxpool to encoder
+                self.encoder.add_module(
+                    f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
 
         inp_nb_channels = self.nb_channels
 
