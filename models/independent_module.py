@@ -28,7 +28,7 @@ class IndependentModule(nn.Module):
         self.predict_distributions = predict_distributions
 
         # encoder, out: B x L x C = (22, 55, 512)
-        self.encoder = cnn_encoder.CNNEncoder(
+        self.encoder: cnn_encoder.CNNEncoder = cnn_encoder.CNNEncoder(
             opt=opt,
             inp_nb_channels=enc_input,
             out_nb_channels=nb_channels_cnn,

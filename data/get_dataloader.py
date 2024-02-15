@@ -4,8 +4,10 @@ from torch.utils.data import dataset
 
 from data import de_boer_sounds, librispeech
 from configs.config_classes import DataSetConfig, Dataset, OptionsConfig
+import numpy
+import random
 
-NUM_WORKERS = 16
+NUM_WORKERS = 1  # 6
 
 
 def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir,
@@ -97,7 +99,6 @@ def _get_libri_dataloaders(options: DataSetConfig):
     test_loader, test_dataset - corresponds to validation or test set depending on opt.validate
     """
     print("Loading LibriSpeech dataset...")
-    num_workers = 1
 
     print("Using Train+Val / Test Split")
 
@@ -130,7 +131,7 @@ def _get_libri_dataloaders(options: DataSetConfig):
         batch_size=batch_size_multiGPU,
         shuffle=True,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -138,7 +139,7 @@ def _get_libri_dataloaders(options: DataSetConfig):
         batch_size=batch_size_multiGPU,
         shuffle=False,
         drop_last=True,
-        num_workers=num_workers,
+        num_workers=NUM_WORKERS,
     )
 
     return train_loader, train_dataset, test_loader, test_dataset

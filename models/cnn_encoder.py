@@ -1,68 +1,65 @@
-from typing import List
+from typing import List, Tuple
 from torch import Tensor
 import torch.nn as nn
+import torch
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, max_pool_k_size=None, max_pool_stride=None):
+    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, max_pool_k_size=None,
+                 max_pool_stride=None):
         super(CNNEncoder, self).__init__()
 
         self.opt = opt
         self.nb_channels = out_nb_channels
 
         assert (
-            len(kernel_sizes) == len(strides) == len(padding)
+                len(kernel_sizes) == len(strides) == len(padding)
         ), "Inconsistent size of network parameters (kernels, strides and padding)"
 
-        self.encoder = nn.Sequential()
-        self.encoder_mu = None
-        self.encoder_var = None
+        self.encoder: nn.Sequential = nn.Sequential()
+        self.encoder_mu: nn.Conv1d = nn.Conv1d(out_nb_channels, out_nb_channels, kernel_size=1, stride=1, padding=0)
+        self.encoder_var: nn.Conv1d = nn.Conv1d(out_nb_channels, out_nb_channels, kernel_size=1, stride=1, padding=0)
 
-        # add the layers
+        # add the layers to self.encoder
         for idx, _ in enumerate(kernel_sizes):
-            # if at last layer add the mu and var layers
-            if idx == len(kernel_sizes) - 1:
+            self.encoder.add_module(
+                f"layer {idx}",
+                CNNEncoder.new_block(
+                    inp_nb_channels,
+                    self.nb_channels,
+                    kernel_sizes[idx],
+                    strides[idx],
+                    padding[idx],
+                ),
+            )
 
-                self.encoder_mu = nn.Conv1d(
-                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
 
-                self.encoder_var = nn.Conv1d(
-                    inp_nb_channels, self.nb_channels, kernel_sizes[idx], strides[idx], padding[idx])
-            else:
-                self.encoder.add_module(
-                    f"layer {idx}",
-                    self.new_block(
-                        inp_nb_channels,
-                        self.nb_channels,
-                        kernel_sizes[idx],
-                        strides[idx],
-                        padding[idx],
-                    ),
-                )
+        if max_pool_k_size:
+            assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
 
-                if max_pool_k_size:
-                    assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
+            # add maxpool to encoder
+            self.encoder.add_module(
+                f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
 
-                    # add maxpool to encoder
-                    self.encoder.add_module(
-                        f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
+        inp_nb_channels = self.nb_channels
 
-            inp_nb_channels = self.nb_channels
-
-    def new_block(self, in_dim, out_dim, kernel_size, stride, padding):
+    @staticmethod
+    def new_block(in_dim, out_dim, kernel_size, stride, padding):
         new_block = nn.Sequential(
-            nn.Conv1d(
-                in_dim, out_dim, kernel_size=kernel_size, stride=stride, padding=padding
-            ),
+            CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding),
             nn.ReLU()
-            # nn.Sigmoid()
         )
         return new_block
 
-    def forward(self, x) -> List[Tensor]:
+    @staticmethod
+    def conv1d(in_dim, out_dim, kernel_size, stride, padding):
+        return nn.Conv1d(in_dim, out_dim, kernel_size=kernel_size, stride=stride, padding=padding)
+
+    def forward(self, x) -> Tuple[Tensor, Tensor]:
         # x is batch of audio files of shape [N x C x L]
         result = self.encoder(x)
-
         mu = self.encoder_mu(result)
         log_var = self.encoder_var(result)
-        return [mu, log_var]
+
+        assert mu.shape == log_var.shape == result.shape, f"mu shape: {mu.shape}, log_var shape: {log_var.shape}, result shape: {result.shape}"
+        return mu, log_var
