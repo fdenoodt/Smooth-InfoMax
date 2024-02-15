@@ -6,6 +6,9 @@ from configs.config_classes import OptionsConfig
 
 def val_by_InfoNCELoss(opt: OptionsConfig, model, test_loader):
     total_step = len(test_loader)
+    limit_validation_batches = opt.encoder_config.dataset.limit_validation_batches  # value between 0 and 1
+    if limit_validation_batches < 1:
+        total_step = int(total_step * limit_validation_batches)
 
     nb_modules = len(opt.encoder_config.architecture.modules)
 
@@ -19,6 +22,9 @@ def val_by_InfoNCELoss(opt: OptionsConfig, model, test_loader):
         loss = torch.mean(loss, 0)
 
         loss_epoch += loss.data.cpu().numpy()
+
+        if step >= total_step:
+            break
 
     for i in range(nb_modules):
         print(

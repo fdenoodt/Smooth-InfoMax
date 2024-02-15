@@ -28,15 +28,17 @@ class ModelType(Enum):
     ONLY_ENCODER = 3  # Only the encoder is trained
 
 
-
 class DataSetConfig:
-    def __init__(self, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None):
+    def __init__(self, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None,
+                 limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
+        self.limit_train_batches = limit_train_batches
+        self.limit_validation_batches = limit_validation_batches
 
         if split_in_syllables:
             assert dataset in [Dataset.DE_BOER, Dataset.DE_BOER_RESHUFFLED]
@@ -87,8 +89,9 @@ class ClassifierConfig:
 class OptionsConfig:
     def __init__(self, seed, validate, loss: Loss, encoder_config, device, experiment,
                  save_dir, log_path,
-                 log_every_x_epochs, model_path, phones_classifier_config: Optional[ClassifierConfig], speakers_classifier_config: Optional[ClassifierConfig]):
-        self.model_type: ModelType = ModelType.UNDEFINED # will be set in the main function
+                 log_every_x_epochs, model_path, phones_classifier_config: Optional[ClassifierConfig],
+                 speakers_classifier_config: Optional[ClassifierConfig]):
+        self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
         self.seed = seed
         self.validate = validate
         self.loss = loss

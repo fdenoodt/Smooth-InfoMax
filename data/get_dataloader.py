@@ -5,7 +5,7 @@ from torch.utils.data import dataset
 from data import de_boer_sounds, librispeech
 from configs.config_classes import DataSetConfig, Dataset, OptionsConfig
 
-NUM_WORKERS = 1
+NUM_WORKERS = 16
 
 
 def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir,

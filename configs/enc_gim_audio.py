@@ -36,6 +36,8 @@ DATASET = DataSetConfig(
     dataset=Dataset.LIBRISPEECH,
     split_in_syllables=False,
     batch_size=8,
+    limit_train_batches=.01,
+    limit_validation_batches=.01,
 )
 
 ENCODER_CONFIG = EncoderConfig(

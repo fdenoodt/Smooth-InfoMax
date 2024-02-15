@@ -21,6 +21,12 @@ from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, test_loader):
     '''Train the model'''
     total_step = len(train_loader)
+    limit_train_batches = opt.encoder_config.dataset.limit_train_batches  # value between 0 and 1
+    if limit_train_batches < 1:
+        print(f"\nLimiting training to {int(limit_train_batches * 100)}% of the dataset!!!!")
+        print(
+            f"Limiting validation to {int(opt.encoder_config.dataset.limit_validation_batches * 100)}% of the dataset!!!! \n")
+        total_step = int(total_step * limit_train_batches)
 
     # how often to output training values
     print_idx = 100
@@ -71,6 +77,9 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
+
+            if step >= total_step:
+                break
 
         scheduler.step()
         print(f"LR: {scheduler.get_last_lr()}")
