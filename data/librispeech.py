@@ -65,11 +65,11 @@ class LibriDataset(Dataset):
 
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
-        audio = (audio - self.mean) / self.std
+        # normalize # TODO: temporarily disabled
+        # audio = (audio - self.mean) / self.std
 
-        # TODO: OUR START INDEX IS NOT THE SAME AS THEIRS, MAYBE WE SHOULD USE THE SAME INDEX
+
         return audio, filename, speaker_id, 0
-        # return audio, filename, pronounced_syllable, full_word
 
     def __len__(self):
         return len(self.file_list)
