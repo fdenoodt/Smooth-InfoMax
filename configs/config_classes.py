@@ -72,6 +72,12 @@ class EncoderConfig:
         self.train_w_noise = train_w_noise
         self.dataset = dataset
 
+    def __str__(self):
+        return f"EncoderConfig(start_epoch={self.start_epoch}, num_epochs={self.num_epochs}, " \
+               f"negative_samples={self.negative_samples}, subsample={self.subsample}, " \
+               f"architecture={self.architecture}, kld_weight={self.kld_weight}, " \
+               f"learning_rate={self.learning_rate}, decay_rate={self.decay_rate}, " \
+               f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
 
 class ClassifierConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str):

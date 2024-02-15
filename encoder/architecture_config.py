@@ -6,7 +6,6 @@ class ModuleConfig:
                  max_pool_k_size: Optional[int], max_pool_stride: Optional[int], kernel_sizes: list,
                  strides: list, padding: list, cnn_hidden_dim: int, regressor_hidden_dim: Optional[int],
                  is_autoregressor: bool, prediction_step: int, predict_distributions: bool):
-
         assert len(kernel_sizes) == len(strides) == len(padding)
         if is_autoregressor:
             assert len(kernel_sizes) == 0
@@ -25,6 +24,13 @@ class ModuleConfig:
         self.prediction_step = prediction_step  # eg 12
         self.predict_distributions = predict_distributions
         self.is_autoregressor = is_autoregressor
+
+    def __str__(self):
+        return f"ModuleConfig(max_pool_k_size={self.max_pool_k_size}, max_pool_stride={self.max_pool_stride}, " \
+               f"kernel_sizes={self.kernel_sizes}, strides={self.strides}, padding={self.padding}, " \
+               f"cnn_hidden_dim={self.cnn_hidden_dim}, regressor_hidden_dim={self.regressor_hidden_dim}, " \
+               f"prediction_step={self.prediction_step}, predict_distributions={self.predict_distributions}, " \
+               f"is_autoregressor={self.is_autoregressor}"
 
     @staticmethod
     def get_modules_from_list(kernel_sizes, strides, paddings, cnn_hidden_dim, predict_distribution):
@@ -52,5 +58,9 @@ class ModuleConfig:
 
 
 class ArchitectureConfig:
-    def __init__(self, modules: list):
-        self.modules = modules
+    def __init__(self, modules: list[ModuleConfig]):
+        self.modules: list[ModuleConfig] = modules
+
+    def __str__(self):
+        modules: str = ", ".join([str(module) for module in self.modules])
+        return f"ArchitectureConfig(modules={modules})"

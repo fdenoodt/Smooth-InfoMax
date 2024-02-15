@@ -1,24 +1,50 @@
-import sys
+"""
+This file is used to get the options for the experiment. It is used to get the options from the config file and override.
+Example usages:
+    python main.py log_dir
+    python main.py log_dir enc_gim_audio
+    python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10
+    python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10 encoder_config.learning_rate=0.0001
+    python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10 classifier_config_phones.num_epochs=10 classifier_config_phones.learning_rate=0.0001
 
+config_file and overrides are optional. If config_file is not provided, it will use the default config file.
+"""
 
-arguments = sys.argv[1:]
-# eg: Python main.py abc def, then arguments = ['abc', 'def']
+import argparse
+from configs.enc_default import _get_options as default_get_options
 
-assert len(arguments) in [1, 2], \
-    "At least one argument is required. The first argument is the experiment name and the second argument is the config file name."
-# 1 arg for default, only provides the experiment_name
-# 2 arg for custom config, provides the experiment_name and the config file name
+# Create the parser
+parser = argparse.ArgumentParser(description='Process some integers.')
 
+# Add the arguments
+parser.add_argument('experiment_name', type=str, help='The experiment name')
+parser.add_argument('config_file', type=str, nargs='?', default=None, help='The config file name')
+parser.add_argument('--overrides', nargs='*', help='The overrides for the config parameters')
 
-experiment_name = arguments[0]
+# Parse the arguments
+args = parser.parse_args()
 
-if len(arguments) == 1:
-    # Default options
-    from configs.enc_default import _get_options
+experiment_name = args.experiment_name
 
-else:
-    file = arguments[1]
+if args.config_file:
     # eg: `from configs.enc_gim_audio import get_options`
-    exec(f'from configs.{file} import _get_options')
+    exec(f'from configs.{args.config_file} import _get_options')
+else:
+    _get_options = default_get_options
 
-get_options = lambda: _get_options(experiment_name=experiment_name)
+# Get the options
+assert callable(_get_options), f"_get_options is not callable: {_get_options}"
+_options = _get_options(experiment_name=experiment_name)
+
+# Override the parameters if they are provided
+if args.overrides is not None:
+    for override in args.overrides:
+        key, value = override.split('=')
+        keys = key.split('.')
+        last_key = keys.pop()
+        obj = _options
+        for k in keys:
+            obj = getattr(obj, k)
+        setattr(obj, last_key, type(getattr(obj, last_key))(value))
+
+get_options = lambda : _options
