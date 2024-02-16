@@ -1,7 +1,7 @@
 import torch
 
 from typing import Optional
-from configs.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig
+from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig
 from models import full_model
 from models.full_model import FullModel
 from utils import model_utils

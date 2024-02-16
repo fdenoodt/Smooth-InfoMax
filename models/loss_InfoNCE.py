@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 import numpy as np
 
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 from models import loss
 from utils import utils
 

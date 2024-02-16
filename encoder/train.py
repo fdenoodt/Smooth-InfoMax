@@ -5,7 +5,7 @@ import numpy as np
 import random
 import gc
 
-from configs.config_classes import OptionsConfig, Dataset, ModelType
+from config_code.config_classes import OptionsConfig, Dataset, ModelType
 from models.full_model import FullModel
 from post_hoc_analysis.main_anal_hidd_repr import run_visualisations
 

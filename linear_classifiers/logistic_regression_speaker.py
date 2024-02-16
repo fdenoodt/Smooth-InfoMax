@@ -3,7 +3,7 @@ import time
 import numpy as np
 
 ## own modules
-from configs.config_classes import OptionsConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from models.full_model import FullModel
 from models.loss_supervised_speaker import Speaker_Loss
 from options import get_options

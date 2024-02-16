@@ -32,6 +32,7 @@ class CNNEncoder(nn.Module):
                     padding[idx],
                 ),
             )
+            inp_nb_channels = self.nb_channels
 
             if max_pool_k_size:
                 assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
@@ -39,8 +40,6 @@ class CNNEncoder(nn.Module):
                 # add maxpool to encoder
                 self.encoder.add_module(
                     f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
-
-        inp_nb_channels = self.nb_channels
 
     @staticmethod
     def new_block(in_dim, out_dim, kernel_size, stride, padding):

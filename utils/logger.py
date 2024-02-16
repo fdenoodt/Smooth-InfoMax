@@ -8,7 +8,7 @@ try:
 except:
     print("tikzplotlib not installed, will not save loss as tex")
 
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 
 
 class Logger:

@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 from data import get_dataloader
 from models import loss
 from utils import utils

@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 
-from configs.config_classes import OptionsConfig
-from encoder.architecture_config import ArchitectureConfig
+from config_code.config_classes import OptionsConfig
+from config_code.architecture_config import ArchitectureConfig
 from models import independent_module, independent_module_regressor
 from utils import utils
 

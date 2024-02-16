@@ -3,9 +3,7 @@ import torch
 from torch.utils.data import dataset
 
 from data import de_boer_sounds, librispeech
-from configs.config_classes import DataSetConfig, Dataset, OptionsConfig
-import numpy
-import random
+from config_code.config_classes import DataSetConfig, Dataset
 
 NUM_WORKERS = 1  # 6
 

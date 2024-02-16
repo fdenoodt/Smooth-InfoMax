@@ -1,7 +1,7 @@
 import torch
 
-from configs.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ModelType
-from encoder.architecture_config import ArchitectureConfig, ModuleConfig
+from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 
 # WARNING: CURRENT BUG: THIS NAME SHOULD BE THE SAME AS WHERE CPC LOCATION,
 # if not: inconsitent results
@@ -11,7 +11,6 @@ NUM_EPOCHS = 4
 START_EPOCH = 0
 BATCH_SIZE = 8  # 171
 
-ROOT_LOGS = r"C:\\sim_logs\\"
 
 # Simple architecture v2 # 20480 -> 105 (first module)
 kernel_sizes = [10, 8, 3]
@@ -80,9 +79,7 @@ def _get_options(experiment_name):
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
         save_dir=experiment_name,
-        log_path=f'{ROOT_LOGS}/{experiment_name}',
         log_every_x_epochs=1,
-        model_path=f'{ROOT_LOGS}/{experiment_name}/',
         phones_classifier_config=None,
         speakers_classifier_config=None,
     )

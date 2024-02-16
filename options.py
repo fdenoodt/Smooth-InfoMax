@@ -3,7 +3,7 @@ This file is used to get the options for the experiment. It is used to get the o
 Example usages:
     python main.py log_dir
     python main.py log_dir enc_gim_audio
-    python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10
+    python main.py logs enc_gim_audio --overrides encoder_config.dataset.limit_train_batches=0.01 encoder_config.dataset.limit_validation_batches=0.01
     python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10 encoder_config.learning_rate=0.0001
     python main.py logs enc_gim_audio --overrides encoder_config.num_epochs=10 classifier_config_phones.num_epochs=10 classifier_config_phones.learning_rate=0.0001
 

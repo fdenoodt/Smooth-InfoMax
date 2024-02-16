@@ -2,7 +2,6 @@ from optparse import OptionParser
 import time
 import os
 import torch
-import numpy as np
 
 from arg_parser import (
     reload_args,
@@ -10,7 +9,7 @@ from arg_parser import (
     GIM_args,
     general_args,
 )
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 
 
 def parse_args():

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import os
 
-from configs.config_classes import OptionsConfig, ClassifierConfig
+from config_code.config_classes import OptionsConfig, ClassifierConfig
 
 
 def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):

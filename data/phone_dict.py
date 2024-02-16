@@ -1,7 +1,7 @@
 import pickle
 import os
 
-from configs.config_classes import DataSetConfig, Dataset
+from config_code.config_classes import DataSetConfig, Dataset
 
 
 def load_phone_dict(d_config: DataSetConfig):

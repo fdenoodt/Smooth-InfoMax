@@ -1,16 +1,14 @@
-from typing import List
 from torch import Tensor
 import torch
 import torch.nn as nn
 
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 # https://github.com/AntixK/PyTorch-VAE/blob/master/models/vanilla_vae.py,
 # https://medium.com/dataseries/convolutional-autoencoder-in-pytorch-on-mnist-dataset-d65145c132ac
 
 from models import (
     cnn_encoder,
-    loss_InfoNCE,
-    autoregressor
+    loss_InfoNCE
 )
 
 

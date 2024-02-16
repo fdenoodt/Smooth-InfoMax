@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 ## own modules
-from configs.config_classes import OptionsConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from options import get_options
 from data import get_dataloader, phone_dict
 from utils import logger, utils

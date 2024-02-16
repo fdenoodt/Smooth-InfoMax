@@ -3,7 +3,7 @@ import os
 import os.path
 import torchaudio
 from collections import defaultdict
-from configs.config_classes import DataSetConfig
+from config_code.config_classes import DataSetConfig
 
 from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
 from utils.helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number

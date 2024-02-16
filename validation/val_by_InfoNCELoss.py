@@ -1,7 +1,7 @@
 import time
 import torch
 
-from configs.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig
 
 
 def val_by_InfoNCELoss(opt: OptionsConfig, model, test_loader):

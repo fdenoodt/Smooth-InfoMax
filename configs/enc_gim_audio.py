@@ -1,10 +1,7 @@
 import torch
 
-from configs.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
-    ModelType
-from encoder.architecture_config import ArchitectureConfig, ModuleConfig
-
-ROOT_LOGS = r"./sim_logs/"
+from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 
 # Original dimensions given in CPC paper (Oord et al.).
 kernel_sizes = [10, 8, 4, 4, 4]
@@ -81,10 +78,7 @@ def _get_options(experiment_name) -> OptionsConfig:
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
         experiment='audio',
         save_dir=experiment_name,
-        log_path=f'{ROOT_LOGS}/{experiment_name}',
         log_every_x_epochs=1,
-        model_path=f'{ROOT_LOGS}/{experiment_name}/',
-
         encoder_config=ENCODER_CONFIG,
         phones_classifier_config=CLASSIFIER_CONFIG_PHONES,
         speakers_classifier_config=CLASSIFIER_CONFIG_SPEAKERS

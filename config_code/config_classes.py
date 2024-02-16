@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional
 import os
 
-from encoder.architecture_config import ArchitectureConfig
+from config_code.architecture_config import ArchitectureConfig
 
 
 class Loss(Enum):
@@ -79,6 +79,7 @@ class EncoderConfig:
                f"learning_rate={self.learning_rate}, decay_rate={self.decay_rate}, " \
                f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
 
+
 class ClassifierConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str):
         self.num_epochs = num_epochs
@@ -94,9 +95,11 @@ class ClassifierConfig:
 
 class OptionsConfig:
     def __init__(self, seed, validate, loss: Loss, encoder_config, device, experiment,
-                 save_dir, log_path,
-                 log_every_x_epochs, model_path, phones_classifier_config: Optional[ClassifierConfig],
+                 save_dir,
+                 log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig]):
+        root_logs = r"./sim_logs/"
+
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
         self.seed = seed
         self.validate = validate
@@ -104,11 +107,11 @@ class OptionsConfig:
         self.device = device
         self.experiment = experiment
         self.save_dir = save_dir
-        self.log_path = log_path
-        self.log_path_latent = os.path.join(log_path, "latent_space")
+        self.log_path = f'{root_logs}/{save_dir}'
+        self.log_path_latent = os.path.join(save_dir, "latent_space")
 
         self.log_every_x_epochs = log_every_x_epochs
-        self.model_path = model_path
+        self.model_path = f'{root_logs}/{save_dir}'
 
         self.encoder_config: EncoderConfig = encoder_config
         self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
