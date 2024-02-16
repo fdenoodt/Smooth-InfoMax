@@ -75,7 +75,7 @@ def _get_options(experiment_name) -> OptionsConfig:
         seed=2,
         validate=True,
         loss=Loss.INFO_NCE,
-        experiment='audio',
+        experiment='vision',
         save_dir=experiment_name,
         log_every_x_epochs=1,
         encoder_config=ENCODER_CONFIG,

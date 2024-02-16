@@ -109,7 +109,6 @@ class SIMSetup:
             seed=2,
             validate=True,
             loss=Loss.INFO_NCE,
-            device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
             experiment='audio',
             save_dir=experiment_name,
             log_every_x_epochs=1,

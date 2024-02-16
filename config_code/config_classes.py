@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional
 import os
+import torch
 
 from config_code.architecture_config import ArchitectureConfig
 
@@ -94,7 +95,7 @@ class ClassifierConfig:
 
 
 class OptionsConfig:
-    def __init__(self, seed, validate, loss: Loss, encoder_config, device, experiment,
+    def __init__(self, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig]):
@@ -104,7 +105,7 @@ class OptionsConfig:
         self.seed = seed
         self.validate = validate
         self.loss = loss
-        self.device = device
+        self.device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.experiment = experiment
         self.save_dir = save_dir
         self.log_path = f'{root_logs}/{save_dir}'
