@@ -27,9 +27,12 @@ def val_by_InfoNCELoss(opt: OptionsConfig, model, test_loader):
             break
 
     for i in range(nb_modules):
-        print(
-            f"Validation Loss Module {i}: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[i] / total_step:.4f}"
-        )
+        if total_step != 0:
+            print(
+                f"Validation Loss Module {i}: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[i] / total_step:.4f}")
+        else:
+            print(
+                f"Validation Loss Module {i}: Time (s): {time.time() - starttime:.1f} --- total_step is zero, cannot calculate loss")
 
     validation_loss = [x / total_step for x in loss_epoch]
     return validation_loss
