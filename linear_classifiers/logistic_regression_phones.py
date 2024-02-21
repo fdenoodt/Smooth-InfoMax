@@ -155,7 +155,7 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     return accuracy
 
 
-def main( model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
+def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt = get_options()
     opt.model_type = model_type
 
@@ -163,7 +163,8 @@ def main( model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert classifier_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
+    assert classifier_config.dataset.dataset in [Dataset.LIBRISPEECH,
+                                                 Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 

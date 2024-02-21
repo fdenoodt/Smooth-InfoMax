@@ -2,6 +2,7 @@ from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, Op
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 import torch
 
+
 class SIMSetup:
     def __init__(self, predict_distributions: bool):
         # Original dimensions given in CPC paper (Oord et al.).
@@ -104,6 +105,20 @@ class SIMSetup:
         )
         self.CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
+        self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
+            num_epochs=20,
+            learning_rate=1e-3,  # = 0.001
+            dataset=DataSetConfig(
+                dataset=Dataset.DE_BOER_RESHUFFLED,
+                split_in_syllables=True,
+                batch_size=128,
+                limit_train_batches=1.0,
+                limit_validation_batches=1.0,
+            ),
+            # For loading a specific model from a specific epoch, to use by the classifier
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
     def get_options(self, experiment_name) -> OptionsConfig:
         options = OptionsConfig(
             seed=2,
@@ -114,7 +129,8 @@ class SIMSetup:
             log_every_x_epochs=1,
             encoder_config=self.ENCODER_CONFIG,
             phones_classifier_config=self.CLASSIFIER_CONFIG_PHONES,
-            speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS
+            speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
+            syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES
         )
 
         return options

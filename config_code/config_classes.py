@@ -98,14 +98,15 @@ class OptionsConfig:
     def __init__(self, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
-                 speakers_classifier_config: Optional[ClassifierConfig]):
+                 speakers_classifier_config: Optional[ClassifierConfig],
+                 syllables_classifier_config: Optional[ClassifierConfig]):
         root_logs = r"./sim_logs/"
 
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
         self.seed = seed
         self.validate = validate
         self.loss = loss
-        self.device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.experiment = experiment
         self.save_dir = save_dir
         self.log_path = f'{root_logs}/{save_dir}'
@@ -117,6 +118,7 @@ class OptionsConfig:
         self.encoder_config: EncoderConfig = encoder_config
         self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
+        self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

@@ -81,6 +81,7 @@ def _get_options(experiment_name):
         log_every_x_epochs=1,
         phones_classifier_config=None,
         speakers_classifier_config=None,
+        syllables_classifier_config=None,
     )
     return options
 

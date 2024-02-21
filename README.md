@@ -71,3 +71,28 @@ watch -n 0.5 nvidia-smi
 
 
 
+
+## Running the project
+
+
+De boer encoder + classifier:
+```shell
+bash -c "set -e;
+outp_dir='bart_audio_distribs_distr=false_kld=0';
+config_file='sim_audio_distr_false';
+override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
+
+
+cd /project_antwerp/Smooth-InfoMax/;
+git fetch; git pull;
+pip install soundfile;
+pip install librosa;
+pip install tikzplotlib;
+
+echo 'Training the Greedy InfoMax Model on audio data (librispeech)'; 
+python -m main $outp_dir $config_file --overrides $override encoder_config.dataset.limit_train_batches=0.01 encoder_config.dataset.limit_validation_batches=0.01;
+
+echo 'Testing syllable classification'; 
+python -m linear_classifiers.logistic_regression_syllables $outp_dir $config_file --overrides $override;"
+```
+

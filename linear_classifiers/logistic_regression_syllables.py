@@ -1,31 +1,32 @@
 import torch
+import torch.nn as nn
 import time
 import numpy as np
 
 ## own modules
 from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from models.full_model import FullModel
-from models.loss_supervised_speaker import Speaker_Loss
 from options import get_options
 from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
-from models import load_audio_model, loss_supervised_speaker
+from models import load_audio_model
+from models.loss_supervised_syllables import Syllables_Loss
 
-
-def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer):
+def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_loader, optimizer):
     total_step = len(train_loader)
     print_idx = 100
 
-    num_epochs = opt.speakers_classifier_config.num_epochs
+    num_epochs = opt.syllables_classifier_config.num_epochs
 
     for epoch in range(num_epochs):
         loss_epoch = 0
         acc_epoch = 0
-        for i, (audio, filename, _, audio_idx) in enumerate(train_loader):
+        for i, (audio, _, label, _) in enumerate(train_loader):
+            audio = audio.to(opt.device)
+            label = label.to(opt.device)
 
             starttime = time.time()
-
             loss.zero_grad()
 
             ### get latent representations for current audio
@@ -37,7 +38,7 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
             z = z.detach()
 
             # forward pass
-            total_loss, accuracies = loss.get_loss(model_input, z, z, filename, audio_idx)
+            total_loss, accuracies = loss.get_loss(model_input, z, z, label)
 
             # Backward and optimize
             optimizer.zero_grad()
@@ -73,7 +74,9 @@ def test(opt, context_model, loss, data_loader):
     loss_epoch = 0
 
     with torch.no_grad():
-        for i, (audio, filename, _, audio_idx) in enumerate(data_loader):
+        for i, (audio, _, label, _) in enumerate(data_loader):
+            audio = audio.to(opt.device)
+            label = label.to(opt.device)
 
             loss.zero_grad()
 
@@ -87,7 +90,7 @@ def test(opt, context_model, loss, data_loader):
             z = z.detach()
 
             # forward pass
-            total_loss, step_accuracy = loss.get_loss(model_input, z, z, filename, audio_idx)
+            total_loss, step_accuracy = loss.get_loss(model_input, z, z, label)
 
             accuracy += step_accuracy.item()
             loss_epoch += total_loss.item()
@@ -110,22 +113,21 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
-    classifier_config = opt.speakers_classifier_config
+    classifier_config = opt.syllables_classifier_config
 
-    assert opt.speakers_classifier_config is not None, "Classifier config is not set"
+    assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert opt.speakers_classifier_config.dataset.dataset in [Dataset.LIBRISPEECH,
-                                                              Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
+    assert (opt.syllables_classifier_config.dataset.dataset in
+            [Dataset.DE_BOER_RESHUFFLED, Dataset.DE_BOER_RESHUFFLED_V2]), "Dataset not supported"
 
-    arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
+    arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
 
     # random seeds
     torch.manual_seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
     np.random.seed(opt.seed)
 
-    ## load model
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,
@@ -136,16 +138,11 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     context_model.eval()
 
     n_features = context_model.module.output_dim
-
-    loss: Speaker_Loss = loss_supervised_speaker.Speaker_Loss(
-        opt, n_features, calc_accuracy=True
-    )
-
-    learning_rate = opt.speakers_classifier_config.learning_rate
+    loss = Syllables_Loss(opt, n_features, calc_accuracy=True)
+    learning_rate = opt.syllables_classifier_config.learning_rate
     optimizer = torch.optim.Adam(loss.parameters(), lr=learning_rate)
 
-    # load dataset
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.speakers_classifier_config.dataset)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.syllables_classifier_config.dataset)
 
     logs = logger.Logger(opt)
     accuracy = 0

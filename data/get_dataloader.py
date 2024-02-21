@@ -17,10 +17,6 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
             data_input_dir, f"corpus/{train_specific_dir}"
         ),
         directory=train_sub_dir,
-
-        # ONLY NOISE FOR TRAINING DATASETS!
-        background_noise=train_noise, white_guassian_noise=train_noise,
-        background_noise_path=os.path.join(data_input_dir, "musan"),
         split_into_syllables=split_and_pad
     )
 
@@ -30,7 +26,6 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
             data_input_dir, f"corpus/{test_specific_dir}",
         ),
         directory=test_sub_dir,
-        background_noise=False, white_guassian_noise=False,
         split_into_syllables=split_and_pad
     )
 
