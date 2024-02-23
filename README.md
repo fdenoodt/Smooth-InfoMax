@@ -87,7 +87,6 @@ python -m linear_classifiers.logistic_regression_syllables $outp_dir $config_fil
 ```
 
 GIM:
-
 ```shell
 outp_dir='bart_audio_distribs_distr=false_kld=0';
 config_file='sim_audio_distr_false';
@@ -95,7 +94,6 @@ override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_c
 ```
 
 SIM: (kld=0.0033)
-
 ```shell
 outp_dir='bart_audio_distribs_distr=true_kld=0.0033';
 config_file='sim_audio_distr_true';
