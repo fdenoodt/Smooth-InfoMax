@@ -14,7 +14,6 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 
 
-
 def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_loader, optimizer):
     total_step = len(train_loader)
     print_idx = 100
@@ -131,7 +130,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt.model_type = model_type
 
     # fully supervised:
-    opt.model_type = ModelType.FULLY_SUPERVISED
+    # opt.model_type = ModelType.FULLY_SUPERVISED
 
     classifier_config = opt.syllables_classifier_config
 
@@ -151,7 +150,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,
-        reload_model=False,# if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
+        reload_model=True if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
         calc_accuracy=True,
         num_GPU=1,
     )
@@ -168,7 +167,6 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         params = list(loss.parameters())
 
     optimizer = torch.optim.Adam(params, lr=learning_rate)
-
 
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.syllables_classifier_config.dataset)
 

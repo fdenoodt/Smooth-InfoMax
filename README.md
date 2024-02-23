@@ -1,8 +1,7 @@
 # Variational Greedy InfoMax (V-GIM)
 
-This repository contains the code of my thesis on interpretable representation learning with latent space constraints. The code for both V-GIM and the decoder is included.
-
-
+This repository contains the code of my thesis on interpretable representation learning with latent space constraints.
+The code for both V-GIM and the decoder is included.
 
 ## Abstract
 
@@ -47,10 +46,6 @@ sensitive to which vowels, further demonstrating the interpretability of V-GIM.
 
 <img src="./assets/image-20230613110900073.png" alt="image-20230613110900073" style="zoom: 67%;" />
 
-
-
-
-
 ## Installation
 
 ```bash
@@ -63,19 +58,14 @@ git clone https://github.com/oBoii/Smooth-InfoMax
 cd /project_ghent/Smooth-InfoMax/ && git fetch && git pull && chmod +x ./audio_traineval.sh && ./audio_traineval.sh
 ```
 
-
-
 ```undefined
 watch -n 0.5 nvidia-smi
 ```
 
-
-
-
 ## Running the project
 
-
 De boer encoder + classifier:
+
 ```shell
 bash -c "set -e;
 outp_dir='bart_audio_distribs_distr=false_kld=0';
@@ -95,4 +85,21 @@ python -m main $outp_dir $config_file --overrides $override encoder_config.datas
 echo 'Testing syllable classification'; 
 python -m linear_classifiers.logistic_regression_syllables $outp_dir $config_file --overrides $override;"
 ```
+
+GIM:
+
+```shell
+outp_dir='bart_audio_distribs_distr=false_kld=0';
+config_file='sim_audio_distr_false';
+override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
+```
+
+SIM: (kld=0.0033)
+
+```shell
+outp_dir='bart_audio_distribs_distr=true_kld=0.0033';
+config_file='sim_audio_distr_true';
+override='encoder_config.kld_weight=0.0033 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
+```
+
 
