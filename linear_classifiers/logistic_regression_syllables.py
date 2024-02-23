@@ -13,6 +13,8 @@ from arg_parser import arg_parser
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 
+
+
 def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_loader, optimizer):
     total_step = len(train_loader)
     print_idx = 100
@@ -22,6 +24,12 @@ def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_lo
     for epoch in range(num_epochs):
         loss_epoch = 0
         acc_epoch = 0
+
+        if opt.model_type == ModelType.FULLY_SUPERVISED:
+            context_model.train()
+        else:
+            context_model.eval()
+
         for i, (audio, _, label, _) in enumerate(train_loader):
             audio = audio.to(opt.device)
             label = label.to(opt.device)
@@ -32,10 +40,14 @@ def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_lo
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
 
-            with torch.no_grad():
+            if opt.model_type == ModelType.FULLY_SUPERVISED:
                 full_model: FullModel = context_model.module
                 z = full_model.forward_through_all_modules(model_input)
-            z = z.detach()
+            else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
+                with torch.no_grad():
+                    full_model: FullModel = context_model.module
+                    z = full_model.forward_through_all_modules(model_input)
+                z = z.detach()
 
             # forward pass
             total_loss, accuracies = loss.get_loss(model_input, z, z, label)
@@ -44,6 +56,11 @@ def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_lo
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
+
+            # Print out the gradients of the context model and the linear model
+            # for name, param in context_model.named_parameters():
+            #     if param.grad is not None:
+            #         print(f'{param.grad.data.norm(2)} - Gradient of {name}')
 
             sample_loss = total_loss.item()
             accuracy = accuracies.item()
@@ -113,6 +130,9 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
+    # fully supervised:
+    opt.model_type = ModelType.FULLY_SUPERVISED
+
     classifier_config = opt.syllables_classifier_config
 
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
@@ -131,16 +151,24 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,
-        reload_model=True,
+        reload_model=False,# if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
         calc_accuracy=True,
         num_GPU=1,
     )
-    context_model.eval()
 
     n_features = context_model.module.output_dim
     loss = Syllables_Loss(opt, n_features, calc_accuracy=True)
     learning_rate = opt.syllables_classifier_config.learning_rate
-    optimizer = torch.optim.Adam(loss.parameters(), lr=learning_rate)
+
+    if opt.model_type == ModelType.FULLY_SUPERVISED:
+        context_model.train()
+        params = list(context_model.parameters()) + list(loss.parameters())
+    else:
+        context_model.eval()
+        params = list(loss.parameters())
+
+    optimizer = torch.optim.Adam(params, lr=learning_rate)
+
 
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.syllables_classifier_config.dataset)
 
