@@ -5,13 +5,11 @@ import os.path
 import torchaudio
 from collections import defaultdict
 from config_code.config_classes import DataSetConfig
-
-from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
 from utils.helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
 
 
 def default_loader(path):
-    return torchaudio.load(path, normalize=False)
+    return torchaudio.load(path, normalize=True)
 
 
 def default_flist_reader(flist):
@@ -53,9 +51,9 @@ class DeBoerDataset(Dataset):
         self.loader = loader
         self.audio_length: int = self.compute_audio_length()
 
-        # Mean: 3.260508094626857e-07, Standard Deviation: 0.10727367550134659
-        self.mean = 3.260508094626857e-07
-        self.std = 0.10727367550134659
+        # # Mean: 3.260508094626857e-07, Standard Deviation: 0.10727367550134659
+        # self.mean = 3.260508094626857e-07
+        # self.std = 0.10727367550134659
 
     def compute_audio_length(self):
         # Resulting sequences will be of 16khz -> 16k samples per second
@@ -91,6 +89,7 @@ class DeBoerDataset(Dataset):
 
         audio, samplerate = self.loader(
             os.path.join(self.root, dir_id, f"{filename}.wav"))
+        audio = audio.float()
 
         audio_length_before_resample = audio.size(1)
         assert (
@@ -106,9 +105,6 @@ class DeBoerDataset(Dataset):
         audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
         # TODO
         # problem: only does the first part, but should consider a random starting point
-
-        # normalize
-        audio = (audio - self.mean) / self.std
 
         return audio, filename, pronounced_syllable, full_word
 

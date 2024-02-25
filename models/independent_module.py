@@ -103,26 +103,30 @@ class IndependentModule(nn.Module):
             mu = c_mu
 
             # KL-divergence loss
+            kld_weight = self.opt.encoder_config.kld_weight
             kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-            kld_loss = kld_loss.mean()  # shape: (1)
+            kld_loss = kld_weight * kld_loss.mean()  # shape: (1)
 
             # reconstruction loss
-            total_loss, accuracies = self.loss.get_loss(z, c)
-
-            kld_weight = self.opt.encoder_config.kld_weight
+            nce_loss, accuracies = self.loss.get_loss(z, c)
 
             # Combine the losses
-            total_loss = total_loss + kld_weight * kld_loss
+            total_loss = nce_loss + kld_loss
 
         else:
             # consider the mean of the distribution as the latent representation, we ignore the variance
             c = c_mu
             z = z_mu
 
-            total_loss, accuracies = self.loss.get_loss(z, c)
+            nce_loss, accuracies = self.loss.get_loss(z, c)
+            kld_loss = torch.tensor(0.0, device=self.opt.device)
+            total_loss = nce_loss
 
         # for multi-GPU training
         total_loss = total_loss.unsqueeze(0)
         accuracies = accuracies.unsqueeze(0)
 
-        return total_loss, accuracies, z
+        nce_loss = nce_loss.unsqueeze(0)
+        kld_loss = kld_loss.unsqueeze(0)
+
+        return total_loss, accuracies, z, nce_loss, kld_loss

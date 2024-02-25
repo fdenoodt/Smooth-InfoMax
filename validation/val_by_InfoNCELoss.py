@@ -18,7 +18,7 @@ def val_by_InfoNCELoss(opt: OptionsConfig, model, test_loader):
     for step, (audio, _, _, _) in enumerate(test_loader):
         model_input = audio.to(opt.device)
 
-        loss = model(model_input)
+        loss, nce, kld = model(model_input)
         loss = torch.mean(loss, 0)
 
         loss_epoch += loss.data.cpu().numpy()

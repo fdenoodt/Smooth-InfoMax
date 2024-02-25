@@ -81,13 +81,15 @@ class FullModel(nn.Module):
 
         # first dimension is used for concatenating results from different GPUs
         loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
+        nce_loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
+        kld_loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
         for idx, layer in enumerate(self.fullmodel):
-            loss[:, idx], accuracy[:, idx], z = layer(model_input)
+            loss[:, idx], accuracy[:, idx], z, nce_loss[:, idx], kld_loss[:, idx] = layer(model_input)
             model_input = z.permute(0, 2, 1).detach()
 
-        return loss
+        return loss, nce_loss, kld_loss
 
     def forward_through_all_modules(self, x):
         model_input = x
