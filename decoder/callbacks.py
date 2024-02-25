@@ -36,7 +36,8 @@ class CustomCallback(L.Callback):
             audio_samples = audio_samples.contiguous().cpu().data.numpy()
 
             ten_audio_sammples = [audio_sample for audio_sample in audio_samples[:nb_files]]
-            self.wandb_logger.log_audio(key="std normal samples", audios=ten_audio_sammples,
+            self.wandb_logger.log_audio(key="std normal samples",
+                                        audios=ten_audio_sammples,
                                         sample_rate=[16_000] * nb_files)
 
             pl_module.train()
@@ -62,30 +63,6 @@ class CustomCallback(L.Callback):
                 key="encode + decode test set", audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)
             self.wandb_logger.log_audio(key="gt test set", audios=audio, sample_rate=[16_000] * nb_files)
             break
-
-    # when training is done
-    # def on_train_end(self, trainer, pl_module):
-    #     # encode and decode some images
-    #     data_module, im_shape, project_name = Utility.setup(DatasetType.AWA2, batch_size=200, num_workers=1)
-    #     data_module.prepare_data()
-    #     data_module.setup("test")
-    #     for x, y in data_module.test_dataloader():
-    #         x = x.to(pl_module.device)
-    #         x = x[:100]
-    #         z = pl_module.encoder(x)
-    #         x_reconstructed = pl_module.decoder(z)
-    #
-    #         x = x.permute(0, 2, 3, 1).contiguous().cpu().data.numpy()
-    #         ims_gt = Utility.convert_to_display(x)
-    #         x_reconstructed = x_reconstructed.permute(0, 2, 3, 1).contiguous().cpu().data.numpy()
-    #
-    #         ims_enc_dec = Utility.convert_to_display(x_reconstructed)
-    #
-    #         # log to wandb
-    #         self.wandb_logger.log_image("samples_gt_vs_encDec", images=[ims_gt, ims_enc_dec])
-    #         break
-    #
-    #
 
 
 if __name__ == "__main__":
