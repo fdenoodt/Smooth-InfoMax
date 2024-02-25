@@ -1,5 +1,6 @@
-from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig
-from config_code.architecture_config import ArchitectureConfig, ModuleConfig
+from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
+    DecoderConfig
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig, DecoderArchitectureConfig
 import torch
 
 
@@ -119,6 +120,28 @@ class SIMSetup:
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1
         )
 
+        self.DECODER_CONFIG = DecoderConfig(
+            num_epochs=5,
+            learning_rate=2e-4,
+            dataset=DataSetConfig(
+                dataset=Dataset.DE_BOER_RESHUFFLED,
+                split_in_syllables=False,
+                batch_size=64,
+                limit_train_batches=1.0,
+                limit_validation_batches=1.0,
+            ),
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1,
+            architecture=DecoderArchitectureConfig(
+                # decoder is trained on second to last module (skip the autoregressor)
+                kernel_sizes=kernel_sizes[::-1],
+                strides=strides[::-1],
+                paddings=padding[::-1],
+                output_paddings=[0, 1, 1, 0, 4],
+                input_dim=cnn_hidden_dim,
+                hidden_dim=cnn_hidden_dim,
+                output_dim=1
+            ))
+
     def get_options(self, experiment_name) -> OptionsConfig:
         options = OptionsConfig(
             seed=2,
@@ -130,7 +153,8 @@ class SIMSetup:
             encoder_config=self.ENCODER_CONFIG,
             phones_classifier_config=self.CLASSIFIER_CONFIG_PHONES,
             speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
-            syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES
+            syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
+            decoder_config=self.DECODER_CONFIG
         )
 
         return options

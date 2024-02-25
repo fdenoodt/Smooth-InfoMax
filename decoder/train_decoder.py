@@ -1,157 +1,76 @@
-# %%
-import importlib
-from decoder import decoder_architectures
-from utils import helper_functions
-from options_decoder import OPTIONS as options_autoencoder
+import time
+
+import numpy as np
+import torch
 
 from arg_parser import arg_parser
+from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from data import get_dataloader
-import random
+from decoder.my_data_module import MyDataModule
+from lit_decoder import LitDecoder
+from decoderr import Decoder
 
-from eval_decoder import generate_predictions
+from models import load_audio_model
+from models.full_model import FullModel
+from options import get_options
 
-
-random.seed(0)
-
-if(True):
-    importlib.reload(decoder_architectures)
-    importlib.reload(helper_functions)
-
-    from decoder.decoder_architectures import *
-    from utils.helper_functions import *
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+import wandb
+import lightning as L
+from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.loggers import WandbLogger
 
 
-def validation_loss(GIM_encoder, model, test_loader, criterion):
-    # based on GIM/ChatGPT
-    total_step = len(test_loader)
+def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
+    torch.set_float32_matmul_precision('medium')
 
-    loss_epoch = []
-    starttime = time.time()
+    opt: OptionsConfig = get_options()
+    opt.model_type = model_type
 
-    for step, (org_audio,  _, _, _) in enumerate(test_loader):
-        org_audio = org_audio.to(device)
-        enc_audio_per_module = GIM_encoder(org_audio)
-        enc_audio = enc_audio_per_module[-1].to(device)
-        enc_audio = enc_audio.permute(0, 2, 1)  # (b, c, l)
+    decoder_config = opt.decoder_config
 
-        with torch.no_grad():
-            outputs = model(enc_audio)
-            loss = criterion(outputs, org_audio) * \
-                (1/org_audio.size(0))  # multiply by batch size
+    assert opt.decoder_config is not None, "Decoder config is not set"
+    assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
+    assert (opt.decoder_config.dataset.dataset in
+            [Dataset.DE_BOER_RESHUFFLED, Dataset.DE_BOER_RESHUFFLED_V2]), "Dataset not supported"
 
-            loss_epoch.append(loss.data.cpu().numpy())
+    arg_parser.create_log_path(opt, add_path_var="decoder_model")
 
-    print(
-        f"Validation Loss: Time (s): {time.time() - starttime:.1f} --- {loss_epoch[0] / total_step:.4f}")
+    # random seeds
+    torch.manual_seed(opt.seed)
+    torch.cuda.manual_seed(opt.seed)
+    np.random.seed(opt.seed)
 
-    validation_loss = np.mean(loss_epoch)
-    return validation_loss
+    wandb.init(project="SIM_DECODER",
+               # tags=[f"z={z_dim}", f"lr={lr}", f"batch_size={batch_size}"],
+               # name=f"z={z_dim}_lr={lr}_batch_size={batch_size}"
+               )
 
+    wandb_logger = WandbLogger()
 
-def train(opt, encoder, decoder, logs, train_loader, test_loader, learning_rate, criterion, decay_rate):
-    epoch_printer = EpochPrinter(opt, train_loader, learning_rate, criterion)
-    log_handler = LogHandler(opt, logs, train_loader,
-                             criterion, encoder, learning_rate)
+    context_model, _ = load_audio_model.load_model_and_optimizer(
+        opt,
+        decoder_config,
+        reload_model=True,
+        calc_accuracy=False,  # True,
+        num_GPU=1,
+    )
+    context_model.eval()
 
-    decoder.to(device)
-    decoder.train()
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset)
+    data = MyDataModule(train_loader, test_loader, test_loader)
 
-    optimizer = torch.optim.Adam(decoder.parameters(
-    ), lr=learning_rate, weight_decay=1e-5)  # 1.5 * 10^-2 = 1.5/100
+    decoder = Decoder(opt.decoder_config.architecture)
+    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate)
+    trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
+                        max_epochs=decoder_config.num_epochs,
+                        accelerator="gpu", devices="1",
+                        logger=wandb_logger)
+    trainer.fit(model=lit, datamodule=data)
+    trainer.test(model=lit, datamodule=data)
 
-    training_losses = []
-    validation_losses = []
-    for epoch in range(opt.encoder_config.start_epoch, opt["num_epochs"] + opt.encoder_config.start_epoch):
-
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(
-            optimizer, gamma=decay_rate)
-
-        training_losses_epoch = []
-        for step, (gt_audio_batch, _, _, _) in enumerate(train_loader):
-            epoch_printer(step, epoch)
-
-            # (batch_size, 1, 10240)
-            gt_audio_batch = gt_audio_batch.to(device)
-
-            encoding_per_module = encoder(gt_audio_batch)
-            enc_audios = encoding_per_module[-1].to(device)
-
-            # (batch_size, l, c)
-            enc_audios = enc_audios.permute(0, 2, 1)  # (b, c, l)
-
-            # zero the gradients
-            optimizer.zero_grad()
-
-            # forward pass
-            output_batch = decoder(enc_audios)
-            loss = criterion(output_batch, gt_audio_batch) * \
-                (1 / opt["batch_size_multiGPU"])
-
-            # backward pass and optimization step
-            loss.backward()
-            optimizer.step()
-
-            training_losses_epoch.append(loss.item())
-            # </> end for step
-
-        training_losses.append(np.mean(training_losses_epoch))
-        validation_losses.append(validation_loss(
-            encoder, decoder, test_loader, criterion))
-
-        scheduler.step()
-        print(f"LR: {scheduler.get_last_lr()}")
-
-        log_handler(decoder, epoch, optimizer,
-                    training_losses, validation_losses)
-
-    # </> end epoch
-
-    return decoder
-
-
-def run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr, decay_rate, criterion, decoder, num_epochs):
-    torch.cuda.empty_cache()
-
-    arg_parser.create_log_path(opt)
-    opt.experiment = experiment_name
-    opt.save_dir = f'{experiment_name}_experiment'
-    opt.log_path = opt.log_path + "/DECODER"
-    opt['log_path_latent'] = opt.log_path + "/latent_space"
-
-    # opt.log_path = f'./logs/{experiment_name}_experiment'
-    # opt['log_path_latent'] = f'./logs/{experiment_name}_experiment/latent_space'
-    opt['num_epochs'] = num_epochs
-    opt['batch_size'] = 171
-    opt['batch_size_multiGPU'] = opt['batch_size']
-
-    create_log_dir(opt.log_path)
-
-    logs = logger.Logger(opt)
-
-    # load the data
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
-
-    encoder = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    decoder = train(opt, encoder, decoder, logs, train_loader,
-                    test_loader, lr, criterion, decay_rate)
-
-    generate_predictions(opt, f"{experiment_name}_experiment", encoder,
-                         criterion.name, lr, 1, decoder, model_nb=opt['num_epochs'] - 1)
-
-    torch.cuda.empty_cache()
+    # arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
+    # logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
 
 
 if __name__ == "__main__":
-    experiment_name = options_autoencoder["experiment_name"]
-    GIM_MODEL_PATH = options_autoencoder["gim_model_path"]
-    lr = options_autoencoder["lr"]
-    decay_rate = options_autoencoder["decay_rate"]
-    criterion = options_autoencoder["criterion"]
-    decoder = options_autoencoder["decoder"]
-    num_epochs = options_autoencoder["num_epochs"]
-
-    run_configuration(opt, experiment_name, GIM_MODEL_PATH, lr,
-                      decay_rate, criterion, decoder, num_epochs)
+    main()

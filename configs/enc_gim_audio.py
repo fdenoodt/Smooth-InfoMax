@@ -81,7 +81,8 @@ def _get_options(experiment_name) -> OptionsConfig:
         encoder_config=ENCODER_CONFIG,
         phones_classifier_config=CLASSIFIER_CONFIG_PHONES,
         speakers_classifier_config=CLASSIFIER_CONFIG_SPEAKERS,
-        syllables_classifier_config=None
+        syllables_classifier_config=None,
+        decoder_config=None
     )
 
     return options

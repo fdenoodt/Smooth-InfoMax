@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 
 class ModuleConfig:
@@ -57,10 +57,28 @@ class ModuleConfig:
         return modules
 
 
-class ArchitectureConfig:
+class ArchitectureConfig:  # for encoder
     def __init__(self, modules: list[ModuleConfig]):
         self.modules: list[ModuleConfig] = modules
 
     def __str__(self):
         modules: str = ", ".join([str(module) for module in self.modules])
         return f"ArchitectureConfig(modules={modules})"
+
+
+class DecoderArchitectureConfig:
+    def __init__(self, kernel_sizes: List[int], strides: List[int], paddings: List[int], output_paddings: List[int],
+                 input_dim: int, hidden_dim: int, output_dim: int):
+        assert len(kernel_sizes) == len(strides) == len(paddings)
+        self.kernel_sizes = kernel_sizes
+        self.strides = strides
+        self.paddings = paddings
+        self.output_paddings = output_paddings
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+
+    def __str__(self):
+        return f"DecoderArchitectureConfig(kernel_sizes={self.kernel_sizes}, strides={self.strides}, " \
+               f"paddings={self.paddings}, input_dim={self.input_dim}, hidden_dim={self.hidden_dim}, " \
+               f"output_dim={self.output_dim})"

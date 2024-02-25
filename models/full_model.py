@@ -99,3 +99,13 @@ class FullModel(nn.Module):
 
         context, _ = self.fullmodel[idx].get_latents(model_input)
         return context
+
+    def forward_through_all_cnn_modules(self, x):
+        model_input = x
+
+        for idx, layer in enumerate(self.fullmodel):
+            if idx + 1 < len(self.fullmodel):
+                _, z = layer.get_latents(model_input)
+                model_input = z.permute(0, 2, 1)
+
+        return model_input

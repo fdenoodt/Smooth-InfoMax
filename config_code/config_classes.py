@@ -3,7 +3,7 @@ from typing import Optional
 import os
 import torch
 
-from config_code.architecture_config import ArchitectureConfig
+from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig
 
 
 class Loss(Enum):
@@ -94,12 +94,23 @@ class ClassifierConfig:
                f"dataset={self.dataset}, encoder_num={self.encoder_num})"
 
 
+class DecoderConfig:
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+                 architecture: DecoderArchitectureConfig):
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
+        self.dataset = dataset
+        self.encoder_num = encoder_num
+        self.architecture: DecoderArchitectureConfig = architecture
+
+
 class OptionsConfig:
     def __init__(self, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
-                 syllables_classifier_config: Optional[ClassifierConfig]):
+                 syllables_classifier_config: Optional[ClassifierConfig],
+                 decoder_config: Optional[DecoderConfig]):
         root_logs = r"./sim_logs/"
 
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
@@ -119,6 +130,7 @@ class OptionsConfig:
         self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
         self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
+        self.decoder_config: Optional[DecoderConfig] = decoder_config
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

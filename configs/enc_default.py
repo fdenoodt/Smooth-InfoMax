@@ -11,7 +11,6 @@ NUM_EPOCHS = 4
 START_EPOCH = 0
 BATCH_SIZE = 8  # 171
 
-
 # Simple architecture v2 # 20480 -> 105 (first module)
 kernel_sizes = [10, 8, 3]
 strides = [4, 3, 1]
@@ -82,6 +81,7 @@ def _get_options(experiment_name):
         phones_classifier_config=None,
         speakers_classifier_config=None,
         syllables_classifier_config=None,
+        decoder_config=None,
     )
     return options
 
