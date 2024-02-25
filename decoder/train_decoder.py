@@ -6,6 +6,7 @@ import torch
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from data import get_dataloader
+from decoder.callbacks import CustomCallback
 from decoder.my_data_module import MyDataModule
 from lit_decoder import LitDecoder
 from decoderr import Decoder
@@ -59,12 +60,17 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset)
     data = MyDataModule(train_loader, test_loader, test_loader)
 
+    z_dim = opt.decoder_config.architecture.input_dim
+    nb_frames = 64
+
     decoder = Decoder(opt.decoder_config.architecture)
+
     lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate)
+    callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames, plot_ever_n_epoch=2)
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         accelerator="gpu", devices="1",
-                        logger=wandb_logger)
+                        logger=wandb_logger, callbacks=[callback])
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
 

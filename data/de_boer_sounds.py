@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset
 import os
 import os.path
@@ -94,20 +95,16 @@ class DeBoerDataset(Dataset):
                 samplerate == self.initial_sample_rate
         ), "Watch out, samplerate is not consistent throughout the dataset!"
 
-        # if self.split_into_syllables:
-        # print(audio_length_before_resample)
-        # assert (  # check only relevant for split up/padded audio files
-        #     audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
-        # ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
-
         # resample: from 22050 to 16000
         audio = resample(audio,
                          curr_samplerate=self.initial_sample_rate,
                          new_samplerate=self.target_sample_rate)
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
-        # Discard last part that is not a full 10ms
-        audio = audio[:, 0: self.audio_length]  # resulting in 8800 elements
+        audio = audio[:, 0: self.audio_length] # 10240 if not split, 8800 if split
+        # TODO
+        # problem: only does the first part, but should consider a random starting point
+
 
         return audio, filename, pronounced_syllable, full_word
 

@@ -136,7 +136,7 @@ class SIMSetup:
                 kernel_sizes=kernel_sizes[::-1],
                 strides=strides[::-1],
                 paddings=padding[::-1],
-                output_paddings=[0, 1, 1, 0, 4],
+                output_paddings=[1, 0, 1, 3, 4],
                 input_dim=cnn_hidden_dim,
                 hidden_dim=cnn_hidden_dim,
                 output_dim=1
