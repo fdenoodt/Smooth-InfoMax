@@ -11,7 +11,7 @@ from utils.helper_functions import resample, translate_syllable_to_number, trans
 
 
 def default_loader(path):
-    return torchaudio.load(path)
+    return torchaudio.load(path, normalize=False)
 
 
 def default_flist_reader(flist):
@@ -29,7 +29,7 @@ def default_flist_reader(flist):
 
 
 class DeBoerDataset(Dataset):
-    ''' Corpus of vocals consiting of three syllables per file, spoken by the same speaker. '''
+    ''' Corpus of vocals consisting of three syllables per file, spoken by the same speaker. '''
 
     def __init__(
             self,
@@ -53,7 +53,9 @@ class DeBoerDataset(Dataset):
         self.loader = loader
         self.audio_length: int = self.compute_audio_length()
 
-        self.white_gaussian_noise_transform = GuassianNoise()
+        # Mean: 3.260508094626857e-07, Standard Deviation: 0.10727367550134659
+        self.mean = 3.260508094626857e-07
+        self.std = 0.10727367550134659
 
     def compute_audio_length(self):
         # Resulting sequences will be of 16khz -> 16k samples per second
@@ -101,10 +103,12 @@ class DeBoerDataset(Dataset):
                          new_samplerate=self.target_sample_rate)
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
-        audio = audio[:, 0: self.audio_length] # 10240 if not split, 8800 if split
+        audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
         # TODO
         # problem: only does the first part, but should consider a random starting point
 
+        # normalize
+        audio = (audio - self.mean) / self.std
 
         return audio, filename, pronounced_syllable, full_word
 
