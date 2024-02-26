@@ -56,17 +56,17 @@ class LitDecoder(L.LightningModule):
         return loss
 
     # validation step
-    # def validation_step(self, batch, batch_idx):
-    #     (x, _, label, _) = batch
-    #     with torch.no_grad():
-    #         full_model: FullModel = self.encoder.module
-    #         z = full_model.forward_through_all_cnn_modules(x)
-    #     z = z.detach()
-    #
-    #     x_reconstructed = self.decoder(z)
-    #     loss = self.loss(x_reconstructed, x, z)
-    #     self.log("val_loss", loss)
-    #     return loss
+    def validation_step(self, batch, batch_idx):
+        (x, _, label, _) = batch
+        with torch.no_grad():
+            full_model: FullModel = self.encoder.module
+            z = full_model.forward_through_all_cnn_modules(x)
+        z = z.detach()
+
+        x_reconstructed = self.decoder(z)
+        loss = self.loss(x_reconstructed, x)
+        self.log("val_loss", loss)
+        return loss
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)

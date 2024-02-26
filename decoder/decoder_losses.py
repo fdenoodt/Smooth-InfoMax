@@ -6,26 +6,27 @@ import torchaudio.transforms as T
 
 
 class SpectralLoss(nn.Module):
-    # aided by ChatGPT
     def __init__(self, n_fft=1024):  # should be higher than signal length
         super(SpectralLoss, self).__init__()
         self.n_fft = n_fft
+        self.window = torch.hann_window(window_length=self.n_fft, periodic=True, dtype=None, layout=torch.strided,
+                                        requires_grad=False).cuda()
         self.loss = nn.MSELoss()
 
     def forward(self, batch_inputs, batch_targets):
         assert batch_inputs.shape == batch_targets.shape
 
-        # batch_inputs.shape: (batch_size, 1, length)
         batch_inputs = batch_inputs.squeeze(1)  # (batch_size, length)
         batch_targets = batch_targets.squeeze(1)  # (batch_size, length)
 
         input_spectograms = torch.stft(
-            batch_inputs, self.n_fft, return_complex=False)  # only magnitude
+            batch_inputs, self.n_fft, window=self.window, return_complex=True)  # returns complex tensor
         target_spectograms = torch.stft(
-            batch_targets, self.n_fft, return_complex=False)  # only magnitude
+            batch_targets, self.n_fft, window=self.window, return_complex=True)  # returns complex tensor
 
-        input_spectograms = input_spectograms.pow(2).sum(-1)
-        target_spectograms = target_spectograms.pow(2).sum(-1)
+        # Convert complex tensor to real tensor using torch.view_as_real
+        input_spectograms = torch.view_as_real(input_spectograms).pow(2).sum(-1)
+        target_spectograms = torch.view_as_real(target_spectograms).pow(2).sum(-1)
 
         return self.loss(input_spectograms, target_spectograms)
 
@@ -61,7 +62,7 @@ class FFTLoss(nn.Module):
         # For a signal with a sample rate of 16,000 Hz, you could choose an FFT size that is a power of two and is equal to or greater than the length of your signal. A common choice for audio signals is 2048 or 4096 samples, which would correspond to a frequency resolution of approximately 8 or 4 Hz, respectively. However, you may need to experiment with different FFT sizes to determine the best choice for your particular application.
         # In addition to the FFT size, the choice of window function can also affect the quality of the spectral analysis. The Hann window used in the example I provided is a good default choice, but you may want to try other window functions such as the Blackman-Harris or Kaiser windows to see if they improve the accuracy of your analysis.
         self.fft_size = fft_size
-        self.window = torch.hann_window(fft_size, periodic=True)  # .to(device)
+        self.window = torch.hann_window(fft_size, periodic=True).cuda()
 
     def forward(self, output, target):
         # Compute FFT of output and target signals
@@ -116,7 +117,7 @@ class MEL_LOSS(nn.Module):
             onesided=True,
             # n_mels=n_mels,
             mel_scale="htk",
-        )  # .to(device)
+        ).cuda()
 
     def power_to_db(self, melspec):
         # todo: check if can just call librosa.power_to_db(melspec, ref=1.0, amin=1e-10, top_db=80.0)
