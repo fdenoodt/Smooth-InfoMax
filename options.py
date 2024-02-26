@@ -62,8 +62,6 @@ if args.overrides is not None:
             if not hasattr(obj, k):
                 raise AttributeError(f"Object {obj} does not have attribute {k}")
             obj = getattr(obj, k)
-            if not isinstance(obj, type):
-                raise AttributeError(f"Object {obj} is not a class")
         setattr(obj, last_key, type(getattr(obj, last_key))(value))
 
 get_options = lambda: _options
