@@ -88,3 +88,7 @@ class LitDecoder(L.LightningModule):
         avg_loss = torch.stack(self.test_losses).mean()
         self.log("avg_test_loss", avg_loss)
         self.test_losses = []  # reset for the next epoch
+
+
+if __name__ == "__main__":
+    pass

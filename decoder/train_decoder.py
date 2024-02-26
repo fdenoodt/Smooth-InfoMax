@@ -2,6 +2,9 @@ import time
 
 import numpy as np
 import torch
+
+from decoder.decoderr import Decoder
+from decoder.lit_decoder import LitDecoder
 from utils import logger
 
 from arg_parser import arg_parser
@@ -9,8 +12,6 @@ from config_code.config_classes import OptionsConfig, ModelType, Dataset
 from data import get_dataloader
 from decoder.callbacks import CustomCallback
 from decoder.my_data_module import MyDataModule
-from lit_decoder import LitDecoder
-from decoderr import Decoder
 
 from models import load_audio_model
 from models.full_model import FullModel
