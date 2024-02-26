@@ -27,7 +27,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
-    print(f"\nTRAINING DECODER USING LOSS: {opt.decoder_config.loss} \n")
+    print(f"\nTRAINING DECODER USING LOSS: {opt.decoder_config.decoder_loss} \n")
 
     opt.model_type = model_type
 
@@ -47,9 +47,9 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
     wandb.init(project="SIM_DECODER",
-               name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.loss}_lr={opt.decoder_config.learning_rate}" +
+               name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
                     f"_{int(time.time())}",
-               tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.loss}",
+               tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.decoder_loss}",
                      f"lr={opt.decoder_config.learning_rate}"]
                )
 
@@ -74,7 +74,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     logs = logger.Logger(opt)
 
-    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.loss)
+    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.decoder_loss)
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames, plot_ever_n_epoch=2)
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,

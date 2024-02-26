@@ -106,13 +106,13 @@ class DecoderLoss(Enum):
 
 class DecoderConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 architecture: DecoderArchitectureConfig, loss: DecoderLoss):
+                 architecture: DecoderArchitectureConfig, decoder_loss: DecoderLoss):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
         self.architecture: DecoderArchitectureConfig = architecture
-        self.loss: DecoderLoss = loss
+        self.decoder_loss: DecoderLoss = decoder_loss
 
 
 class OptionsConfig:

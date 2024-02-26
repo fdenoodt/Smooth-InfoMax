@@ -140,7 +140,7 @@ class SIMSetup:
                 hidden_dim=cnn_hidden_dim,
                 output_dim=1
             ),
-            loss=DecoderLoss.MEL
+            decoder_loss=DecoderLoss.MSE
         )
 
     def get_options(self, experiment_name) -> OptionsConfig:

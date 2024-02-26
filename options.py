@@ -42,7 +42,6 @@ _options = _get_options(experiment_name=experiment_name)
 # Override the parameters if they are provided
 if args.overrides is not None:
     for override in args.overrides:
-        print(f"Override: {override}")
         key, value = override.split('=')
 
         # Handle enums (Dataset Enum)
@@ -52,7 +51,7 @@ if args.overrides is not None:
             value = Dataset(int(value))
 
         # Loss enum of decoder
-        if key.endswith('decoder_config.loss'):
+        if key.endswith('decoder_config.decoder_loss'):
             assert value.isdigit(), f"Value for {key} should be an integer, but it is {value}"
             value = DecoderLoss(int(value))
 
@@ -60,10 +59,10 @@ if args.overrides is not None:
         last_key = keys.pop()
         obj = _options
         for k in keys:
-            print(f"obj: {obj}, k: {k}")
             if not hasattr(obj, k):
                 raise AttributeError(f"Object {obj} does not have attribute {k}")
             obj = getattr(obj, k)
+
         setattr(obj, last_key, type(getattr(obj, last_key))(value))
 
 get_options = lambda: _options
