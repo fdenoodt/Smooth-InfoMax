@@ -2,6 +2,7 @@ import time
 
 import numpy as np
 import torch
+from utils import logger
 
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType, Dataset
@@ -25,6 +26,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
+    print(f"\nTRAINING DECODER USING LOSS: {opt.decoder_config.loss} \n")
+
     opt.model_type = model_type
 
     decoder_config = opt.decoder_config
@@ -65,7 +68,9 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     decoder = Decoder(opt.decoder_config.architecture)
 
-    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate)
+    logs = logger.Logger(opt)
+
+    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.loss)
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames, plot_ever_n_epoch=2)
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
@@ -76,6 +81,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     # arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
     # logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
+
+    logs.create_log(decoder, final_test=True, final_loss=[])
 
 
 if __name__ == "__main__":

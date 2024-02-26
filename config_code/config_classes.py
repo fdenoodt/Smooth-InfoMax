@@ -94,14 +94,25 @@ class ClassifierConfig:
                f"dataset={self.dataset}, encoder_num={self.encoder_num})"
 
 
+class DecoderLoss(Enum):
+    MSE = 0
+    SPECTRAL = 1
+    MSE_SPECTRAL = 2
+    FFT = 3
+    MSE_FFT = 4
+    MEL = 5
+    MSE_MEL = 6
+
+
 class DecoderConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 architecture: DecoderArchitectureConfig):
+                 architecture: DecoderArchitectureConfig, loss: DecoderLoss):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
         self.architecture: DecoderArchitectureConfig = architecture
+        self.loss: DecoderLoss = loss
 
 
 class OptionsConfig:

@@ -20,10 +20,11 @@ class Decoder(nn.Module):
                     output_padding=decoder_architecture.output_paddings[i],
                 ),
             )
-            self.decoder.add_module(
-                f"relu_{i}",
-                nn.ReLU(),
-            )
+            if i < nb_layers - 1:
+                self.decoder.add_module(
+                    f"relu_{i}",
+                    nn.ReLU(),
+                )
 
     def forward(self, x):
         return self.decoder(x)

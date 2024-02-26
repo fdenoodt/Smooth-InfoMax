@@ -35,6 +35,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
         shuffle=shuffle,
         drop_last=True,
         num_workers=NUM_WORKERS,
+        persistent_workers=True
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -43,6 +44,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
         shuffle=shuffle,
         drop_last=True,
         num_workers=NUM_WORKERS,
+        persistent_workers=True
     )
 
     return train_loader, train_dataset, test_loader, test_dataset

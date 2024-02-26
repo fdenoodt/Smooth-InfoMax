@@ -1,5 +1,5 @@
 from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
-    DecoderConfig
+    DecoderConfig, DecoderLoss
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig, DecoderArchitectureConfig
 import torch
 
@@ -121,7 +121,7 @@ class SIMSetup:
         )
 
         self.DECODER_CONFIG = DecoderConfig(
-            num_epochs=5,
+            num_epochs=20,
             learning_rate=2e-4,
             dataset=DataSetConfig(
                 dataset=Dataset.DE_BOER_RESHUFFLED,
@@ -140,7 +140,9 @@ class SIMSetup:
                 input_dim=cnn_hidden_dim,
                 hidden_dim=cnn_hidden_dim,
                 output_dim=1
-            ))
+            ),
+            loss=DecoderLoss.MEL
+        )
 
     def get_options(self, experiment_name) -> OptionsConfig:
         options = OptionsConfig(
@@ -154,7 +156,7 @@ class SIMSetup:
             phones_classifier_config=self.CLASSIFIER_CONFIG_PHONES,
             speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
             syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
-            decoder_config=self.DECODER_CONFIG
+            decoder_config=self.DECODER_CONFIG,
         )
 
         return options
