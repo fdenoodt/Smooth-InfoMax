@@ -59,6 +59,8 @@ if args.overrides is not None:
         last_key = keys.pop()
         obj = _options
         for k in keys:
+            if not hasattr(obj, k):
+                raise AttributeError(f"Object {obj} does not have attribute {k}")
             obj = getattr(obj, k)
         setattr(obj, last_key, type(getattr(obj, last_key))(value))
 
