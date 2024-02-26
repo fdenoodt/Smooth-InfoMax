@@ -156,3 +156,6 @@ class MSE_AND_MEL_LOSS(nn.Module):
         mse = self.mse_loss(batch_inputs, batch_targets)
         mel = self.mel_loss(batch_inputs, batch_targets)
         return mse + (self.lambd * mel)
+
+
+

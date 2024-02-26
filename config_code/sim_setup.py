@@ -57,7 +57,6 @@ class SIMSetup:
                 # not applicable for the regressor
                 max_pool_k_size=None, max_pool_stride=None, kernel_sizes=[], strides=[], padding=[],
                 predict_distributions=False,
-
                 cnn_hidden_dim=cnn_hidden_dim,
                 is_autoregressor=True,
                 regressor_hidden_dim=regressor_hidden_dim,
@@ -121,7 +120,7 @@ class SIMSetup:
         )
 
         self.DECODER_CONFIG = DecoderConfig(
-            num_epochs=20,
+            num_epochs=50,
             learning_rate=2e-4,
             dataset=DataSetConfig(
                 dataset=Dataset.DE_BOER_RESHUFFLED,

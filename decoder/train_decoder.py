@@ -44,9 +44,12 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.cuda.manual_seed(opt.seed)
     np.random.seed(opt.seed)
 
+    distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
     wandb.init(project="SIM_DECODER",
-               # tags=[f"z={z_dim}", f"lr={lr}", f"batch_size={batch_size}"],
-               # name=f"z={z_dim}_lr={lr}_batch_size={batch_size}"
+               name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.loss}_lr={opt.decoder_config.learning_rate}" +
+                    f"_{int(time.time())}",
+               tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.loss}",
+                     f"lr={opt.decoder_config.learning_rate}"]
                )
 
     wandb_logger = WandbLogger()
