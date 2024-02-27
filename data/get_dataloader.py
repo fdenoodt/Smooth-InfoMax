@@ -8,8 +8,7 @@ from config_code.config_classes import DataSetConfig, Dataset
 NUM_WORKERS = 1  # 6
 
 
-def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir,
-                 split_and_pad, shuffle):
+def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir, shuffle):
     data_input_dir = dataset_options.data_input_dir
     train_dataset = de_boer_sounds.DeBoerDataset(
         dataset_options=dataset_options,
@@ -17,7 +16,6 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
             data_input_dir, f"corpus/{train_specific_dir}"
         ),
         directory=train_sub_dir,
-        split_into_syllables=split_and_pad
     )
 
     test_dataset = de_boer_sounds.DeBoerDataset(
@@ -26,7 +24,6 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
             data_input_dir, f"corpus/{test_specific_dir}",
         ),
         directory=test_sub_dir,
-        split_into_syllables=split_and_pad
     )
 
     train_loader = torch.utils.data.DataLoader(
@@ -54,33 +51,18 @@ def _get_de_boer_sounds_data_loaders(d_config: DataSetConfig, shuffle=True):
     ''' Retrieve dataloaders where audio signals are split into syllables '''
     print("Loading De Boer Sounds dataset...")
 
-    split_and_pad = d_config.split_in_syllables
+    split: bool = d_config.split_in_syllables
     reshuffled_verison = d_config.dataset
     subset_size = None  # TODO
 
-    if split_and_pad:
-        if subset_size:
-            # not implemented exception
-            raise NotImplementedError("Subsetting not implemented for split and padded data")
-
-            print(f"Using subset of size {subset_size} and batch size {d_config.batch_size}")
-            train_specific_directory = "subsets/"
-            train_sub_dir = f"{subset_size}"  # eg: subsets/all
-            test_specific_directory = "split up data padded reshuffled"
-            return _dataloaders(d_config, train_specific_directory, test_specific_directory, train_sub_dir,
-                                "test", split_and_pad, shuffle)
-        else:
-            print("Using full dataset")
-            specific_directory = "split up data cropped reshuffled"
-    elif reshuffled_verison == Dataset.DE_BOER_RESHUFFLED:
-        specific_directory = "reshuffled"
-    elif reshuffled_verison == Dataset.DE_BOER_RESHUFFLED_V2:
-        specific_directory = "reshuffledv2"
+    if split:  # for classification
+        # specific_directory = "split up data cropped reshuffled"
+        specific_directory = "split up data padded"
     else:
-        specific_directory = ""
+        specific_directory = "reshuffled"
 
     print(f"using {specific_directory} directory")
-    return _dataloaders(d_config, specific_directory, specific_directory, "train", "test", split_and_pad, shuffle)
+    return _dataloaders(d_config, specific_directory, specific_directory, "train", "test", shuffle)
 
 
 def _get_libri_dataloaders(options: DataSetConfig):
@@ -142,10 +124,10 @@ def get_dataloader(config: DataSetConfig, **kwargs):
     d = config.dataset
     if d == Dataset.DE_BOER:
         return _get_de_boer_sounds_data_loaders(config, **kwargs)
-    elif d == Dataset.DE_BOER_RESHUFFLED:  # used for training CPC
-        return _get_de_boer_sounds_data_loaders(config, **kwargs)
-    elif d == Dataset.DE_BOER_RESHUFFLED_V2:  # used for training CPC Decoder
-        return _get_de_boer_sounds_data_loaders(config, **kwargs)
+    # elif d == Dataset.DE_BOER_RESHUFFLED:  # used for training CPC
+    #     return _get_de_boer_sounds_data_loaders(config, **kwargs)
+    # elif d == Dataset.DE_BOER_RESHUFFLED_V2:  # used for training CPC Decoder
+    #     return _get_de_boer_sounds_data_loaders(config, **kwargs)
     elif d in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
         return _get_libri_dataloaders(config)
     else:

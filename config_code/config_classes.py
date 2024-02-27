@@ -17,9 +17,9 @@ class Dataset(Enum):
     # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
     LIBRISPEECH = 1
     LIBRISPEECH_SUBSET = 3
-    DE_BOER = 4
-    DE_BOER_RESHUFFLED = 5
-    DE_BOER_RESHUFFLED_V2 = 6
+    # DE_BOER = 4
+    DE_BOER = 4  # used to be 5, i think irrelevant for classification
+    # DE_BOER_RESHUFFLED_V2 = 6
 
 
 class ModelType(Enum):
@@ -37,13 +37,17 @@ class DataSetConfig:
         self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
+
+        if split_in_syllables:
+            assert dataset in [Dataset.DE_BOER]
+            "split_in_syllables can only be True for de_boer_sounds dataset"
+
+        if (split_in_syllables and dataset in [Dataset.DE_BOER]):
+            assert labels in ["syllables", "vowels"]
+
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
-
-        if split_in_syllables:
-            assert dataset in [Dataset.DE_BOER, Dataset.DE_BOER_RESHUFFLED]
-            "split_in_syllables can only be True for de_boer_sounds dataset"
 
     def __copy__(self):
         return DataSetConfig(

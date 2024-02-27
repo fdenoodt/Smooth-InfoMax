@@ -36,13 +36,12 @@ class DeBoerDataset(Dataset):
             directory="train",
             loader=default_loader,
             target_sample_rate=16000,
-            split_into_syllables=False,
     ):
         self.root = root
         self.opt = dataset_options
         self.target_sample_rate = target_sample_rate
-        self.split_into_syllables = split_into_syllables
-        self.initial_sample_rate = 22050 if split_into_syllables else 44100
+        self.split_into_syllables = dataset_options.split_in_syllables
+        self.initial_sample_rate = 22050 if self.split_into_syllables else 44100
 
         files = os.listdir(f"{root}/{directory}")
         # the Nones correspond to speaker_id and dir_id --> see default flist reader
@@ -79,8 +78,7 @@ class DeBoerDataset(Dataset):
         if self.split_into_syllables:
             pronounced_syllable = filename[-2:]  # ba
             if self.opt.labels == 'syllables':
-                pronounced_syllable = translate_syllable_to_number(
-                    pronounced_syllable)  # 0
+                pronounced_syllable = translate_syllable_to_number(pronounced_syllable)  # 0
             else:
                 pronounced_syllable = translate_syllable_vowel_number(pronounced_syllable)  # either 0, 1 or 2
 
@@ -102,9 +100,13 @@ class DeBoerDataset(Dataset):
                          new_samplerate=self.target_sample_rate)
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
-        audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
+        #audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
+
         # TODO
         # problem: only does the first part, but should consider a random starting point
+
+        # store audio to file
+        # torchaudio.save(f'{filename}.wav', audio, self.target_sample_rate)
 
         return audio, filename, pronounced_syllable, full_word
 

@@ -106,11 +106,12 @@ class SIMSetup:
         self.CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
         self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
-            num_epochs=20,
+            num_epochs=100,
             learning_rate=1e-3,  # = 0.001
             dataset=DataSetConfig(
-                dataset=Dataset.DE_BOER_RESHUFFLED,
+                dataset=Dataset.DE_BOER,
                 split_in_syllables=True,
+                labels="syllables",
                 batch_size=128,
                 limit_train_batches=1.0,
                 limit_validation_batches=1.0,
@@ -123,7 +124,7 @@ class SIMSetup:
             num_epochs=200,
             learning_rate=2e-4,
             dataset=DataSetConfig(
-                dataset=Dataset.DE_BOER_RESHUFFLED,
+                dataset=Dataset.DE_BOER,
                 split_in_syllables=False,
                 batch_size=64,
                 limit_train_batches=1.0,

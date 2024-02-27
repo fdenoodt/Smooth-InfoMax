@@ -1,3 +1,6 @@
+# example python call:
+# python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
+
 import torch
 import torch.nn as nn
 import time
@@ -55,11 +58,6 @@ def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_lo
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
-
-            # Print out the gradients of the context model and the linear model
-            # for name, param in context_model.named_parameters():
-            #     if param.grad is not None:
-            #         print(f'{param.grad.data.norm(2)} - Gradient of {name}')
 
             sample_loss = total_loss.item()
             accuracy = accuracies.item()
@@ -130,15 +128,14 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt.model_type = model_type
 
     # fully supervised:
-    # opt.model_type = ModelType.FULLY_SUPERVISED
+    opt.model_type = ModelType.FULLY_SUPERVISED
 
     classifier_config = opt.syllables_classifier_config
 
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.syllables_classifier_config.dataset.dataset in
-            [Dataset.DE_BOER_RESHUFFLED, Dataset.DE_BOER_RESHUFFLED_V2]), "Dataset not supported"
+    assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
 
@@ -150,7 +147,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,
-        reload_model=True if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
+        reload_model=True,# if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
         calc_accuracy=True,
         num_GPU=1,
     )

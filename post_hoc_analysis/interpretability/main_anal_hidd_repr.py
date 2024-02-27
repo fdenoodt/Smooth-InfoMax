@@ -115,40 +115,10 @@ def _generate_visualisations(data_dir, GIM_model_name, target_dir):
                     break
 
 
-def plot_tsne(feature_space, label_indices, gim_name, target_dir):
-    # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
-
-    projection = TSNE(
-        init='random',
-        learning_rate=200,
-        n_iter=1000,
-        # n_iter_without_progress=1000,
-        # perplexity=50
-        # perplexity=15
-    ).fit_transform(feature_space)
-
-    assert projection.shape[0] == label_indices.shape[0]
-
-    file = f"_ t-SNE_latent_space_{gim_name}"
-
-    scatter(projection, label_indices,
-            title=f"t-SNE Latent space - {gim_name}", dir=target_dir, file=file, show=False)
-
-    print(f"Saved t-SNE plot to {target_dir}/{file}.png")
 
 
-def plot_histograms(feature_space_per_channel, gim_name, target_dir):
-    max_dim = 16
-    for idx, feature_space in enumerate(feature_space_per_channel):
-        if idx == max_dim:
-            break
 
-        file = f"_ distribution_latent_space_{gim_name}_dim={idx}"
 
-        histogram(feature_space,
-                  title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir, file=file, show=False)
-
-        print(f"Saved t-SNE plot to {target_dir}/{file}.png")
 
 
 
