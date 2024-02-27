@@ -82,9 +82,16 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
-            wandb.log({"loss_0": loss[0], "loss_1": loss[1], "loss_2": loss[2], "loss_3": loss[3]}, step=global_step)
-            wandb.log({"nce_0": nce[0], "nce_1": nce[1], "nce_2": nce[2], "nce_3": nce[3]}, step=global_step)
-            wandb.log({"kld_0": kld[0], "kld_1": kld[1], "kld_2": kld[2], "kld_3": kld[3]}, step=global_step)
+            # wandb.log({"loss_0": loss[0], "loss_1": loss[1], "loss_2": loss[2], "loss_3": loss[3]}, step=global_step)
+            # wandb.log({"nce_0": nce[0], "nce_1": nce[1], "nce_2": nce[2], "nce_3": nce[3]}, step=global_step)
+            # wandb.log({"kld_0": kld[0], "kld_1": kld[1], "kld_2": kld[2], "kld_3": kld[3]}, step=global_step)
+            for idx, cur_nce in enumerate(nce):
+                wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
+            for idx, cur_kld in enumerate(kld):
+                wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
+            for idx, cur_losses in enumerate(loss):
+                wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+
             global_step += 1
 
             if step >= total_step:
@@ -108,7 +115,13 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
 
 def _main(options: OptionsConfig):
-    run_name = f"kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+    if options.encoder_config.architecture.is_cpc:
+        family = "CPC"
+    elif options.encoder_config.architecture.modules[0].predict_distributions:
+        family = "SIM"
+    else:
+        family = "GIM"
+    run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
 
     wandb.init(project="SIM_ENCODER", name=run_name)
     for key, value in vars(options).items():

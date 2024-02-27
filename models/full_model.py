@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 
 from config_code.config_classes import OptionsConfig
-from config_code.architecture_config import ArchitectureConfig
-from models import independent_module, independent_module_regressor
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig
+from models import independent_module, independent_module_regressor, independent_module_cpc
 from utils import utils
 
 
@@ -25,8 +25,15 @@ class FullModel(nn.Module):
         architecture: ArchitectureConfig = opt.encoder_config.architecture
         # CNN modules
         for idx, module_config in enumerate(architecture.modules):
+            # only relevant for replicating the CPC model, not for Greedy InfoMax or Smooth Infomax
+            if module_config.is_cnn_and_autoregressor:
+                assert len(architecture.modules) == 1
+                m = module_config
+                self.fullmodel.append(self.cpc_module_from_config(opt, m, calc_accuracy))
+
+
             # Auto-regressor module
-            if module_config.is_autoregressor:
+            elif module_config.is_autoregressor:
                 m = module_config
                 # assert no distributions
                 assert not m.predict_distributions, "Distributions not implemented for autoregressor"
@@ -44,8 +51,24 @@ class FullModel(nn.Module):
                 self.fullmodel.append(indep_module)
 
     @staticmethod
-    def cnn_module_from_config(opt, module_config, calc_accuracy,
-                               is_first_module) -> independent_module.IndependentModule:
+    def cpc_module_from_config(opt, m: ModuleConfig, calc_accuracy) -> independent_module_cpc.CPCIndependentModule:
+        cpc_module = independent_module_cpc.CPCIndependentModule(
+            opt,
+            enc_kernel_sizes=m.kernel_sizes,
+            enc_strides=m.strides,
+            enc_padding=m.padding,
+            nb_channels_cnn=m.cnn_hidden_dim,
+            nb_channels_regress=m.regressor_hidden_dim,
+            max_pool_k_size=m.max_pool_k_size,
+            max_pool_stride=m.max_pool_stride,
+            calc_accuracy=calc_accuracy,
+            prediction_step=m.prediction_step,
+        )
+        return cpc_module
+
+    @staticmethod
+    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module) \
+            -> independent_module.IndependentModule:
         kernel_sizes = module_config.kernel_sizes
         strides = module_config.strides
         padding = module_config.padding
