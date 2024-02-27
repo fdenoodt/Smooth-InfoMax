@@ -120,7 +120,7 @@ class SIMSetup:
         )
 
         self.DECODER_CONFIG = DecoderConfig(
-            num_epochs=50,
+            num_epochs=200,
             learning_rate=2e-4,
             dataset=DataSetConfig(
                 dataset=Dataset.DE_BOER_RESHUFFLED,

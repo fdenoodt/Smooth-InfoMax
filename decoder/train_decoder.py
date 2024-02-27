@@ -46,7 +46,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     np.random.seed(opt.seed)
 
     distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
-    wandb.init(project="SIM_DECODER",
+    wandb.init(project="SIM_DECODERv2",
                name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
                     f"_{int(time.time())}",
                tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.decoder_loss}",
