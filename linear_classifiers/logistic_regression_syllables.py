@@ -17,7 +17,7 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 
 
-def train(opt: OptionsConfig, context_model, loss, logs: logger.Logger, train_loader, optimizer):
+def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer):
     total_step = len(train_loader)
     print_idx = 100
 
