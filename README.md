@@ -104,7 +104,7 @@ CPC
 ```shell
 outp_dir='cpc';
 config_file='sim_audio_cpc';
-override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
+override='encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
 ```
 
 ```shell
