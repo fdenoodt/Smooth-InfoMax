@@ -100,7 +100,13 @@ class DeBoerDataset(Dataset):
                          new_samplerate=self.target_sample_rate)
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
-        #audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
+        # audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
+
+        if not (self.split_into_syllables):
+            audio = audio[:, 0: self.audio_length]
+        else:
+            # no need to cut the audio, as the data is already preprocessed
+            pass
 
         # TODO
         # problem: only does the first part, but should consider a random starting point

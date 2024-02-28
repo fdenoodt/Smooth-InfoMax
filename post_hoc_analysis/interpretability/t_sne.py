@@ -1,8 +1,8 @@
 # example python call:
-# python -m interpretability.t_sne  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
+# python -m post_hoc_analysis.interpretability.t_sne  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 
 import random
-from typing import Optional
+from typing import Optional, Union
 
 from sklearn.manifold import TSNE
 from utils.helper_functions import *
@@ -26,7 +26,7 @@ from models import load_audio_model
 
 
 def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.ndarray, gim_name: str,
-              lr: Optional[float] = 200, n_iter: Optional[int] = 1000, perplexity: Optional[int] = None):
+              lr: Union[float, str], n_iter: int, perplexity: int):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
     projection = TSNE(
@@ -52,65 +52,52 @@ def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.n
     print(f"Saved t-SNE plot to {save_dir}/{file}.png")
 
 
-def plot_histograms(feature_space_per_channel, gim_name, target_dir):
-    max_dim = 16
+def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max_dim: int):
+    # feature_space_per_channel: (nb_channels, batch_size, seq_len)
+    save_dir = opt.log_path
+
     for idx, feature_space in enumerate(feature_space_per_channel):
+        # feature_space: (batch_size, seq_len)
         if idx == max_dim:
             break
 
+        feature_space = feature_space.flatten()
         file = f"_ distribution_latent_space_{gim_name}_dim={idx}"
 
         histogram(feature_space,
-                  title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=target_dir,
+                  title=f"Distributions of latent points for dimension {idx + 1} - {gim_name}", dir=save_dir,
                   file=file, show=False)
 
-        print(f"Saved t-SNE plot to {target_dir}/{file}.png")
+        print(f"Saved t-SNE plot to {save_dir}/{file}.png")
 
 
-def main():
-    opt: OptionsConfig = get_options()
+def scatter_plot_2dims(dim1: np.ndarray, dim2: np.ndarray, title: str, dir: str, file: str, show: bool = True):
+    # dim1, dim2: (batch_size, seq_len)
+    assert dim1.shape == dim2.shape
 
-    data_config = DataSetConfig(
-        dataset=Dataset.DE_BOER,
-        split_in_syllables=True,
-        batch_size=128,
-        limit_train_batches=1.0,
-        limit_validation_batches=1.0,
-        labels="syllables"
-    )
+    save_dir = dir
+    file = f"_ scatter_plot_{file}.png"  # Add the file extension here
 
-    classifier_config = opt.syllables_classifier_config
+    # scatter_2dims(dim1, dim2,
+    #               title=title, dir=save_dir, file=file, show=show)
 
-    arg_parser.create_log_path(opt, add_path_var="post_hoc")
+    print(f"Saved scatter plot to {save_dir}/{file}.png")
 
-    # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
 
-    existing_model = False
-    context_model, _ = load_audio_model.load_model_and_optimizer(
-        opt,
-        classifier_config,
-        reload_model=existing_model,
-        calc_accuracy=True,
-        num_GPU=1,
-    )
-    context_model.eval()
+def _get_data_from_loader(loader, encoder: FullModel, opt: OptionsConfig, final_module: str):
+    assert final_module in ["final", "final_cnn"]
 
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
-    logs = logger.Logger(opt)
-
-    # gather the data
     all_audio = np.array([])
     all_labels = np.array([])
-    nb_channels = context_model.module.output_dim
-    for i, (audio, _, label, _) in enumerate(train_loader):
-        encoder: FullModel = context_model.module
+
+    for i, (audio, _, label, _) in enumerate(loader):
         audio = audio.to(opt.device)
 
         with torch.no_grad():
-            audio = encoder.forward_through_all_modules(audio)
+            if final_module == "final":
+                audio = encoder.forward_through_all_modules(audio)
+            else:
+                audio = encoder.forward_through_all_cnn_modules(audio)  # only cnn modules have kl divergence
             audio = audio.cpu().detach().numpy()  # (batch_size, seq_len, nb_channels)
 
             # vstack the audio
@@ -121,38 +108,69 @@ def main():
                 all_audio = np.vstack((all_audio, audio))
                 all_labels = np.hstack((all_labels, label))
 
-    # (batch_size, seq_len, nb_channels) -> (batch_size, seq_len * nb_channels)
-    all_audio = all_audio.reshape(all_audio.shape[0], -1)
-    print(all_audio.shape)
-    print(all_labels.shape)
+    # If output from final_cnn, permute channels and seq_len
+    if final_module == "final_cnn":
+        all_audio = np.moveaxis(all_audio, 2, 1)
 
+    return all_audio, all_labels
+
+
+def main():
+    opt: OptionsConfig = get_options()
+
+    classifier_config = opt.syllables_classifier_config
+    arg_parser.create_log_path(opt, add_path_var="post_hoc")
+
+    # random seeds
+    torch.manual_seed(opt.seed)
+    torch.cuda.manual_seed(opt.seed)
+    np.random.seed(opt.seed)
+
+    load_existing_model = True
+    context_model, _ = load_audio_model.load_model_and_optimizer(
+        opt,
+        classifier_config,
+        reload_model=load_existing_model,
+        calc_accuracy=True,
+        num_GPU=1,
+    )
+    context_model.eval()
+    logs = logger.Logger(opt)
+    nb_channels = context_model.module.output_dim
+
+    data_config = DataSetConfig(
+        dataset=Dataset.DE_BOER,
+        split_in_syllables=True,
+        batch_size=128,
+        limit_train_batches=1.0,
+        limit_validation_batches=1.0,
+        labels="syllables"
+    )
+
+    # retrieve data for classifier
+    train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
+    all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final")
     n = all_labels.shape[0]  # sqrt(1920) ~= 44
 
-    # t-SNE
-    params = [('auto', 1000, float(np.sqrt(n))),
-              (200, 1000, 50), (200, 1000, 30), (200, 1000, 10),
-              (20, 1000, 50), (20, 1000, 30), (20, 1000, 10),
-              (1000, 1000, 50), (1000, 1000, 30), (1000, 1000, 10)]
-    # plot_tsne(opt, all_audio, all_labels, "SIM", lr=200, n_iter=1000, perplexity=50)
-    for lr, n_iter, perplexity in params:
-        plot_tsne(opt, all_audio, all_labels, f"ALL_SIM_{lr}_{n_iter}_{perplexity}",
-                  lr=lr, n_iter=n_iter, perplexity=perplexity)
-
-
-    # reshape to original shape
-    all_audio = all_audio.reshape(all_audio.shape[0], -1, nb_channels)  # (batch_size, seq_len, nb_channels)
-
     # mean of seq len
-    all_audio = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
-    params = [('auto', 1000, float(np.sqrt(n))),
-              (200, 1000, 50), (200, 1000, 30), (200, 1000, 10),
-              (20, 1000, 50), (20, 1000, 30), (20, 1000, 10),
-              (1000, 1000, 50), (1000, 1000, 30), (1000, 1000, 10)]
-    # plot_tsne(opt, all_audio, all_labels, "SIM", lr=200, n_iter=1000, perplexity=50)
-    for lr, n_iter, perplexity in params:
-        plot_tsne(opt, all_audio, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-                  lr=lr, n_iter=n_iter, perplexity=perplexity)
+    all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
+    lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
+    plot_tsne(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
+              lr=lr, n_iter=n_iter, perplexity=perplexity)
 
+    # # retrieve full data that encoder was trained on
+    data_config.split_in_syllables = False
+    train_loader_full, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
+    all_audio, all_labels = _get_data_from_loader(train_loader_full, context_model.module, opt, "final_cnn")
+
+    # plot histograms
+    # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
+    audio_per_channel = np.moveaxis(all_audio, 2, 0)
+    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=64)
+
+    # plot 2 channels of audio_per_channels on a scatter plot
+    # scatter_plot_2dims(audio_per_channel[0], all_labels, "Scatter plot of 2 dimensions of audio_per_channel[0]",
+    #                    opt.log_path, "scatter_plot_2dims_audio_per_channel_0", show=False)
 
 
 if __name__ == "__main__":

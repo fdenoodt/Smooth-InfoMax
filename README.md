@@ -111,4 +111,7 @@ override='encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128
 python -m decoder.train_decoder ${output_dir} ${config_file} bart_audio_distribs_distr=true_kld=0.0033 sim_audio_distr_true --overrides encoder_config.kld_weight=0.0033 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128 decoder_config.decoder_loss=2
 ```
 
-
+Syllable classification:
+```shell
+python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
+```

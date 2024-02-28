@@ -59,7 +59,7 @@ def _get_de_boer_sounds_data_loaders(d_config: DataSetConfig, shuffle=True):
         # specific_directory = "split up data cropped reshuffled"
         specific_directory = "split up data padded"
     else:
-        specific_directory = "reshuffled"
+        specific_directory = "reshuffledv2"
 
     print(f"using {specific_directory} directory")
     return _dataloaders(d_config, specific_directory, specific_directory, "train", "test", shuffle)

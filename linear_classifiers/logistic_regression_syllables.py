@@ -128,7 +128,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt.model_type = model_type
 
     # fully supervised:
-    opt.model_type = ModelType.FULLY_SUPERVISED
+    # opt.model_type = ModelType.FULLY_SUPERVISED
 
     classifier_config = opt.syllables_classifier_config
 
@@ -152,7 +152,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         num_GPU=1,
     )
 
-    n_features = context_model.module.output_dim
+    n_features = context_model.module.output_dim # 256 or 512
     loss = Syllables_Loss(opt, n_features, calc_accuracy=True)
     learning_rate = opt.syllables_classifier_config.learning_rate
 

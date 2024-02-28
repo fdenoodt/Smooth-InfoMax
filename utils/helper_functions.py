@@ -374,6 +374,9 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     ax.set_ylabel('Frequency')
     ax.set_title(title)
 
+    # y axis limit
+    ax.set_ylim(0, 5)
+
     # Save or show the plot
     if file is not None:
         create_log_dir(dir)
@@ -386,8 +389,10 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     if show:
         plt.show()
 
-    plt.clf()
-    plt.cla()
+    # plt.clf()
+    # plt.cla()
+
+    plt.close(fig)
 
 
 # def histogram(sequence, title, dir=None, file=None, show=True):
