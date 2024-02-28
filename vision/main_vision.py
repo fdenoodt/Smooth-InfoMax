@@ -1,5 +1,5 @@
 # example usage:
-# python main_vision.py vis_dir vision_default
+# python -m vision.main_vision vis_dir vision_default
 
 import torch
 import time

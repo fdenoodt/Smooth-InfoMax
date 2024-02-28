@@ -1,5 +1,5 @@
 # Example usage:
-# python -m downstream_classification vis_dir vision_default
+# python -m vision.downstream_classification vis_dir vision_default
 
 import torch
 import numpy as np
