@@ -12,7 +12,7 @@ DATASET = DataSetConfig(
 
 ENCODER_CONFIG = EncoderConfig(
     start_epoch=0,
-    num_epochs=4,
+    num_epochs=1_000,
     negative_samples=16,
     subsample=True,
     architecture=ARCHITECTURE,
