@@ -11,6 +11,9 @@ config_file and overrides are optional. If config_file is not provided, it will 
 """
 
 import argparse
+
+from config_code.config_classes import Dataset, DecoderLoss
+
 from configs.enc_default import _get_options as default_get_options
 
 # Create the parser
@@ -40,11 +43,26 @@ _options = _get_options(experiment_name=experiment_name)
 if args.overrides is not None:
     for override in args.overrides:
         key, value = override.split('=')
+
+        # Handle enums (Dataset Enum)
+        if key.endswith('dataset.dataset'):  # convert into Dataset enum
+            # assert number
+            assert value.isdigit(), f"Value for {key} should be an integer, but it is {value}"
+            value = Dataset(int(value))
+
+        # Loss enum of decoder
+        if key.endswith('decoder_config.decoder_loss'):
+            assert value.isdigit(), f"Value for {key} should be an integer, but it is {value}"
+            value = DecoderLoss(int(value))
+
         keys = key.split('.')
         last_key = keys.pop()
         obj = _options
         for k in keys:
+            if not hasattr(obj, k):
+                raise AttributeError(f"Object {obj} does not have attribute {k}")
             obj = getattr(obj, k)
+
         setattr(obj, last_key, type(getattr(obj, last_key))(value))
 
-get_options = lambda : _options
+get_options = lambda: _options

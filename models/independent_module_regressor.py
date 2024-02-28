@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 from models import (
@@ -65,4 +66,7 @@ class AutoregressorIndependentModule(nn.Module):
         total_loss = total_loss.unsqueeze(0)
         accuracies = accuracies.unsqueeze(0)
 
-        return total_loss, accuracies, z
+        nce_loss = total_loss
+        kld_loss = torch.zeros_like(total_loss)
+
+        return total_loss, accuracies, z, nce_loss, kld_loss

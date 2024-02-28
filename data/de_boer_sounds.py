@@ -1,16 +1,15 @@
+import torch
 from torch.utils.data import Dataset
 import os
 import os.path
 import torchaudio
 from collections import defaultdict
 from config_code.config_classes import DataSetConfig
-
-from data.random_background_noise import GuassianNoise, RandomBackgroundNoise
 from utils.helper_functions import resample, translate_syllable_to_number, translate_syllable_vowel_number
 
 
 def default_loader(path):
-    return torchaudio.load(path)
+    return torchaudio.load(path, normalize=True)
 
 
 def default_flist_reader(flist):
@@ -28,43 +27,32 @@ def default_flist_reader(flist):
 
 
 class DeBoerDataset(Dataset):
-    ''' Corpus of vocals consiting of three syllables per file, spoken by the same speaker. '''
+    ''' Corpus of vocals consisting of three syllables per file, spoken by the same speaker. '''
 
     def __init__(
-        self,
-        dataset_options: DataSetConfig,
-        root,
-        directory="train",
-        loader=default_loader,
-        background_noise=False,
-        white_guassian_noise=False,
-        target_sample_rate=16000,
-        background_noise_path=None,
-        split_into_syllables=False,
+            self,
+            dataset_options: DataSetConfig,
+            root,
+            directory="train",
+            loader=default_loader,
+            target_sample_rate=16000,
     ):
         self.root = root
         self.opt = dataset_options
         self.target_sample_rate = target_sample_rate
-        self.background_noise = background_noise
-        self.white_guassian_noise = white_guassian_noise
-        self.split_into_syllables = split_into_syllables
-        self.initial_sample_rate = 22050 if split_into_syllables else 44100
+        self.split_into_syllables = dataset_options.split_in_syllables
+        self.initial_sample_rate = 22050 if self.split_into_syllables else 44100
 
         files = os.listdir(f"{root}/{directory}")
         # the Nones correspond to speaker_id and dir_id --> see default flist reader
-        self.file_list = [(directory, fname.split(".wav")[0])
-                          for fname in files]
+        self.file_list = [(directory, fname.split(".wav")[0]) for fname in files]
 
         self.loader = loader
         self.audio_length: int = self.compute_audio_length()
 
-        self.white_gaussian_noise_transform = GuassianNoise()
-        self.noise_transform: RandomBackgroundNoise = RandomBackgroundNoise(
-            self.target_sample_rate, background_noise_path) if background_noise else None
-
-        # if background_noise flag is enabled, must also provide a path
-        assert (not(background_noise_path is None)
-                and background_noise) or not(background_noise)
+        # # Mean: 3.260508094626857e-07, Standard Deviation: 0.10727367550134659
+        # self.mean = 3.260508094626857e-07
+        # self.std = 0.10727367550134659
 
     def compute_audio_length(self):
         # Resulting sequences will be of 16khz -> 16k samples per second
@@ -90,27 +78,21 @@ class DeBoerDataset(Dataset):
         if self.split_into_syllables:
             pronounced_syllable = filename[-2:]  # ba
             if self.opt.labels == 'syllables':
-                pronounced_syllable = translate_syllable_to_number(
-                    pronounced_syllable)  # 0
+                pronounced_syllable = translate_syllable_to_number(pronounced_syllable)  # 0
             else:
-                pronounced_syllable = translate_syllable_vowel_number(pronounced_syllable) # either 0, 1 or 2
+                pronounced_syllable = translate_syllable_vowel_number(pronounced_syllable)  # either 0, 1 or 2
 
         else:
             pronounced_syllable = 0  # dummy value as None is not supported by pytorch
 
         audio, samplerate = self.loader(
             os.path.join(self.root, dir_id, f"{filename}.wav"))
+        audio = audio.float()
 
         audio_length_before_resample = audio.size(1)
         assert (
-            samplerate == self.initial_sample_rate
+                samplerate == self.initial_sample_rate
         ), "Watch out, samplerate is not consistent throughout the dataset!"
-
-        # if self.split_into_syllables:
-            # print(audio_length_before_resample)
-            # assert (  # check only relevant for split up/padded audio files
-            #     audio_length_before_resample == 12156  # computed in padding.py, for cropped: 3452
-            # ), f"Audio length is not consistent throughout the dataset! {audio_length_before_resample}, {filename}"
 
         # resample: from 22050 to 16000
         audio = resample(audio,
@@ -118,14 +100,19 @@ class DeBoerDataset(Dataset):
                          new_samplerate=self.target_sample_rate)
         # length which originally was 12156 (all lengths are equal), are now 8821 due to lower samplerate
 
-        # Discard last part that is not a full 10ms
-        audio = audio[:, 0: self.audio_length]  # resulting in 8800 elements
+        # audio = audio[:, 0: self.audio_length]  # 10240 if not split, 8800 if split
 
-        if self.background_noise:
-            audio = self.noise_transform(audio)
+        if not (self.split_into_syllables):
+            audio = audio[:, 0: self.audio_length]
+        else:
+            # no need to cut the audio, as the data is already preprocessed
+            pass
 
-        if self.white_guassian_noise:
-            audio = self.white_gaussian_noise_transform(audio)
+        # TODO
+        # problem: only does the first part, but should consider a random starting point
+
+        # store audio to file
+        # torchaudio.save(f'{filename}.wav', audio, self.target_sample_rate)
 
         return audio, filename, pronounced_syllable, full_word
 

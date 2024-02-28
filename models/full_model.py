@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 
 from config_code.config_classes import OptionsConfig
-from config_code.architecture_config import ArchitectureConfig
-from models import independent_module, independent_module_regressor
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig
+from models import independent_module, independent_module_regressor, independent_module_cpc
 from utils import utils
 
 
@@ -25,8 +25,15 @@ class FullModel(nn.Module):
         architecture: ArchitectureConfig = opt.encoder_config.architecture
         # CNN modules
         for idx, module_config in enumerate(architecture.modules):
+            # only relevant for replicating the CPC model, not for Greedy InfoMax or Smooth Infomax
+            if module_config.is_cnn_and_autoregressor:
+                assert len(architecture.modules) == 1
+                m = module_config
+                self.fullmodel.append(self.cpc_module_from_config(opt, m, calc_accuracy))
+
+
             # Auto-regressor module
-            if module_config.is_autoregressor:
+            elif module_config.is_autoregressor:
                 m = module_config
                 # assert no distributions
                 assert not m.predict_distributions, "Distributions not implemented for autoregressor"
@@ -44,8 +51,24 @@ class FullModel(nn.Module):
                 self.fullmodel.append(indep_module)
 
     @staticmethod
-    def cnn_module_from_config(opt, module_config, calc_accuracy,
-                               is_first_module) -> independent_module.IndependentModule:
+    def cpc_module_from_config(opt, m: ModuleConfig, calc_accuracy) -> independent_module_cpc.CPCIndependentModule:
+        cpc_module = independent_module_cpc.CPCIndependentModule(
+            opt,
+            enc_kernel_sizes=m.kernel_sizes,
+            enc_strides=m.strides,
+            enc_padding=m.padding,
+            nb_channels_cnn=m.cnn_hidden_dim,
+            nb_channels_regress=m.regressor_hidden_dim,
+            max_pool_k_size=m.max_pool_k_size,
+            max_pool_stride=m.max_pool_stride,
+            calc_accuracy=calc_accuracy,
+            prediction_step=m.prediction_step,
+        )
+        return cpc_module
+
+    @staticmethod
+    def cnn_module_from_config(opt, module_config, calc_accuracy, is_first_module) \
+            -> independent_module.IndependentModule:
         kernel_sizes = module_config.kernel_sizes
         strides = module_config.strides
         padding = module_config.padding
@@ -81,13 +104,15 @@ class FullModel(nn.Module):
 
         # first dimension is used for concatenating results from different GPUs
         loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
+        nce_loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
+        kld_loss = torch.zeros(1, len(self.fullmodel), device=cur_device)
         accuracy = torch.zeros(1, len(self.fullmodel), device=cur_device)
 
         for idx, layer in enumerate(self.fullmodel):
-            loss[:, idx], accuracy[:, idx], z = layer(model_input)
+            loss[:, idx], accuracy[:, idx], z, nce_loss[:, idx], kld_loss[:, idx] = layer(model_input)
             model_input = z.permute(0, 2, 1).detach()
 
-        return loss
+        return loss, nce_loss, kld_loss
 
     def forward_through_all_modules(self, x):
         model_input = x
@@ -99,3 +124,13 @@ class FullModel(nn.Module):
 
         context, _ = self.fullmodel[idx].get_latents(model_input)
         return context
+
+    def forward_through_all_cnn_modules(self, x):
+        model_input = x
+
+        for idx, layer in enumerate(self.fullmodel):
+            if idx + 1 < len(self.fullmodel):
+                _, z = layer.get_latents(model_input)
+                model_input = z.permute(0, 2, 1)
+
+        return model_input

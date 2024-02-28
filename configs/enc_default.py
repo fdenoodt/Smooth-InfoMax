@@ -11,7 +11,6 @@ NUM_EPOCHS = 4
 START_EPOCH = 0
 BATCH_SIZE = 8  # 171
 
-
 # Simple architecture v2 # 20480 -> 105 (first module)
 kernel_sizes = [10, 8, 3]
 strides = [4, 3, 1]
@@ -51,7 +50,7 @@ module2 = ModuleConfig(
 ARCHITECTURE = ArchitectureConfig(modules=[module1, module2])
 
 DATASET = DataSetConfig(
-    dataset=Dataset.DE_BOER_RESHUFFLED,
+    dataset=Dataset.DE_BOER,
     split_in_syllables=False,
     batch_size=8,
 )
@@ -81,6 +80,8 @@ def _get_options(experiment_name):
         log_every_x_epochs=1,
         phones_classifier_config=None,
         speakers_classifier_config=None,
+        syllables_classifier_config=None,
+        decoder_config=None,
     )
     return options
 

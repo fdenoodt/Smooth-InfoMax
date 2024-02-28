@@ -7,7 +7,7 @@ import gc
 
 from config_code.config_classes import OptionsConfig, Dataset, ModelType
 from models.full_model import FullModel
-from post_hoc_analysis.main_anal_hidd_repr import run_visualisations
+from post_hoc_analysis.interpretability.main_anal_hidd_repr import run_visualisations
 
 # own modules
 from utils import logger
@@ -16,6 +16,8 @@ from models import load_audio_model
 from data import get_dataloader
 from validation.val_by_syllables import val_by_latent_syllables
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
+
+import wandb
 
 
 def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, test_loader):
@@ -36,11 +38,11 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
     starttime = time.time()
 
     decay_rate = opt.encoder_config.decay_rate
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(
-        optimizer, gamma=decay_rate)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=decay_rate)
 
     start_epoch = opt.encoder_config.start_epoch
     num_epochs = opt.encoder_config.num_epochs
+    global_step = 0
     for epoch in range(start_epoch, num_epochs + start_epoch):
 
         nb_modules = len(opt.encoder_config.architecture.modules)
@@ -61,10 +63,12 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
             # shape: (batch_size, 1, 8800)
             model_input = audio.to(opt.device)
-            loss = model(model_input)  # loss for each module
+            loss, nce, kld = model(model_input)  # loss for each module
 
             # Average over the losses from different GPUs
             loss = torch.mean(loss, 0)
+            nce = torch.mean(nce, 0)
+            kld = torch.mean(kld, 0)
 
             model.zero_grad()
             overall_loss = sum(loss)
@@ -77,6 +81,18 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
+
+            # wandb.log({"loss_0": loss[0], "loss_1": loss[1], "loss_2": loss[2], "loss_3": loss[3]}, step=global_step)
+            # wandb.log({"nce_0": nce[0], "nce_1": nce[1], "nce_2": nce[2], "nce_3": nce[3]}, step=global_step)
+            # wandb.log({"kld_0": kld[0], "kld_1": kld[1], "kld_2": kld[2], "kld_3": kld[3]}, step=global_step)
+            for idx, cur_nce in enumerate(nce):
+                wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
+            for idx, cur_kld in enumerate(kld):
+                wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
+            for idx, cur_losses in enumerate(loss):
+                wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+
+            global_step += 1
 
             if step >= total_step:
                 break
@@ -91,31 +107,26 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
             validation_loss = val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
+            for i, val_loss in enumerate(validation_loss):
+                wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
+
         if (epoch % opt.log_every_x_epochs == 0):
             logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
-def save_latents_and_generate_visualisations(opt):
-    # TODO
-    raise NotImplementedError
-    if opt['perform_analysis']:
-        options_anal = {
-            'LOG_PATH': opt['ANAL_LOG_PATH'],
-            'EPOCH_VERSION': opt['ANAL_EPOCH_VERSION'],
-            'ONLY_LAST_PREDICTION_FROM_TIME_WINDOW': opt['ANAL_ONLY_LAST_PREDICTION_FROM_TIME_WINDOW'],
-            'SAVE_ENCODINGS': opt['ANAL_SAVE_ENCODINGS'],
-            'AUTO_REGRESSOR_AFTER_MODULE': opt['ANAL_AUTO_REGRESSOR_AFTER_MODULE'],
-            'ENCODER_MODEL_DIR': opt['ANAL_ENCODER_MODEL_DIR'],
-            'VISUALISE_LATENT_ACTIVATIONS': opt['ANAL_VISUALISE_LATENT_ACTIVATIONS'],
-            'VISUALISE_TSNE': opt['ANAL_VISUALISE_TSNE'],
-            'VISUALISE_TSNE_ORIGINAL_DATA': opt['ANAL_VISUALISE_TSNE_ORIGINAL_DATA'],
-            'VISUALISE_HISTOGRAMS': opt['ANAL_VISUALISE_HISTOGRAMS']
-        }
-
-        run_visualisations(opt, options_anal)
-
-
 def _main(options: OptionsConfig):
+    if options.encoder_config.architecture.is_cpc:
+        family = "CPC"
+    elif options.encoder_config.architecture.modules[0].predict_distributions:
+        family = "SIM"
+    else:
+        family = "GIM"
+    run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+
+    wandb.init(project="SIM_ENCODER", name=run_name)
+    for key, value in vars(options).items():
+        wandb.config[key] = value
+
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
@@ -124,14 +135,9 @@ def _main(options: OptionsConfig):
     # load model
     model, optimizer = load_audio_model.load_model_and_optimizer(options, None)
 
-    train_w_noise = options.encoder_config.train_w_noise
-    assert not train_w_noise, "Noise not supported yet."
-
     # get datasets and dataloaders
     train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        config=options.encoder_config.dataset,
-        train_noise=train_w_noise,
-        split_and_pad=options.encoder_config.dataset.split_in_syllables)
+        config=options.encoder_config.dataset)
 
     try:
         # Train the model
@@ -141,6 +147,8 @@ def _main(options: OptionsConfig):
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
+
+    wandb.finish()
 
     # TODO:
     # Save_latents_and_generate_visualisations(options)
@@ -162,3 +170,9 @@ def _init(options: OptionsConfig):
 def run_configuration(options: OptionsConfig):
     _init(options)
     _main(options)
+
+
+if __name__ == "__main__":
+    from options import get_options
+
+    run_configuration(get_options())

@@ -3,7 +3,7 @@ from typing import Optional
 import os
 import torch
 
-from config_code.architecture_config import ArchitectureConfig
+from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig
 
 
 class Loss(Enum):
@@ -18,10 +18,10 @@ class Dataset(Enum):
     # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
     LIBRISPEECH = 1
     LIBRISPEECH_SUBSET = 3
-    DE_BOER = 4
-    DE_BOER_RESHUFFLED = 5
-    DE_BOER_RESHUFFLED_V2 = 6
+    DE_BOER = 4  # used to be 5, i think irrelevant for classification
+    # DE_BOER_RESHUFFLED_V2 = 6
     STL10 = 7
+
 
 
 class ModelType(Enum):
@@ -40,18 +40,22 @@ class DataSetConfig:
         self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
-        self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
-        self.limit_train_batches = limit_train_batches
-        self.limit_validation_batches = limit_validation_batches
-        self.grayscale = grayscale
 
         if split_in_syllables:
-            assert dataset in [Dataset.DE_BOER, Dataset.DE_BOER_RESHUFFLED]
+            assert dataset in [Dataset.DE_BOER]
             "split_in_syllables can only be True for de_boer_sounds dataset"
+
+        if (split_in_syllables and dataset in [Dataset.DE_BOER]):
+            assert labels in ["syllables", "vowels"]
 
         if grayscale:
             assert dataset in [Dataset.STL10]
             "grayscale can only be True for STL10 dataset"
+
+        self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
+        self.limit_train_batches = limit_train_batches
+        self.limit_validation_batches = limit_validation_batches
+        self.grayscale = grayscale
 
     def __copy__(self):
         return DataSetConfig(
@@ -102,11 +106,34 @@ class ClassifierConfig:
                f"dataset={self.dataset}, encoder_num={self.encoder_num})"
 
 
+class DecoderLoss(Enum):
+    MSE = 0
+    SPECTRAL = 1
+    MSE_SPECTRAL = 2
+    FFT = 3
+    MSE_FFT = 4
+    MEL = 5
+    MSE_MEL = 6
+
+
+class DecoderConfig:
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+                 architecture: DecoderArchitectureConfig, decoder_loss: DecoderLoss):
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
+        self.dataset = dataset
+        self.encoder_num = encoder_num
+        self.architecture: DecoderArchitectureConfig = architecture
+        self.decoder_loss: DecoderLoss = decoder_loss
+
+
 class OptionsConfig:
     def __init__(self, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
-                 speakers_classifier_config: Optional[ClassifierConfig]):
+                 speakers_classifier_config: Optional[ClassifierConfig],
+                 syllables_classifier_config: Optional[ClassifierConfig],
+                 decoder_config: Optional[DecoderConfig]):
         root_logs = r"./sim_logs/"
 
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
@@ -125,6 +152,8 @@ class OptionsConfig:
         self.encoder_config: EncoderConfig = encoder_config
         self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
+        self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
+        self.decoder_config: Optional[DecoderConfig] = decoder_config
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

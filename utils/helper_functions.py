@@ -374,6 +374,9 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     ax.set_ylabel('Frequency')
     ax.set_title(title)
 
+    # y axis limit
+    ax.set_ylim(0, 5)
+
     # Save or show the plot
     if file is not None:
         create_log_dir(dir)
@@ -386,8 +389,10 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     if show:
         plt.show()
 
-    plt.clf()
-    plt.cla()
+    # plt.clf()
+    # plt.cla()
+
+    plt.close(fig)
 
 
 # def histogram(sequence, title, dir=None, file=None, show=True):
@@ -449,3 +454,7 @@ def translate_syllable_vowel_number(syllable):
 def translate_vowel_number_to_vowel(number):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
     return "a" if number == 0 else "i" if number == 1 else "u"
+
+
+if __name__ == "__main__":
+    pass
