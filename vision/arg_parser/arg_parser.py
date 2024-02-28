@@ -4,6 +4,7 @@ import os
 import torch
 import numpy as np
 
+from config_code.config_classes import OptionsConfig
 from vision.arg_parser import reload_args, GIM_args, general_args
 
 
@@ -25,17 +26,18 @@ def parse_args():
     return opt
 
 
-def create_log_path(opt, add_path_var=""):
+def create_log_path(opt: OptionsConfig, add_path_var=""):
+
     unique_path = False
 
     if opt.save_dir != "":
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", opt.save_dir)
+        opt.log_path = os.path.join(opt.log_path, "logs", opt.save_dir)
         unique_path = True
     elif add_path_var == "features" or add_path_var == "images":
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", add_path_var, os.path.basename(opt.model_path))
+        opt.log_path = os.path.join(opt.log_path, "logs", add_path_var, os.path.basename(opt.model_path))
         unique_path = True
     else:
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", add_path_var, opt.time)
+        opt.log_path = os.path.join(opt.log_path, "logs", add_path_var, opt.time)
 
     # hacky way to avoid overwriting results of experiments when they start at exactly the same time
     while os.path.exists(opt.log_path) and not unique_path:

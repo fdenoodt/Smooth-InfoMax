@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Optional
 import os
 import torch
+import datetime
 
 from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig
 
@@ -21,7 +22,6 @@ class Dataset(Enum):
     DE_BOER = 4  # used to be 5, i think irrelevant for classification
     # DE_BOER_RESHUFFLED_V2 = 6
     STL10 = 7
-
 
 
 class ModelType(Enum):
@@ -133,9 +133,13 @@ class OptionsConfig:
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
                  syllables_classifier_config: Optional[ClassifierConfig],
-                 decoder_config: Optional[DecoderConfig]):
+                 decoder_config: Optional[DecoderConfig],
+                 vision_classifier_config: Optional[ClassifierConfig]
+                 ):
         root_logs = r"./sim_logs/"
 
+        # current time
+        self.time = datetime.datetime.now()
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
         self.seed = seed
         self.validate = validate
@@ -154,6 +158,8 @@ class OptionsConfig:
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
         self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
         self.decoder_config: Optional[DecoderConfig] = decoder_config
+
+        self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

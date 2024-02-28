@@ -126,7 +126,7 @@ class ResNet_Encoder(nn.Module):
                 out_channels=self.in_planes
             )
         elif self.opt.loss == Loss.SUPERVISED_VISUAL:
-            self.loss = Supervised_Loss.Supervised_Loss(opt.encoder_config.dataset, self.in_planes, True)
+            self.loss = Supervised_Loss.Supervised_Loss(opt.encoder_config.dataset, self.in_planes, True, opt.device)
         else:
             raise Exception("Invalid option")
 

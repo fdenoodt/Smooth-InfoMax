@@ -1,12 +1,12 @@
 import torch
-from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig
+from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ClassifierConfig
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 
 ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
 
 DATASET = DataSetConfig(
     dataset=Dataset.STL10,
-    batch_size=8,
+    batch_size=32,
     grayscale=True,
 )
 
@@ -36,6 +36,13 @@ def _get_options(experiment_name):
         phones_classifier_config=None,
         speakers_classifier_config=None,
         syllables_classifier_config=None,
+        vision_classifier_config=ClassifierConfig(
+            learning_rate=0.01,
+            dataset=DATASET,
+            encoder_num="0",
+            num_epochs=20,
+        ),
+
         decoder_config=None,
     )
     return options

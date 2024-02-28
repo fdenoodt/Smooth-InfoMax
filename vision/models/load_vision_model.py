@@ -27,25 +27,25 @@ def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[Cla
     model, num_GPU = model_utils.distribute_over_GPUs(opt, model, num_GPU=num_GPU)
 
     if opt.model_type == ModelType.ONLY_ENCODER:
-        model, optimizer = model_utils.reload_weights_for_training_encoder(
+        model, optimizer = model_utils.reload_weights_for_training_encoder_vision_experiment(
             opt, model, optimizer, reload_model)
     else:  # ModelType.ONLY_DOWNSTREAM_TASK or ModelType.FULLY_SUPERVISED
-        model, optimizer = model_utils.reload_weights_for_training_classifier(
+        model, optimizer = model_utils.reload_weights_for_training_classifier_vision_experiment(
             opt, model, optimizer, reload_model, classifier_config)
 
     return model, optimizer
 
 
-def load_classification_model(opt):
-    if opt.resnet == 34:
-        in_channels = 256
-    else:
-        in_channels = 1024
+def load_classification_model(opt: OptionsConfig):
+    # if opt.resnet == 34: # TODO: add resnet 34
+    #     in_channels = 256
+    # else:
+    in_channels = 1024
 
-    if opt.dataset == "stl10":
-        num_classes = 10
-    else:
-        raise Exception("Invalid option")
+    # if opt.dataset == "stl10":
+    num_classes = 10
+    # else:
+    #     raise Exception("Invalid option")
 
     classification_model = ClassificationModel.ClassificationModel(
         in_channels=in_channels, num_classes=num_classes,

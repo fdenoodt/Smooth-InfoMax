@@ -5,7 +5,7 @@ from config_code.config_classes import OptionsConfig, DataSetConfig, Dataset
 from utils import utils
 
 class Supervised_Loss(nn.Module):
-    def __init__(self, dataset_config: DataSetConfig, hidden_dim, calc_accuracy):
+    def __init__(self, dataset_config: DataSetConfig, hidden_dim, calc_accuracy, device):
         super(Supervised_Loss, self).__init__()
 
         self.dataset_config = dataset_config
@@ -22,7 +22,7 @@ class Supervised_Loss(nn.Module):
 
         self.linear_classifier = nn.Sequential(
             nn.Linear(self.hidden_dim, n_classes)
-        ).to(self.opt.device)
+        ).to(device)
 
         self.classification_loss = nn.CrossEntropyLoss()
 
