@@ -97,10 +97,7 @@ class FullVisionModel(torch.nn.Module):
     def forward(self, x, label, n=3):
         model_input = x
 
-        if self.opt.device.type != "cpu":
-            cur_device = x.get_device()
-        else:
-            cur_device = self.opt.device
+        cur_device = self.opt.device
 
         n_patches_x, n_patches_y = None, None
 

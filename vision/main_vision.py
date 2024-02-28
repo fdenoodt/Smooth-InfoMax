@@ -1,7 +1,11 @@
+# example usage:
+# python main_vision.py vis_dir vision_default
+
 import torch
 import time
 import numpy as np
 
+from config_code.config_classes import ModelType, OptionsConfig
 #### own modules
 from utils import logger
 from vision.arg_parser import arg_parser
@@ -10,14 +14,15 @@ from vision.data import get_dataloader
 from options import get_options
 
 
-def validate(opt, model, test_loader):
+def validate(opt: OptionsConfig, model, test_loader):
     total_step = len(test_loader)
+    model_splits = 3 # TODO
+    # model_splits = opt.model_splits
 
-    loss_epoch = [0 for i in range(opt.model_splits)]
+    loss_epoch = [0 for i in range(model_splits)]
     starttime = time.time()
 
     for step, (img, label) in enumerate(test_loader):
-
         model_input = img.to(opt.device)
         label = label.to(opt.device)
 
@@ -33,23 +38,27 @@ def validate(opt, model, test_loader):
             )
         )
 
-    validation_loss = [x/total_step for x in loss_epoch]
+    validation_loss = [x / total_step for x in loss_epoch]
     return validation_loss
 
 
-def train(opt, model):
+def train(opt: OptionsConfig, model: torch.nn.Module):
     total_step = len(train_loader)
     model.module.switch_calc_loss(True)
 
     print_idx = 100
 
     starttime = time.time()
-    cur_train_module = opt.train_module
+    # cur_train_module = opt.train_module # TODO
+    cur_train_module = 3
 
-    for epoch in range(opt.start_epoch, opt.num_epochs + opt.start_epoch):
+    for epoch in range(opt.encoder_config.start_epoch, opt.encoder_config.num_epochs + opt.encoder_config.start_epoch):
 
-        loss_epoch = [0 for _ in range(opt.model_splits)]
-        loss_updates = [1 for _ in range(opt.model_splits)]
+
+        # model_splits = opt.model_splits # TODO
+        model_splits = 3
+        loss_epoch = [0 for _ in range(model_splits)]
+        loss_updates = [1 for _ in range(model_splits)]
 
         for step, (img, label) in enumerate(train_loader):
 
@@ -57,7 +66,7 @@ def train(opt, model):
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Training Block: {}, Time (s): {:.1f}".format(
                         epoch + 1,
-                        opt.num_epochs + opt.start_epoch,
+                        opt.encoder_config.num_epochs + opt.encoder_config.start_epoch,
                         step,
                         total_step,
                         cur_train_module,
@@ -74,11 +83,12 @@ def train(opt, model):
             loss = torch.mean(loss, 0)  # Take mean over outputs of different GPUs.
             accuracy = torch.mean(accuracy, 0)
 
-            if cur_train_module != opt.model_splits and opt.model_splits > 1:
+            if cur_train_module != model_splits and model_splits > 1:
                 loss = loss[cur_train_module].unsqueeze(0)
 
             model.zero_grad()
-            overall_loss = sum(loss)
+            overall_loss = torch.sum(loss)
+
             overall_loss.backward()
             optimizer.step()
 
@@ -110,8 +120,8 @@ if __name__ == "__main__":
 
     # TODO
     opt.training_dataset = "unlabeled"
-    # grayscale
 
+    opt.model_type = ModelType.ONLY_ENCODER
 
 
     # random seeds
@@ -123,12 +133,13 @@ if __name__ == "__main__":
         torch.backends.cudnn.benchmark = True
 
     # load model
-    model, optimizer = load_vision_model.load_model_and_optimizer(opt)
+    model, optimizer = load_vision_model.load_model_and_optimizer(opt, classifier_config=None)
 
     logs = logger.Logger(opt)
 
     train_loader, _, supervised_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt
+        opt.encoder_config.dataset,
+        purpose_is_unsupervised_learning=True,
     )
 
     if opt.loss == 1:

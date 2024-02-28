@@ -173,9 +173,9 @@ class ResNet_Encoder(nn.Module):
         out = out.permute(0, 3, 1, 2).contiguous()
 
         accuracy = torch.zeros(1)
-        if self.calc_loss and self.opt.loss == 0:
+        if self.calc_loss and self.opt.loss == Loss.INFO_NCE:
             loss = self.loss(out, out)
-        elif self.calc_loss and self.opt.loss == 1:
+        elif self.calc_loss and self.opt.loss == Loss.SUPERVISED_VISUAL:
             loss, accuracy = self.loss(out, label)
         else:
             loss = None

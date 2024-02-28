@@ -32,7 +32,7 @@ def train_logistic_regression(opt, context_model, classification_model, train_lo
             else:
                 with torch.no_grad():
                     _, _, z, _ = context_model(model_input, target)
-                z = z.detach() #double security that no gradients go to representation learning part of model
+                z = z.detach()  # double security that no gradients go to representation learning part of model
 
             prediction = classification_model(z)
 
@@ -69,7 +69,7 @@ def train_logistic_regression(opt, context_model, classification_model, train_lo
 
         if opt.validate:
             # validate the model - in this case, test_loader loads validation data
-            val_acc1, _ , val_loss = test_logistic_regression(
+            val_acc1, _, val_loss = test_logistic_regression(
                 opt, context_model, classification_model, test_loader
             )
             logs.append_val_loss([val_loss])
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     if opt.model_type != 2:
         context_model.eval()
 
-    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt)
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt, purpose_is_unsupervised_learning=False)
 
     classification_model = load_vision_model.load_classification_model(opt)
 

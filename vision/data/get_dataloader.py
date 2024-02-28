@@ -5,11 +5,14 @@ import os
 import numpy as np
 from torchvision.transforms import transforms
 
+from config_code.config_classes import DataSetConfig, Dataset
 
-def get_dataloader(opt):
-    if opt.dataset == "stl10":
+NUM_WORKERS = 0 #1 #16
+
+def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
+    if config.dataset == Dataset.STL10:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = get_stl10_dataloader(
-            opt
+            config, purpose_is_unsupervised_learning
         )
     else:
         raise Exception("Invalid option")
@@ -24,14 +27,14 @@ def get_dataloader(opt):
     )
 
 
-def get_stl10_dataloader(opt):
-    base_folder = os.path.join(opt.data_input_dir, "stl10_binary")
+def get_stl10_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
+    base_folder = os.path.join(config.data_input_dir, "stl10_binary")
 
     aug = {
         "stl10": {
             "randcrop": 64,
             "flip": True,
-            "grayscale": opt.grayscale,
+            "grayscale": config.grayscale,
             "mean": [0.4313, 0.4156, 0.3663],  # values for train+unsupervised combined
             "std": [0.2683, 0.2610, 0.2687],
             "bw_mean": [0.4120],  # values for train+unsupervised combined
@@ -50,7 +53,7 @@ def get_stl10_dataloader(opt):
         split="unlabeled",
         transform=transform_train,
         download=True,
-    ) #set download to True to get the dataset
+    )  # set download to True to get the dataset
 
     train_dataset = torchvision.datasets.STL10(
         base_folder, split="train", transform=transform_train, download=True
@@ -62,62 +65,63 @@ def get_stl10_dataloader(opt):
 
     # default dataset loaders
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=opt.batch_size_multiGPU, shuffle=True, num_workers=16
+        train_dataset, batch_size=config.batch_size_multiGPU, shuffle=True, num_workers=NUM_WORKERS
     )
 
     unsupervised_loader = torch.utils.data.DataLoader(
         unsupervised_dataset,
-        batch_size=opt.batch_size_multiGPU,
+        batch_size=config.batch_size_multiGPU,
         shuffle=True,
-        num_workers=16,
+        num_workers=NUM_WORKERS,
     )
 
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=opt.batch_size_multiGPU, shuffle=False, num_workers=16
+        test_dataset, batch_size=config.batch_size_multiGPU, shuffle=False, num_workers=NUM_WORKERS
     )
 
     # create train/val split
-    if opt.validate:
+    # TODO
+    validate = True
+    if validate:
         print("Use train / val split")
 
-        if opt.training_dataset == "train":
+        # "train" for train, "unlabeled" for unsupervised, "test" for test
+        if purpose_is_unsupervised_learning:
             dataset_size = len(train_dataset)
             train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
             train_loader = torch.utils.data.DataLoader(
                 train_dataset,
-                batch_size=opt.batch_size_multiGPU,
+                batch_size=config.batch_size_multiGPU,
                 sampler=train_sampler,
-                num_workers=16,
+                num_workers=NUM_WORKERS,
             )
-
-        elif opt.training_dataset == "unlabeled":
+        else:  # supervised learning, with the smaller labeled dataset
             dataset_size = len(unsupervised_dataset)
             train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
             unsupervised_loader = torch.utils.data.DataLoader(
                 unsupervised_dataset,
-                batch_size=opt.batch_size_multiGPU,
+                batch_size=config.batch_size_multiGPU,
                 sampler=train_sampler,
-                num_workers=16,
+                num_workers=NUM_WORKERS,
             )
-
-        else:
-            raise Exception("Invalid option")
 
         # overwrite test_dataset and _loader with validation set
         test_dataset = torchvision.datasets.STL10(
             base_folder,
-            split=opt.training_dataset,
+            # split=config.training_dataset,
+            # split can be "train" or "test" or "unlabeled"
+            split="train" if purpose_is_unsupervised_learning else "unlabeled",
             transform=transform_valid,
             download=True,
         )
 
         test_loader = torch.utils.data.DataLoader(
             test_dataset,
-            batch_size=opt.batch_size_multiGPU,
+            batch_size=config.batch_size_multiGPU,
             sampler=valid_sampler,
-            num_workers=16,
+            num_workers=NUM_WORKERS,
         )
 
     else:
