@@ -22,8 +22,6 @@ def parse_args():
     # Device configuration
     opt.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    opt.experiment = "vision"
-
     return opt
 
 

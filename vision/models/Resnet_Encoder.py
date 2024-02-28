@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+from config_code.config_classes import OptionsConfig, Loss
 from vision.models import InfoNCE_Loss, Supervised_Loss
 from utils import model_utils
 
@@ -70,7 +71,7 @@ class PreActBottleneckNoBN(nn.Module):
 class ResNet_Encoder(nn.Module):
     def __init__(
         self,
-        opt,
+        opt: OptionsConfig,
         block,
         num_blocks,
         filter,
@@ -118,21 +119,23 @@ class ResNet_Encoder(nn.Module):
             self.first_stride = 2
 
         ## loss module is always present, but only gets used when training GreedyInfoMax modules
-        if self.opt.loss == 0:
+        if self.opt.loss == Loss.INFO_NCE:
             self.loss = InfoNCE_Loss.InfoNCE_Loss(
                 opt,
                 in_channels=self.in_planes,
                 out_channels=self.in_planes
             )
-        elif self.opt.loss == 1:
-            self.loss = Supervised_Loss.Supervised_Loss(opt, self.in_planes, True)
+        elif self.opt.loss == Loss.SUPERVISED_VISUAL:
+            self.loss = Supervised_Loss.Supervised_Loss(opt.encoder_config.dataset, self.in_planes, True)
         else:
             raise Exception("Invalid option")
 
-        if self.opt.weight_init:
-            self.initialize()
+        # TODO: currently not used
+        # if self.opt.weight_init:
+        #     self.initialize()
 
     def initialize(self):
+        # initialize weights to be delta-orthogonal
         for m in self.modules():
             if isinstance(m, (nn.Conv2d,)):
                 model_utils.makeDeltaOrthogonal(

@@ -1,20 +1,21 @@
 import torch.nn as nn
 import torch
 
+from config_code.config_classes import OptionsConfig, DataSetConfig, Dataset
 from utils import utils
 
 class Supervised_Loss(nn.Module):
-    def __init__(self, opt, hidden_dim, calc_accuracy):
+    def __init__(self, dataset_config: DataSetConfig, hidden_dim, calc_accuracy):
         super(Supervised_Loss, self).__init__()
 
-        self.opt = opt
+        self.dataset_config = dataset_config
 
         self.pool = None
         self.hidden_dim = hidden_dim
         self.calc_accuracy = calc_accuracy
 
         # create linear classifier
-        if opt.dataset == "stl10":
+        if dataset_config.dataset == Dataset.STL10:
             n_classes = 10
         else:
             raise Exception("Other datasets are not implemented yet")

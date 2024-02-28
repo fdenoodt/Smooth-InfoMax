@@ -59,7 +59,8 @@ def reload_weights_for_training_encoder(opt: OptionsConfig, model, optimizer, re
     return _reload_weights(True, opt, model, optimizer, reload_model, None)
 
 
-def reload_weights_for_training_classifier(opt: OptionsConfig, model, optimizer, reload_model, classifier_config: ClassifierConfig):
+def reload_weights_for_training_classifier(opt: OptionsConfig, model, optimizer, reload_model,
+                                           classifier_config: ClassifierConfig):
     return _reload_weights(False, opt, model, optimizer, reload_model, classifier_config)
 
 
@@ -120,6 +121,53 @@ def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, o
                 os.path.join(
                     opt.model_path,
                     "optim_{}.ckpt".format(opt.encoder_config.start_epoch),
+                ),
+                map_location=opt.device.type,
+            )
+        )
+    else:
+        print("Randomly initialized model")
+
+    return model, optimizer
+
+
+def reload_weights_vision_experiment(opt, model, optimizer, reload_model):
+    ## reload weights for training of the linear classifier
+    # model_type 0: train clas
+    if (opt.model_type == 0) and reload_model:  # or opt.model_type == 2)
+        print("Loading weights from ", opt.model_path)
+
+        for idx, layer in enumerate(model.module.encoder):
+            model.module.encoder[idx].load_state_dict(
+                torch.load(
+                    os.path.join(
+                        opt.model_path,
+                        "model_{}_{}.ckpt".format(idx, opt.model_num),
+                    ),
+                    map_location=opt.device.type,
+                )
+            )
+
+    ## reload weights and optimizers for continuing training
+    elif opt.start_epoch > 0:
+        print("Continuing training from epoch ", opt.start_epoch)
+
+        for idx, layer in enumerate(model.module.encoder):
+            model.module.encoder[idx].load_state_dict(
+                torch.load(
+                    os.path.join(
+                        opt.model_path,
+                        "model_{}_{}.ckpt".format(idx, opt.start_epoch),
+                    ),
+                    map_location=opt.device.type,
+                )
+            )
+
+        optimizer.load_state_dict(
+            torch.load(
+                os.path.join(
+                    opt.model_path,
+                    "optim_{}.ckpt".format(opt.start_epoch),
                 ),
                 map_location=opt.device.type,
             )

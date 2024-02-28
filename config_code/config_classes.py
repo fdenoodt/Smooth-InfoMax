@@ -11,6 +11,7 @@ class Loss(Enum):
     INFO_NCE = 0
     SUPERVISED_PHONES = 1
     SUPERVISED_SPEAKER = 2
+    SUPERVISED_VISUAL = 3
 
 
 class Dataset(Enum):
@@ -20,6 +21,7 @@ class Dataset(Enum):
     DE_BOER = 4
     DE_BOER_RESHUFFLED = 5
     DE_BOER_RESHUFFLED_V2 = 6
+    STL10 = 7
 
 
 class ModelType(Enum):
@@ -30,8 +32,9 @@ class ModelType(Enum):
 
 
 class DataSetConfig:
-    def __init__(self, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None,
-                 limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0):
+    def __init__(self, dataset: Dataset, batch_size, labels: Optional[str] = None,
+                 limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
+                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
@@ -40,10 +43,15 @@ class DataSetConfig:
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
+        self.grayscale = grayscale
 
         if split_in_syllables:
             assert dataset in [Dataset.DE_BOER, Dataset.DE_BOER_RESHUFFLED]
             "split_in_syllables can only be True for de_boer_sounds dataset"
+
+        if grayscale:
+            assert dataset in [Dataset.STL10]
+            "grayscale can only be True for STL10 dataset"
 
     def __copy__(self):
         return DataSetConfig(
@@ -105,7 +113,7 @@ class OptionsConfig:
         self.seed = seed
         self.validate = validate
         self.loss = loss
-        self.device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.experiment = experiment
         self.save_dir = save_dir
         self.log_path = f'{root_logs}/{save_dir}'

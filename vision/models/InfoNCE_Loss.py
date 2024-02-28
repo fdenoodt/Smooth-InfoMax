@@ -3,15 +3,16 @@ import torch.nn as nn
 from torch.nn.modules.loss import _WeightedLoss
 import torch.nn.functional as F
 
+from config_code.config_classes import OptionsConfig
 from utils import model_utils
 
 
 class InfoNCE_Loss(nn.Module):
-    def __init__(self, opt, in_channels, out_channels):
+    def __init__(self, opt: OptionsConfig, in_channels, out_channels):
         super().__init__()
         self.opt = opt
-        self.negative_samples = self.opt.negative_samples
-        self.k_predictions = self.opt.prediction_step
+        self.negative_samples = self.opt.encoder_config.negative_samples
+        self.k_predictions = self.opt.encoder_config.negative_samples
 
         self.W_k = nn.ModuleList(
             nn.Conv2d(in_channels, out_channels, 1, bias=False)
@@ -20,8 +21,9 @@ class InfoNCE_Loss(nn.Module):
 
         self.contrast_loss = ExpNLLLoss()
 
-        if self.opt.weight_init:
-            self.initialize()
+        # TODO, temporarily removed
+        # if self.opt.weight_init:
+        #     self.initialize()
 
     def initialize(self):
         for m in self.modules():

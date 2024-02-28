@@ -1,3 +1,5 @@
+wandb/
+lightning_logs/
 thesis-text-alt/*
 GIM/options.py
 GIM/.vscode/settings.json

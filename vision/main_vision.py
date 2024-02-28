@@ -7,6 +7,7 @@ from utils import logger
 from vision.arg_parser import arg_parser
 from vision.models import load_vision_model
 from vision.data import get_dataloader
+from options import get_options
 
 
 def validate(opt, model, test_loader):
@@ -102,9 +103,16 @@ def train(opt, model):
 
 if __name__ == "__main__":
 
-    opt = arg_parser.parse_args()
-    arg_parser.create_log_path(opt)
+    # opt = arg_parser.parse_args()
+    # arg_parser.create_log_path(opt)
+    opt = get_options()
+    assert opt.experiment == "vision"
+
+    # TODO
     opt.training_dataset = "unlabeled"
+    # grayscale
+
+
 
     # random seeds
     torch.manual_seed(opt.seed)

@@ -49,15 +49,15 @@ def get_stl10_dataloader(opt):
         base_folder,
         split="unlabeled",
         transform=transform_train,
-        download=opt.download_dataset,
+        download=True,
     ) #set download to True to get the dataset
 
     train_dataset = torchvision.datasets.STL10(
-        base_folder, split="train", transform=transform_train, download=opt.download_dataset
+        base_folder, split="train", transform=transform_train, download=True
     )
 
     test_dataset = torchvision.datasets.STL10(
-        base_folder, split="test", transform=transform_valid, download=opt.download_dataset
+        base_folder, split="test", transform=transform_valid, download=True
     )
 
     # default dataset loaders
@@ -110,7 +110,7 @@ def get_stl10_dataloader(opt):
             base_folder,
             split=opt.training_dataset,
             transform=transform_valid,
-            download=opt.download_dataset,
+            download=True,
         )
 
         test_loader = torch.utils.data.DataLoader(
