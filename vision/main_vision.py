@@ -1,5 +1,7 @@
 # example usage:
 # python -m vision.main_vision vis_dir vision_default
+# or for Animals_with_Attributes:
+# python -m vision.main_vision vis_dir vision_default --overrides encoder_config.dataset.dataset=8 vision_classifier_config.dataset.dataset=8 encoder_config.num_epochs=200
 
 import torch
 import time

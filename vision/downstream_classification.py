@@ -1,11 +1,14 @@
 # Example usage:
 # python -m vision.downstream_classification vis_dir vision_default
+# or for Animals_with_Attributes dataset:
+# python -m vision.downstream_classification vis_dir vision_default --overrides encoder_config.dataset.dataset=8 vision_classifier_config.dataset.dataset=8 encoder_config.num_epochs=200 vision_classifier_config.encoder_num='199'
 
 import torch
 import numpy as np
 import time
 
 import os
+
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 from config_code.config_classes import OptionsConfig, ModelType, ClassifierConfig, Loss

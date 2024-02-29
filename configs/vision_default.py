@@ -39,7 +39,7 @@ def _get_options(experiment_name):
         vision_classifier_config=ClassifierConfig(
             learning_rate=0.01,
             dataset=DATASET,
-            encoder_num="0",
+            encoder_num=ENCODER_CONFIG.num_epochs - 1,
             num_epochs=20,
         ),
 

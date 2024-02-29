@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import os
 
-from config_code.config_classes import OptionsConfig, ClassifierConfig
+from config_code.config_classes import OptionsConfig, ClassifierConfig, Dataset
 
 
 def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
@@ -130,7 +130,8 @@ def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, o
 
     return model, optimizer
 
-def modify_state_dict(state_dict, model, module_idx):
+
+def modify_state_dict(nb_classes, state_dict, model, module_idx):
     # Remove unexpected keys
     for key in list(state_dict.keys()):
         if "W_k" in key:
@@ -139,16 +140,19 @@ def modify_state_dict(state_dict, model, module_idx):
     nb_hidden_dims = model.module.encoder[module_idx].loss.linear_classifier[0].weight.shape[1]
     # Add missing keys
     # TODO: 50 is the number of classes,
-    state_dict["loss.linear_classifier.0.weight"] = torch.randn(50, nb_hidden_dims)  # replace 50 and 256 with appropriate dimensions
-    state_dict["loss.linear_classifier.0.bias"] = torch.randn(50)  # replace 50 with appropriate dimension
+    state_dict["loss.linear_classifier.0.weight"] = torch.randn(nb_classes,
+                                                                nb_hidden_dims)  # replace 50 and 256 with appropriate dimensions
+    state_dict["loss.linear_classifier.0.bias"] = torch.randn(nb_classes)  # replace 50 with appropriate dimension
 
     return state_dict
+
 
 def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig, model, optimizer, reload_model,
                                                              classifier_config: ClassifierConfig):
     ## reload weights for training of the linear classifier
     if reload_model:
         print("Loading weights from ", opt.model_path)
+        nb_classes = 10 if classifier_config.dataset.dataset == Dataset.STL10 else 50  # AWA2
 
         for idx, layer in enumerate(model.module.encoder):
             # Load the state dictionary
@@ -161,7 +165,7 @@ def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig,
             )
 
             # Modify the state dictionary
-            state_dict = modify_state_dict(state_dict, model, idx)
+            state_dict = modify_state_dict(nb_classes, state_dict, model, idx)
 
             # Load the modified state dictionary into the model
             model.module.encoder[idx].load_state_dict(state_dict)
