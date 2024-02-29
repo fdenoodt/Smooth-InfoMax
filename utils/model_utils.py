@@ -130,6 +130,19 @@ def _reload_weights(purpose_is_train_encoder: bool, opt: OptionsConfig, model, o
 
     return model, optimizer
 
+def modify_state_dict(state_dict, model, module_idx):
+    # Remove unexpected keys
+    for key in list(state_dict.keys()):
+        if "W_k" in key:
+            del state_dict[key]
+
+    nb_hidden_dims = model.module.encoder[module_idx].loss.linear_classifier[0].weight.shape[1]
+    # Add missing keys
+    # TODO: 50 is the number of classes,
+    state_dict["loss.linear_classifier.0.weight"] = torch.randn(50, nb_hidden_dims)  # replace 50 and 256 with appropriate dimensions
+    state_dict["loss.linear_classifier.0.bias"] = torch.randn(50)  # replace 50 with appropriate dimension
+
+    return state_dict
 
 def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig, model, optimizer, reload_model,
                                                              classifier_config: ClassifierConfig):
@@ -138,15 +151,21 @@ def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig,
         print("Loading weights from ", opt.model_path)
 
         for idx, layer in enumerate(model.module.encoder):
-            model.module.encoder[idx].load_state_dict(
-                torch.load(
-                    os.path.join(
-                        opt.model_path,
-                        "model_{}_{}.ckpt".format(idx, classifier_config.encoder_num),
-                    ),
-                    map_location=opt.device.type,
-                )
+            # Load the state dictionary
+            state_dict = torch.load(
+                os.path.join(
+                    opt.model_path,
+                    "model_{}_{}.ckpt".format(idx, classifier_config.encoder_num),
+                ),
+                map_location=opt.device.type,
             )
+
+            # Modify the state dictionary
+            state_dict = modify_state_dict(state_dict, model, idx)
+
+            # Load the modified state dictionary into the model
+            model.module.encoder[idx].load_state_dict(state_dict)
+
     else:
         print("Randomly initialized model")
 
