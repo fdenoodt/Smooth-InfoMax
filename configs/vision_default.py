@@ -5,7 +5,7 @@ from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
 
 DATASET = DataSetConfig(
-    dataset=Dataset.ANIMAL_WITH_ATTRIBUTES,
+    dataset=Dataset.STL10,
     batch_size=32,
     grayscale=True,
 )
