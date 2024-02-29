@@ -27,22 +27,18 @@ def parse_args():
 
 
 def create_log_path(opt: OptionsConfig, add_path_var=""):
+    assert opt.save_dir != "", "save_dir must not be empty"
+    assert opt.log_path != "", "log_path must not be empty"
 
-    unique_path = False
+    # remove ":" from name as windows can't handle it
+    # opt.log_path = opt.log_path.replace(":", "_")
 
-    if opt.save_dir != "":
-        opt.log_path = os.path.join(opt.log_path, "logs", opt.save_dir)
-        unique_path = True
-    elif add_path_var == "features" or add_path_var == "images":
-        opt.log_path = os.path.join(opt.log_path, "logs", add_path_var, os.path.basename(opt.model_path))
-        unique_path = True
-    else:
-        opt.log_path = os.path.join(opt.log_path, "logs", add_path_var, opt.time)
-
-    # hacky way to avoid overwriting results of experiments when they start at exactly the same time
-    while os.path.exists(opt.log_path) and not unique_path:
-        opt.log_path += "_" + str(np.random.randint(100))
+    if add_path_var is not None:  # overwrite the log_path and append the add_path_var
+        opt.log_path = os.path.join(opt.log_path, add_path_var)
 
     if not os.path.exists(opt.log_path):
         os.makedirs(opt.log_path)
+
+    if not os.path.exists(opt.log_path_latent):
+        os.makedirs(opt.log_path_latent)
 
