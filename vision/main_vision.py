@@ -13,10 +13,12 @@ from vision.models import load_vision_model
 from vision.data import get_dataloader
 from options import get_options
 
+import wandb
+
 
 def validate(opt: OptionsConfig, model, test_loader):
     total_step = len(test_loader)
-    model_splits = 3 # TODO
+    model_splits = 3  # TODO
     # model_splits = opt.model_splits
 
     loss_epoch = [0 for i in range(model_splits)]
@@ -52,8 +54,9 @@ def train(opt: OptionsConfig, model: torch.nn.Module):
     # cur_train_module = opt.train_module # TODO
     cur_train_module = 3
 
-    for epoch in range(opt.encoder_config.start_epoch, opt.encoder_config.num_epochs + opt.encoder_config.start_epoch):
+    global_step = 0
 
+    for epoch in range(opt.encoder_config.start_epoch, opt.encoder_config.num_epochs + opt.encoder_config.start_epoch):
 
         # model_splits = opt.model_splits # TODO
         model_splits = 3
@@ -103,9 +106,17 @@ def train(opt: OptionsConfig, model: torch.nn.Module):
                     if opt.loss == 1:
                         print("\t \t Accuracy: \t \t {:.4f}".format(print_acc))
 
+            for idx, cur_losses in enumerate(loss):
+                wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+
+            global_step += 1
+
         if opt.validate:
             validation_loss = validate(opt, model, test_loader)  # Test_loader corresponds to validation set here.
             logs.append_val_loss(validation_loss)
+
+            for i, val_loss in enumerate(validation_loss):
+                wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
 
         logs.append_train_loss([x / loss_updates[idx] for idx, x in enumerate(loss_epoch)])
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
@@ -113,16 +124,14 @@ def train(opt: OptionsConfig, model: torch.nn.Module):
 
 if __name__ == "__main__":
 
+    wandb.init(project="SIM_VISION_ENCODER")
+
     # opt = arg_parser.parse_args()
-    # arg_parser.create_log_path(opt)
     opt = get_options()
+    arg_parser.create_log_path(opt)
     assert opt.experiment == "vision"
 
-    # TODO
-    opt.training_dataset = "unlabeled"
-
     opt.model_type = ModelType.ONLY_ENCODER
-
 
     # random seeds
     torch.manual_seed(opt.seed)
@@ -153,3 +162,5 @@ if __name__ == "__main__":
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
+
+    wandb.finish()

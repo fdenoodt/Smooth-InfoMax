@@ -11,7 +11,6 @@ from torch.utils.data import random_split
 
 NUM_WORKERS = 0  # 1 #16
 
-
 def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
     if config.dataset == Dataset.STL10:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \

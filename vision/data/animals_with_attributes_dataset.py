@@ -54,7 +54,7 @@ class AnimalsWithAttributesDataset(Dataset):
         # im_predicate = self.predicate_binary_mat[im_index, :]
         im_predicate = torch.zeros(85)  # todo
         class_index = self.img_index[index]
-        return im, im_predicate
+        return im, class_index
         # im, #im_predicate, self.img_names[index], im_index
 
     def __len__(self):

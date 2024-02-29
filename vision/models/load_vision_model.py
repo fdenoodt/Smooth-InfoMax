@@ -2,7 +2,7 @@ from typing import Optional
 
 import torch
 
-from config_code.config_classes import OptionsConfig, ClassifierConfig, ModelType
+from config_code.config_classes import OptionsConfig, ClassifierConfig, ModelType, Dataset
 from vision.models import FullModel, ClassificationModel
 from utils import model_utils
 
@@ -43,9 +43,12 @@ def load_classification_model(opt: OptionsConfig):
     in_channels = 1024
 
     # if opt.dataset == "stl10":
-    num_classes = 10
-    # else:
-    #     raise Exception("Invalid option")
+    if opt.vision_classifier_config.dataset.dataset == Dataset.STL10:
+        num_classes = 10
+    elif opt.vision_classifier_config.dataset.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+        num_classes = 50
+    else:
+        raise Exception("Invalid option")
 
     classification_model = ClassificationModel.ClassificationModel(
         in_channels=in_channels, num_classes=num_classes,
