@@ -22,6 +22,7 @@ class Dataset(Enum):
     DE_BOER = 4  # used to be 5, i think irrelevant for classification
     # DE_BOER_RESHUFFLED_V2 = 6
     STL10 = 7
+    ANIMAL_WITH_ATTRIBUTES = 8
 
 
 class ModelType(Enum):
@@ -49,8 +50,8 @@ class DataSetConfig:
             assert labels in ["syllables", "vowels"]
 
         if grayscale:
-            assert dataset in [Dataset.STL10]
-            "grayscale can only be True for STL10 dataset"
+            assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES]
+            "grayscale can only be True for STL10 dataset or ANIMAL_WITH_ATTRIBUTES dataset"
 
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
         self.limit_train_batches = limit_train_batches
