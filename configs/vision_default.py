@@ -12,12 +12,12 @@ DATASET = DataSetConfig(
 
 ENCODER_CONFIG = EncoderConfig(
     start_epoch=0,
-    num_epochs=1_000,
+    num_epochs=200,  # orginal paper was 1_000, nvm, was 300?
     negative_samples=16,
     subsample=True,
     architecture=ARCHITECTURE,
     kld_weight=0.0033,
-    learning_rate=2e-4,  # 0.01  # 0.003 # old: 0.0001,
+    learning_rate=1.5e-4,
     decay_rate=1,
     train_w_noise=False,
     dataset=DATASET

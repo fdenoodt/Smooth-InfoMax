@@ -10,7 +10,7 @@ from config_code.config_classes import DataSetConfig
 class AnimalsWithAttributesDataset(Dataset):
     # https://github.com/dfan/awa2-zero-shot-learning/blob/master/AnimalDataset.py
     def __init__(self, config: DataSetConfig):
-        data_dir = f"{config.data_input_dir}/awa2-dataset/AwA2-data/Animals_with_Attributes2_resized/"
+        data_dir = f"{config.data_input_dir}/awa2-dataset/AwA2-data/Animals_with_Attributes2/"
         self.transform = None
 
         class_to_index = dict()

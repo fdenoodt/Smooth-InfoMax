@@ -19,12 +19,15 @@ from vision.arg_parser import arg_parser
 from vision.models import load_vision_model
 from utils import logger, utils
 
+import wandb
 
-def train_logistic_regression(opt: OptionsConfig, context_model, classification_model, train_loader):
+
+def train_logistic_regression(opt: OptionsConfig, context_model, classification_model, train_loader, wandb_is_on):
     total_step = len(train_loader)
     classification_model.train()
 
     starttime = time.time()
+    global_step = 0
 
     for epoch in range(opt.vision_classifier_config.num_epochs):
         epoch_acc1 = 0
@@ -62,6 +65,11 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             sample_loss = loss.item()
             loss_epoch += sample_loss
 
+            if wandb_is_on:
+                wandb.log({"C/Loss classification": sample_loss, "C/Train accuracy": acc1, "C/Train accuracy5": acc5,
+                           "C/Step": global_step})
+                global_step += 1
+
             if step % 10 == 0:
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Acc1: {:.4f}, Acc5: {:.4f}, Loss: {:.4f}".format(
@@ -84,6 +92,9 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             )
             logs.append_val_loss([val_loss])
 
+            if wandb_is_on:
+                wandb.log({"C/Validation accuracy": val_acc1, "C/Validation loss": val_loss, "C/Epoch": epoch})
+
         print("Overall accuracy for this epoch: ", epoch_acc1 / total_step)
         logs.append_train_loss([loss_epoch / total_step])
         logs.create_log(
@@ -95,7 +106,7 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
         )
 
 
-def test_logistic_regression(opt, context_model, classification_model, test_loader):
+def test_logistic_regression(opt, context_model, classification_model, test_loader, wandb_is_on):
     total_step = len(test_loader)
     context_model.eval()
     classification_model.eval()
@@ -137,6 +148,12 @@ def test_logistic_regression(opt, context_model, classification_model, test_load
             starttime = time.time()
 
     print("Testing Accuracy: ", epoch_acc1 / total_step)
+
+    if wandb_is_on:
+        wandb.log({"C/Test accuracy": epoch_acc1 / total_step,
+                   "C/Test accuracy5": epoch_acc5 / total_step,
+                   "C/Test loss": loss_epoch / total_step})
+
     return epoch_acc1 / total_step, epoch_acc5 / total_step, loss_epoch / total_step
 
 
@@ -146,11 +163,22 @@ if __name__ == "__main__":
 
     opt.loss = Loss.SUPERVISED_VISUAL
 
-    add_path_var = "linear_model_vision"
-
-    arg_parser.create_log_path(opt, add_path_var=add_path_var)
-
     assert opt.vision_classifier_config is not None, "Classifier config is not set"
+
+    # Check if the wandb_run_id.txt file exists
+    wandb_is_on = False
+    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
+        # If the file exists, read the run id from the file
+        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
+            run_id = f.read().strip()
+
+        # Initialize a wandb run with the same run id
+        wandb.init(id=run_id, resume="allow")
+        wandb_is_on = True
+
+    # order is important! first wandb.init, then create log path
+    add_path_var = "linear_model_vision"
+    arg_parser.create_log_path(opt, add_path_var=add_path_var)
 
     # random seeds
     torch.manual_seed(opt.seed)
@@ -185,11 +213,11 @@ if __name__ == "__main__":
 
     try:
         # Train the model
-        train_logistic_regression(opt, context_model, classification_model, train_loader)
+        train_logistic_regression(opt, context_model, classification_model, train_loader, wandb_is_on)
 
         # Test the model
         acc1, acc5, _ = test_logistic_regression(
-            opt, context_model, classification_model, test_loader
+            opt, context_model, classification_model, test_loader, wandb_is_on
         )
 
     except KeyboardInterrupt:

@@ -6,6 +6,7 @@
 import torch
 import time
 import numpy as np
+import os
 
 from config_code.config_classes import ModelType, OptionsConfig
 #### own modules
@@ -126,12 +127,22 @@ def train(opt: OptionsConfig, model: torch.nn.Module):
 
 if __name__ == "__main__":
 
-    wandb.init(project="SIM_VISION_ENCODER")
-
-    # opt = arg_parser.parse_args()
     opt = get_options()
-    arg_parser.create_log_path(opt)
     assert opt.experiment == "vision"
+
+    dataset = opt.encoder_config.dataset.dataset
+    arg_parser.create_log_path(opt)
+
+    wandb.init(project=f"SIM_VISION_ENCODER_{dataset}")
+    for key, value in vars(opt).items():
+        wandb.config[key] = value
+
+    # After initializing the wandb run, get the run id
+    run_id = wandb.run.id
+    # Save the run id to a file in the logs directory
+    with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
+        f.write(run_id)
+
 
     opt.model_type = ModelType.ONLY_ENCODER
 
