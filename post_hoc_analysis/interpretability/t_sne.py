@@ -15,6 +15,9 @@ import torch.nn as nn
 import time
 import numpy as np
 
+import os
+import wandb
+
 ## own modules
 from config_code.config_classes import OptionsConfig, ModelType, Dataset, DataSetConfig
 from models.full_model import FullModel
@@ -26,7 +29,7 @@ from models import load_audio_model
 
 
 def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.ndarray, gim_name: str,
-              lr: Union[float, str], n_iter: int, perplexity: int):
+              lr: Union[float, str], n_iter: int, perplexity: int, wandb_is_on: bool):
     # eg target_dir = 'analyse_hidden_repr//hidden_repr_vis/split/module=1/test/'
 
     projection = TSNE(
@@ -51,8 +54,11 @@ def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.n
 
     print(f"Saved t-SNE plot to {save_dir}/{file}.png")
 
+    if wandb_is_on:
+        wandb.log({f"t-SNE_latent_space_{gim_name}": [wandb.Image(f"{save_dir}/{file}.png")]})
 
-def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max_dim: int):
+
+def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max_dim: int, wandb_is_on: bool):
     # feature_space_per_channel: (nb_channels, batch_size, seq_len)
     save_dir = opt.log_path
 
@@ -70,18 +76,8 @@ def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max
 
         print(f"Saved t-SNE plot to {save_dir}/{file}.png")
 
-
-def scatter_plot_2dims(dim1: np.ndarray, dim2: np.ndarray, title: str, dir: str, file: str, show: bool = True):
-    # dim1, dim2: (batch_size, seq_len)
-    assert dim1.shape == dim2.shape
-
-    save_dir = dir
-    file = f"_ scatter_plot_{file}.png"  # Add the file extension here
-
-    # scatter_2dims(dim1, dim2,
-    #               title=title, dir=save_dir, file=file, show=show)
-
-    print(f"Saved scatter plot to {save_dir}/{file}.png")
+        if wandb_is_on and idx < 32:  # max_images = 32 images
+            wandb.log({f"distribution_latent_space_{gim_name}_dim={idx}": [wandb.Image(f"{save_dir}/{file}.png")]})
 
 
 def _get_data_from_loader(loader, encoder: FullModel, opt: OptionsConfig, final_module: str):
@@ -119,6 +115,18 @@ def main():
     opt: OptionsConfig = get_options()
 
     classifier_config = opt.syllables_classifier_config
+
+    # Check if the wandb_run_id.txt file exists
+    wandb_is_on = False
+    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
+        # If the file exists, read the run id from the file
+        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
+            run_id = f.read().strip()
+
+        # Initialize a wandb run with the same run id
+        wandb.init(id=run_id, resume="allow")
+        wandb_is_on = True
+
     arg_parser.create_log_path(opt, add_path_var="post_hoc")
 
     # random seeds
@@ -156,9 +164,9 @@ def main():
     all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
     lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
     plot_tsne(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-              lr=lr, n_iter=n_iter, perplexity=perplexity)
+              lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
 
-    # # retrieve full data that encoder was trained on
+    # retrieve full data that encoder was trained on
     data_config.split_in_syllables = False
     train_loader_full, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
     all_audio, all_labels = _get_data_from_loader(train_loader_full, context_model.module, opt, "final_cnn")
@@ -166,11 +174,11 @@ def main():
     # plot histograms
     # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
     audio_per_channel = np.moveaxis(all_audio, 2, 0)
-    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=64)
+    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=wandb_is_on)
 
-    # plot 2 channels of audio_per_channels on a scatter plot
-    # scatter_plot_2dims(audio_per_channel[0], all_labels, "Scatter plot of 2 dimensions of audio_per_channel[0]",
-    #                    opt.log_path, "scatter_plot_2dims_audio_per_channel_0", show=False)
+    print("Finished")
+    if wandb_is_on:
+        wandb.finish()
 
 
 if __name__ == "__main__":
