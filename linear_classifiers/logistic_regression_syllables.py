@@ -16,12 +16,17 @@ from arg_parser import arg_parser
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 
+import wandb
+import os
 
-def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer):
+
+def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer,
+          wandb_is_on: bool):
     total_step = len(train_loader)
     print_idx = 100
 
     num_epochs = opt.syllables_classifier_config.num_epochs
+    global_step = 0
 
     for epoch in range(num_epochs):
         loss_epoch = 0
@@ -62,6 +67,12 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             sample_loss = total_loss.item()
             accuracy = accuracies.item()
 
+            if wandb_is_on:
+                wandb.log({"C syll/Loss classification": sample_loss,
+                           "C syll/Train accuracy": accuracy,
+                           "C syll/Step": global_step})
+                global_step += 1
+
             if i % print_idx == 0:
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
@@ -82,7 +93,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
         logs.append_train_loss([loss_epoch / total_step])
 
 
-def test(opt, context_model, loss, data_loader):
+def test(opt, context_model, loss, data_loader, wandb_is_on: bool):
     loss.eval()
     accuracy = 0
     loss_epoch = 0
@@ -120,6 +131,10 @@ def test(opt, context_model, loss, data_loader):
     loss_epoch = loss_epoch / len(data_loader)
     print("Final Testing Accuracy: ", accuracy)
     print("Final Testing Loss: ", loss_epoch)
+
+    if wandb_is_on:
+        wandb.log({"C syll/Test accuracy": accuracy,
+                   "C syll/Test loss": loss_epoch})
     return loss_epoch, accuracy
 
 
@@ -137,6 +152,17 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
+    # Check if the wandb_run_id.txt file exists
+    wandb_is_on = False
+    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
+        # If the file exists, read the run id from the file
+        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
+            run_id = f.read().strip()
+
+        # Initialize a wandb run with the same run id
+        wandb.init(id=run_id, resume="allow")
+        wandb_is_on = True
+
     arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
 
     # random seeds
@@ -147,12 +173,12 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,
-        reload_model=True,# if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
+        reload_model=True,  # if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK else False,
         calc_accuracy=True,
         num_GPU=1,
     )
 
-    n_features = context_model.module.output_dim # 256 or 512
+    n_features = context_model.module.output_dim  # 256 or 512
     loss = Syllables_Loss(opt, n_features, calc_accuracy=True)
     learning_rate = opt.syllables_classifier_config.learning_rate
 
@@ -172,10 +198,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     try:
         # Train the model
-        train(opt, context_model, loss, logs, train_loader, optimizer)
+        train(opt, context_model, loss, logs, train_loader, optimizer, wandb_is_on)
 
         # Test the model
-        result_loss, accuracy = test(opt, context_model, loss, test_loader)
+        result_loss, accuracy = test(opt, context_model, loss, test_loader, wandb_is_on)
 
     except KeyboardInterrupt:
         print("Training interrupted, saving log files")
