@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Optional
 import os
 import torch
+import datetime
 
 from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig
 
@@ -11,15 +12,17 @@ class Loss(Enum):
     INFO_NCE = 0
     SUPERVISED_PHONES = 1
     SUPERVISED_SPEAKER = 2
+    SUPERVISED_VISUAL = 3
 
 
 class Dataset(Enum):
     # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
     LIBRISPEECH = 1
     LIBRISPEECH_SUBSET = 3
-    # DE_BOER = 4
     DE_BOER = 4  # used to be 5, i think irrelevant for classification
     # DE_BOER_RESHUFFLED_V2 = 6
+    STL10 = 7
+    ANIMAL_WITH_ATTRIBUTES = 8
 
 
 class ModelType(Enum):
@@ -30,8 +33,9 @@ class ModelType(Enum):
 
 
 class DataSetConfig:
-    def __init__(self, dataset: Dataset, split_in_syllables, batch_size, labels: Optional[str] = None,
-                 limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0):
+    def __init__(self, dataset: Dataset, batch_size, labels: Optional[str] = None,
+                 limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
+                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
@@ -45,9 +49,14 @@ class DataSetConfig:
         if (split_in_syllables and dataset in [Dataset.DE_BOER]):
             assert labels in ["syllables", "vowels"]
 
+        if grayscale:
+            assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES]
+            "grayscale can only be True for STL10 dataset or ANIMAL_WITH_ATTRIBUTES dataset"
+
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
+        self.grayscale = grayscale
 
     def __copy__(self):
         return DataSetConfig(
@@ -125,9 +134,13 @@ class OptionsConfig:
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
                  syllables_classifier_config: Optional[ClassifierConfig],
-                 decoder_config: Optional[DecoderConfig]):
+                 decoder_config: Optional[DecoderConfig],
+                 vision_classifier_config: Optional[ClassifierConfig]
+                 ):
         root_logs = r"./sim_logs/"
 
+        # current time
+        self.time = datetime.datetime.now()
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
         self.seed = seed
         self.validate = validate
@@ -146,6 +159,8 @@ class OptionsConfig:
         self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
         self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
         self.decoder_config: Optional[DecoderConfig] = decoder_config
+
+        self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

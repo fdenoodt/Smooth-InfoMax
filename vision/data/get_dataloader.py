@@ -5,12 +5,19 @@ import os
 import numpy as np
 from torchvision.transforms import transforms
 
+from config_code.config_classes import DataSetConfig, Dataset
+from vision.data.animals_with_attributes_dataset import AnimalsWithAttributesDataset
+from torch.utils.data import random_split
 
-def get_dataloader(opt):
-    if opt.dataset == "stl10":
-        train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = get_stl10_dataloader(
-            opt
-        )
+NUM_WORKERS = 0  # 1 #16
+
+def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
+    if config.dataset == Dataset.STL10:
+        train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
+            get_stl10_dataloader(config, purpose_is_unsupervised_learning)
+    elif config.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+        train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
+            get_animal_with_attributes_dataloader(config, purpose_is_unsupervised_learning)
     else:
         raise Exception("Invalid option")
 
@@ -24,14 +31,63 @@ def get_dataloader(opt):
     )
 
 
-def get_stl10_dataloader(opt):
-    base_folder = os.path.join(opt.data_input_dir, "stl10_binary")
+def get_animal_with_attributes_dataloader(config: DataSetConfig, _: bool):
+    aug = {
+        "animal_with_attributes": {
+            "randcrop": 64,  # todo, maybe should work on 128x128 images
+            "flip": True,
+            "grayscale": config.grayscale,
+        }
+    }
+    transform_train = transforms.Compose(
+        [get_transforms(eval=False, aug=aug["animal_with_attributes"])]
+    )
+    transform_valid = transforms.Compose(
+        [get_transforms(eval=True, aug=aug["animal_with_attributes"])]
+    )
+
+    awa = AnimalsWithAttributesDataset(config)  # will be overwritten later
+
+    # Determine the lengths of splits
+    train_len = int(len(awa) * 0.7)
+    val_len = int(len(awa) * 0.15)
+    test_len = len(awa) - train_len - val_len
+
+    # Split the dataset
+    train_dataset, val_dataset, test_dataset = random_split(
+        awa, [train_len, val_len, test_len])
+
+    # Apply the transformations to the datasets
+    train_dataset.dataset.transform = transform_train
+    val_dataset.dataset.transform = transform_valid
+
+    # default dataset loaders
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=config.batch_size_multiGPU, shuffle=True, num_workers=NUM_WORKERS
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=config.batch_size_multiGPU, shuffle=False, num_workers=NUM_WORKERS
+    )
+
+    return (
+        train_loader,
+        train_dataset,
+        train_loader,
+        train_dataset,
+        test_loader,
+        test_dataset,
+    )
+
+
+def get_stl10_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
+    base_folder = os.path.join(config.data_input_dir, "stl10_binary")
 
     aug = {
         "stl10": {
             "randcrop": 64,
             "flip": True,
-            "grayscale": opt.grayscale,
+            "grayscale": config.grayscale,
             "mean": [0.4313, 0.4156, 0.3663],  # values for train+unsupervised combined
             "std": [0.2683, 0.2610, 0.2687],
             "bw_mean": [0.4120],  # values for train+unsupervised combined
@@ -49,75 +105,75 @@ def get_stl10_dataloader(opt):
         base_folder,
         split="unlabeled",
         transform=transform_train,
-        download=opt.download_dataset,
-    ) #set download to True to get the dataset
+        download=True,
+    )  # set download to True to get the dataset
 
     train_dataset = torchvision.datasets.STL10(
-        base_folder, split="train", transform=transform_train, download=opt.download_dataset
+        base_folder, split="train", transform=transform_train, download=True
     )
 
     test_dataset = torchvision.datasets.STL10(
-        base_folder, split="test", transform=transform_valid, download=opt.download_dataset
+        base_folder, split="test", transform=transform_valid, download=True
     )
 
     # default dataset loaders
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=opt.batch_size_multiGPU, shuffle=True, num_workers=16
+        train_dataset, batch_size=config.batch_size_multiGPU, shuffle=True, num_workers=NUM_WORKERS
     )
 
     unsupervised_loader = torch.utils.data.DataLoader(
         unsupervised_dataset,
-        batch_size=opt.batch_size_multiGPU,
+        batch_size=config.batch_size_multiGPU,
         shuffle=True,
-        num_workers=16,
+        num_workers=NUM_WORKERS,
     )
 
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=opt.batch_size_multiGPU, shuffle=False, num_workers=16
+        test_dataset, batch_size=config.batch_size_multiGPU, shuffle=False, num_workers=NUM_WORKERS
     )
 
     # create train/val split
-    if opt.validate:
+    validate = True
+    if validate:
         print("Use train / val split")
 
-        if opt.training_dataset == "train":
+        # "train" for train, "unlabeled" for unsupervised, "test" for test
+        if purpose_is_unsupervised_learning:
             dataset_size = len(train_dataset)
             train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
             train_loader = torch.utils.data.DataLoader(
                 train_dataset,
-                batch_size=opt.batch_size_multiGPU,
+                batch_size=config.batch_size_multiGPU,
                 sampler=train_sampler,
-                num_workers=16,
+                num_workers=NUM_WORKERS,
             )
-
-        elif opt.training_dataset == "unlabeled":
+        else:  # supervised learning, with the smaller labeled dataset
             dataset_size = len(unsupervised_dataset)
             train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
             unsupervised_loader = torch.utils.data.DataLoader(
                 unsupervised_dataset,
-                batch_size=opt.batch_size_multiGPU,
+                batch_size=config.batch_size_multiGPU,
                 sampler=train_sampler,
-                num_workers=16,
+                num_workers=NUM_WORKERS,
             )
-
-        else:
-            raise Exception("Invalid option")
 
         # overwrite test_dataset and _loader with validation set
         test_dataset = torchvision.datasets.STL10(
             base_folder,
-            split=opt.training_dataset,
+            # split=config.training_dataset,
+            # split can be "train" or "test" or "unlabeled"
+            split="train" if purpose_is_unsupervised_learning else "unlabeled",
             transform=transform_valid,
-            download=opt.download_dataset,
+            download=True,
         )
 
         test_loader = torch.utils.data.DataLoader(
             test_dataset,
-            batch_size=opt.batch_size_multiGPU,
+            batch_size=config.batch_size_multiGPU,
             sampler=valid_sampler,
-            num_workers=16,
+            num_workers=NUM_WORKERS,
         )
 
     else:
@@ -154,24 +210,35 @@ def create_validation_sampler(dataset_size):
 def get_transforms(eval=False, aug=None):
     trans = []
 
-    if aug["randcrop"] and not eval:
+    # also check if key is present
+    if "randcrop" in aug and aug["randcrop"] and not eval:
         trans.append(transforms.RandomCrop(aug["randcrop"]))
 
-    if aug["randcrop"] and eval:
+    if "randcrop" in aug and aug["randcrop"] and eval:
         trans.append(transforms.CenterCrop(aug["randcrop"]))
 
-    if aug["flip"] and not eval:
+    if "flip" in aug and aug["flip"] and not eval:
         trans.append(transforms.RandomHorizontalFlip())
 
-    if aug["grayscale"]:
+    if "grayscale" in aug and aug["grayscale"]:
         trans.append(transforms.Grayscale())
         trans.append(transforms.ToTensor())
-        trans.append(transforms.Normalize(mean=aug["bw_mean"], std=aug["bw_std"]))
-    elif aug["mean"]:
+        if "bw_mean" in aug and aug["bw_mean"]:
+            trans.append(transforms.Normalize(mean=aug["bw_mean"], std=aug["bw_std"]))
+
+    elif "mean" in aug and aug["mean"]:
         trans.append(transforms.ToTensor())
-        trans.append(transforms.Normalize(mean=aug["mean"], std=aug["std"]))
+
+        if "mean" in aug and aug["mean"]:
+            trans.append(transforms.Normalize(mean=aug["mean"], std=aug["std"]))
     else:
         trans.append(transforms.ToTensor())
 
     trans = transforms.Compose(trans)
     return trans
+
+
+if __name__ == "__main__":
+    generator1 = torch.Generator().manual_seed(42)
+    x, y = random_split(range(10), [3, 7], generator=generator1)
+    print(x.indices, y.indices)

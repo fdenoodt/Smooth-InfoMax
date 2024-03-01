@@ -15,6 +15,10 @@ class Logger:
     def __init__(self, opt: OptionsConfig):
         self.opt = opt
 
+        # create log_dir if not exist
+        if not os.path.exists(opt.log_path):
+            os.makedirs(opt.log_path)
+
         modules = opt.encoder_config.architecture.modules
         nb_modules = len(modules)
         if opt.validate:

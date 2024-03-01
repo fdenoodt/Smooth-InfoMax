@@ -4,6 +4,7 @@ import os
 import torch
 import numpy as np
 
+from config_code.config_classes import OptionsConfig
 from vision.arg_parser import reload_args, GIM_args, general_args
 
 
@@ -22,27 +23,22 @@ def parse_args():
     # Device configuration
     opt.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    opt.experiment = "vision"
-
     return opt
 
 
-def create_log_path(opt, add_path_var=""):
-    unique_path = False
+def create_log_path(opt: OptionsConfig, add_path_var=""):
+    assert opt.save_dir != "", "save_dir must not be empty"
+    assert opt.log_path != "", "log_path must not be empty"
 
-    if opt.save_dir != "":
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", opt.save_dir)
-        unique_path = True
-    elif add_path_var == "features" or add_path_var == "images":
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", add_path_var, os.path.basename(opt.model_path))
-        unique_path = True
-    else:
-        opt.log_path = os.path.join(opt.data_output_dir, "logs", add_path_var, opt.time)
+    # remove ":" from name as windows can't handle it
+    # opt.log_path = opt.log_path.replace(":", "_")
 
-    # hacky way to avoid overwriting results of experiments when they start at exactly the same time
-    while os.path.exists(opt.log_path) and not unique_path:
-        opt.log_path += "_" + str(np.random.randint(100))
+    if add_path_var is not None:  # overwrite the log_path and append the add_path_var
+        opt.log_path = os.path.join(opt.log_path, add_path_var)
 
     if not os.path.exists(opt.log_path):
         os.makedirs(opt.log_path)
+
+    if not os.path.exists(opt.log_path_latent):
+        os.makedirs(opt.log_path_latent)
 

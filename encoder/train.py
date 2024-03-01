@@ -1,4 +1,4 @@
-# %%
+import os
 import torch
 import time
 import numpy as np
@@ -126,6 +126,12 @@ def _main(options: OptionsConfig):
     wandb.init(project="SIM_ENCODER", name=run_name)
     for key, value in vars(options).items():
         wandb.config[key] = value
+
+    # After initializing the wandb run, get the run id
+    run_id = wandb.run.id
+    # Save the run id to a file in the logs directory
+    with open(os.path.join(options.log_path, 'wandb_run_id.txt'), 'w') as f:
+        f.write(run_id)
 
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
