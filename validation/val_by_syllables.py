@@ -1,9 +1,11 @@
 import torch
 import numpy as np
+
+from config_code.config_classes import OptionsConfig, DataSetConfig
 from utils import utils
 
 
-def val_by_latent_syllables(opt, dataloader, model, epoch, step):
+def val_by_latent_syllables(opt: DataSetConfig, device, dataloader, model, epoch, step):
     """
     Validate the training process by plotting the t-SNE
     representation of the latent space for different speakers
@@ -15,12 +17,12 @@ def val_by_latent_syllables(opt, dataloader, model, epoch, step):
     batch_latent_representations_per_module = []
     syllable_labels = []
 
-    batch_size = opt["batch_size"]
+    batch_size = opt.batch_size
 
     # one batch
     with torch.no_grad():
         _, (audios, _, pronounced_syllables, _) = next(enumerate(dataloader))
-        model_input = audios.to(opt.device)
+        model_input = audios.to(device)
 
         # iterate over layers
         for idx, layer in enumerate(model.module.fullmodel):
