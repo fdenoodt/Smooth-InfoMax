@@ -68,9 +68,10 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             accuracy = accuracies.item()
 
             if wandb_is_on:
-                wandb.log({"C syll/Loss classification": sample_loss,
-                           "C syll/Train accuracy": accuracy,
-                           "C syll/Step": global_step})
+                label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
+                wandb.log({f"C {label_type}/Loss classification": sample_loss,
+                           f"C {label_type}/Train accuracy": accuracy,
+                           f"C {label_type}/Step": global_step})
                 global_step += 1
 
             if i % print_idx == 0:
@@ -133,12 +134,13 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool):
     print("Final Testing Loss: ", loss_epoch)
 
     if wandb_is_on:
-        wandb.log({"C syll/Test accuracy": accuracy,
-                   "C syll/Test loss": loss_epoch})
+        label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
+        wandb.log({f"C {label_type}/Test accuracy": accuracy,
+                   f"C {label_type}/Test loss": loss_epoch})
     return loss_epoch, accuracy
 
 
-def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
+def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
@@ -146,6 +148,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     # opt.model_type = ModelType.FULLY_SUPERVISED
 
     classifier_config = opt.syllables_classifier_config
+    classifier_config.labels = "syllables" if syllables else "vowels"
 
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
@@ -163,7 +166,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         wandb.init(id=run_id, resume="allow")
         wandb_is_on = True
 
-    arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
+    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.labels}")
 
     # random seeds
     torch.manual_seed(opt.seed)
@@ -210,4 +213,5 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
 
 if __name__ == "__main__":
-    main()
+    main(syllables=True)  # syllables classification
+    main(syllables=False)  # vowel classification
