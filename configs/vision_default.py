@@ -6,7 +6,7 @@ ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
 
 DATASET = DataSetConfig(
     dataset=Dataset.STL10,
-    batch_size=32,
+    batch_size=16,
     grayscale=True,
 )
 
