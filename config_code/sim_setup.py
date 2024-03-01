@@ -157,6 +157,7 @@ class SIMSetup:
             speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
             syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
             decoder_config=self.DECODER_CONFIG,
+            vision_classifier_config=None
         )
 
         return options
