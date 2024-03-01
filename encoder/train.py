@@ -51,8 +51,9 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
         for step, (audio, _, _, _) in enumerate(train_loader):
 
             # validate training progress by plotting latent representation of various speakers
-            if step % latent_val_idx == 0 and opt.encoder_config.dataset.dataset == Dataset.DE_BOER:
-                val_by_latent_syllables(opt.encoder_config.dataset, opt.device, test_loader, model, epoch, step)
+            # TODO
+            # if step % latent_val_idx == 0 and opt.encoder_config.dataset.dataset == Dataset.DE_BOER:
+            #     val_by_latent_syllables(opt.encoder_config.dataset, opt.device, test_loader, model, epoch, step)
 
             if step % print_idx == 0:
                 print(
