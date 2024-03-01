@@ -7,7 +7,7 @@ import time
 import numpy as np
 
 ## own modules
-from config_code.config_classes import OptionsConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig
 from models.full_model import FullModel
 from options import get_options
 from data import get_dataloader
@@ -147,8 +147,8 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     # fully supervised:
     # opt.model_type = ModelType.FULLY_SUPERVISED
 
-    classifier_config = opt.syllables_classifier_config
-    classifier_config.labels = "syllables" if syllables else "vowels"
+    classifier_config: ClassifierConfig = opt.syllables_classifier_config
+    classifier_config.dataset.labels = "syllables" if syllables else "vowels"
 
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
@@ -166,7 +166,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
         wandb.init(id=run_id, resume="allow")
         wandb_is_on = True
 
-    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.labels}")
+    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}")
 
     # random seeds
     torch.manual_seed(opt.seed)
