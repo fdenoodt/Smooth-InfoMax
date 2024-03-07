@@ -1,3 +1,7 @@
+# Example usage:
+# de_boer dataset:
+# python -m encoder.train temp sim_audio_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
+
 import os
 import torch
 import time
@@ -83,15 +87,14 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
-            # wandb.log({"loss_0": loss[0], "loss_1": loss[1], "loss_2": loss[2], "loss_3": loss[3]}, step=global_step)
-            # wandb.log({"nce_0": nce[0], "nce_1": nce[1], "nce_2": nce[2], "nce_3": nce[3]}, step=global_step)
-            # wandb.log({"kld_0": kld[0], "kld_1": kld[1], "kld_2": kld[2], "kld_3": kld[3]}, step=global_step)
             for idx, cur_nce in enumerate(nce):
                 wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
             for idx, cur_kld in enumerate(kld):
                 wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
             for idx, cur_losses in enumerate(loss):
                 wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+
+            wandb.log({'epoch': epoch}, step=global_step)
 
             global_step += 1
 
@@ -112,7 +115,7 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
 
         if (epoch % opt.log_every_x_epochs == 0):
-            logs.create_log(model, epoch=epoch, optimizer=optimizer)
+            logs.create_log(model, optimizer=optimizer, epoch=epoch)
 
 
 def _main(options: OptionsConfig):
@@ -124,7 +127,8 @@ def _main(options: OptionsConfig):
         family = "GIM"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
 
-    wandb.init(project="SIM_ENCODER", name=run_name)
+    project_name = "SIM_ENCODER"
+    wandb.init(project=project_name, name=run_name)
     for key, value in vars(options).items():
         wandb.config[key] = value
 
@@ -133,6 +137,8 @@ def _main(options: OptionsConfig):
     # Save the run id to a file in the logs directory
     with open(os.path.join(options.log_path, 'wandb_run_id.txt'), 'w') as f:
         f.write(run_id)
+        # write project name to file
+        f.write(f"\nproject_name: {project_name}")
 
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
