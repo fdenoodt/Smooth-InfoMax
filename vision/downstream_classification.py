@@ -67,7 +67,7 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
 
             if wandb_is_on:
                 wandb.log({"C/Loss classification": sample_loss, "C/Train accuracy": acc1, "C/Train accuracy5": acc5,
-                           "C/Step": global_step})
+                           "C/Step": global_step, "C/Epoch": epoch})
                 global_step += 1
 
             if step % 10 == 0:
@@ -88,7 +88,7 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
         if opt.validate:
             # validate the model - in this case, test_loader loads validation data
             val_acc1, _, val_loss = test_logistic_regression(
-                opt, context_model, classification_model, test_loader
+                opt, context_model, classification_model, test_loader, wandb_is_on
             )
             logs.append_val_loss([val_loss])
 
@@ -173,7 +173,8 @@ if __name__ == "__main__":
             run_id = f.read().strip()
 
         # Initialize a wandb run with the same run id
-        wandb.init(id=run_id, resume="allow")
+        dataset = opt.vision_classifier_config.dataset.dataset
+        wandb.init(project=f"SIM_VISION_ENCODER_{dataset}", id=run_id, resume="allow")
         wandb_is_on = True
 
     # order is important! first wandb.init, then create log path
