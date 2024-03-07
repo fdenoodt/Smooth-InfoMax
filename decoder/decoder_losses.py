@@ -59,7 +59,7 @@ class MSE_AND_SPECTRAL_LOSS(nn.Module):
 
 class FFTLoss(nn.Module):
     # generated via chat gpt
-    def __init__(self, fft_size=1024):
+    def __init__(self, fft_size=10240):
         super(FFTLoss, self).__init__()
         # The value of the FFT size should be chosen based on the properties of your signal, such as its sample rate and the frequency content you are interested in analyzing. In general, the FFT size determines the frequency resolution of the analysis, and a larger FFT size will provide better frequency resolution at the expense of time resolution.
         # For a signal with a sample rate of 16,000 Hz, you could choose an FFT size that is a power of two and is equal to or greater than the length of your signal. A common choice for audio signals is 2048 or 4096 samples, which would correspond to a frequency resolution of approximately 8 or 4 Hz, respectively. However, you may need to experiment with different FFT sizes to determine the best choice for your particular application.

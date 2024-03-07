@@ -68,7 +68,7 @@ class SIMSetup:
         DATASET = DataSetConfig(
             dataset=dataset,
             split_in_syllables=False,
-            batch_size=8,
+            batch_size=64,
             limit_train_batches=1.0,
             limit_validation_batches=1.0,
         )
@@ -79,7 +79,7 @@ class SIMSetup:
             negative_samples=10,
             subsample=True,
             architecture=ARCHITECTURE,
-            kld_weight=0.1,
+            kld_weight=0.1 if predict_distributions else 0,
             learning_rate=2e-4,  # = 0.0002
             decay_rate=1,
             train_w_noise=False,
@@ -94,7 +94,6 @@ class SIMSetup:
             # For loading a specific model from a specific epoch, to use by the classifier
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1
         )
-        self.CLASSIFIER_CONFIG_PHONES.dataset.batch_size = 8
 
         self.CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
             num_epochs=5,
@@ -103,7 +102,6 @@ class SIMSetup:
             # For loading a specific model from a specific epoch, to use by the classifier
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1
         )
-        self.CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
         self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
             num_epochs=5,
@@ -112,7 +110,7 @@ class SIMSetup:
                 dataset=dataset,
                 split_in_syllables=True,
                 labels="syllables",
-                batch_size=128,
+                batch_size=64,
                 limit_train_batches=1.0,
                 limit_validation_batches=1.0,
             ),

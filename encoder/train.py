@@ -127,7 +127,7 @@ def _main(options: OptionsConfig):
         family = "GIM"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
 
-    project_name = "SIM_ENCODER"
+    project_name = "SIM_ENCODER_FULL_PIPELINE"
     wandb.init(project=project_name, name=run_name)
     for key, value in vars(options).items():
         wandb.config[key] = value
