@@ -11,6 +11,7 @@ from torch.utils.data import random_split
 
 NUM_WORKERS = 0  # 1 #16
 
+
 def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
     if config.dataset == Dataset.STL10:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
@@ -133,51 +134,44 @@ def get_stl10_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning
     )
 
     # create train/val split
-    validate = True
-    if validate:
-        print("Use train / val split")
+    print("Use train / val split")
 
-        # "train" for train, "unlabeled" for unsupervised, "test" for test
-        if purpose_is_unsupervised_learning:
-            dataset_size = len(train_dataset)
-            train_sampler, valid_sampler = create_validation_sampler(dataset_size)
+    if not (purpose_is_unsupervised_learning):  # supervised learning, with the smaller labeled dataset
+        dataset_size = len(train_dataset)
+        train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
-            train_loader = torch.utils.data.DataLoader(
-                train_dataset,
-                batch_size=config.batch_size_multiGPU,
-                sampler=train_sampler,
-                num_workers=NUM_WORKERS,
-            )
-        else:  # supervised learning, with the smaller labeled dataset
-            dataset_size = len(unsupervised_dataset)
-            train_sampler, valid_sampler = create_validation_sampler(dataset_size)
-
-            unsupervised_loader = torch.utils.data.DataLoader(
-                unsupervised_dataset,
-                batch_size=config.batch_size_multiGPU,
-                sampler=train_sampler,
-                num_workers=NUM_WORKERS,
-            )
-
-        # overwrite test_dataset and _loader with validation set
-        test_dataset = torchvision.datasets.STL10(
-            base_folder,
-            # split=config.training_dataset,
-            # split can be "train" or "test" or "unlabeled"
-            split="train" if purpose_is_unsupervised_learning else "unlabeled",
-            transform=transform_valid,
-            download=True,
-        )
-
-        test_loader = torch.utils.data.DataLoader(
-            test_dataset,
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset,
             batch_size=config.batch_size_multiGPU,
-            sampler=valid_sampler,
+            sampler=train_sampler,
+            num_workers=NUM_WORKERS,
+        )
+    else:  # "train" for train, "unlabeled" for unsupervised, "test" for test
+        dataset_size = len(unsupervised_dataset)
+        train_sampler, valid_sampler = create_validation_sampler(dataset_size)
+
+        unsupervised_loader = torch.utils.data.DataLoader(
+            unsupervised_dataset,
+            batch_size=config.batch_size_multiGPU,
+            sampler=train_sampler,
             num_workers=NUM_WORKERS,
         )
 
-    else:
-        print("Use (train+val) / test split")
+    # overwrite test_dataset and _loader with validation set
+    test_dataset = torchvision.datasets.STL10(
+        base_folder,
+        # split can be "train" or "test" or "unlabeled"
+        split="unlabeled" if purpose_is_unsupervised_learning else "train",
+        transform=transform_valid,
+        download=True,
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=config.batch_size_multiGPU,
+        sampler=valid_sampler,
+        num_workers=NUM_WORKERS,
+    )
 
     return (
         unsupervised_loader,

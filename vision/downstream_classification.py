@@ -1,8 +1,11 @@
 # Example usage:
 # python -m vision.downstream_classification vis_dir vision_default
-# or for Animals_with_Attributes dataset:
-# python -m vision.downstream_classification vis_dir vision_default --overrides encoder_config.dataset.dataset=8 vision_classifier_config.dataset.dataset=8 encoder_config.num_epochs=200 vision_classifier_config.encoder_num='199'
 
+# Animals_with_Attributes dataset:
+# python -m vision.downstream_classification vis_dir vision_default --overrides encoder_config.dataset.dataset=8 vision_classifier_config.dataset.dataset=8 encoder_config.num_epochs=200 vision_classifier_config.encoder_num=199
+
+# STL dataset:
+# python -m vision.downstream_classification vis_dir_stl vision_default --overrides encoder_config.num_epochs=200 vision_classifier_config.encoder_num=199
 import torch
 import numpy as np
 import time
@@ -119,12 +122,16 @@ def test_logistic_regression(opt, context_model, classification_model, test_load
 
     for step, (img, target) in enumerate(test_loader):
 
+        classification_model.zero_grad()
+
         model_input = img.to(opt.device)
 
-        with torch.no_grad():
-            _, _, z, _ = context_model(model_input, target)
-
-        z = z.detach()
+        if opt.model_type == 2:  ## fully supervised training
+            _, _, z = context_model(model_input)
+        else:
+            with torch.no_grad():
+                _, _, z, _ = context_model(model_input, target)
+            z = z.detach()  # double security that no gradients go to representation learning part of model
 
         prediction = classification_model(z)
 
