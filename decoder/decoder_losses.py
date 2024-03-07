@@ -19,6 +19,8 @@ class SpectralLoss(nn.Module):
         batch_inputs = batch_inputs.squeeze(1)  # (batch_size, length)
         batch_targets = batch_targets.squeeze(1)  # (batch_size, length)
 
+        # n_fft = bin size (number of frequency bins) -> if 16khz, each bin roughly 15hz
+
         input_spectograms = torch.stft(
             batch_inputs, self.n_fft, window=self.window, return_complex=True)  # returns complex tensor
         target_spectograms = torch.stft(
@@ -41,6 +43,7 @@ class MSE_Loss(nn.Module):
         return self.mse_loss(batch_inputs, batch_targets)
 
 
+# TODO: WINDOW
 class MSE_AND_SPECTRAL_LOSS(nn.Module):
     def __init__(self, n_fft=1024, lambd=1):
         super(MSE_AND_SPECTRAL_LOSS, self).__init__()
@@ -56,7 +59,7 @@ class MSE_AND_SPECTRAL_LOSS(nn.Module):
 
 class FFTLoss(nn.Module):
     # generated via chat gpt
-    def __init__(self, fft_size=10240):
+    def __init__(self, fft_size=1024):
         super(FFTLoss, self).__init__()
         # The value of the FFT size should be chosen based on the properties of your signal, such as its sample rate and the frequency content you are interested in analyzing. In general, the FFT size determines the frequency resolution of the analysis, and a larger FFT size will provide better frequency resolution at the expense of time resolution.
         # For a signal with a sample rate of 16,000 Hz, you could choose an FFT size that is a power of two and is equal to or greater than the length of your signal. A common choice for audio signals is 2048 or 4096 samples, which would correspond to a frequency resolution of approximately 8 or 4 Hz, respectively. However, you may need to experiment with different FFT sizes to determine the best choice for your particular application.
@@ -70,10 +73,8 @@ class FFTLoss(nn.Module):
         target_fft = fft.rfft(target * self.window)
 
         # Compute magnitude and phase of FFT coefficients
-        output_mag, output_phase = torch.abs(
-            output_fft), torch.angle(output_fft)
-        target_mag, target_phase = torch.abs(
-            target_fft), torch.angle(target_fft)
+        output_mag, output_phase = torch.abs(output_fft), torch.angle(output_fft)
+        target_mag, target_phase = torch.abs(target_fft), torch.angle(target_fft)
 
         # Compute FFT loss based on magnitude and phase differences
         mag_loss = torch.mean(torch.abs(output_mag - target_mag))
@@ -84,7 +85,7 @@ class FFTLoss(nn.Module):
 
 
 class MSE_AND_FFT_LOSS(nn.Module):
-    def __init__(self, fft_size=10240, lambd=1):
+    def __init__(self, fft_size=1024, lambd=1):
         super(MSE_AND_FFT_LOSS, self).__init__()
         self.mse_loss = nn.MSELoss()
         self.fft_loss = FFTLoss(fft_size)
@@ -124,7 +125,7 @@ class MEL_LOSS(nn.Module):
         # Alternative
         # inp_mel = 10 * torch.log10(inp_mel)
 
-        amin = 1e-10 * torch.ones_like(melspec)
+        amin = 1e-10 * torch.ones_like(melspec) # to avoid log(0)
         ref_value = torch.ones_like(melspec)
 
         log_spec = 10.0 * torch.log10(torch.maximum(amin, melspec))
