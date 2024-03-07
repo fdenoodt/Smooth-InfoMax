@@ -50,8 +50,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
                name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
                     f"_{int(time.time())}",
                tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.decoder_loss}",
-                     f"lr={opt.decoder_config.learning_rate}"]
-               )
+                     f"lr={opt.decoder_config.learning_rate}"])
 
     wandb_logger = WandbLogger()
 

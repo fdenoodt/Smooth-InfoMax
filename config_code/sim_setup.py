@@ -106,7 +106,7 @@ class SIMSetup:
         self.CLASSIFIER_CONFIG_SPEAKERS.dataset.batch_size = 64
 
         self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
-            num_epochs=100,
+            num_epochs=50,
             learning_rate=1e-3,  # = 0.001
             dataset=DataSetConfig(
                 dataset=Dataset.DE_BOER,

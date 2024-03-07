@@ -138,7 +138,7 @@ def _main(options: OptionsConfig):
     with open(os.path.join(options.log_path, 'wandb_run_id.txt'), 'w') as f:
         f.write(run_id)
         # write project name to file
-        f.write(f"\nproject_name: {project_name}")
+        f.write(f"\n{project_name}")
 
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)

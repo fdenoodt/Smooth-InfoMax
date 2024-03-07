@@ -1,6 +1,9 @@
 # example python call:
 # python -m post_hoc_analysis.interpretability.t_sne  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 
+# other example python call:
+# python -m post_hoc_analysis.interpretability.t_sne temp sim_audio_distr_true --overrides syllables_classifier_config.encoder_num=0
+
 import random
 from typing import Optional, Union
 
@@ -9,6 +12,7 @@ from utils.helper_functions import *
 from options_anal_hidd_repr import OPTIONS as OPT_ANAL
 from arg_parser import arg_parser
 from data import get_dataloader
+from PIL import Image
 
 import torch
 import torch.nn as nn
@@ -26,6 +30,7 @@ from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model
+from utils.utils import retrieve_existing_wandb_run_id
 
 
 def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.ndarray, gim_name: str,
@@ -52,15 +57,16 @@ def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.n
     scatter(projection, label_indices,
             title=f"t-SNE Latent space - {gim_name}", dir=save_dir, file=file, show=False)
 
-    print(f"Saved t-SNE plot to {save_dir}/{file}.png")
+    print(f"Saved t-SNE plot to {save_dir}/{file}")
 
     if wandb_is_on:
-        wandb.log({f"t-SNE_latent_space_{gim_name}": [wandb.Image(f"{save_dir}/{file}.png")]})
+        wandb.log({f"LatSpace/t-SNE_latent_space_{gim_name}": [wandb.Image(f"{save_dir}/{file}")]})
 
 
 def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max_dim: int, wandb_is_on: bool):
     # feature_space_per_channel: (nb_channels, batch_size, seq_len)
     save_dir = opt.log_path
+    images = []
 
     for idx, feature_space in enumerate(feature_space_per_channel):
         # feature_space: (batch_size, seq_len)
@@ -77,7 +83,14 @@ def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max
         print(f"Saved t-SNE plot to {save_dir}/{file}.png")
 
         if wandb_is_on and idx < 32:  # max_images = 32 images
-            wandb.log({f"distribution_latent_space_{gim_name}_dim={idx}": [wandb.Image(f"{save_dir}/{file}.png")]})
+            images.append(Image.open(f"{save_dir}/{file}.png"))
+
+    # Create a collage of images and log it to wandb
+    if wandb_is_on:
+        collage = Image.new('RGB', (images[0].width * len(images), images[0].height))
+        for i, image in enumerate(images):
+            collage.paste(image, (i * images[0].width, 0))
+        wandb.log({f"LatSpace/distribution_latent_space_{gim_name}": [wandb.Image(collage)]})
 
 
 def _get_data_from_loader(loader, encoder: FullModel, opt: OptionsConfig, final_module: str):
@@ -118,13 +131,10 @@ def main():
 
     # Check if the wandb_run_id.txt file exists
     wandb_is_on = False
-    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
-        # If the file exists, read the run id from the file
-        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
-            run_id = f.read().strip()
-
+    run_id, project_name = retrieve_existing_wandb_run_id(opt)
+    if run_id is not None:
         # Initialize a wandb run with the same run id
-        wandb.init(id=run_id, resume="allow")
+        wandb.init(id=run_id, resume="allow", project=project_name)
         wandb_is_on = True
 
     arg_parser.create_log_path(opt, add_path_var="post_hoc")

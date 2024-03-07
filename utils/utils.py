@@ -5,6 +5,8 @@ import seaborn as sns
 from sklearn.manifold import TSNE
 import torch
 
+from config_code.config_classes import OptionsConfig
+
 
 def get_device(opt, input_tensor):
     if opt.device.type != "cpu":
@@ -64,7 +66,7 @@ def scatter(opt, x, colors, label):
 
     # save data to numpy csv (x, colors)
     np.savetxt(os.path.join(opt.log_path_latent,
-               f"latent_space_x_{label}.csv"), x, delimiter=",")
+                            f"latent_space_x_{label}.csv"), x, delimiter=",")
 
     np.savetxt(os.path.join(
         opt.log_path_latent, f"latent_space_colors_{label}.csv"), colors, delimiter=",")
@@ -78,3 +80,20 @@ def fit_TSNE_and_plot(opt, feature_space, speaker_labels, label):
                       perplexity=30).fit_transform(feature_space)
 
     scatter(opt, projection, speaker_labels, label)
+
+
+def retrieve_existing_wandb_run_id(opt: OptionsConfig):
+    # Save the run id to a file in the logs directory
+    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
+        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
+            text = f.read()
+            # first line is the run id, second line is the project name (second line is optional)
+            run_id = text.split('\n')[0]
+            project_name = text.split('\n')[1] if len(text.split('\n')) > 1 else None
+
+    # if file doesn't exist, return None
+    else:
+        run_id = None
+        project_name = None
+
+    return run_id, project_name
