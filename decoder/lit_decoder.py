@@ -41,7 +41,7 @@ class LitDecoder(L.LightningModule):
         self.loss = self._get_loss_from_enum(loss)
         self.test_losses = []
 
-        self.save_hyperparameters(ignore=["decoder"])
+        self.save_hyperparameters(ignore=["decoder", "encoder"])
 
     def training_step(self, batch, batch_idx):
         (x, _, label, _) = batch  # x.shape: (200, 1, 64, 64), y.shape: (200, 1, 6)
@@ -53,7 +53,7 @@ class LitDecoder(L.LightningModule):
 
         loss = self.loss(x_reconstructed, x)
 
-        self.log(f"Decoder {self.loss_enum}/train_loss", loss)
+        self.log(f"Decoder {self.loss_enum}/train_loss", loss, batch_size=x.size(0))
         return loss
 
     # validation step
