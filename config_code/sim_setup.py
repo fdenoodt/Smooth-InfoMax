@@ -75,7 +75,7 @@ class SIMSetup:
 
         self.ENCODER_CONFIG = EncoderConfig(
             start_epoch=0,
-            num_epochs=5,
+            num_epochs=1_000,
             negative_samples=10,
             subsample=True,
             architecture=ARCHITECTURE,
@@ -87,7 +87,7 @@ class SIMSetup:
         )
 
         self.CLASSIFIER_CONFIG_PHONES = ClassifierConfig(
-            num_epochs=5,
+            num_epochs=20,
             learning_rate=1e-4,  # = 0.0001
             # Deep copy of the dataset, to avoid changing the original dataset
             dataset=DATASET.__copy__(),
@@ -96,7 +96,7 @@ class SIMSetup:
         )
 
         self.CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
-            num_epochs=5,
+            num_epochs=50,
             learning_rate=1e-3,  # = 0.001
             dataset=DATASET.__copy__(),
             # For loading a specific model from a specific epoch, to use by the classifier
@@ -104,7 +104,7 @@ class SIMSetup:
         )
 
         self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
-            num_epochs=5,
+            num_epochs=50,
             learning_rate=1e-3,  # = 0.001
             dataset=DataSetConfig(
                 dataset=dataset,
@@ -119,7 +119,7 @@ class SIMSetup:
         )
 
         self.DECODER_CONFIG = DecoderConfig(
-            num_epochs=5,
+            num_epochs=200,
             learning_rate=2e-4,
             dataset=DataSetConfig(
                 dataset=dataset,
