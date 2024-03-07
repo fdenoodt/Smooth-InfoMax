@@ -85,7 +85,7 @@ class FFTLoss(nn.Module):
 
 
 class MSE_AND_FFT_LOSS(nn.Module):
-    def __init__(self, fft_size=1024, lambd=1):
+    def __init__(self, fft_size=10240, lambd=1):
         super(MSE_AND_FFT_LOSS, self).__init__()
         self.mse_loss = nn.MSELoss()
         self.fft_loss = FFTLoss(fft_size)
