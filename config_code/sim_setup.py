@@ -5,7 +5,7 @@ import torch
 
 
 class SIMSetup:
-    def __init__(self, predict_distributions: bool):
+    def __init__(self, predict_distributions: bool, dataset: Dataset):
         # Original dimensions given in CPC paper (Oord et al.).
         kernel_sizes = [10, 8, 4, 4, 4]
         strides = [5, 4, 2, 2, 2]
@@ -66,7 +66,7 @@ class SIMSetup:
         ARCHITECTURE = ArchitectureConfig(modules=modules)
 
         DATASET = DataSetConfig(
-            dataset=Dataset.LIBRISPEECH,
+            dataset=dataset,
             split_in_syllables=False,
             batch_size=8,
             limit_train_batches=1.0,
@@ -109,7 +109,7 @@ class SIMSetup:
             num_epochs=50,
             learning_rate=1e-3,  # = 0.001
             dataset=DataSetConfig(
-                dataset=Dataset.DE_BOER,
+                dataset=dataset,
                 split_in_syllables=True,
                 labels="syllables",
                 batch_size=128,
@@ -124,7 +124,7 @@ class SIMSetup:
             num_epochs=200,
             learning_rate=2e-4,
             dataset=DataSetConfig(
-                dataset=Dataset.DE_BOER,
+                dataset=dataset,
                 split_in_syllables=False,
                 batch_size=64,
                 limit_train_batches=1.0,

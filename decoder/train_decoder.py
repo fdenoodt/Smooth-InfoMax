@@ -1,33 +1,33 @@
+# Example usage:
+# python -m decoder.train_decoder temp sim_audio_de_boer_distr_true --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
+
 import time
 
+import lightning as L
 import numpy as np
 import torch
-
-from decoder.decoderr import Decoder
-from decoder.lit_decoder import LitDecoder
-from utils import logger
+import wandb
+from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
-from config_code.config_classes import OptionsConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss
 from data import get_dataloader
 from decoder.callbacks import CustomCallback
+from decoder.decoderr import Decoder
+from decoder.lit_decoder import LitDecoder
 from decoder.my_data_module import MyDataModule
-
 from models import load_audio_model
-from models.full_model import FullModel
 from options import get_options
-
-import wandb
-import lightning as L
-from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.loggers import WandbLogger
+from utils import logger
+from utils.utils import retrieve_existing_wandb_run_id
 
 
 def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
-    print(f"\nTRAINING DECODER USING LOSS: {opt.decoder_config.decoder_loss} \n")
+    loss_fun: DecoderLoss = opt.decoder_config.decoder_loss
+    print(f"\nTRAINING DECODER USING LOSS: {loss_fun} \n")
 
     opt.model_type = model_type
 
@@ -35,10 +35,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.decoder_config.dataset.dataset in
-            [Dataset.DE_BOER_RESHUFFLED, Dataset.DE_BOER_RESHUFFLED_V2]), "Dataset not supported"
+    assert (opt.decoder_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
-    arg_parser.create_log_path(opt, add_path_var="decoder_model")
+    # get integer val of enum
+    loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE
 
     # random seeds
     torch.manual_seed(opt.seed)
@@ -46,11 +46,23 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     np.random.seed(opt.seed)
 
     distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
-    wandb.init(project="SIM_DECODERv2",
-               name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
-                    f"_{int(time.time())}",
-               tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}", f"l={opt.decoder_config.decoder_loss}",
-                     f"lr={opt.decoder_config.learning_rate}"])
+
+    run_id, project_name = retrieve_existing_wandb_run_id(opt)
+    if run_id is not None:
+        # Initialize a wandb run with the same run id
+        wandb.init(id=run_id, resume="allow", project=project_name)
+    else:
+        # Initialize a new wandb run
+        wandb.init(project="SIM_DECODERv2",
+                   name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
+                        f"_{int(time.time())}",
+                   # Some tags related to encoder and decoder
+                   tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}",
+                         f"l={opt.decoder_config.decoder_loss}",
+                         f"lr={opt.decoder_config.learning_rate}"])
+
+    # MUST HAPPEN AFTER wandb.init
+    arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")
 
     wandb_logger = WandbLogger()
 
@@ -74,16 +86,16 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     logs = logger.Logger(opt)
 
     lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.decoder_loss)
-    callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames, plot_ever_n_epoch=2)
+
+    callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
+                              plot_ever_n_epoch=2, loss_enum=loss_fun)
+
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         accelerator="gpu", devices="1",
                         logger=wandb_logger, callbacks=[callback])
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
-
-    # arg_parser.create_log_path(opt, add_path_var="linear_model_syllables")
-    # logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
 
     logs.create_log(decoder, final_test=True, final_loss=[])
 

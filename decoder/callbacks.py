@@ -14,15 +14,16 @@ from models.full_model import FullModel
 
 
 class CustomCallback(L.Callback):
-    def __init__(self, opt: OptionsConfig, plot_ever_n_epoch, z_dim, nb_frames, wandb_logger: WandbLogger):
+    def __init__(self, opt: OptionsConfig, plot_ever_n_epoch, z_dim, nb_frames, wandb_logger: WandbLogger, loss_enum):
         super().__init__()
         self.opt = opt
         self.plot_ever_n_epoch = plot_ever_n_epoch
         self.z_dim = z_dim
         self.nb_frames = nb_frames
         self.wandb_logger = wandb_logger
+        self.loss_enum = loss_enum
 
-    def on_train_epoch_end(self, trainer: L.Trainer, pl_module: LitDecoder):
+    def on_train_epoch_end(self, trainer: L.Trainer, pl_module: LitDecoder):  # log generated audio (std normal samples)
         # Every 10th epoch, generate some images
         if trainer.current_epoch % self.plot_ever_n_epoch == 0:
             pl_module.eval()
@@ -36,13 +37,13 @@ class CustomCallback(L.Callback):
             audio_samples = audio_samples.contiguous().cpu().data.numpy()
 
             ten_audio_sammples = [audio_sample for audio_sample in audio_samples[:nb_files]]
-            self.wandb_logger.log_audio(key="std normal samples",
+            self.wandb_logger.log_audio(key=f"Decoder {self.loss_enum}/std normal samples",
                                         audios=ten_audio_sammples,
                                         sample_rate=[16_000] * nb_files)
 
             pl_module.train()
 
-    def on_train_end(self, trainer, pl_module):
+    def on_train_end(self, trainer, pl_module):  # log encoded + decoded audio vs gt audio
         pl_module.eval()
         nb_files = 10
 
@@ -60,8 +61,11 @@ class CustomCallback(L.Callback):
             ten_audio_sammples = [audio_sample for audio_sample in x_reconstructed[:nb_files]]
             audio = [audio_sample.squeeze(0).cpu().numpy() for audio_sample in audio[:nb_files]]
             self.wandb_logger.log_audio(
-                key="encode + decode test set", audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)
-            self.wandb_logger.log_audio(key="gt test set", audios=audio, sample_rate=[16_000] * nb_files)
+                key=f"Decoder {self.loss_enum}/encode + decode test set",
+                audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)
+
+            self.wandb_logger.log_audio(
+                key=f"Decoder {self.loss_enum}/gt test set", audios=audio, sample_rate=[16_000] * nb_files)
             break
 
 

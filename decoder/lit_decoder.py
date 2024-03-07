@@ -37,6 +37,7 @@ class LitDecoder(L.LightningModule):
 
         self.decoder = decoder
         self.lr = lr
+        self.loss_enum = loss
         self.loss = self._get_loss_from_enum(loss)
         self.test_losses = []
 
@@ -52,7 +53,7 @@ class LitDecoder(L.LightningModule):
 
         loss = self.loss(x_reconstructed, x)
 
-        self.log("train_loss", loss)
+        self.log(f"Decoder {self.loss_enum}/train_loss", loss)
         return loss
 
     # validation step
@@ -65,7 +66,7 @@ class LitDecoder(L.LightningModule):
 
         x_reconstructed = self.decoder(z)
         loss = self.loss(x_reconstructed, x)
-        self.log("val_loss", loss)
+        self.log(f"Decoder {self.loss_enum}/val_loss", loss)
         return loss
 
     def configure_optimizers(self):
@@ -86,7 +87,7 @@ class LitDecoder(L.LightningModule):
 
     def on_test_epoch_end(self):
         avg_loss = torch.stack(self.test_losses).mean()
-        self.log("avg_test_loss", avg_loss)
+        self.log(f"Decoder {self.loss_enum}/avg_test_loss", avg_loss)
         self.test_losses = []  # reset for the next epoch
 
 
