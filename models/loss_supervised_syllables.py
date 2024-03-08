@@ -8,23 +8,17 @@ from utils import utils
 
 
 class Syllables_Loss(loss.Loss):
-    def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy):
+    # also used for vowels
+    def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy, num_syllables: int, bias: bool):
         super(Syllables_Loss, self).__init__()
 
         self.opt = opt
         self.hidden_dim = hidden_dim
         self.calc_accuracy = calc_accuracy
 
-        num_syllables = 9
-
         # Adjust the output dimension to match the number of syllables
-        self.linear_classifier = nn.Sequential(
-            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
-            nn.ReLU(),
-            nn.Linear(self.hidden_dim // 2, num_syllables),
-        ).to(
-            opt.device
-        )
+        self.linear_classifier = nn.Linear(self.hidden_dim, num_syllables, bias=bias).to(
+            opt.device)
 
         self.label_num = 1
         self.syllables_loss = nn.CrossEntropyLoss()

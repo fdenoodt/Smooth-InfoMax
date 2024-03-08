@@ -25,7 +25,7 @@ from utils.utils import retrieve_existing_wandb_run_id
 
 
 def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer,
-          wandb_is_on: bool):
+          wandb_is_on: bool, bias: bool):
     total_step = len(train_loader)
     print_idx = 100
 
@@ -73,9 +73,9 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
 
             if wandb_is_on:
                 label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
-                wandb.log({f"C {label_type}/Loss classification": sample_loss,
-                           f"C {label_type}/Train accuracy": accuracy,
-                           f"C {label_type}/Step": global_step})
+                wandb.log({f"C Singl layer bias={bias} {label_type}/Loss classification": sample_loss,
+                           f"C Singl layer bias={bias} {label_type}/Train accuracy": accuracy,
+                           f"C Singl layer bias={bias} {label_type}/Step": global_step})
                 global_step += 1
 
             if i % print_idx == 0:
@@ -98,7 +98,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
         logs.append_train_loss([loss_epoch / total_step])
 
 
-def test(opt, context_model, loss, data_loader, wandb_is_on: bool):
+def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
     loss.eval()
     accuracy = 0
     loss_epoch = 0
@@ -139,12 +139,12 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool):
 
     if wandb_is_on:
         label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
-        wandb.log({f"C {label_type}/FINAL Test accuracy": accuracy,
-                   f"C {label_type}/FINAL Test loss": loss_epoch})
+        wandb.log({f"C Singl layer bias={bias} {label_type}/FINAL Test accuracy": accuracy,
+                   f"C Singl layer bias={bias} {label_type}/FINAL Test loss": loss_epoch})
     return loss_epoch, accuracy
 
 
-def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
+def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK, bias: bool = True):
     opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
@@ -168,7 +168,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
         wandb.init(id=run_id, resume="allow", project=project_name)
         wandb_is_on = True
 
-    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}")
+    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}_bias={bias}")
 
     # random seeds
     torch.manual_seed(opt.seed)
@@ -184,7 +184,8 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     )
 
     n_features = context_model.module.output_dim  # 256 or 512
-    loss = Syllables_Loss(opt, n_features, calc_accuracy=True)
+    num_classes = 9 if syllables else 3
+    loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
     learning_rate = opt.syllables_classifier_config.learning_rate
 
     if opt.model_type == ModelType.FULLY_SUPERVISED:
@@ -203,10 +204,10 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
 
     try:
         # Train the model
-        train(opt, context_model, loss, logs, train_loader, optimizer, wandb_is_on)
+        train(opt, context_model, loss, logs, train_loader, optimizer, wandb_is_on, bias)
 
         # Test the model
-        result_loss, accuracy = test(opt, context_model, loss, test_loader, wandb_is_on)
+        result_loss, accuracy = test(opt, context_model, loss, test_loader, wandb_is_on, bias)
 
     except KeyboardInterrupt:
         print("Training interrupted, saving log files")
@@ -215,7 +216,8 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
 
     print(f"Finished training {syllables}")
 
-    return wandb, wandb_is_on
+    # return wandb, wandb_is_on, linear_model.parameters()
+    return wandb, wandb_is_on, list(loss.linear_classifier.parameters())
 
 
 if __name__ == "__main__":
