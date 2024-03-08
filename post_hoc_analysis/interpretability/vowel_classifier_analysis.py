@@ -171,7 +171,7 @@ def main():
 
     # the classifier is a part of the loss function
     n_labels = 3
-    n_features = 256  # todo
+    n_features = 512
     syllables_loss = Syllables_Loss(opt, hidden_dim=n_features, calc_accuracy=True, bias=False, num_syllables=n_labels)
 
     # Load the trained model
@@ -185,7 +185,7 @@ def main():
     linear_classifier.eval()
 
     weights = list(linear_classifier.parameters())[0].detach().cpu().numpy()
-    # assert params.shape == (n_labels, n_features)
+    assert weights.shape == (n_labels, n_features)
 
     weights = _rescale_between_neg1_and_1(weights)
 

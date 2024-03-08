@@ -24,6 +24,32 @@ import os
 from utils.utils import retrieve_existing_wandb_run_id
 
 
+def get_c(opt, context_model, model_input):
+    if opt.model_type == ModelType.FULLY_SUPERVISED:
+        full_model: FullModel = context_model.module
+        z = full_model.forward_through_all_modules(model_input)
+    else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
+        with torch.no_grad():
+            full_model: FullModel = context_model.module
+            z = full_model.forward_through_all_modules(model_input)
+        z = z.detach()
+    return z
+
+
+def get_z(opt, context_model, model_input):
+    if opt.model_type == ModelType.FULLY_SUPERVISED:
+        full_model: FullModel = context_model.module
+        z = full_model.forward_through_all_cnn_modules(model_input)
+    else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
+        with torch.no_grad():
+            full_model: FullModel = context_model.module
+            z = full_model.forward_through_all_cnn_modules(model_input)
+        z = z.detach()
+
+    z = z.permute(0, 2, 1)
+    return z
+
+
 def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer,
           wandb_is_on: bool, bias: bool):
     total_step = len(train_loader)
@@ -50,15 +76,10 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
 
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
-
-            if opt.model_type == ModelType.FULLY_SUPERVISED:
-                full_model: FullModel = context_model.module
-                z = full_model.forward_through_all_modules(model_input)
-            else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
-                with torch.no_grad():
-                    full_model: FullModel = context_model.module
-                    z = full_model.forward_through_all_modules(model_input)
-                z = z.detach()
+            if bias:  # typical case
+                z = get_c(opt, context_model, model_input)  # forward through all modules
+            else: # only for space analysis
+                z = get_z(opt, context_model, model_input)  # forward only through CNN modules
 
             # forward pass
             total_loss, accuracies = loss.get_loss(model_input, z, z, label)
@@ -114,8 +135,7 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
             model_input = audio.to(opt.device)
 
             with torch.no_grad():
-                full_model: FullModel = context_model.module
-                z = full_model.forward_through_all_modules(model_input)
+                z = get_c(opt, context_model, model_input) if bias else get_z(opt, context_model, model_input)
 
             z = z.detach()
 

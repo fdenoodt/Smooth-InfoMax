@@ -12,13 +12,19 @@ class Syllables_Loss(loss.Loss):
     def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy, num_syllables: int, bias: bool):
         super(Syllables_Loss, self).__init__()
 
-        self.opt = opt
-        self.hidden_dim = hidden_dim
-        self.calc_accuracy = calc_accuracy
+        """ 
+        WARNING: bias = False is only used for vowel classifier on the ConvLayer. It's not supported beyond that (eg regression layer).
+        It is only used for the latent space analysis, not used for performance evaluation.
+        """
 
-        # Adjust the output dimension to match the number of syllables
-        self.linear_classifier = nn.Linear(self.hidden_dim, num_syllables, bias=bias).to(
-            opt.device)
+        self.opt = opt
+
+        self.hidden_dim = hidden_dim if bias else 512  # 512 is the output of the ConvLayer, only used for space analysis
+
+        self.calc_accuracy = calc_accuracy
+        self.bias = bias
+
+        self.linear_classifier = nn.Linear(self.hidden_dim, num_syllables, bias=True).to(opt.device)
 
         self.label_num = 1
         self.syllables_loss = nn.CrossEntropyLoss()
@@ -35,6 +41,8 @@ class Syllables_Loss(loss.Loss):
 
         # avg over all frames
         pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
+
+        assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
 
         pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, self.hidden_dim)  # shape: (batch_size, hidden_dim)
 
