@@ -1,19 +1,16 @@
 # Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from models.full_model import FullModel
-from options import get_options
-from data import get_dataloader
-from config_code.config_classes import OptionsConfig, ModelType
+import wandb
+
 from arg_parser import arg_parser
+from config_code.config_classes import OptionsConfig
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
-import torch.nn as nn
-import matplotlib.pyplot as plt
-
+from options import get_options
 from utils.utils import retrieve_existing_wandb_run_id
-import wandb
 
 
 def _rescale_between_neg1_and_1(x):
@@ -97,7 +94,9 @@ def _get_predictions(classifier, device, n_features, dim1, dim2):
             z[0][dim1] = val_i
             z[0][dim2] = val_j
 
-            prediction = classifier(z).detach().cpu().numpy()
+            prediction = classifier(z).detach().cpu().numpy()  # (1, 3)
+            # softmax
+            prediction = np.exp(prediction) / np.exp(prediction).sum(axis=1, keepdims=True)
             data[i][j] = prediction[0]
 
     return data, range
