@@ -280,6 +280,12 @@ def colour_palette():
                      np.array([0.34, 0.7, 0.34]),  # gu
                      ])
 
+def colour_palette_vowels():
+    return np.array([np.array([1, 0.3712, 0.34]),  # a
+                     np.array([0.34, 0.34, 1]),  # i
+                     np.array([0.34, 1, 0.34]),  # u
+                     ])
+
 
 def markers():
     return np.array([

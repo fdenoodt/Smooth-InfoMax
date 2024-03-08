@@ -134,22 +134,31 @@ def scatter_3d(x, y, z, labels, title, dir, file, show, wandb_is_on):
     x, y, z = x.flatten(), y.flatten(), z.flatten()
 
     # limit to 1000 points
-    if x.shape[0] > 1000:
+    if x.shape[0] > 5000:
         indices = random.sample(range(x.shape[0]), 1000)
         x, y, z, labels = x[indices], y[indices], z[indices], labels[indices]
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
+    palette = colour_palette_vowels()
 
-    scatter = ax.scatter(x, y, z, c=labels, cmap='viridis', s=2)
+    for i, vowel_idx in enumerate(np.unique(labels)):
+        indices = np.where(labels == vowel_idx)
+        color = np.tile(palette[i], (len(indices), 1))
+        ax.scatter(x[indices], y[indices], z[indices], c=color, label=translate_vowel_number_to_vowel(vowel_idx))
+
+
+    plt.legend()
+
+
+
 
     # set x, y, z limits between -3 and 3
-    ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(-1.5, 1.5)
-    ax.set_zlim(-1.5, 1.5)
+    ax.set_xlim(-2.2, 2.2)
+    ax.set_ylim(-2.2, 2.2)
+    ax.set_zlim(-2.2, 2.2)
 
     ax.set_title(title)
-    plt.colorbar(scatter)
 
     if show:
         plt.show()
@@ -205,35 +214,35 @@ def main():
     )
 
     # retrieve data for classifier
-    train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
-    all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final")
-    n = all_labels.shape[0]  # sqrt(1920) ~= 44
+    # train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
+    # all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final")
+    # n = all_labels.shape[0]  # sqrt(1920) ~= 44
+    #
+    # # mean of seq len
+    # all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
+    # lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
+    # plot_tsne(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
+    #           lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
 
-    # mean of seq len
-    all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
-    lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
-    plot_tsne(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-              lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
-
-    data_config.dataset.split_in_syllables = 'vowels'
+    data_config.labels = 'vowels'
     train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
-    all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final")
+    all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final_cnn")
     n = all_labels.shape[0]  # sqrt(1920) ~= 44
 
     _audio_per_channel = np.moveaxis(all_audio, 1, 0)
     scatter_3d(_audio_per_channel[0], _audio_per_channel[1], _audio_per_channel[2],
                all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
                file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
-
-    # retrieve full data that encoder was trained on
-    data_config.split_in_syllables = False
-    train_loader_full, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
-    all_audio, all_labels = _get_data_from_loader(train_loader_full, context_model.module, opt, "final_cnn")
-
-    # plot histograms
-    # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
-    audio_per_channel = np.moveaxis(all_audio, 2, 0)
-    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=wandb_is_on)
+    #
+    # # retrieve full data that encoder was trained on
+    # data_config.split_in_syllables = False
+    # train_loader_full, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
+    # all_audio, all_labels = _get_data_from_loader(train_loader_full, context_model.module, opt, "final_cnn")
+    #
+    # # plot histograms
+    # # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
+    # audio_per_channel = np.moveaxis(all_audio, 2, 0)
+    # plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=wandb_is_on)
 
     print("Finished")
     if wandb_is_on:
