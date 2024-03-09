@@ -21,7 +21,7 @@ from models.loss_supervised_syllables import Syllables_Loss
 import wandb
 import os
 
-from utils.utils import retrieve_existing_wandb_run_id
+from utils.utils import retrieve_existing_wandb_run_id, set_seed
 
 
 def get_c(opt, context_model, model_input):
@@ -191,9 +191,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}_bias={bias}")
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,

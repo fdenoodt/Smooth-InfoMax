@@ -5,7 +5,9 @@ import torch
 
 
 class SIMSetup:
-    def __init__(self, predict_distributions: bool, dataset: Dataset):
+    def __init__(self, predict_distributions: bool, dataset: Dataset, config_file: str):
+        self.config_file = config_file
+
         # Original dimensions given in CPC paper (Oord et al.).
         kernel_sizes = [10, 8, 4, 4, 4]
         strides = [5, 4, 2, 2, 2]
@@ -139,11 +141,12 @@ class SIMSetup:
                 hidden_dim=cnn_hidden_dim,
                 output_dim=1
             ),
-            decoder_loss=DecoderLoss.MSE
+            decoder_loss=DecoderLoss.MSE_MEL
         )
 
     def get_options(self, experiment_name) -> OptionsConfig:
         options = OptionsConfig(
+            config_file=self.config_file,
             seed=2,
             validate=True,
             loss=Loss.INFO_NCE,

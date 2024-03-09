@@ -11,6 +11,7 @@ from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model, loss_supervised_speaker
+from utils.utils import set_seed
 
 
 def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer):
@@ -121,9 +122,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     ## load model
     context_model, _ = load_audio_model.load_model_and_optimizer(

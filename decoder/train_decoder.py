@@ -19,7 +19,7 @@ from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from options import get_options
 from utils import logger
-from utils.utils import retrieve_existing_wandb_run_id
+from utils.utils import retrieve_existing_wandb_run_id, set_seed
 
 
 def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
@@ -41,9 +41,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
 

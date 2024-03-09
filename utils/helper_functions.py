@@ -16,7 +16,7 @@ import torchaudio
 import seaborn as sns
 
 try:
-    import tikzplotlib # some versions of Python have issues with this import
+    import tikzplotlib  # some versions of Python have issues with this import
 except:
     print("tikzplotlib not installed, will not be able to save as .tex")
 
@@ -280,6 +280,7 @@ def colour_palette():
                      np.array([0.34, 0.7, 0.34]),  # gu
                      ])
 
+
 def colour_palette_vowels():
     return np.array([np.array([1, 0.3712, 0.34]),  # a
                      np.array([0.34, 0.34, 1]),  # i
@@ -395,36 +396,7 @@ def histogram(sequence, title, dir=None, file=None, show=True):
     if show:
         plt.show()
 
-    # plt.clf()
-    # plt.cla()
-
     plt.close(fig)
-
-
-# def histogram(sequence, title, dir=None, file=None, show=True):
-#     # We choose a color palette with seaborn.
-#     plt.figure(figsize=(8, 8))
-#     plt.hist(sequence, bins=100)
-
-
-#     plt.title(title)
-
-#     if file is not None:
-#         create_log_dir(dir)
-#         plt.savefig(f"{dir}/{file}", dpi=120)
-
-#     if show:
-#         plt.show()
-
-#     plt.clf()
-#     plt.cla()
-
-# ax = plt.subplot(aspect="equal")
-
-# plt.xlim(-25, 25)
-# plt.ylim(-25, 25)
-# ax.axis("off")
-# ax.axis("tight")
 
 
 def save_audio(audio, dir, file, sample_rate=16000):
@@ -460,7 +432,6 @@ def translate_syllable_vowel_number(syllable):
 def translate_vowel_number_to_vowel(number):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
     return "a" if number == 0 else "i" if number == 1 else "u"
-
 
 if __name__ == "__main__":
     pass

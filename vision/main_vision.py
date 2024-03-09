@@ -11,6 +11,7 @@ import os
 from config_code.config_classes import ModelType, OptionsConfig
 #### own modules
 from utils import logger
+from utils.utils import set_seed
 from vision.arg_parser import arg_parser
 from vision.models import load_vision_model
 from vision.data import get_dataloader
@@ -147,9 +148,7 @@ if __name__ == "__main__":
     opt.model_type = ModelType.ONLY_ENCODER
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     if opt.device.type != "cpu":
         torch.backends.cudnn.benchmark = True

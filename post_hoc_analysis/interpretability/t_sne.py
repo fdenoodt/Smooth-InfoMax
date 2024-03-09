@@ -31,7 +31,7 @@ from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model
-from utils.utils import retrieve_existing_wandb_run_id
+from utils.utils import retrieve_existing_wandb_run_id, set_seed
 
 
 def plot_tsne(opt: OptionsConfig, feature_space: np.ndarray, label_indices: np.ndarray, gim_name: str,
@@ -188,9 +188,7 @@ def main():
     arg_parser.create_log_path(opt, add_path_var="post_hoc")
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     load_existing_model = True
     context_model, _ = load_audio_model.load_model_and_optimizer(

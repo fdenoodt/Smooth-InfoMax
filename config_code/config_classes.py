@@ -129,7 +129,7 @@ class DecoderConfig:
 
 
 class OptionsConfig:
-    def __init__(self, seed, validate, loss: Loss, encoder_config, experiment,
+    def __init__(self, config_file, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
@@ -142,6 +142,8 @@ class OptionsConfig:
         # current time
         self.time = datetime.datetime.now()
         self.model_type: ModelType = ModelType.UNDEFINED  # will be set in the main function
+
+        self.config_file = config_file
         self.seed = seed
         self.validate = validate
         self.loss = loss

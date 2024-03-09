@@ -10,26 +10,6 @@ from models.full_model import FullModel
 
 
 class LitDecoder(L.LightningModule):
-
-    @staticmethod
-    def _get_loss_from_enum(loss_enum: DecoderLoss):
-        if loss_enum == DecoderLoss.MSE:
-            return MSE_Loss()
-        elif loss_enum == DecoderLoss.SPECTRAL:
-            return SpectralLoss()
-        elif loss_enum == DecoderLoss.MSE_SPECTRAL:
-            return MSE_AND_SPECTRAL_LOSS()
-        elif loss_enum == DecoderLoss.FFT:
-            return FFTLoss()
-        elif loss_enum == DecoderLoss.MSE_FFT:
-            return MSE_AND_FFT_LOSS()
-        elif loss_enum == DecoderLoss.MEL:
-            return MEL_LOSS()
-        elif loss_enum == DecoderLoss.MSE_MEL:
-            return MSE_AND_MEL_LOSS()
-        else:
-            raise ValueError(f"Loss enum {loss_enum} not supported")
-
     def __init__(self, encoder, decoder: nn.Module, lr: float, loss: DecoderLoss):
         super().__init__()
         encoder.eval()
@@ -89,6 +69,25 @@ class LitDecoder(L.LightningModule):
         avg_loss = torch.stack(self.test_losses).mean()
         self.log(f"Decoder {self.loss_enum}/avg_test_loss", avg_loss)
         self.test_losses = []  # reset for the next epoch
+
+    @staticmethod
+    def _get_loss_from_enum(loss_enum: DecoderLoss):
+        if loss_enum == DecoderLoss.MSE:
+            return MSE_Loss()
+        elif loss_enum == DecoderLoss.SPECTRAL:
+            return SpectralLoss()
+        elif loss_enum == DecoderLoss.MSE_SPECTRAL:
+            return MSE_AND_SPECTRAL_LOSS()
+        elif loss_enum == DecoderLoss.FFT:
+            return FFTLoss()
+        elif loss_enum == DecoderLoss.MSE_FFT:
+            return MSE_AND_FFT_LOSS()
+        elif loss_enum == DecoderLoss.MEL:
+            return MEL_LOSS()
+        elif loss_enum == DecoderLoss.MSE_MEL:
+            return MSE_AND_MEL_LOSS()
+        else:
+            raise ValueError(f"Loss enum {loss_enum} not supported")
 
 
 if __name__ == "__main__":

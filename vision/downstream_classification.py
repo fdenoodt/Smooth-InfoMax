@@ -189,9 +189,7 @@ if __name__ == "__main__":
     arg_parser.create_log_path(opt, add_path_var=add_path_var)
 
     # random seeds
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    utils.set_seed(opt.seed)
 
     # load pretrained model
     # TODO! reload_model should be True, but it is set to False for testing purposes

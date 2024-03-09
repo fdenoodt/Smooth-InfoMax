@@ -97,3 +97,9 @@ def retrieve_existing_wandb_run_id(opt: OptionsConfig):
         project_name = None
 
     return run_id, project_name
+
+
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)

@@ -10,6 +10,7 @@ from data import get_dataloader, phone_dict
 from utils import logger, utils
 from arg_parser import arg_parser
 from models import load_audio_model
+from utils.utils import set_seed
 
 
 def weights_init(m):
@@ -168,9 +169,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     arg_parser.create_log_path(opt, add_path_var="linear_model_phones")
 
-    torch.manual_seed(opt.seed)
-    torch.cuda.manual_seed(opt.seed)
-    np.random.seed(opt.seed)
+    set_seed(opt.seed)
 
     # load self-supervised GIM model
     context_model, _ = load_audio_model.load_model_and_optimizer(opt, classifier_config, reload_model=True)

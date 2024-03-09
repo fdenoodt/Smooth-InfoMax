@@ -1,100 +1,171 @@
-# %%
-from decoder.decoder_architectures import *
+# eg:
+# SIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=trueKLD=0.005 sim_audio_de_boer_distr_true
+# GIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=falseKLD=0 sim_audio_de_boer_distr_false
+
+import numpy as np
 import torch
-from encoder.GIM_encoder import GIM_Encoder
-from utils import logger
+
+from config_code.config_classes import OptionsConfig
 from data import get_dataloader
-import random
-from options import OPTIONS as opt
-
-random.seed(0)
-
-
-def _generate_predictions(decoder, data_loader, encoder, model_nb, path, train_or_test="test"):
-    for idx, (batch_org_audio, batch_filenames, _, _) in enumerate(data_loader):
-        batch_org_audio = batch_org_audio.to(device)
-        batch_per_module = encoder(batch_org_audio)
-        batch_enc_audio = batch_per_module[-1].to(device)
-        batch_enc_audio = batch_enc_audio.permute(0, 2, 1)  # (b, c, l)
-
-        batch_outp = decoder(batch_enc_audio)
-
-        # to numpy
-        batch_org_audio = det_np(batch_org_audio)
-        batch_outp = det_np(batch_outp)
-
-        for file_idx, (org_audio, filename, outp) in enumerate(zip(batch_org_audio, batch_filenames, batch_outp)):
-            org_audio, outp = org_audio[0], outp[0]  # remove channel dimension
-
-            # frequency domain
-            org_mag, outp_mag = fft_magnitude(org_audio), fft_magnitude(outp)
-
-            plot_four_graphs_side_by_side(
-                org_audio, outp, org_mag, outp_mag,
-                title=f"{filename}, model={model_nb}, True vs Predicted",
-                dir=f"{path}/predictions_model={model_nb}/{train_or_test}/",
-                file=f"{filename}, model={model_nb}, True vs Predicted", show=False)
-
-            save_audio(outp,
-                       f"{path}/predictions_model={model_nb}/{train_or_test}/",
-                       file=f"{filename}, model={model_nb}, True vs Predicted", sample_rate=16000)
-
-            if file_idx == 20:
-                break  # only do 20 first files
-        break  # only do a single batch!
+from decoder.lit_decoder import LitDecoder
+from decoder.decoderr import Decoder
+from models import load_audio_model
+from options import get_options
+from utils.utils import set_seed
+import wandb
 
 
-def generate_predictions(options, experiment_name, encoder, criterion, lr, layer_depth, decoder, model_nb=29):
-    '''Generate predictions for the test set and save them to disk.'''
+def _get_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: Decoder):
+    _, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset)
 
-    path = f"{options['log_path']}/{criterion}/lr_{lr:.7f}/GIM_L{layer_depth}/"
-    model_path = f"{path}/model_{model_nb}.pt"
+    with torch.no_grad():
+        for batch in test_loader:
+            (x, _, label, _) = batch
+            x = x.to(opt.device)
+            full_model = context_model.module
+            z = full_model.forward_through_all_cnn_modules(x)
+            z = z.detach()
+            x_reconstructed = decoder(z)
+            break
+    return x_reconstructed, x, z
 
-    decoder.load_state_dict(torch.load(model_path, map_location=device))
+
+def _reconstruct_audio(z: torch.Tensor, decoder: Decoder):
+    x_reconstructed = decoder(z)
+    return x_reconstructed
+
+
+def _get_models(opt: OptionsConfig):
+    context_model, _ = load_audio_model.load_model_and_optimizer(
+        opt,
+        opt.decoder_config,
+        reload_model=True,
+        calc_accuracy=False,
+        num_GPU=1,
+    )
+    context_model.eval()
+    context_model = context_model.to(opt.device)
+
+    decoder: Decoder = load_audio_model.load_decoder(opt)
     decoder.eval()
+    decoder = decoder.to(opt.device)
+    return context_model, decoder
 
-    logs = logger.Logger(opt)
 
-    # load the data
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        opt, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=False)
+def _log_audio(key: str, audios: torch.Tensor, nb_files: int):
+    audios = audios.squeeze(1).contiguous().cpu().data.numpy()
+    audios = [audio_sample for audio_sample in audios[:nb_files]]
 
-    _generate_predictions(decoder, test_loader, encoder,
-                          model_nb, path, train_or_test="test")
-    _generate_predictions(decoder, train_loader, encoder,
-                          model_nb, path, train_or_test="train")
+    wandb.log({key: [wandb.Audio(audio, sample_rate=16_000) for audio in audios]})
+
+
+def _init_wandb(opt: OptionsConfig):
+    wandb.init(project="DECODER_ANALYSIS", name=f"Dec L={opt.decoder_config.decoder_loss} conf={opt.config_file}")
+    for key, value in vars(opt).items():
+        wandb.config[key] = value
+
+
+def main():
+    # Load options
+    opt = get_options()
+    set_seed(opt.seed)
+
+    context_model, decoder = _get_models(opt)
+
+    # Load the data
+    x_reconstructed, x, z = _get_data(opt, context_model, decoder)
+    batch_size, dims, nb_frames = z.shape
+
+    x_randn = _reconstruct_audio(torch.randn_like(z), decoder)
+    x_zeros = _reconstruct_audio(torch.zeros_like(z), decoder)
+
+    # z shape: (batch_size, z_dim, nb_frames)
+    z_sample_1 = z[1]
+    z_sample_2 = z[2]
+
+    # different interpolations between z_sample_1 and z_sample_2
+    vals = np.linspace(0, 1, 10)
+    z_interpolated = torch.stack([z_sample_1 * val + z_sample_2 * (1 - val) for val in vals])
+    x_interpolated = _reconstruct_audio(z_interpolated, decoder)
+
+    # take z_sample_1 but apply mask on irrelevant dimensions (eg. 0s on all but dim 0, 4 and 48)
+    z_masked = z_sample_1.clone()  # shape: (z_dim, nb_frames)
+    # z_masked[0, :] = 0 # z_masked[4, :] = 0 # z_masked[48, :] = 0
+    # # 10 rnd indices
+    # indices = np.random.choice(z_masked.shape[0], 10, replace=False)
+    # z_masked[indices, :] = 0
+    # x_masked = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # Mask the important indices
+    important_indices = [441, 186, 413, 85, 488, 424, 327, 433, 24, 245, 99, 231, 218, 454, 387, 308, 0, 266, 351, 138,
+                         163, 491, 495, 195, 500, 18, 46, 249, 236, 244, 127, 230]
+    z_masked = z_sample_1.clone()
+    z_masked[important_indices, :] = 0
+    x_masked = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # Now mask all BUT the important indices
+    z_masked = z_sample_1.clone()
+    z_masked[important_indices, :] = 0
+    z_masked = z_masked * 0.0
+    z_masked[important_indices, :] = z_sample_1[important_indices, :]
+    x_masked_reverse = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # mask each dimension at a time
+    z_masked = z_sample_1.clone()
+    # repeat 512 times
+    z_masked = z_masked.repeat(512, 1, 1).reshape(dims, dims, nb_frames)
+    for i in range(dims):
+        z_masked[i, :i, :] = 0
+    x_masked_single_dim = _reconstruct_audio(z_masked, decoder)
+
+    # remove half of the dimensions
+    z_masked = z_sample_1.clone()
+    z_masked[dims//2:, :] = 0
+    x_masked_half = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # remove other half of the dimensions
+    z_masked = z_sample_1.clone()
+    z_masked[:dims//2, :] = 0
+    x_other_half = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # remove 75% of the dimensions
+    z_masked = z_sample_1.clone()
+    z_masked[dims//4:, :] = 0
+    x_masked_75 = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+    # remove 25% of the dimensions
+    z_masked = z_sample_1.clone()
+    z_masked[:3*dims//4, :] = 0
+    x_masked_25 = _reconstruct_audio(z_masked.unsqueeze(0), decoder)
+
+
+
+    _init_wandb(opt)
+    _log_audio("reconstr", x_reconstructed, 10)
+    _log_audio("gt", x, 10)
+
+    _log_audio("std_normal", x_randn, 10)
+    _log_audio("zeros", x_zeros, 10)
+
+    _log_audio("interpolated", x_interpolated, 10)
+
+    # _log_audio("masked", x_masked, 10)
+    _log_audio("masked", x_masked, 10)
+    _log_audio("masked_reverse", x_masked_reverse, 10)
+    _log_audio("masked_single_dim", x_masked_single_dim, 100)
+
+    _log_audio("masked_half", x_masked_half, 10)
+    _log_audio("other_half", x_other_half, 10)
+    _log_audio("masked_75", x_masked_75, 10)
+    _log_audio("masked_25", x_masked_25, 10)
+
+
+
+
+    wandb.finish()
+
+    return x_reconstructed, x
 
 
 if __name__ == "__main__":
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    opt['batch_size'] = 64 + 32
-    opt['batch_size_multiGPU'] = opt['batch_size']
-
-    LAYER_DEPTH = 1
-    decoder = SimpleV1Decoder().to(DEVICE)
-
-    CRITERION = "MSE + scMEL Loss Lambda=1.0000000"
-    LR = 0.001
-
-    # did best: lr_0.0001/GIM_L{layer_depth}/model_29.pt"
-    # works well too lr_1e-05/GIM_L{layer_depth}/model_29.pt"
-
-    # "DRIVE LOGS/03 MODEL noise 400 epochs/logs/audio_experiment/model_360.ckpt
-    # GIM_MODEL_PATH = r"D:\thesis_logs\logs\audio_noise=F_dim=32_distr_wo_nonlin_kld_weight=0.032 !!/model_799.ckpt"
-    GIM_MODEL_PATH = r"D:\thesis_logs\logs\de_boer_reshuf_simple_v2_kld_weight=0.0033 !!/model_290.ckpt"
-
-    ENCODER = GIM_Encoder(opt, path=GIM_MODEL_PATH)
-    generate_predictions(opt, "GIM_DECODER_experiment", ENCODER, CRITERION, LR,
-                         LAYER_DEPTH, decoder, model_nb=29)
-
-    # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
-    # so huh? that means that a lot of info is already in first channel? what do other 511 channels then contain?
-
-    # Observations:
-    # First layer decoded still contains the same sound, but with some added noise (could be because decoder hasn't trained very).
-    # However, the encoded first layer, still contains the exact sound as the original sound. It is however downsampled a lot -> from 16khz to ~3khz
-
-    # thought for later: its actually weird i was able to play enc as audio as enc is 512 x something
-    # so huh? that means that a lot of info is already in first channel? what do other 511 channels then contain?
-
-    # %%
+    x_reconstructed, x = main()
