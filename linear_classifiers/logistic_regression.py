@@ -78,7 +78,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             model_input = audio.to(opt.device)
             if bias:  # typical case
                 z = get_c(opt, context_model, model_input)  # forward through all modules
-            else: # only for space analysis
+            else:  # only for space analysis
                 z = get_z(opt, context_model, model_input)  # forward only through CNN modules
 
             # forward pass
@@ -201,7 +201,16 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
         num_GPU=1,
     )
 
-    n_features = context_model.module.output_dim  # 256 or 512
+    """ 
+    WARNING: bias = False is only used for vowel classifier on the ConvLayer. It's not supported beyond that (eg regression layer).
+    It is only used for the latent space analysis, not used for performance evaluation.
+    """
+
+    # 512 is the output of the ConvLayer. Conv layer only used for space analysis!
+    # regression layer used for performance evaluation! (typical case)
+    n_features = opt.encoder_config.architecture.modules[0].regressor_hidden_dim if bias else \
+        opt.encoder_config.architecture.modules[0].cnn_hidden_dim
+
     num_classes = 9 if syllables else 3
     loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
     learning_rate = opt.syllables_classifier_config.learning_rate

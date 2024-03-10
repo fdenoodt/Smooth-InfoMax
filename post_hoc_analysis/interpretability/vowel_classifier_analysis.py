@@ -171,7 +171,7 @@ def main():
 
     # the classifier is a part of the loss function
     n_labels = 3
-    n_features = opt.encoder_config.architecture.modules[0].regressor_hidden_dim # 256, is being multiplied by 2 in Syllables_Loss()
+    n_features = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
     syllables_loss = Syllables_Loss(opt, hidden_dim=n_features, calc_accuracy=True, bias=False, num_syllables=n_labels)
 
     # Load the trained model
