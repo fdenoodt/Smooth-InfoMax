@@ -14,8 +14,8 @@ class SIMSetup:
         padding = [2, 2, 2, 2, 1]
         max_pool_stride = None
         max_pool_k_size = None
-        cnn_hidden_dim = 32
-        regressor_hidden_dim = 32
+        cnn_hidden_dim = 32 #512 #32
+        regressor_hidden_dim = 16 #256 #16
 
         # Create three modules, one module contains two layers (except the last module: only one layer)
         modules = [
