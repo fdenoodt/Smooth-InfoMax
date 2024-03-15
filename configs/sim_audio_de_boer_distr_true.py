@@ -7,7 +7,7 @@ from config_code.sim_setup import SIMSetup
 
 def _get_options(experiment_name) -> OptionsConfig:
     config_file = os.path.basename(__file__)
-    sim_setup = SIMSetup(predict_distributions=True, dataset=Dataset.DE_BOER, config_file=config_file)
+    sim_setup = SIMSetup(predict_distributions=True, dataset=Dataset.DE_BOER, config_file=config_file, is_cpc=False)
     options = sim_setup.get_options(experiment_name)
 
     return options
