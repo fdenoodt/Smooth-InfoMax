@@ -79,7 +79,7 @@ def main(syllables: bool):
     model = model.to(opt.device)
     criterion = nn.CrossEntropyLoss()
 
-    num_epochs = 5
+    num_epochs = 200
     lr = 2e-4
     optimizer = optim.Adam(model.parameters(), lr=lr)
     for epoch in range(num_epochs):
