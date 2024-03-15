@@ -68,7 +68,7 @@ def calculate_accuracy(opt: OptionsConfig, model: FullySupervisedModel, test_loa
 
 
 def main(syllables: bool):
-    wandb.init(project="fully_supervised_model")
+    wandb.init(project="fully_supervised_model", name=f"model_{'vowel' if not syllables else 'syllable'}_classifier_{wandb.util.generate_id()}")
 
     opt: OptionsConfig = get_options()
 
