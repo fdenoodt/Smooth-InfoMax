@@ -1,6 +1,8 @@
 # Example usage:
 # de_boer dataset:
-# python -m encoder.train temp sim_audio_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
+# python -m encoder.train temp sim_audio_de_boer_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
+
+# for cpc: cpc_audio_de_boer
 
 import os
 import torch
@@ -127,7 +129,7 @@ def _main(options: OptionsConfig):
         family = "GIM"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
 
-    project_name = "SIM_ENCODER_FULL_PIPELINE_32dim_x_32dim"
+    project_name = "SIM_ENCODER_FULL_PIPELINE_512dim_x_256dim_repeat"
     wandb.init(project=project_name, name=run_name)
     for key, value in vars(options).items():
         wandb.config[key] = value
