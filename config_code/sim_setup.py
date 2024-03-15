@@ -40,37 +40,39 @@ class SIMSetup:
                 ModuleConfig(
                     max_pool_k_size=max_pool_k_size,
                     max_pool_stride=max_pool_stride,
-                    kernel_sizes=kernel_sizes[:2],
-                    strides=strides[:2],
-                    padding=padding[:2],
-                    cnn_hidden_dim=cnn_hidden_dim,
-                    is_autoregressor=False,
-                    regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
-                    predict_distributions=predict_distributions
-                ), ModuleConfig(
-                    max_pool_k_size=max_pool_k_size,
-                    max_pool_stride=max_pool_stride,
-                    kernel_sizes=kernel_sizes[2:4],
-                    strides=strides[2:4],
-                    padding=padding[2:4],
-                    cnn_hidden_dim=cnn_hidden_dim,
-                    is_autoregressor=False,
-                    regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
-                    predict_distributions=predict_distributions
-                ), ModuleConfig(
-                    max_pool_k_size=None,
-                    max_pool_stride=None,
-                    kernel_sizes=kernel_sizes[4:],
-                    strides=strides[4:],
-                    padding=padding[4:],
+                    kernel_sizes=kernel_sizes,
+                    strides=strides,
+                    padding=padding,
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
                     prediction_step=12,
                     predict_distributions=predict_distributions
                 ),
+                # ModuleConfig(
+                #     max_pool_k_size=max_pool_k_size,
+                #     max_pool_stride=max_pool_stride,
+                #     kernel_sizes=kernel_sizes[2:4],
+                #     strides=strides[2:4],
+                #     padding=padding[2:4],
+                #     cnn_hidden_dim=cnn_hidden_dim,
+                #     is_autoregressor=False,
+                #     regressor_hidden_dim=regressor_hidden_dim,
+                #     prediction_step=12,
+                #     predict_distributions=predict_distributions
+                # ),
+                # # ModuleConfig(
+                #     max_pool_k_size=None,
+                #     max_pool_stride=None,
+                #     kernel_sizes=kernel_sizes[4:],
+                #     strides=strides[4:],
+                #     padding=padding[4:],
+                #     cnn_hidden_dim=cnn_hidden_dim,
+                #     is_autoregressor=False,
+                #     regressor_hidden_dim=regressor_hidden_dim,
+                #     prediction_step=12,
+                #     predict_distributions=predict_distributions
+                # ),
                 # One autoregressor module
                 ModuleConfig(
                     # not applicable for the regressor

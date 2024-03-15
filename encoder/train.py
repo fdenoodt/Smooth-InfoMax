@@ -127,9 +127,9 @@ def _main(options: OptionsConfig):
         family = "SIM"
     else:
         family = "GIM"
-    run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+    run_name = f"single_cnn_module_{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
 
-    project_name = "SIM_ENCODER_FULL_PIPELINE_512dim_x_256dim_repeat"
+    project_name = "SIM_ENCODER_FULL_PIPELINE"
     wandb.init(project=project_name, name=run_name)
     for key, value in vars(options).items():
         wandb.config[key] = value
@@ -164,10 +164,6 @@ def _main(options: OptionsConfig):
     logs.create_log(model)
 
     wandb.finish()
-
-    # TODO:
-    # Save_latents_and_generate_visualisations(options)
-
 
 def _init(options: OptionsConfig):
     torch.cuda.empty_cache()
