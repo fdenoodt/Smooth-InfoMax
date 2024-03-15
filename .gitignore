@@ -1,3 +1,4 @@
+temp/
 wandb/
 lightning_logs/
 thesis-text-alt/*
