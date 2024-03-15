@@ -164,7 +164,7 @@ class SIMSetup:
     def get_options(self, experiment_name) -> OptionsConfig:
         options = OptionsConfig(
             config_file=self.config_file,
-            seed=2,
+            seed=-1,
             validate=True,
             loss=Loss.INFO_NCE,
             experiment='audio',
