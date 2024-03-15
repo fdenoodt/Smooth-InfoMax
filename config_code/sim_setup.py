@@ -98,7 +98,7 @@ class SIMSetup:
             negative_samples=10,
             subsample=True,
             architecture=ARCHITECTURE,
-            kld_weight=0.1 if predict_distributions else 0,
+            kld_weight=0.01 if predict_distributions else 0,
             learning_rate=2e-4,  # = 0.0002
             decay_rate=1,
             train_w_noise=False,
