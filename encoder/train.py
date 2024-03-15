@@ -20,6 +20,7 @@ from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model
 from data import get_dataloader
+from utils.utils import set_seed
 from validation.val_by_syllables import val_by_latent_syllables
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
@@ -176,10 +177,8 @@ def _init(options: OptionsConfig):
     arg_parser.create_log_path(options)
 
     # set random seeds
-    torch.manual_seed(options.seed)
-    torch.cuda.manual_seed(options.seed)
-    np.random.seed(options.seed)
-    random.seed(options.seed)
+    set_seed(options.seed)
+
 
 
 def run_configuration(options: OptionsConfig):
