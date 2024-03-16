@@ -72,6 +72,10 @@ def main(syllables: bool):
 
     opt: OptionsConfig = get_options()
 
+    if syllables:
+        opt.syllables_classifier_config.dataset.labels = "syllables"
+    else:
+        opt.syllables_classifier_config.dataset.labels = "vowels"
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.syllables_classifier_config.dataset)
 
     num_classes = 9 if syllables else 3
