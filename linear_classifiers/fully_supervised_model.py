@@ -11,7 +11,7 @@ from options import get_options
 
 
 class FullySupervisedModel(nn.Module):
-    def __init__(self, cnn_hidden_dim, regressor_hidden_dim, num_classes):
+    def __init__(self, cnn_hidden_dim, regressor_hidden_dim, num_classes, freeze: bool):
         super(FullySupervisedModel, self).__init__()
         self.label_num = num_classes
         self.cnn = nn.Sequential(
@@ -29,6 +29,13 @@ class FullySupervisedModel(nn.Module):
 
         # batch_first=True: input and output tensors are provided as (batch, seq, feature)
         self.regressor = nn.GRU(input_size=cnn_hidden_dim, hidden_size=regressor_hidden_dim, batch_first=True)
+
+        if freeze:
+            for param in self.cnn.parameters():
+                param.requires_grad = False
+            for param in self.regressor.parameters():
+                param.requires_grad = False
+
         self.classifier = nn.Linear(regressor_hidden_dim, num_classes)
 
     def forward(self, x):
@@ -68,7 +75,8 @@ def calculate_accuracy(opt: OptionsConfig, model: FullySupervisedModel, test_loa
 
 
 def main(syllables: bool):
-    wandb.init(project="fully_supervised_model", name=f"model_{'vowel' if not syllables else 'syllable'}_classifier_{wandb.util.generate_id()}")
+    wandb.init(project="fully_supervised_model",
+               name=f"FROZEN_model_{'vowel' if not syllables else 'syllable'}_classifier_{wandb.util.generate_id()}")
 
     opt: OptionsConfig = get_options()
 
@@ -79,7 +87,7 @@ def main(syllables: bool):
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.syllables_classifier_config.dataset)
 
     num_classes = 9 if syllables else 3
-    model = FullySupervisedModel(cnn_hidden_dim=512, regressor_hidden_dim=256, num_classes=num_classes)
+    model = FullySupervisedModel(cnn_hidden_dim=512, regressor_hidden_dim=256, num_classes=num_classes, freeze=True)
     model = model.to(opt.device)
     criterion = nn.CrossEntropyLoss()
 
@@ -113,8 +121,8 @@ def main(syllables: bool):
         wandb.log({"Loss": loss.item(), "Accuracy": correct / total, "Epoch": epoch})
         print(f'Epoch {epoch}, Loss: {loss.item()}, Accuracy: {correct / total}')
 
-
     calculate_accuracy(opt, model, test_loader, syllables)
+
 
 if __name__ == "__main__":
     main(True)
