@@ -75,7 +75,7 @@ def calculate_accuracy(opt: OptionsConfig, model: FullySupervisedModel, test_loa
 
 
 def main(syllables: bool):
-    wandb.init(project="fully_supervised_model",
+    wandb.init(project="temp",
                name=f"FROZEN_model_{'vowel' if not syllables else 'syllable'}_classifier_{wandb.util.generate_id()}")
 
     opt: OptionsConfig = get_options()
@@ -125,4 +125,10 @@ def main(syllables: bool):
 
 
 if __name__ == "__main__":
-    main(True)
+    # main(True)
+
+    # test model
+    model = FullySupervisedModel(cnn_hidden_dim=512, regressor_hidden_dim=256, num_classes=9, freeze=True)
+    rnd = torch.rand(64, 1, 10240)
+    print(model(rnd).shape)
+
