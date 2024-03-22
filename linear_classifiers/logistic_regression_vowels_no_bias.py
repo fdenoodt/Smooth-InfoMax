@@ -1,5 +1,5 @@
 # python -m linear_classifiers.logistic_regression_vowels temp sim_audio_distr_true --overrides syllables_classifier_config.encoder_num=9
-# or temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
+# or temp sim_audio_xxxx_distr_true --overrides syllables_classifier_config.encoder_num=9
 from linear_classifiers.logistic_regression import main
 
 if __name__ == "__main__":

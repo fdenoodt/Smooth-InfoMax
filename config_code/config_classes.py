@@ -16,11 +16,11 @@ class Loss(Enum):
 
 
 class Dataset(Enum):
-    # de_boer_sounds OR librispeech OR de_boer_sounds_reshuffled
+    # xxxx_sounds OR librispeech OR xxxx_sounds_reshuffled
     LIBRISPEECH = 1
     LIBRISPEECH_SUBSET = 3
-    DE_BOER = 4  # used to be 5, i think irrelevant for classification
-    # DE_BOER_RESHUFFLED_V2 = 6
+    xxxx = 4  # used to be 5, i think irrelevant for classification
+    # xxxx_RESHUFFLED_V2 = 6
     STL10 = 7
     ANIMAL_WITH_ATTRIBUTES = 8
 
@@ -43,17 +43,17 @@ class DataSetConfig:
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
 
         if split_in_syllables:
-            assert dataset in [Dataset.DE_BOER]
-            "split_in_syllables can only be True for de_boer_sounds dataset"
+            assert dataset in [Dataset.xxxx]
+            "split_in_syllables can only be True for xxxx_sounds dataset"
 
-        if (split_in_syllables and dataset in [Dataset.DE_BOER]):
+        if (split_in_syllables and dataset in [Dataset.xxxx]):
             assert labels in ["syllables", "vowels"]
 
         if grayscale:
             assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES]
             "grayscale can only be True for STL10 dataset or ANIMAL_WITH_ATTRIBUTES dataset"
 
-        self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
+        self.labels = labels  # eg: syllables or vowels, only for xxxx_sounds dataset
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
         self.grayscale = grayscale

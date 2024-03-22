@@ -1,5 +1,5 @@
 # example python call:
-# python -m post_hoc_analysis.interpretability.t_sne  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
+# python -m post_hoc_analysis.interpretability.t_sne  final_yyyyy/yyyyy_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 
 # other example python call:
 # python -m post_hoc_analysis.interpretability.t_sne temp sim_audio_distr_true --overrides syllables_classifier_config.encoder_num=0
@@ -203,7 +203,7 @@ def main():
     nb_channels = context_model.module.output_dim
 
     data_config = DataSetConfig(
-        dataset=Dataset.DE_BOER,
+        dataset=Dataset.xxxx,
         split_in_syllables=True,
         batch_size=128,
         limit_train_batches=1.0,

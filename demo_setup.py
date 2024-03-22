@@ -14,10 +14,10 @@ import IPython.display as ipd
 def create_get_options_func(type, nb_dims=512):
     model = f"{type}_{nb_dims}"
     if model == "SIM_512":
-        from configs.sim_audio_de_boer_distr_true import _get_options
+        from configs.sim_audio_xxxx_distr_true import _get_options
         experiment_name = "SIM=trueKLD=0.01"
     elif model == "GIM_512":
-        from configs.sim_audio_de_boer_distr_false import _get_options
+        from configs.sim_audio_xxxx_distr_false import _get_options
         experiment_name = "SIM=falseKLD=0"
     else:
         raise ValueError(f"model: {model} not found")

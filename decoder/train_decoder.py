@@ -1,5 +1,5 @@
 # Example usage:
-# python -m decoder.train_decoder temp sim_audio_de_boer_distr_true --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
+# python -m decoder.train_decoder temp sim_audio_xxxx_distr_true --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
 
 import time
 
@@ -35,7 +35,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.decoder_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
+    assert (opt.decoder_config.dataset.dataset in [Dataset.xxxx]), "Dataset not supported"
 
     # get integer val of enum
     loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE

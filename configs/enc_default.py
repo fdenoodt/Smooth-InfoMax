@@ -50,7 +50,7 @@ module2 = ModuleConfig(
 ARCHITECTURE = ArchitectureConfig(modules=[module1, module2])
 
 DATASET = DataSetConfig(
-    dataset=Dataset.DE_BOER,
+    dataset=Dataset.xxxx,
     split_in_syllables=False,
     batch_size=8,
 )

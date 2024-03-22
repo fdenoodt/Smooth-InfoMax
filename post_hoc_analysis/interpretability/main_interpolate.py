@@ -56,7 +56,7 @@ if __name__ == "__main__":
     DECODER.eval()
 
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(
-        OPTIONS, dataset="de_boer_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
+        OPTIONS, dataset="xxxx_sounds_reshuffledv2", split_and_pad=False, train_noise=False, shuffle=True)
 
 
     batch_enc_audio = invent_latent_rnd(DEVICE)

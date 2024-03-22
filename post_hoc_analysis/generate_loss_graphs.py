@@ -32,7 +32,7 @@ except:
 
 
 root = r"D:\thesis_logs\logs\GIM_DECODER_simple_v2_experiment\MEL_SPECTR_n_fft=4096 !!\lr_0.0050000\GIM_L1"
-root = r"D:\thesis_logs\logs\de_boer_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!\DECODER\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1"
+root = r"D:\thesis_logs\logs\xxxx_TWO_MODULE_V3_dim32_kld_weight=0.0033 !!\DECODER\MEL_SPECTR_n_fft=4096\lr_0.0050000\GIM_L1"
 
 # iterate over all files in the folder
 for file in os.listdir(root):

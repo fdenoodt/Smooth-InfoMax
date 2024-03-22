@@ -1,4 +1,4 @@
-# Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
+# Example: temp sim_audio_xxxx_distr_true --overrides syllables_classifier_config.encoder_num=9
 
 import matplotlib.pyplot as plt
 import numpy as np

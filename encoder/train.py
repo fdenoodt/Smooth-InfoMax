@@ -1,8 +1,8 @@
 # Example usage:
-# de_boer dataset:
-# python -m encoder.train temp sim_audio_de_boer_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
+# xxxx dataset:
+# python -m encoder.train temp sim_audio_xxxx_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
 
-# for cpc: cpc_audio_de_boer
+# for cpc: cpc_audio_xxxx
 
 import os
 import torch
@@ -59,7 +59,7 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
             # validate training progress by plotting latent representation of various speakers
             # TODO
-            # if step % latent_val_idx == 0 and opt.encoder_config.dataset.dataset == Dataset.DE_BOER:
+            # if step % latent_val_idx == 0 and opt.encoder_config.dataset.dataset == Dataset.xxxx:
             #     val_by_latent_syllables(opt.encoder_config.dataset, opt.device, test_loader, model, epoch, step)
 
             if step % print_idx == 0:

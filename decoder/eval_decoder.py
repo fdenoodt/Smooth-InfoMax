@@ -1,11 +1,11 @@
 # eg: for 512 dimensions
-# SIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=trueKLD=0.005 sim_audio_de_boer_distr_true
-# GIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=falseKLD=0 sim_audio_de_boer_distr_false
+# SIM: full_pipeline_yyyyy/audio_FULL_PIPELINE_sim_xxxx_SIM=trueKLD=0.005 sim_audio_xxxx_distr_true
+# GIM: full_pipeline_yyyyy/audio_FULL_PIPELINE_sim_xxxx_SIM=falseKLD=0 sim_audio_xxxx_distr_false
 
 # now 32 dimensions (cnn) -> 16 dimensions (regressor)
 # https://wandb.ai/eccv_tanmoy/SIM_ENCODER_FULL_PIPELINE_32dim/runs/1qy8znu4?workspace=user-oboii
-# full_pipeline_bart_32_16/audio_FULL_PIPELINE_sim_de_boer_32dim_SIM=trueKLD=0.001
-# full_pipeline_bart_32_16/audio_FULL_PIPELINE_sim_de_boer_32dim_SIM=falseKLD=0
+# full_pipeline_yyyyy_32_16/audio_FULL_PIPELINE_sim_xxxx_32dim_SIM=trueKLD=0.001
+# full_pipeline_yyyyy_32_16/audio_FULL_PIPELINE_sim_xxxx_32dim_SIM=falseKLD=0
 
 import numpy as np
 import torch

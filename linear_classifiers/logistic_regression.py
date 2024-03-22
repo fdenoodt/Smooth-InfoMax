@@ -1,5 +1,5 @@
 # example python call:
-# python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
+# python -m linear_classifiers.logistic_regression_syllables  final_yyyyy/yyyyy_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
 # python -m linear_classifiers.logistic_regression_syllables temp sim_audio_distr_true --overrides syllables_classifier_config.encoder_num=9
 
@@ -177,7 +177,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
+    assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.xxxx]), "Dataset not supported"
 
     # Check if the wandb_run_id.txt file exists
     wandb_is_on = False
