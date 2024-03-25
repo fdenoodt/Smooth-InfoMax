@@ -16,6 +16,7 @@ class SIMSetup:
         max_pool_k_size = None
         cnn_hidden_dim = 512  # 32
         regressor_hidden_dim = 256  # 16
+        prediction_step_k = 10
 
         if is_cpc:
             # A single module
@@ -29,7 +30,7 @@ class SIMSetup:
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=True,
                     regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
+                    prediction_step=prediction_step_k,
                     predict_distributions=False,
                     is_cnn_and_autoregressor=True
                 )]
@@ -46,7 +47,7 @@ class SIMSetup:
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
+                    prediction_step=prediction_step_k,
                     predict_distributions=predict_distributions
                 ), ModuleConfig(
                     max_pool_k_size=max_pool_k_size,
@@ -57,7 +58,7 @@ class SIMSetup:
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
+                    prediction_step=prediction_step_k,
                     predict_distributions=predict_distributions
                 ), ModuleConfig(
                     max_pool_k_size=None,
@@ -68,7 +69,7 @@ class SIMSetup:
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
+                    prediction_step=prediction_step_k,
                     predict_distributions=predict_distributions
                 ),
                 # One autoregressor module
@@ -79,7 +80,7 @@ class SIMSetup:
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=True,
                     regressor_hidden_dim=regressor_hidden_dim,
-                    prediction_step=12,
+                    prediction_step=prediction_step_k,
                 )]
 
         ARCHITECTURE = ArchitectureConfig(modules=modules, is_cpc=is_cpc)
