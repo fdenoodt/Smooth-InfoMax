@@ -13,7 +13,6 @@ import gc
 
 from config_code.config_classes import OptionsConfig, Dataset, ModelType
 from models.full_model import FullModel
-from post_hoc_analysis.interpretability.main_anal_hidd_repr import run_visualisations
 
 # own modules
 from utils import logger

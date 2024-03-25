@@ -7,7 +7,6 @@ This file is used to analyse the hidden representation of the audio signal.
 import random
 from sklearn.manifold import TSNE
 from utils.helper_functions import *
-from options_anal_hidd_repr import OPTIONS as OPT_ANAL
 from arg_parser import arg_parser
 from data import get_dataloader
 
