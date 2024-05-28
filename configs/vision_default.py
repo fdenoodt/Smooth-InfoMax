@@ -17,7 +17,7 @@ DATASET = DataSetConfig(
 
 ENCODER_CONFIG = EncoderConfig(
     start_epoch=0,
-    num_epochs=200,  # orginal paper was 1_000, nvm, was 300
+    num_epochs=300,
     negative_samples=16,
     subsample=True,
     architecture=ARCHITECTURE,
