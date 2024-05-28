@@ -129,7 +129,6 @@ def train(opt: OptionsConfig, model: FullVisionModel):
                         step=global_step)
 
             global_step += 1
-            break
 
         if opt.validate:
             validation_loss, validation_nce_loss, validation_kld_loss = \
@@ -142,7 +141,6 @@ def train(opt: OptionsConfig, model: FullVisionModel):
                               step=global_step)
 
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
-        break
 
 
 if __name__ == "__main__":
