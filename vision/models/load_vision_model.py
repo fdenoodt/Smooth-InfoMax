@@ -8,8 +8,8 @@ from utils import model_utils
 
 
 def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[ClassifierConfig], num_GPU=None,
-                             reload_model=False, calc_loss=True):
-    model = FullModel.FullVisionModel(
+                             reload_model=False, calc_loss=True) -> (FullModel.FullVisionModel, torch.optim.Optimizer):
+    model: FullModel.FullVisionModel = FullModel.FullVisionModel(
         opt, calc_loss
     )
 

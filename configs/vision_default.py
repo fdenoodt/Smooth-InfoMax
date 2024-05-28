@@ -2,7 +2,8 @@ import torch
 from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ClassifierConfig
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 
-ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
+# ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
+ARCHITECTURE = ArchitectureConfig([])  # Not used in vision
 
 DATASET = DataSetConfig(
     dataset=Dataset.STL10,
@@ -26,6 +27,7 @@ ENCODER_CONFIG = EncoderConfig(
 
 def _get_options(experiment_name):
     options = OptionsConfig(
+        config_file=__file__,
         seed=2,
         validate=True,
         loss=Loss.INFO_NCE,
@@ -42,8 +44,8 @@ def _get_options(experiment_name):
             encoder_num=ENCODER_CONFIG.num_epochs - 1,
             num_epochs=20,
         ),
-
         decoder_config=None,
+
     )
     return options
 

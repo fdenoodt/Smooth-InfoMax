@@ -1,3 +1,5 @@
+from typing import Type
+
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
@@ -72,7 +74,7 @@ class ResNet_Encoder(nn.Module):
     def __init__(
         self,
         opt: OptionsConfig,
-        block,
+        block: Type[PreActBottleneckNoBN],
         num_blocks,
         filter,
         encoder_num,

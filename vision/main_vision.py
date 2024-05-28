@@ -9,6 +9,8 @@ import numpy as np
 import os
 
 from config_code.config_classes import ModelType, OptionsConfig
+from vision.models.FullModel import FullVisionModel
+
 #### own modules
 from utils import logger
 from utils.utils import set_seed
@@ -48,7 +50,7 @@ def validate(opt: OptionsConfig, model, test_loader):
     return validation_loss
 
 
-def train(opt: OptionsConfig, model: torch.nn.Module):
+def train(opt: OptionsConfig, model: FullVisionModel):
     total_step = len(train_loader)
     model.module.switch_calc_loss(True)
 
@@ -117,16 +119,16 @@ def train(opt: OptionsConfig, model: torch.nn.Module):
 
         if opt.validate:
             validation_loss = validate(opt, model, test_loader)  # Test_loader corresponds to validation set here.
-            logs.append_val_loss(validation_loss)
 
             for i, val_loss in enumerate(validation_loss):
                 wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
 
-        logs.append_train_loss([x / loss_updates[idx] for idx, x in enumerate(loss_epoch)])
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
 
 
 if __name__ == "__main__":
+    TRAIN = False
+    USE_WANDB = False
 
     opt = get_options()
     assert opt.experiment == "vision"
@@ -143,7 +145,6 @@ if __name__ == "__main__":
     # Save the run id to a file in the logs directory
     with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
         f.write(run_id)
-
 
     opt.model_type = ModelType.ONLY_ENCODER
 
@@ -168,7 +169,8 @@ if __name__ == "__main__":
 
     try:
         # Train the model
-        train(opt, model)
+        if TRAIN:
+            train(opt, model)
 
     except KeyboardInterrupt:
         print("Training got interrupted, saving log-files now.")

@@ -93,20 +93,11 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             val_acc1, _, val_loss = test_logistic_regression(
                 opt, context_model, classification_model, test_loader, wandb_is_on
             )
-            logs.append_val_loss([val_loss])
 
             if wandb_is_on:
                 wandb.log({"C/Validation accuracy": val_acc1, "C/Validation loss": val_loss, "C/Epoch": epoch})
 
         print("Overall accuracy for this epoch: ", epoch_acc1 / total_step)
-        logs.append_train_loss([loss_epoch / total_step])
-        logs.create_log(
-            context_model,
-            epoch=epoch,
-            classification_model=classification_model,
-            accuracy=epoch_acc1 / total_step,
-            acc5=epoch_acc5 / total_step,
-        )
 
 
 def test_logistic_regression(opt, context_model, classification_model, test_loader, wandb_is_on):
@@ -165,6 +156,7 @@ def test_logistic_regression(opt, context_model, classification_model, test_load
 
 
 if __name__ == "__main__":
+
     opt: OptionsConfig = get_options()
     opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK
 
@@ -198,7 +190,7 @@ if __name__ == "__main__":
     )
     context_model.module.switch_calc_loss(False)
 
-    ## model_type=2 is supervised model which trains entire architecture; otherwise just extract features
+    # model_type=2 is supervised model which trains entire architecture; otherwise just extract features
     if opt.model_type != 2:
         context_model.eval()
 

@@ -44,6 +44,7 @@ class FullVisionModel(torch.nn.Module):
         # else:
         #     raise Exception("Undefined parameter choice")
 
+        assert opt.encoder_config.dataset.grayscale is True  # replication of the paper, but maybe better rgb for img generation
         if opt.encoder_config.dataset.grayscale:
             input_dims = 1
         else:
@@ -96,7 +97,6 @@ class FullVisionModel(torch.nn.Module):
 
     def forward(self, x, label, n=3):
         model_input = x
-
         cur_device = self.opt.device
 
         n_patches_x, n_patches_y = None, None
@@ -116,14 +116,14 @@ class FullVisionModel(torch.nn.Module):
                 loss[:, idx] = cur_loss
                 accuracies[:, idx] = cur_accuracy
 
-        if self.employ_autoregressive and self.calc_loss:
-            c, loss[:, -1] = self.autoregressor(h)
-        else:
-            c = None
+        # if self.employ_autoregressive and self.calc_loss:
+        #     c, loss[:, -1] = self.autoregressor(h)
+        # else:
+        c = None
 
-            if self.opt.model_splits == 1 and cur_loss is not None:
-                loss[:, -1] = cur_loss
-                accuracies[:, -1] = cur_accuracy
+        # if self.opt.model_splits == 1 and cur_loss is not None:
+        #     loss[:, -1] = cur_loss
+        #     accuracies[:, -1] = cur_accuracy
 
         return loss, c, h, accuracies
 
