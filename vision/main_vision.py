@@ -28,18 +28,24 @@ def validate(opt: OptionsConfig, model, test_loader):
     # model_splits = opt.model_splits
 
     loss_epoch = [0 for i in range(model_splits)]
+    nce_loss_epoch = [0 for i in range(model_splits)]
+    kld_loss_epoch = [0 for i in range(model_splits)]
     starttime = time.time()
 
     for step, (img, label) in enumerate(test_loader):
         model_input = img.to(opt.device)
         label = label.to(opt.device)
 
-        loss, _, _, _ = model(model_input, label, n=opt.train_module)
+        loss, nce_loss, kld_loss, _, _, _ = model(model_input, label, n=opt.encoder_config.architecture.train_module)
         loss = torch.mean(loss, 0)
+        nce_loss = torch.mean(nce_loss, 0)
+        kld_loss = torch.mean(kld_loss, 0)
 
         loss_epoch += loss.data.cpu().numpy()
+        nce_loss_epoch += nce_loss.data.cpu().numpy()
+        kld_loss_epoch += kld_loss.data.cpu().numpy()
 
-    for i in range(opt.model_splits):
+    for i in range(opt.encoder_config.architecture.model_splits):
         print(
             "Validation Loss Model {}: Time (s): {:.1f} --- {:.4f}".format(
                 i, time.time() - starttime, loss_epoch[i] / total_step
@@ -47,7 +53,10 @@ def validate(opt: OptionsConfig, model, test_loader):
         )
 
     validation_loss = [x / total_step for x in loss_epoch]
-    return validation_loss
+    validation_nce_loss = [x / total_step for x in nce_loss_epoch]
+    validation_kld_loss = [x / total_step for x in kld_loss_epoch]
+
+    return validation_loss, validation_nce_loss, validation_kld_loss
 
 
 def train(opt: OptionsConfig, model: FullVisionModel):
@@ -64,8 +73,7 @@ def train(opt: OptionsConfig, model: FullVisionModel):
 
     for epoch in range(opt.encoder_config.start_epoch, opt.encoder_config.num_epochs + opt.encoder_config.start_epoch):
 
-        # model_splits = opt.model_splits # TODO
-        model_splits = 3
+        model_splits = opt.encoder_config.architecture.model_splits
         loss_epoch = [0 for _ in range(model_splits)]
         loss_updates = [1 for _ in range(model_splits)]
 
@@ -88,8 +96,10 @@ def train(opt: OptionsConfig, model: FullVisionModel):
             model_input = img.to(opt.device)
             label = label.to(opt.device)
 
-            loss, _, _, accuracy = model(model_input, label, n=cur_train_module)
+            loss, nce_loss, kld_loss, _, _, accuracy = model(model_input, label, n=cur_train_module)
             loss = torch.mean(loss, 0)  # Take mean over outputs of different GPUs.
+            nce_loss = torch.mean(nce_loss, 0)
+            kld_loss = torch.mean(kld_loss, 0)
             accuracy = torch.mean(accuracy, 0)
 
             if cur_train_module != model_splits and model_splits > 1:
@@ -113,21 +123,30 @@ def train(opt: OptionsConfig, model: FullVisionModel):
                         print("\t \t Accuracy: \t \t {:.4f}".format(print_acc))
 
             for idx, cur_losses in enumerate(loss):
-                wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+                if USE_WANDB:
+                    wandb.log(
+                        {f"loss_{idx}": cur_losses, f"nce_loss_{idx}": nce_loss[idx], f"kld_loss_{idx}": kld_loss[idx]},
+                        step=global_step)
 
             global_step += 1
+            break
 
         if opt.validate:
-            validation_loss = validate(opt, model, test_loader)  # Test_loader corresponds to validation set here.
+            validation_loss, validation_nce_loss, validation_kld_loss = \
+                validate(opt, model, test_loader)  # Test_loader corresponds to validation set here.
 
             for i, val_loss in enumerate(validation_loss):
-                wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
+                if USE_WANDB:
+                    wandb.log({f"val_loss_{i}": val_loss, f"val_nce_loss_{i}": validation_nce_loss[i],
+                               f"val_kld_loss_{i}": validation_kld_loss[i]},
+                              step=global_step)
 
         logs.create_log(model, epoch=epoch, optimizer=optimizer)
+        break
 
 
 if __name__ == "__main__":
-    TRAIN = False
+    TRAIN = True
     USE_WANDB = False
 
     opt = get_options()
@@ -136,15 +155,16 @@ if __name__ == "__main__":
     dataset = opt.encoder_config.dataset.dataset
     arg_parser.create_log_path(opt)
 
-    wandb.init(project=f"SIM_VISION_ENCODER_{dataset}")
-    for key, value in vars(opt).items():
-        wandb.config[key] = value
+    if USE_WANDB:
+        wandb.init(project=f"SIM_VISION_ENCODER_{dataset}")
+        for key, value in vars(opt).items():
+            wandb.config[key] = value
 
-    # After initializing the wandb run, get the run id
-    run_id = wandb.run.id
-    # Save the run id to a file in the logs directory
-    with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
-        f.write(run_id)
+        # After initializing the wandb run, get the run id
+        run_id = wandb.run.id
+        # Save the run id to a file in the logs directory
+        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
+            f.write(run_id)
 
     opt.model_type = ModelType.ONLY_ENCODER
 
@@ -177,4 +197,5 @@ if __name__ == "__main__":
 
     logs.create_log(model)
 
-    wandb.finish()
+    if USE_WANDB:
+        wandb.finish()

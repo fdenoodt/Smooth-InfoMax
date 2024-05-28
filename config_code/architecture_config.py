@@ -4,9 +4,9 @@ from typing import Optional, List
 class ModuleConfig:
     def __init__(self,
                  max_pool_k_size: Optional[int], max_pool_stride: Optional[int], kernel_sizes: list,
-                 strides: list, padding: list, cnn_hidden_dim: int, regressor_hidden_dim: Optional[int],
                  is_autoregressor: bool, prediction_step: int, predict_distributions: bool,
-                 is_cnn_and_autoregressor: Optional[bool] = False): # for CPC
+                 strides: list, padding: list, cnn_hidden_dim: int, regressor_hidden_dim: Optional[int],
+                 is_cnn_and_autoregressor: Optional[bool] = False):  # for CPC
         assert len(kernel_sizes) == len(strides) == len(padding)
 
         if is_autoregressor and not (is_cnn_and_autoregressor):
@@ -61,7 +61,7 @@ class ModuleConfig:
         return modules
 
 
-class ArchitectureConfig:  # for encoder
+class ArchitectureConfig:  # for encoder, only AUDIO
     def __init__(self, modules: list[ModuleConfig], is_cpc: Optional[bool] = False):
         if is_cpc:
             assert len(modules) == 1
@@ -72,6 +72,18 @@ class ArchitectureConfig:  # for encoder
     def __str__(self):
         modules: str = ", ".join([str(module) for module in self.modules])
         return f"ArchitectureConfig(modules={modules})"
+
+
+class VisionArchitectureConfig:
+    def __init__(self, predict_distributions: bool, model_splits: int, train_module: int):
+        self.predict_distributions = predict_distributions
+        self.model_splits = model_splits
+        self.train_module = train_module
+        self.modules: List[int] = [0] * model_splits  # [0, 0, 0, 0, 0], dummy variable needed in `logger.py`
+
+    def __str__(self):
+        return (f"VisionArchitectureConfig(predict_distributions={self.predict_distributions}, "
+                f"model_splits={self.model_splits}, train_module={self.train_module})")
 
 
 class DecoderArchitectureConfig:

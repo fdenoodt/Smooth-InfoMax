@@ -72,17 +72,19 @@ class PreActBottleneckNoBN(nn.Module):
 
 class ResNet_Encoder(nn.Module):
     def __init__(
-        self,
-        opt: OptionsConfig,
-        block: Type[PreActBottleneckNoBN],
-        num_blocks,
-        filter,
-        encoder_num,
-        patch_size=16,
-        input_dims=3,
-        calc_loss=False,
+            self,
+            opt: OptionsConfig,
+            block: Type[PreActBottleneckNoBN],
+            num_blocks: list,
+            filter: list,
+            encoder_num: int,
+            patch_size=16,
+            input_dims=3,
+            calc_loss=False,
     ):
         super(ResNet_Encoder, self).__init__()
+        self.predict_distributions = opt.encoder_config.architecture.predict_distributions
+
         self.encoder_num = encoder_num
         self.opt = opt
 
@@ -94,6 +96,14 @@ class ResNet_Encoder(nn.Module):
         self.filter = filter
 
         self.model = nn.Sequential()
+        self.mu = nn.Conv2d(
+            in_channels=self.filter[-1] * block.expansion,
+            out_channels=self.filter[-1] * block.expansion,
+            kernel_size=1, stride=1, padding=0)
+        self.var = nn.Conv2d(
+            in_channels=self.filter[-1] * block.expansion,
+            out_channels=self.filter[-1] * block.expansion,
+            kernel_size=1, stride=1, padding=0)
 
         if encoder_num == 0:
             self.model.add_module(
@@ -154,6 +164,10 @@ class ResNet_Encoder(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
+    def _reparametrize(self, mu, log_var):
+        std = torch.exp(0.5 * log_var)
+        eps = torch.randn_like(std)
+        return mu + (eps * std)
 
     def forward(self, x, n_patches_x, n_patches_y, label, patchify_right_now=True):
         if self.patchify and self.encoder_num == 0 and patchify_right_now:
@@ -174,13 +188,32 @@ class ResNet_Encoder(nn.Module):
         out = out.reshape(-1, n_patches_x, n_patches_y, out.shape[1])
         out = out.permute(0, 3, 1, 2).contiguous()
 
+        if self.predict_distributions:
+            mu = self.mu(out)
+            log_var = self.var(out)
+            out = self._reparametrize(mu, log_var)
+
         accuracy = torch.zeros(1)
         if self.calc_loss and self.opt.loss == Loss.INFO_NCE:
-            loss = self.loss(out, out)
+            nce_loss = self.loss(out, out)
+
+            if self.predict_distributions and self.opt.encoder_config.kld_weight > 0:  # kld_loss
+                kld_weight = self.opt.encoder_config.kld_weight
+                kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+                kld_loss = kld_weight * kld_loss.mean()
+            else:
+                loss = nce_loss
+                kld_loss = torch.zeros_like(loss)
+
+            loss = nce_loss + kld_loss
+
         elif self.calc_loss and self.opt.loss == Loss.SUPERVISED_VISUAL:
             loss, accuracy = self.loss(out, label)
+            nce_loss = torch.zeros_like(loss)
+            kld_loss = torch.zeros_like(loss)
         else:
             loss = None
+            nce_loss = None
+            kld_loss = None
 
-        return out, z, loss, accuracy, n_patches_x, n_patches_y
-
+        return out, z, loss, nce_loss, kld_loss, accuracy, n_patches_x, n_patches_y

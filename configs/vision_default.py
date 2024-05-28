@@ -1,9 +1,12 @@
 import torch
 from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ClassifierConfig
-from config_code.architecture_config import ArchitectureConfig, ModuleConfig
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig, VisionArchitectureConfig
 
-# ARCHITECTURE = ArchitectureConfig(modules=[1, 2, 3])
-ARCHITECTURE = ArchitectureConfig([])  # Not used in vision
+ARCHITECTURE = VisionArchitectureConfig(
+    predict_distributions=True,
+    model_splits=3,
+    train_module=3,
+)
 
 DATASET = DataSetConfig(
     dataset=Dataset.STL10,
@@ -13,11 +16,11 @@ DATASET = DataSetConfig(
 
 ENCODER_CONFIG = EncoderConfig(
     start_epoch=0,
-    num_epochs=200,  # orginal paper was 1_000, nvm, was 300?
+    num_epochs=200,  # orginal paper was 1_000, nvm, was 300
     negative_samples=16,
     subsample=True,
     architecture=ARCHITECTURE,
-    kld_weight=0.0033,
+    kld_weight=0.01,
     learning_rate=1.5e-4,
     decay_rate=1,
     train_w_noise=False,

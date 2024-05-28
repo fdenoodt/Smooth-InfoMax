@@ -1,10 +1,10 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 import os
 import torch
 import datetime
 
-from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig
+from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig, VisionArchitectureConfig
 
 
 class Loss(Enum):
@@ -72,14 +72,15 @@ class DataSetConfig:
 
 
 class EncoderConfig:
-    def __init__(self, start_epoch, num_epochs, negative_samples, subsample, architecture: ArchitectureConfig,
+    def __init__(self, start_epoch, num_epochs, negative_samples, subsample,
+                 architecture: Union[ArchitectureConfig, VisionArchitectureConfig],
                  kld_weight, learning_rate, decay_rate,
                  train_w_noise, dataset: DataSetConfig):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
         self.negative_samples = negative_samples
         self.subsample = subsample
-        self.architecture: ArchitectureConfig = architecture
+        self.architecture: Union[ArchitectureConfig, VisionArchitectureConfig] = architecture
         self.kld_weight = kld_weight
         self.learning_rate = learning_rate
         self.decay_rate = decay_rate

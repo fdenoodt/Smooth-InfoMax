@@ -100,20 +100,24 @@ class FullVisionModel(torch.nn.Module):
         cur_device = self.opt.device
 
         n_patches_x, n_patches_y = None, None
-
-        loss = torch.zeros(1, self.opt.model_splits, device=cur_device)  # first dimension for multi-GPU training
-        accuracies = torch.zeros(1, self.opt.model_splits, device=cur_device)  # first dimension for multi-GPU training
+        model_splits = self.opt.encoder_config.architecture.model_splits
+        loss = torch.zeros(1, model_splits, device=cur_device)  # first dimension for multi-GPU training
+        nce_loss = torch.zeros(1, model_splits, device=cur_device)
+        kld_loss = torch.zeros(1, model_splits, device=cur_device)
+        accuracies = torch.zeros(1, model_splits, device=cur_device)  # first dimension for multi-GPU training
 
         for idx, module in enumerate(self.encoder[: n + 1]):
-            h, z, cur_loss, cur_accuracy, n_patches_x, n_patches_y = module(
-                model_input, n_patches_x, n_patches_y, label
-            )
+            h, z, cur_loss, cur_nce_loss, cur_kld_loss, cur_accuracy, n_patches_x, n_patches_y = \
+                module(model_input, n_patches_x, n_patches_y, label)
             # Detach z to make sure no gradients are flowing in between modules
             # we can detach z here, as for the CPC model the loop is only called once and h is forward-propagated
             model_input = z.detach()
 
             if cur_loss is not None:
                 loss[:, idx] = cur_loss
+                nce_loss[:, idx] = cur_nce_loss
+                kld_loss[:, idx] = cur_kld_loss
+
                 accuracies[:, idx] = cur_accuracy
 
         # if self.employ_autoregressive and self.calc_loss:
@@ -125,7 +129,7 @@ class FullVisionModel(torch.nn.Module):
         #     loss[:, -1] = cur_loss
         #     accuracies[:, -1] = cur_accuracy
 
-        return loss, c, h, accuracies
+        return loss, nce_loss, kld_loss, c, h, accuracies
 
     def switch_calc_loss(self, calc_loss):
         ## by default models are set to not calculate the loss as it is costly
