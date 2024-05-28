@@ -35,12 +35,13 @@ class ModelType(Enum):
 class DataSetConfig:
     def __init__(self, dataset: Dataset, batch_size, labels: Optional[str] = None,
                  limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
-                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False):
+                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False, num_workers: Optional[int] = 0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
+        self.num_workers = num_workers
 
         if split_in_syllables:
             assert dataset in [Dataset.DE_BOER]

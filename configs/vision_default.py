@@ -12,6 +12,7 @@ DATASET = DataSetConfig(
     dataset=Dataset.STL10,
     batch_size=16,
     grayscale=True,
+    num_workers=0,  # overwrite with 16 on the cluster
 )
 
 ENCODER_CONFIG = EncoderConfig(

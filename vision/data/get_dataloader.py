@@ -9,7 +9,6 @@ from config_code.config_classes import DataSetConfig, Dataset
 from vision.data.animals_with_attributes_dataset import AnimalsWithAttributesDataset
 from torch.utils.data import random_split
 
-NUM_WORKERS = 0  # 1 #16
 
 
 def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
@@ -62,6 +61,7 @@ def get_animal_with_attributes_dataloader(config: DataSetConfig, _: bool):
     train_dataset.dataset.transform = transform_train
     val_dataset.dataset.transform = transform_valid
 
+    NUM_WORKERS = config.num_workers
     # default dataset loaders
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=config.batch_size_multiGPU, shuffle=True, num_workers=NUM_WORKERS
@@ -117,6 +117,7 @@ def get_stl10_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning
         base_folder, split="test", transform=transform_valid, download=True
     )
 
+    NUM_WORKERS = config.num_workers
     # default dataset loaders
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=config.batch_size_multiGPU, shuffle=True, num_workers=NUM_WORKERS
