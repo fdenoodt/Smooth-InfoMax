@@ -51,6 +51,7 @@ def _get_options(experiment_name):
         ),
         decoder_config=None,
         use_wandb=True,
+        train=True,
     )
     return options
 

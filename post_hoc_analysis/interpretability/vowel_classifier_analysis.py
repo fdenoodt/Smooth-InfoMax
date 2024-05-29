@@ -1,5 +1,13 @@
 # Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
 
+"""
+This script is used to analyze the weights of the vowel classifier (bias=False).
+- weights are logged as a table to wandb
+- weights are plotted as a heatmap
+- the most important dimensions for each vowel are found and plotted
+- the predictions of the classifier are plotted in a 2D space
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -10,14 +18,7 @@ from config_code.config_classes import OptionsConfig
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
-from utils.utils import retrieve_existing_wandb_run_id
-
-
-def _rescale_between_neg1_and_1(x):
-    # values are currently between -1.5 and 1.5 so we rescale to -1 and 1
-    absolute = np.abs(x)
-    print(absolute.max())
-    return x / absolute.max()
+from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1
 
 
 def plot_weights(opt: OptionsConfig, weights: np.ndarray, wandb, first_dim: int = 1):
@@ -187,7 +188,11 @@ def main():
     weights = list(linear_classifier.parameters())[0].detach().cpu().numpy()
     assert weights.shape == (n_labels, n_features)
 
-    weights = _rescale_between_neg1_and_1(weights)
+    weights = rescale_between_neg1_and_1(weights)
+
+    # Log weights as a table (3 rows, 256 columns)
+    wandb.log({"Latent space analysis/Vowel Classifier Weights tbl":
+                   wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
 
     # find most important dimensions for each vowel
     _w = np.abs(weights)
@@ -198,10 +203,6 @@ def main():
     _w = np.argsort(_w)
     # take first 2 dims
     dim1, dim2 = _w[:2]
-
-    # Log weights as a table (3 rows, 256 columns)
-    wandb.log({"Latent space analysis/Vowel Classifier Weights tbl":
-                   wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
 
     # log the most important 32 dimensions and their weights (_w[:32])
     wandb.log({"Latent space analysis/Most important dimensions":

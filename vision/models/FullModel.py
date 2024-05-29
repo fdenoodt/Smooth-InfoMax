@@ -44,7 +44,6 @@ class FullVisionModel(torch.nn.Module):
         # else:
         #     raise Exception("Undefined parameter choice")
 
-        assert opt.encoder_config.dataset.grayscale is True  # replication of the paper, but maybe better rgb for img generation
         if opt.encoder_config.dataset.grayscale:
             input_dims = 1
         else:
@@ -135,16 +134,18 @@ class FullVisionModel(torch.nn.Module):
         ## by default models are set to not calculate the loss as it is costly
         ## this function can enable the calculation of the loss for training
         self.calc_loss = calc_loss
-        if self.opt.model_splits == 1 and self.opt.loss == 0:
+        model_splits = self.opt.encoder_config.architecture.model_splits
+        train_module = self.opt.encoder_config.architecture.train_module
+        if model_splits == 1 and self.opt.loss == 0:
             self.autoregressor.calc_loss = calc_loss
 
-        if self.opt.model_splits == 1 and self.opt.loss == 1:
+        if model_splits == 1 and self.opt.loss == 1:
             self.encoder[-1].calc_loss = calc_loss
 
-        if self.opt.model_splits > 1:
-            if self.opt.train_module == self.opt.model_splits:
+        if model_splits > 1:
+            if train_module == model_splits:
                 # Train all modules
                 for i, layer in enumerate(self.encoder):
                     layer.calc_loss = calc_loss
             else:  # Single module training
-                self.encoder[self.opt.train_module].calc_loss = calc_loss
+                self.encoder[train_module].calc_loss = calc_loss

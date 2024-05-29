@@ -12,6 +12,8 @@ import time
 
 import os
 
+from vision.models.ClassificationModel import ClassificationModel
+
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 from config_code.config_classes import OptionsConfig, ModelType, ClassifierConfig, Loss
@@ -71,8 +73,11 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             if wandb_is_on and USE_WANDB:
                 bias = opt.vision_classifier_config.bias
                 deterministic_encoder = opt.encoder_config.deterministic
-                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Loss classification": sample_loss, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy": acc1, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy5": acc5,
-                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Step": global_step, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
+                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Loss classification": sample_loss,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy": acc1,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy5": acc5,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Step": global_step,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
                 global_step += 1
 
             if step % 10 == 0:
@@ -99,7 +104,9 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             if wandb_is_on and USE_WANDB:
                 bias = opt.vision_classifier_config.bias
                 deterministic_encoder = opt.encoder_config.deterministic
-                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation accuracy": val_acc1, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation loss": val_loss, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
+                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation accuracy": val_acc1,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation loss": val_loss,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
 
         print("Overall accuracy for this epoch: ", epoch_acc1 / total_step)
 
@@ -165,6 +172,7 @@ if __name__ == "__main__":
 
     opt: OptionsConfig = get_options()
     USE_WANDB = opt.use_wandb
+    TRAIN = opt.train
 
     opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK
 
@@ -172,9 +180,9 @@ if __name__ == "__main__":
 
     assert opt.vision_classifier_config is not None, "Classifier config is not set"
 
+    wandb_is_on = False
     if USE_WANDB:
         # Check if the wandb_run_id.txt file exists
-        wandb_is_on = False
         if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
             # If the file exists, read the run id from the file
             with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
@@ -205,7 +213,7 @@ if __name__ == "__main__":
     _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.vision_classifier_config.dataset,
                                                                           purpose_is_unsupervised_learning=False)
 
-    classification_model = load_vision_model.load_classification_model(opt)
+    classification_model: ClassificationModel = load_vision_model.load_classification_model(opt)
 
     if opt.model_type == 2:
         params = list(context_model.parameters()) + list(classification_model.parameters())
@@ -217,25 +225,45 @@ if __name__ == "__main__":
 
     logs = logger.Logger(opt)
 
-    try:
-        # Train the model
-        train_logistic_regression(opt, context_model, classification_model, train_loader, wandb_is_on)
+    #### TRAINING ####
+    if TRAIN:
+        try:
+            # Train the model
+            train_logistic_regression(opt, context_model, classification_model, train_loader, wandb_is_on)
 
-        # Test the model
-        acc1, acc5, _ = test_logistic_regression(
-            opt, context_model, classification_model, test_loader, wandb_is_on
-        )
+            # Test the model
+            acc1, acc5, _ = test_logistic_regression(
+                opt, context_model, classification_model, test_loader, wandb_is_on
+            )
 
-    except KeyboardInterrupt:
-        print("Training got interrupted")
+        except KeyboardInterrupt:
+            print("Training got interrupted")
 
     logs.create_log(
         context_model,
         classification_model=classification_model,
-        accuracy=acc1,
-        acc5=acc5,
+        accuracy=acc1 if TRAIN else None,
+        acc5=acc5 if TRAIN else None,
         final_test=True,
     )
     torch.save(
         context_model.state_dict(), os.path.join(opt.log_path, "context_model.ckpt")
     )
+
+    #### SEND WEIGHTS TO WANDB (when bias=False) ####
+    bias = opt.vision_classifier_config.bias
+    if wandb_is_on and USE_WANDB and not bias:
+        weights = list(classification_model.parameters())[0].detach().cpu().numpy()
+        assert weights.shape == (
+            opt.vision_classifier_config.dataset.labels, opt.encoder_config.architecture.modules[0].cnn_hidden_dim)
+
+        weights = utils.rescale_between_neg1_and_1(weights)
+
+        # Log weights as a table (3 rows, 256 columns)
+        deterministic_encoder = opt.encoder_config.deterministic
+        wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Vowel Classifier Weights tbl":
+                       wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(
+                           opt.encoder_config.architecture.modules[0].cnn_hidden_dim)])})
+
+    if wandb_is_on and USE_WANDB:
+        wandb.finish()

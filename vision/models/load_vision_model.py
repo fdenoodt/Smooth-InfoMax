@@ -51,6 +51,7 @@ def load_classification_model(opt: OptionsConfig) -> ClassificationModel.Classif
         raise Exception("Invalid option")
 
     classification_model = ClassificationModel.ClassificationModel(
+        classifier_config=opt.vision_classifier_config,
         in_channels=in_channels, num_classes=num_classes,
     ).to(opt.device)
 

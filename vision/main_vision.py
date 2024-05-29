@@ -145,10 +145,10 @@ def train(opt: OptionsConfig, model: FullVisionModel):
 
 
 if __name__ == "__main__":
-    TRAIN = True
 
-    opt = get_options()
+    opt: OptionsConfig = get_options()
     USE_WANDB = opt.use_wandb
+    TRAIN = opt.train
 
     assert opt.experiment == "vision"
 

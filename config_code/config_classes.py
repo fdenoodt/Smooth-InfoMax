@@ -145,7 +145,9 @@ class OptionsConfig:
                  syllables_classifier_config: Optional[ClassifierConfig],
                  decoder_config: Optional[DecoderConfig],
                  vision_classifier_config: Optional[ClassifierConfig],
-                 use_wandb: Optional[bool] = True
+                 # two params used for local development. Not used in the cluster
+                 use_wandb: Optional[bool] = True,
+                 train: Optional[bool] = True,
                  ):
         root_logs = r"./sim_logs/"
 
@@ -174,6 +176,7 @@ class OptionsConfig:
 
         self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
         self.use_wandb = use_wandb
+        self.train = train
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

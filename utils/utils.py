@@ -105,3 +105,10 @@ def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     np.random.seed(seed)
+
+
+def rescale_between_neg1_and_1(x):
+    # values are currently between -1.5 and 1.5 so we rescale to -1 and 1
+    absolute = np.abs(x)
+    print(absolute.max())
+    return x / absolute.max()
