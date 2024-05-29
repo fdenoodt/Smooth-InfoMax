@@ -17,15 +17,13 @@ from options import get_options
 from utils.helper_functions import *
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
 from interpretabil_util import plot_tsne_syllable, plot_histograms, scatter_3d
+
 """
 This script is used to analyze the latent space of the audio encoder.
 - t-SNE plots are created for the mean of the latent space and for the latent space itself
 - histograms are created for the latent space
 - 3D scatter plots are created for the latent space
 """
-
-
-
 
 
 def _get_data_from_loader(loader, encoder: FullModel, opt: OptionsConfig, final_module: str):
@@ -57,8 +55,6 @@ def _get_data_from_loader(loader, encoder: FullModel, opt: OptionsConfig, final_
         all_audio = np.moveaxis(all_audio, 2, 1)
 
     return all_audio, all_labels
-
-
 
 
 def main():
@@ -109,7 +105,7 @@ def main():
     all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
     lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
     plot_tsne_syllable(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-              lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
+                       lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
 
     data_config.labels = 'vowels'
     train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)

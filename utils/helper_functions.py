@@ -1,19 +1,17 @@
-# %%
-import soundfile as sf
-from encoder.GIM_encoder import GIM_Encoder
-import torch
-import matplotlib.pyplot as plt
+import os
+import time
+from typing import Any
+
+import IPython.display as ipd
 import librosa
 import librosa.display
-import IPython.display as ipd
-from utils import logger
-import os
-from typing import Any
+import matplotlib.pyplot as plt
 import numpy as np
-import time
-from torchvision import transforms
-import torchaudio
 import seaborn as sns
+import soundfile as sf
+import torch
+import torchaudio
+from torchvision import transforms
 
 try:
     import tikzplotlib  # some versions of Python have issues with this import
@@ -21,79 +19,6 @@ except:
     print("tikzplotlib not installed, will not be able to save as .tex")
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-
-class LogHandler():
-    '''
-    This class handles the logging of the training process.
-    '''
-
-    def __init__(self, opt, logs, train_loader, criterion, gim_encoder: GIM_Encoder, learning_rate,
-                 layer_depth=1) -> None:
-        self.opt = opt
-        self.total_step = len(train_loader)
-        self.logs: logger.Logger = logs
-        self.criterion = criterion
-        self.logging_path = f"{opt.log_path}/{criterion.name}/lr_{learning_rate:.7f}/GIM_L{layer_depth}"
-        create_log_dir(self.logging_path)
-
-    def __call__(self, model, epoch, optimizer, train_loss, val_loss, train_acc=None, val_acc=None) -> None:
-        self.save_train_losses(train_loss, val_loss)
-        self.save_model(model, epoch, optimizer)
-        self.draw_loss_curve(train_loss, val_loss)
-
-        if train_acc and val_acc:
-            self.save_accuracies(train_acc, val_acc)
-            self.draw_accuracy_curve(train_acc, val_acc)
-
-    def save_train_losses(self, train_loss, val_loss):
-        np.savetxt(f"{self.logging_path}/training_loss.csv",
-                   train_loss, delimiter=",")
-        np.savetxt(f"{self.logging_path}/validation_loss.csv",
-                   val_loss, delimiter=",")
-
-    def save_accuracies(self, train_acc, val_acc):
-        np.savetxt(f"{self.logging_path}/training_accuracy.csv",
-                   train_acc, delimiter=",")
-        np.savetxt(f"{self.logging_path}/validation_accuracy.csv",
-                   val_acc, delimiter=",")
-
-    def save_model(self, model, epoch, optimizer) -> None:
-        torch.save(model.state_dict(), f'{self.logging_path}/model_{epoch}.pt')
-
-    def draw_loss_curve(self, train_loss, val_loss):
-        # assert len(train_loss) == len(val_loss)
-
-        lst_iter = np.arange(len(train_loss))
-        plt.plot(lst_iter, np.array(train_loss), "-b", label="train loss")
-
-        lst_iter = np.arange(len(val_loss))
-        plt.plot(lst_iter, np.array(val_loss), "-r", label="val loss")
-
-        plt.xlabel("epoch")
-        plt.ylabel("loss")
-        plt.legend(loc="upper right")
-
-        # save image
-        plt.savefig(os.path.join(self.logging_path, "loss.png"))
-        plt.close()
-
-    def draw_accuracy_curve(self, train_acc, val_acc):
-        # assert len(train_acc) == len(val_acc)
-
-        lst_iter = np.arange(len(train_acc))
-        plt.plot(lst_iter, np.array(train_acc), "-b", label="train acc")
-
-        lst_iter = np.arange(len(val_acc))
-        plt.plot(lst_iter, np.array(val_acc), "-r", label="val acc")
-
-        plt.xlabel("epoch")
-        plt.ylabel("accuracy")
-        plt.legend(loc="upper right")
-
-        # save image
-        plt.savefig(os.path.join(self.logging_path, "accuracy.png"))
-        plt.close()
 
 
 class EpochPrinter():
@@ -432,6 +357,7 @@ def translate_syllable_vowel_number(syllable):
 def translate_vowel_number_to_vowel(number):
     # if includes "a" then 0, if includes "i" then 1, if includes "u" then 2
     return "a" if number == 0 else "i" if number == 1 else "u"
+
 
 if __name__ == "__main__":
     pass

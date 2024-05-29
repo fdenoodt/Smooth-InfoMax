@@ -166,7 +166,8 @@ class ResNet_Encoder(nn.Module):
 
     def _reparametrize(self, mu, log_var):
         determinstic = self.opt.encoder_config.deterministic  # not used during training. only for evaluation of the downstream task
-        if determinstic:
+        training = self.training
+        if determinstic and not training:
             return mu
         else:
             std = torch.exp(0.5 * log_var)
