@@ -153,7 +153,7 @@ class OptionsConfig:
         self.experiment = experiment
         self.save_dir = save_dir
         self.log_path = f'{root_logs}/{save_dir}'
-        self.log_path_latent = os.path.join(save_dir, "latent_space")
+        self.log_path_latent = os.path.join(f'{root_logs}/{save_dir}', "latent_space")
 
         self.log_every_x_epochs = log_every_x_epochs
         self.model_path = f'{root_logs}/{save_dir}'
