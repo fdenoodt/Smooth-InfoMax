@@ -112,3 +112,6 @@ def rescale_between_neg1_and_1(x):
     absolute = np.abs(x)
     print(absolute.max())
     return x / absolute.max()
+
+
+

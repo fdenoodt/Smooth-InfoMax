@@ -302,7 +302,7 @@ def markers():
     ])
 
 
-def scatter(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
+def scatter_syllable(x, syllable_indices, title, dir=None, file=None, show=True, n=100):
     """
     creates scatter plot for t-SNE visualization
     :param x: 2-D latent space as output by t-SNE
