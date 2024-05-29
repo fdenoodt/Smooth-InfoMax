@@ -63,6 +63,13 @@ if args.overrides is not None:
                 raise AttributeError(f"Object {obj} does not have attribute {k}")
             obj = getattr(obj, k)
 
-        setattr(obj, last_key, type(getattr(obj, last_key))(value))
+        attr_type = type(getattr(obj, last_key))
+        if attr_type is bool:  # related to `use_wandb='False'` not working otherwise.
+            typ = value.lower() == 'true'
+        else:
+            typ = attr_type(value)
+        setattr(obj, last_key, typ)
+
+        # setattr(obj, last_key, type(getattr(obj, last_key))(value))
 
 get_options = lambda: _options
