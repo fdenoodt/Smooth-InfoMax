@@ -125,7 +125,8 @@ def train(opt: OptionsConfig, model: FullVisionModel):
             for idx, cur_losses in enumerate(loss):
                 if USE_WANDB:
                     wandb.log(
-                        {f"loss_{idx}": cur_losses, f"nce_loss_{idx}": nce_loss[idx], f"kld_loss_{idx}": kld_loss[idx]},
+                        {f"loss_{idx}": cur_losses, f"nce_loss_{idx}": nce_loss[idx], f"kld_loss_{idx}": kld_loss[idx],
+                         "epoch": epoch},
                         step=global_step)
 
             global_step += 1
