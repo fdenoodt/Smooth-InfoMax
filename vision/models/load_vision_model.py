@@ -36,7 +36,7 @@ def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[Cla
     return model, optimizer
 
 
-def load_classification_model(opt: OptionsConfig):
+def load_classification_model(opt: OptionsConfig) -> ClassificationModel.ClassificationModel:
     # if opt.resnet == 34: # TODO: add resnet 34
     #     in_channels = 256
     # else:

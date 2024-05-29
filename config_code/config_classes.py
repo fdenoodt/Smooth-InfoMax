@@ -35,7 +35,8 @@ class ModelType(Enum):
 class DataSetConfig:
     def __init__(self, dataset: Dataset, batch_size, labels: Optional[str] = None,
                  limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
-                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False, num_workers: Optional[int] = 0):
+                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False,
+                 num_workers: Optional[int] = 0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
         self.split_in_syllables = split_in_syllables
@@ -76,7 +77,8 @@ class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample,
                  architecture: Union[ArchitectureConfig, VisionArchitectureConfig],
                  kld_weight, learning_rate, decay_rate,
-                 train_w_noise, dataset: DataSetConfig):
+                 train_w_noise, dataset: DataSetConfig,
+                 deterministic: Optional[bool] = False):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
         self.negative_samples = negative_samples
@@ -88,6 +90,9 @@ class EncoderConfig:
         self.train_w_noise = train_w_noise
         self.dataset = dataset
 
+        # Useful after training to get deterministic results. If True, the encoder will use mode of the posterior distribution
+        self.deterministic = deterministic
+
     def __str__(self):
         return f"EncoderConfig(start_epoch={self.start_epoch}, num_epochs={self.num_epochs}, " \
                f"negative_samples={self.negative_samples}, subsample={self.subsample}, " \
@@ -97,11 +102,13 @@ class EncoderConfig:
 
 
 class ClassifierConfig:
-    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str):
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+                 bias: Optional[bool] = True):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
+        self.bias = bias
 
     # to string
     def __str__(self):
@@ -137,7 +144,8 @@ class OptionsConfig:
                  speakers_classifier_config: Optional[ClassifierConfig],
                  syllables_classifier_config: Optional[ClassifierConfig],
                  decoder_config: Optional[DecoderConfig],
-                 vision_classifier_config: Optional[ClassifierConfig]
+                 vision_classifier_config: Optional[ClassifierConfig],
+                 use_wandb: Optional[bool] = True
                  ):
         root_logs = r"./sim_logs/"
 
@@ -165,6 +173,7 @@ class OptionsConfig:
         self.decoder_config: Optional[DecoderConfig] = decoder_config
 
         self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
+        self.use_wandb = use_wandb
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

@@ -68,9 +68,11 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
             sample_loss = loss.item()
             loss_epoch += sample_loss
 
-            if wandb_is_on:
-                wandb.log({"C/Loss classification": sample_loss, "C/Train accuracy": acc1, "C/Train accuracy5": acc5,
-                           "C/Step": global_step, "C/Epoch": epoch})
+            if wandb_is_on and USE_WANDB:
+                bias = opt.vision_classifier_config.bias
+                deterministic_encoder = opt.encoder_config.deterministic
+                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Loss classification": sample_loss, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy": acc1, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Train accuracy5": acc5,
+                           f"C_bias={bias}_determistic_enc={deterministic_encoder}/Step": global_step, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
                 global_step += 1
 
             if step % 10 == 0:
@@ -94,8 +96,10 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
                 opt, context_model, classification_model, test_loader, wandb_is_on
             )
 
-            if wandb_is_on:
-                wandb.log({"C/Validation accuracy": val_acc1, "C/Validation loss": val_loss, "C/Epoch": epoch})
+            if wandb_is_on and USE_WANDB:
+                bias = opt.vision_classifier_config.bias
+                deterministic_encoder = opt.encoder_config.deterministic
+                wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation accuracy": val_acc1, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Validation loss": val_loss, f"C_bias={bias}_determistic_enc={deterministic_encoder}/Epoch": epoch})
 
         print("Overall accuracy for this epoch: ", epoch_acc1 / total_step)
 
@@ -147,10 +151,12 @@ def test_logistic_regression(opt, context_model, classification_model, test_load
 
     print("Testing Accuracy: ", epoch_acc1 / total_step)
 
-    if wandb_is_on:
-        wandb.log({"C/Test accuracy": epoch_acc1 / total_step,
-                   "C/Test accuracy5": epoch_acc5 / total_step,
-                   "C/Test loss": loss_epoch / total_step})
+    if wandb_is_on and USE_WANDB:
+        bias = opt.vision_classifier_config.bias
+        deterministic_encoder = opt.encoder_config.deterministic
+        wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Test accuracy": epoch_acc1 / total_step,
+                   f"C_bias={bias}_determistic_enc={deterministic_encoder}/Test accuracy5": epoch_acc5 / total_step,
+                   f"C_bias={bias}_determistic_enc={deterministic_encoder}/Test loss": loss_epoch / total_step})
 
     return epoch_acc1 / total_step, epoch_acc5 / total_step, loss_epoch / total_step
 
@@ -158,33 +164,35 @@ def test_logistic_regression(opt, context_model, classification_model, test_load
 if __name__ == "__main__":
 
     opt: OptionsConfig = get_options()
+    USE_WANDB = opt.use_wandb
+
     opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK
 
     opt.loss = Loss.SUPERVISED_VISUAL
 
     assert opt.vision_classifier_config is not None, "Classifier config is not set"
 
-    # Check if the wandb_run_id.txt file exists
-    wandb_is_on = False
-    if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
-        # If the file exists, read the run id from the file
-        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
-            run_id = f.read().strip()
+    if USE_WANDB:
+        # Check if the wandb_run_id.txt file exists
+        wandb_is_on = False
+        if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
+            # If the file exists, read the run id from the file
+            with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
+                run_id = f.read().strip()
 
-        # Initialize a wandb run with the same run id
-        dataset = opt.vision_classifier_config.dataset.dataset
-        wandb.init(project=f"SIM_VISION_ENCODER_{dataset}", id=run_id, resume="allow")
-        wandb_is_on = True
+            # Initialize a wandb run with the same run id
+            dataset = opt.vision_classifier_config.dataset.dataset
+            wandb.init(project=f"SIM_VISION_ENCODER_{dataset}", id=run_id, resume="allow")
+            wandb_is_on = True
 
     # order is important! first wandb.init, then create log path
-    add_path_var = "linear_model_vision"
+    add_path_var = f"linear_model_vision_bias={opt.vision_classifier_config.bias}_deterministic_enc={opt.encoder_config.deterministic}"
     arg_parser.create_log_path(opt, add_path_var=add_path_var)
 
     # random seeds
     utils.set_seed(opt.seed)
 
     # load pretrained model
-    # TODO! reload_model should be True, but it is set to False for testing purposes
     context_model, _ = load_vision_model.load_model_and_optimizer(
         opt, reload_model=True, calc_loss=False, classifier_config=opt.vision_classifier_config
     )

@@ -165,9 +165,13 @@ class ResNet_Encoder(nn.Module):
         return nn.Sequential(*layers)
 
     def _reparametrize(self, mu, log_var):
-        std = torch.exp(0.5 * log_var)
-        eps = torch.randn_like(std)
-        return mu + (eps * std)
+        determinstic = self.opt.encoder_config.deterministic  # not used during training. only for evaluation of the downstream task
+        if determinstic:
+            return mu
+        else:
+            std = torch.exp(0.5 * log_var)
+            eps = torch.randn_like(std)
+            return mu + (eps * std)
 
     def forward(self, x, n_patches_x, n_patches_y, label, patchify_right_now=True):
         if self.patchify and self.encoder_num == 0 and patchify_right_now:
@@ -189,7 +193,7 @@ class ResNet_Encoder(nn.Module):
         out = out.permute(0, 3, 1, 2).contiguous()
 
         if self.predict_distributions:
-            mu = self.mu(out)
+            mu = self.mu(out)  # TODO: maybe should also use mu when not using predict_distributions
             log_var = self.var(out)
             out = self._reparametrize(mu, log_var)
 

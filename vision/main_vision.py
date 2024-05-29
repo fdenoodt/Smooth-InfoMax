@@ -146,9 +146,10 @@ def train(opt: OptionsConfig, model: FullVisionModel):
 
 if __name__ == "__main__":
     TRAIN = True
-    USE_WANDB = True
 
     opt = get_options()
+    USE_WANDB = opt.use_wandb
+
     assert opt.experiment == "vision"
 
     dataset = opt.encoder_config.dataset.dataset

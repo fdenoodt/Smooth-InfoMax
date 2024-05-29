@@ -14,8 +14,8 @@ class FullVisionModel(torch.nn.Module):
         self.calc_loss = calc_loss
 
         # TODO, currently set to 3
-        self.opt.model_splits = 3  # added by Fabian, TODO maybe remove
-        self.opt.train_module = 3  # added by Fabian, TODO maybe remove
+        # self.opt.model_splits = 3  # added by Fabian, TODO maybe remove
+        # self.opt.train_module = 3  # added by Fabian, TODO maybe remove
         # train_module = 3 implies all modules are trained, 1 implies only the first module is trained
 
         # if self.opt.model_splits == 1 and not self.opt.loss == 1:
@@ -104,7 +104,7 @@ class FullVisionModel(torch.nn.Module):
         loss = torch.zeros(1, model_splits, device=cur_device)  # first dimension for multi-GPU training
         nce_loss = torch.zeros(1, model_splits, device=cur_device)
         kld_loss = torch.zeros(1, model_splits, device=cur_device)
-        accuracies = torch.zeros(1, model_splits, device=cur_device)  # first dimension for multi-GPU training
+        accuracies = torch.zeros(1, model_splits, device=cur_device)
 
         for idx, module in enumerate(self.encoder[: n + 1]):
             h, z, cur_loss, cur_nce_loss, cur_kld_loss, cur_accuracy, n_patches_x, n_patches_y = \
