@@ -37,12 +37,11 @@ def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[Cla
 
 
 def load_classification_model(opt: OptionsConfig) -> ClassificationModel.ClassificationModel:
-    # if opt.resnet == 34: # TODO: add resnet 34
-    #     in_channels = 256
-    # else:
-    in_channels = 1024
+    if opt.encoder_config.architecture.resnet_type == 34:
+        in_channels = 256
+    else:  # 50
+        in_channels = 1024
 
-    # if opt.dataset == "stl10":
     if opt.vision_classifier_config.dataset.dataset == Dataset.STL10:
         num_classes = 10
     elif opt.vision_classifier_config.dataset.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:

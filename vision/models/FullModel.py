@@ -37,12 +37,13 @@ class FullVisionModel(torch.nn.Module):
         encoder = nn.ModuleList([])
 
         # TODO, but not in Sindy's paper i believe
-        # if opt.resnet == 34:
-        #     self.block = Resnet_Encoder.PreActBlockNoBN
-        # elif opt.resnet == 50:
-        self.block = Resnet_Encoder.PreActBottleneckNoBN
-        # else:
-        #     raise Exception("Undefined parameter choice")
+        resnet = opt.encoder_config.architecture.resnet_type
+        if resnet == 34:
+            self.block = Resnet_Encoder.PreActBlockNoBN
+        elif resnet == 50:
+            self.block = Resnet_Encoder.PreActBottleneckNoBN
+        else:
+            raise Exception("Undefined parameter choice")
 
         if opt.encoder_config.dataset.grayscale:
             input_dims = 1

@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 
 
 class ModuleConfig:
@@ -75,11 +75,14 @@ class ArchitectureConfig:  # for encoder, only AUDIO
 
 
 class VisionArchitectureConfig:
-    def __init__(self, predict_distributions: bool, model_splits: int, train_module: int):
+    def __init__(self, predict_distributions: bool, model_splits: int, train_module: int, resnet_type: int):
         self.predict_distributions = predict_distributions
         self.model_splits = model_splits
         self.train_module = train_module
         self.modules: List[int] = [0] * model_splits  # [0, 0, 0, 0, 0], dummy variable needed in `logger.py`
+
+        assert resnet_type in [50, 34], "resnet_type must be 50 or 34"
+        self.resnet_type: int = resnet_type
 
     def __str__(self):
         return (f"VisionArchitectureConfig(predict_distributions={self.predict_distributions}, "

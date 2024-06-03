@@ -156,9 +156,10 @@ if __name__ == "__main__":
     arg_parser.create_log_path(opt)
 
     if USE_WANDB:
-        wandb.init(project=f"SIM_VISION_ENCODER_{dataset}")
-        for key, value in vars(opt).items():
-            wandb.config[key] = value
+        resnet = opt.encoder_config.architecture.resnet_type
+
+        project_name = f"SIM_VISION_ENCODER_{dataset}{'_resnet34' if resnet == 34 else ''}"
+        wandb.init(project=project_name, config=vars(opt))
 
         # After initializing the wandb run, get the run id
         run_id = wandb.run.id
