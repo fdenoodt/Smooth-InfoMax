@@ -74,7 +74,8 @@ class ResNet_Encoder(nn.Module):
     def __init__(
             self,
             opt: OptionsConfig,
-            block: Union[Type[PreActBottleneckNoBN], Type[PreActBlockNoBN]], # PreActBottleneckNoBN for ResNet50, PreActBlockNoBN for ResNet34
+            block: Union[Type[PreActBottleneckNoBN], Type[PreActBlockNoBN]],
+            # PreActBottleneckNoBN for ResNet50, PreActBlockNoBN for ResNet34
             num_blocks: list,
             filter: list,
             encoder_num: int,
@@ -193,10 +194,13 @@ class ResNet_Encoder(nn.Module):
         out = out.reshape(-1, n_patches_x, n_patches_y, out.shape[1])
         out = out.permute(0, 3, 1, 2).contiguous()
 
+        mu = self.mu(out)  # TODO WARNING: Resnet50 GIM experiments were done without mu layer. This is suboptimal.
+        # Resnet34 GIM experiments were done with mu layer. This is correct.
         if self.predict_distributions:
-            mu = self.mu(out)  # TODO: maybe should also use mu when not using predict_distributions
             log_var = self.var(out)
             out = self._reparametrize(mu, log_var)
+        else:
+            out = mu  # only mu is used when predict_distributions is False
 
         accuracy = torch.zeros(1)
         if self.calc_loss and self.opt.loss == Loss.INFO_NCE:
