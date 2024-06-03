@@ -13,6 +13,7 @@ from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, Loss
 from data import get_dataloader
 from options import get_options
+from post_hoc_analysis.interpretability.interpretabil_util import scatter_3d_generic, plot_histograms
 from utils import logger
 from utils.helper_functions import create_log_dir
 from utils.utils import set_seed
@@ -163,7 +164,7 @@ def main():
     context_model.eval()
     logs = logger.Logger(opt)
 
-    # retrieve data for classifier
+    ### t-SNE
     _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
                                                                           purpose_is_unsupervised_learning=False)
     all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
@@ -175,29 +176,32 @@ def main():
     plot_tsne_vision(opt, all_data_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
                      lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
 
-    # data_config.labels = 'vowels'
-    # train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
-    # all_audio, all_labels = _get_data_from_loader(train_loader_syllables, context_model.module, opt, "final_cnn")
-    # n = all_labels.shape[0]  # sqrt(1920) ~= 44
-    #
-    # _audio_per_channel = np.moveaxis(all_audio, 1, 0)
-    # scatter_3d(_audio_per_channel[0], _audio_per_channel[1], _audio_per_channel[2],
-    #            all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
-    #            file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
-    # #
-    # # retrieve full data that encoder was trained on
-    # data_config.split_in_syllables = False
-    # train_loader_full, _, test_loader, _ = get_dataloader.get_dataloader(data_config)
-    # all_audio, all_labels = _get_data_from_loader(train_loader_full, context_model.module, opt, "final_cnn")
-    #
-    # # plot histograms
-    # # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
-    # audio_per_channel = np.moveaxis(all_audio, 2, 0)
-    # plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=wandb_is_on)
-    #
-    # print("Finished")
-    # if wandb_is_on:
-    #     wandb.finish()
+    ### 3D scatter plot
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
+                                                                          purpose_is_unsupervised_learning=False)
+    all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
+    n = all_labels.shape[0]
+
+    _data_per_channel = np.moveaxis(all_data, 1, 0)  # (nb_channels, batch_size, h, w)
+    # flatten height and width
+    _data_per_channel = np.reshape(_data_per_channel, (_data_per_channel.shape[0], _data_per_channel.shape[1], -1))
+    scatter_3d_generic(_data_per_channel[0], _data_per_channel[1], _data_per_channel[2],
+                       all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
+                       file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
+
+    ### Histograms
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
+                                                                          purpose_is_unsupervised_learning=False)
+    all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
+    data_per_channel = np.moveaxis(all_data, 2, 0)  # (nb_channels, batch_size, seq_len)
+    data_per_channel = np.reshape(data_per_channel, (data_per_channel.shape[0], data_per_channel.shape[1], -1))
+
+    # plot histograms
+    plot_histograms(opt, data_per_channel, f"SIM", max_dim=32, wandb_is_on=wandb_is_on)
+
+    print("Finished")
+    if USE_WANDB and wandb_is_on:
+        wandb.finish()
 
 
 if __name__ == '__main__':

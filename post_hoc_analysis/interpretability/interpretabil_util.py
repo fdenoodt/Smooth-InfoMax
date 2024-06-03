@@ -75,7 +75,7 @@ def plot_histograms(opt: OptionsConfig, feature_space_per_channel, gim_name, max
         wandb.log({f"LatSpace/distribution_latent_space_{gim_name}": [wandb.Image(collage)]})
 
 
-def scatter_3d(x, y, z, labels, title, dir, file, show, wandb_is_on):
+def scatter_3d_syllable(x, y, z, labels, title, dir, file, show, wandb_is_on):
     # x, y, z: (batch_size, seq_len)
     # labels: (batch_size,) so must copy the labels for each seq_len
     if len(x.shape) > 1:
@@ -90,7 +90,52 @@ def scatter_3d(x, y, z, labels, title, dir, file, show, wandb_is_on):
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    palette = colour_palette_vowels()
+    palette = colour_palette_vowels() # 3 vowels, 3 vals per color
+
+    for i, vowel_idx in enumerate(np.unique(labels)):
+        indices = np.where(labels == vowel_idx)
+        color = np.tile(palette[i], (len(indices), 1))
+        ax.scatter(x[indices], y[indices], z[indices], c=color, label=translate_vowel_number_to_vowel(vowel_idx))
+
+    plt.legend()
+
+    # set x, y, z limits between -3 and 3
+    ax.set_xlim(-2.2, 2.2)
+    ax.set_ylim(-2.2, 2.2)
+    ax.set_zlim(-2.2, 2.2)
+
+    ax.set_title(title)
+
+    if show:
+        plt.show()
+
+    fig.savefig(f"{dir}/{file}.png")
+    fig.savefig(f"{dir}/{file}.pdf")
+
+    if wandb_is_on:
+        wandb.log({f"LatSpace/3D_latent_space_{file}": [wandb.Image(f"{dir}/{file}.png")]})
+
+    return f"{dir}/{file}.png"
+
+def scatter_3d_generic(x, y, z, labels, title, dir, file, show, wandb_is_on):
+    # ONLY DIFFERENCE WITH scatter_3d_syllable IS THE PALETTE
+
+    # x, y, z: (batch_size, seq_len)
+    # labels: (batch_size,) so must copy the labels for each seq_len
+    if len(x.shape) > 1:
+        labels = np.repeat(labels, x.shape[1])
+
+    x, y, z = x.flatten(), y.flatten(), z.flatten()
+
+    # limit to 1000 points
+    if x.shape[0] > 5000:
+        indices = random.sample(range(x.shape[0]), 1000)
+        x, y, z, labels = x[indices], y[indices], z[indices], labels[indices]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # palette = colour_palette_vowels()
+    palette = np.random.rand(10, 3)
 
     for i, vowel_idx in enumerate(np.unique(labels)):
         indices = np.where(labels == vowel_idx)
