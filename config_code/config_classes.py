@@ -23,6 +23,7 @@ class Dataset(Enum):
     # DE_BOER_RESHUFFLED_V2 = 6
     STL10 = 7
     ANIMAL_WITH_ATTRIBUTES = 8
+    SHAPES_3D = 9
 
 
 class ModelType(Enum):
@@ -52,7 +53,7 @@ class DataSetConfig:
             assert labels in ["syllables", "vowels"]
 
         if grayscale:
-            assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES]
+            assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES, Dataset.SHAPES_3D]
             "grayscale can only be True for STL10 dataset or ANIMAL_WITH_ATTRIBUTES dataset"
 
         self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset

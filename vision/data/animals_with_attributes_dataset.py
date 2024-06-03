@@ -1,8 +1,9 @@
-import torch
-from torch.utils.data import Dataset, DataLoader
-from glob import glob
 import os
+from glob import glob
+
+import torch
 from PIL import Image
+from torch.utils.data import Dataset
 
 from config_code.config_classes import DataSetConfig
 

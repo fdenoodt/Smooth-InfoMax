@@ -48,7 +48,7 @@ def _get_options(experiment_name):
             dataset=DATASET,
             encoder_num=ENCODER_CONFIG.num_epochs - 1,
             num_epochs=20,
-            bias=False,
+            bias=True,
         ),
         decoder_config=None,
         use_wandb=True,
