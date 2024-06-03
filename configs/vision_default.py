@@ -6,7 +6,7 @@ ARCHITECTURE = VisionArchitectureConfig(
     predict_distributions=True,
     model_splits=3,
     train_module=3,
-    resnet_type=34,  # 34 or 50
+    resnet_type=50,  # 34 or 50
 )
 
 DATASET = DataSetConfig(
