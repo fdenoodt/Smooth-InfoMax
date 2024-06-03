@@ -22,7 +22,7 @@ from options import get_options
 import wandb
 
 
-def validate(opt: OptionsConfig, model, test_loader):
+def validate(opt: OptionsConfig, model: FullVisionModel, test_loader):
     total_step = len(test_loader)
     model_splits = 3  # TODO
     # model_splits = opt.model_splits
