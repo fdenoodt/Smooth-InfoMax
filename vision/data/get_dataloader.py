@@ -9,6 +9,7 @@ from config_code.config_classes import DataSetConfig, Dataset
 from vision.data.animals_with_attributes_dataset import AnimalsWithAttributesDataset
 from torch.utils.data import random_split
 
+from vision.data.shapes_3d_dataset import Shapes3dDataset
 
 
 def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool):
@@ -18,6 +19,9 @@ def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool
     elif config.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
             get_animal_with_attributes_dataloader(config, purpose_is_unsupervised_learning)
+    elif config.dataset == Dataset.SHAPES_3D:
+        train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
+            get_shapes_3d_dataloader(config, purpose_is_unsupervised_learning)
     else:
         raise Exception("Invalid option")
 
@@ -28,6 +32,36 @@ def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool
         supervised_dataset,
         test_loader,
         test_dataset,
+    )
+
+
+def get_shapes_3d_dataloader(config: DataSetConfig, _: bool):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    dataset = Shapes3dDataset(config, device)
+    dataset_size = len(dataset)
+    train_sampler, valid_sampler = create_validation_sampler(dataset_size)
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset,
+        batch_size=config.batch_size_multiGPU,
+        sampler=train_sampler,
+        num_workers=config.num_workers,
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        dataset,
+        batch_size=config.batch_size_multiGPU,
+        sampler=valid_sampler,
+        num_workers=config.num_workers,
+    )
+
+    return (
+        train_loader,
+        dataset,
+        train_loader,
+        dataset,
+        test_loader,
+        dataset,
     )
 
 
@@ -175,11 +209,11 @@ def get_stl10_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning
     )
 
     return (
-        unsupervised_loader,
+        unsupervised_loader,  # for unsupervised learning
         unsupervised_dataset,
-        train_loader,
+        train_loader,  # for supervised learning
         train_dataset,
-        test_loader,
+        test_loader,  # for validation
         test_dataset,
     )
 

@@ -10,14 +10,13 @@ from config_code.config_classes import DataSetConfig
 
 
 class Shapes3dDataset(Dataset):
-    def __init__(self, config: DataSetConfig):
+    def __init__(self, config: DataSetConfig, device: torch.device):
         data_dir = f"{config.data_input_dir}/3dshapes/3dshapes.h5"
         self.data = h5py.File(data_dir, 'r')
 
-        self.images = self.data['images']  # array shape [480000,64,64,3], uint8 in range(256)
-        self.labels = self.data['labels']  # array shape [480000,6], float64
+        self.images = torch.tensor(self.data['images'], device=device)  # Move data to GPU
+        self.labels = torch.tensor(self.data['labels'], device=device)  # Move data to GPU
 
-        # Shuffle the data
         self.grayscale = config.grayscale
         if self.grayscale:
             self.transform = transforms.Compose(
@@ -28,10 +27,10 @@ class Shapes3dDataset(Dataset):
     def __getitem__(self, index):
         img = self.images[index]
         if self.grayscale:
-            img = self.transform(img)
-        else:
-            img = torch.from_numpy(img).permute(2, 0, 1)  # Convert image from HWC to CHW format
-        label = torch.tensor(self.labels[index], dtype=torch.float32)
+            # Apply transform on CPU then move back to GPU
+            # because the transform is not implemented for GPU. (suboptimal)
+            img = self.transform(img.cpu()).to(self.images.device)
+        label = self.labels[index]
         return img, label
 
     def __len__(self):
@@ -40,7 +39,7 @@ class Shapes3dDataset(Dataset):
 
 if __name__ == '__main__':
     config = DataSetConfig(config_classes.Dataset.SHAPES_3D, batch_size=32, grayscale=False)
-    dataset = Shapes3dDataset(config)
+    dataset = Shapes3dDataset(config, torch.device('cuda'))
     print(len(dataset))
     print(dataset[0])
     print(dataset[0][0].shape)
