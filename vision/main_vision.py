@@ -202,3 +202,5 @@ if __name__ == "__main__":
 
     if USE_WANDB:
         wandb.finish()
+
+    print("Done!")
