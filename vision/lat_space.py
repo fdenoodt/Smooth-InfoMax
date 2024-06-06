@@ -3,7 +3,6 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tikzplotlib
 import torch
 import wandb
 from sklearn.manifold import TSNE
@@ -19,6 +18,11 @@ from utils.helper_functions import create_log_dir
 from utils.utils import set_seed
 from vision.models import load_vision_model
 from vision.models.FullModel import FullVisionModel
+
+try:
+    import tikzplotlib
+except:
+    pass
 
 
 def _get_data_from_loader(train_loader: torch.utils.data.DataLoader,
@@ -156,7 +160,7 @@ def main():
     set_seed(opt.seed)
 
     context_model, _ = load_vision_model.load_model_and_optimizer(
-        opt, reload_model=True, calc_loss=False, classifier_config=opt.vision_classifier_config
+        opt, reload_model=True, calc_loss=False, downstream_config=opt.vision_classifier_config
     )
     context_model.module.switch_calc_loss(False)
     context_model.eval()
