@@ -166,6 +166,8 @@ if __name__ == "__main__":
         # Save the run id to a file in the logs directory
         with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
             f.write(run_id)
+            # write project name to file
+            f.write(f"\n{project_name}")
 
     opt.model_type = ModelType.ONLY_ENCODER
 
