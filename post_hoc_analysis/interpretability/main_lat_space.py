@@ -17,6 +17,7 @@ from options import get_options
 from utils.helper_functions import *
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
 from interpretabil_util import plot_tsne_syllable, plot_histograms, scatter_3d_syllable
+from utils import logger
 
 """
 This script is used to analyze the latent space of the audio encoder.
@@ -114,8 +115,8 @@ def main():
 
     _audio_per_channel = np.moveaxis(all_audio, 1, 0)
     scatter_3d_syllable(_audio_per_channel[0], _audio_per_channel[1], _audio_per_channel[2],
-               all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
-               file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
+                        all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
+                        file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
     #
     # retrieve full data that encoder was trained on
     data_config.split_in_syllables = False

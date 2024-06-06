@@ -10,7 +10,7 @@ from config_code.config_classes import DataSetConfig
 
 
 class Shapes3dDataset(Dataset):
-    def __init__(self, config: DataSetConfig, device: torch.device):
+    def __init__(self, config: DataSetConfig, device: torch.device, train=True):
         data_dir = f"{config.data_input_dir}/3dshapes/3dshapes.h5"
         self.data = h5py.File(data_dir, 'r')
 
@@ -20,16 +20,24 @@ class Shapes3dDataset(Dataset):
         self.grayscale = config.grayscale
         if self.grayscale:
             self.transform = transforms.Compose(
-                [transforms.ToPILImage(), transforms.Grayscale(), transforms.ToTensor()])
+                [transforms.ToPILImage(),
+                 transforms.Grayscale(),
+                 transforms.ToTensor()])
         else:
             self.transform = transforms.ToTensor()
+
+        if train:  # random flip
+            self.transform = transforms.Compose(
+                [transforms.RandomHorizontalFlip(), self.transform])
 
     def __getitem__(self, index):
         img = self.images[index]
         if self.grayscale:
             # Apply transform on CPU then move back to GPU
-            # because the transform is not implemented for GPU. (suboptimal)
+            # because the transform is not implemented for GPU due to ToPilImage (suboptimal)
             img = self.transform(img.cpu()).to(self.images.device)
+        else:
+            img = self.transform(img)
         label = self.labels[index]
         return img, label
 

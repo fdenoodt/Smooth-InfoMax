@@ -14,7 +14,7 @@ from options import get_options
 from post_hoc_analysis.interpretability.interpretabil_util import scatter_3d_generic, plot_histograms
 from utils import logger
 from utils.helper_functions import create_log_dir
-from utils.utils import set_seed
+from utils.utils import set_seed, retrieve_existing_wandb_run_id
 from vision.data import get_dataloader
 from vision.models import load_vision_model
 from vision.models.FullModel import FullVisionModel
@@ -143,15 +143,11 @@ def main():
 
     wandb_is_on = False
     if USE_WANDB:
-        # Check if the wandb_run_id.txt file exists
-        if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
-            # If the file exists, read the run id from the file
-            with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
-                run_id = f.read().strip()
-
+        wandb_is_on = False
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        if run_id is not None:
             # Initialize a wandb run with the same run id
-            dataset = opt.vision_classifier_config.dataset.dataset
-            wandb.init(project=f"SIM_VISION_ENCODER_{dataset}", id=run_id, resume="allow")
+            wandb.init(id=run_id, resume="allow", project=project_name)
             wandb_is_on = True
 
     arg_parser.create_log_path(opt, add_path_var="post_hoc")
