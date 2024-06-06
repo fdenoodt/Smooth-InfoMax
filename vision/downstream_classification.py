@@ -12,6 +12,7 @@ import time
 
 import os
 
+from utils.utils import retrieve_existing_wandb_run_id
 from vision.models.ClassificationModel import ClassificationModel
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
@@ -183,16 +184,14 @@ if __name__ == "__main__":
 
     wandb_is_on = False
     if USE_WANDB:
-        # Check if the wandb_run_id.txt file exists
-        if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
-            # If the file exists, read the run id from the file
-            with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
-                run_id = f.read().strip()
-
+        wandb_is_on = False
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        if run_id is not None:
             # Initialize a wandb run with the same run id
-            dataset = opt.vision_classifier_config.dataset.dataset
-            wandb.init(project=f"SIM_VISION_ENCODER_{dataset}", id=run_id, resume="allow")
+            wandb.init(id=run_id, resume="allow", project=project_name)
             wandb_is_on = True
+
+    dataset = opt.vision_classifier_config.dataset.dataset
 
     # order is important! first wandb.init, then create log path
     add_path_var = f"linear_model_vision_bias={opt.vision_classifier_config.bias}_deterministic_enc={opt.encoder_config.deterministic}"
