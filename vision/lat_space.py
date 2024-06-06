@@ -10,12 +10,12 @@ from sklearn.manifold import TSNE
 from arg_parser import arg_parser
 ## own modules
 from config_code.config_classes import OptionsConfig, Loss
-from data import get_dataloader
 from options import get_options
 from post_hoc_analysis.interpretability.interpretabil_util import scatter_3d_generic, plot_histograms
 from utils import logger
 from utils.helper_functions import create_log_dir
 from utils.utils import set_seed
+from vision.data import get_dataloader
 from vision.models import load_vision_model
 from vision.models.FullModel import FullVisionModel
 
