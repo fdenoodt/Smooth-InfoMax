@@ -4,7 +4,8 @@ import os
 import torch
 import datetime
 
-from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig, VisionArchitectureConfig
+from config_code.architecture_config import ArchitectureConfig, DecoderArchitectureConfig, VisionArchitectureConfig, \
+    VisionDecoderArchitectureConfig
 
 
 class Loss(Enum):
@@ -129,7 +130,7 @@ class DecoderLoss(Enum):
 
 class DecoderConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 architecture: DecoderArchitectureConfig, decoder_loss: DecoderLoss):
+                 architecture: Union[DecoderArchitectureConfig, VisionDecoderArchitectureConfig], decoder_loss: DecoderLoss):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import os
 
-from config_code.config_classes import OptionsConfig, ClassifierConfig, Dataset
+from config_code.config_classes import OptionsConfig, ClassifierConfig, Dataset, DecoderConfig
 
 
 def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
@@ -147,6 +147,25 @@ def modify_state_dict(nb_classes, state_dict, model, module_idx):
     return state_dict
 
 
+def reload_weights_for_training_decoder_vision_experiment(opt: OptionsConfig, model, optimizer, reload_model,
+                                                          decoder_config: DecoderConfig):
+    if reload_model:
+        print("Loading weights from ", opt.model_path)
+        for idx, layer in enumerate(model.module.encoder):
+            # Load the state dictionary
+            state_dict = torch.load(
+                os.path.join(
+                    opt.model_path,
+                    "model_{}_{}.ckpt".format(idx, decoder_config.encoder_num),
+                ),
+                map_location=opt.device.type,
+            )
+    else:
+        print("Randomly initialized model")
+
+    return model, optimizer
+
+
 def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig, model, optimizer, reload_model,
                                                              classifier_config: ClassifierConfig):
     ## reload weights for training of the linear classifier
@@ -166,7 +185,6 @@ def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig,
 
             # Modify the state dictionary
             state_dict = modify_state_dict(nb_classes, state_dict, model, idx)
-
             # Load the modified state dictionary into the model
             model.module.encoder[idx].load_state_dict(state_dict)
 

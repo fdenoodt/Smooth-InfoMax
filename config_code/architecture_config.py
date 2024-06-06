@@ -101,7 +101,10 @@ class DecoderArchitectureConfig:
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
 
+
+class VisionDecoderArchitectureConfig:
+    def __init__(self):
+        pass
+
     def __str__(self):
-        return f"DecoderArchitectureConfig(kernel_sizes={self.kernel_sizes}, strides={self.strides}, " \
-               f"paddings={self.paddings}, input_dim={self.input_dim}, hidden_dim={self.hidden_dim}, " \
-               f"output_dim={self.output_dim})"
+        return "VisionDecoderArchitectureConfig()"

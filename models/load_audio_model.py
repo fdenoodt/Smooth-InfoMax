@@ -1,6 +1,6 @@
 import torch
 
-from typing import Optional
+from typing import Optional, Union
 from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig
 from decoder.decoderr import Decoder
 from models import full_model
@@ -9,7 +9,7 @@ from utils import model_utils
 
 
 def load_model_and_optimizer(
-        opt: OptionsConfig, classifier_config: Optional[ClassifierConfig], reload_model=False, calc_accuracy=False,
+        opt: OptionsConfig, classifier_config: Union[Optional[ClassifierConfig], Optional[DecoderConfig]], reload_model=False, calc_accuracy=False,
         num_GPU=None) -> (FullModel, torch.optim.Optimizer):
     lr = opt.encoder_config.learning_rate
     # Initialize model.

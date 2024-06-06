@@ -45,6 +45,7 @@ def train_logistic_regression(opt: OptionsConfig, context_model, classification_
 
             model_input = img.to(opt.device)
 
+            # TODO: IS THIS == 2 CORRECT?
             if opt.model_type == 2:  ## fully supervised training
                 _, _, _, _, z = context_model(model_input)
             else:
@@ -202,7 +203,7 @@ if __name__ == "__main__":
 
     # load pretrained model
     context_model, _ = load_vision_model.load_model_and_optimizer(
-        opt, reload_model=True, calc_loss=False, classifier_config=opt.vision_classifier_config
+        opt, reload_model=True, calc_loss=False, downstream_config=opt.vision_classifier_config
     )
     context_model.module.switch_calc_loss(False)
 

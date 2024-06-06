@@ -90,7 +90,7 @@ class ResNet_Encoder(nn.Module):
         self.opt = opt
 
         self.patchify = True
-        self.overlap = 2
+        self.overlap = 2  # 2x overlap: 50% overlap
 
         self.calc_loss = calc_loss
         self.patch_size = patch_size
@@ -175,24 +175,31 @@ class ResNet_Encoder(nn.Module):
             eps = torch.randn_like(std)
             return mu + (eps * std)
 
-    def forward(self, x, n_patches_x, n_patches_y, label, patchify_right_now=True):
+    def forward(self, x: torch.Tensor, n_patches_x, n_patches_y, label, patchify_right_now=True):
+        # x in module 1: (batch_size, 3, 64, 64)
+        # x in module 2: (batch_size * 7 * 7, 3, 16, 16)
+        # x in module 3: (batch_size * 7 * 7, 64, 8, 8)
+
         if self.patchify and self.encoder_num == 0 and patchify_right_now:
-            x = (
+            x = (  # x.shape = (batch_size, 3, 64, 64) -> (batch_size, 7, 7, 3, 16, 16)
                 x.unfold(2, self.patch_size, self.patch_size // self.overlap)
                 .unfold(3, self.patch_size, self.patch_size // self.overlap)
                 .permute(0, 2, 3, 1, 4, 5)
             )
-            n_patches_x = x.shape[1]
-            n_patches_y = x.shape[2]
-            x = x.reshape(
+            n_patches_x = x.shape[1]  # 7
+            n_patches_y = x.shape[2]  # 7
+            x = x.reshape(  # (batch_size, 7, 7, 3, 16, 16) -> (batch_size * 7 * 7, 3, 16, 16)
                 x.shape[0] * x.shape[1] * x.shape[2], x.shape[3], x.shape[4], x.shape[5]
             )
 
+        # x.shape = (batch_size * 7 * 7, 3, 16, 16)
+        # z.shape = (batch_size * 7 * 7, 64, 16, 16)
         z = self.model(x)
 
-        out = F.adaptive_avg_pool2d(z, 1)
-        out = out.reshape(-1, n_patches_x, n_patches_y, out.shape[1])
-        out = out.permute(0, 3, 1, 2).contiguous()
+        # preserve batch, # channels but avg pool the spatial dimensions
+        out = F.adaptive_avg_pool2d(z, 1)  # (batch_size * 7 * 7, 64, 1, 1)
+        out = out.reshape(-1, n_patches_x, n_patches_y, out.shape[1])  # (batch_size, 7, 7, 64)
+        out = out.permute(0, 3, 1, 2).contiguous()  # (batch_size, 64, 7, 7)
 
         mu = self.mu(out)  # TODO WARNING: Resnet50 GIM experiments were done without mu layer. This is suboptimal.
         # Resnet34 GIM experiments were done with mu layer. This is correct.

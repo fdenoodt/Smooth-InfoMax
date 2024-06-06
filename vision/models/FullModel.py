@@ -13,9 +13,6 @@ class FullVisionModel(torch.nn.Module):
         print("Contrasting against ", self.contrastive_samples, " negative samples")
         self.calc_loss = calc_loss
 
-        # TODO, currently set to 3
-        # self.opt.model_splits = 3  # added by Fabian, TODO maybe remove
-        # self.opt.train_module = 3  # added by Fabian, TODO maybe remove
         # train_module = 3 implies all modules are trained, 1 implies only the first module is trained
 
         # if self.opt.model_splits == 1 and not self.opt.loss == 1:

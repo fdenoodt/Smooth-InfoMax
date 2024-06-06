@@ -1,21 +1,24 @@
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 
-from config_code.config_classes import OptionsConfig, ClassifierConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ClassifierConfig, ModelType, Dataset, DecoderConfig
 from vision.models import FullModel, ClassificationModel
 from utils import model_utils
 
 
-def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[ClassifierConfig], num_GPU=None,
-                             reload_model=False, calc_loss=True) -> (FullModel.FullVisionModel, torch.optim.Optimizer):
+def load_model_and_optimizer(opt: OptionsConfig,
+                             downstream_config: Union[Optional[ClassifierConfig], Optional[DecoderConfig]],
+                             num_GPU=None,
+                             reload_model=False,
+                             calc_loss=True) -> (FullModel.FullVisionModel, torch.optim.Optimizer):
     model: FullModel.FullVisionModel = FullModel.FullVisionModel(
         opt, calc_loss
     )
 
     lr = opt.encoder_config.learning_rate \
         if opt.model_type == ModelType.ONLY_ENCODER \
-        else classifier_config.learning_rate
+        else downstream_config.learning_rate
 
     # TODO, disabled by me
     # if opt.train_module != opt.model_splits and opt.model_splits > 1:  # Only train a part of the model
@@ -30,8 +33,14 @@ def load_model_and_optimizer(opt: OptionsConfig, classifier_config: Optional[Cla
         model, optimizer = model_utils.reload_weights_for_training_encoder_vision_experiment(
             opt, model, optimizer, reload_model)
     else:  # ModelType.ONLY_DOWNSTREAM_TASK or ModelType.FULLY_SUPERVISED
-        model, optimizer = model_utils.reload_weights_for_training_classifier_vision_experiment(
-            opt, model, optimizer, reload_model, classifier_config)
+        if type(downstream_config) == DecoderConfig:  # Decoder
+            model, optimizer = model_utils.reload_weights_for_training_decoder_vision_experiment(
+                opt, model, optimizer, reload_model, downstream_config)
+        elif type(downstream_config) == ClassifierConfig:  # Classifier
+            model, optimizer = model_utils.reload_weights_for_training_classifier_vision_experiment(
+                opt, model, optimizer, reload_model, downstream_config)
+        else:
+            raise Exception(f"Invalid downstream config type: {type(downstream_config)}")
 
     return model, optimizer
 

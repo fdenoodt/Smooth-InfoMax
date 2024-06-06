@@ -176,7 +176,7 @@ if __name__ == "__main__":
         torch.backends.cudnn.benchmark = True
 
     # load model
-    model, optimizer = load_vision_model.load_model_and_optimizer(opt, classifier_config=None)
+    model, optimizer = load_vision_model.load_model_and_optimizer(opt, downstream_config=None)
 
     logs = logger.Logger(opt)
 

@@ -1,6 +1,8 @@
 import torch
-from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ClassifierConfig
-from config_code.architecture_config import ArchitectureConfig, ModuleConfig, VisionArchitectureConfig
+from config_code.config_classes import Loss, DataSetConfig, Dataset, EncoderConfig, OptionsConfig, ClassifierConfig, \
+    DecoderConfig, DecoderLoss
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig, VisionArchitectureConfig, \
+    VisionDecoderArchitectureConfig
 
 ARCHITECTURE = VisionArchitectureConfig(
     predict_distributions=True,
@@ -29,6 +31,15 @@ ENCODER_CONFIG = EncoderConfig(
     dataset=DATASET
 )
 
+DECODER_CONFIG = DecoderConfig(
+    dataset=DATASET,
+    decoder_loss=DecoderLoss.MSE,
+    learning_rate=1e-4,
+    num_epochs=100,
+    architecture=VisionDecoderArchitectureConfig(),
+    encoder_num=ENCODER_CONFIG.num_epochs - 1,
+)
+
 
 def _get_options(experiment_name):
     options = OptionsConfig(
@@ -50,7 +61,7 @@ def _get_options(experiment_name):
             num_epochs=20,
             bias=True,
         ),
-        decoder_config=None,
+        decoder_config=DECODER_CONFIG,
         use_wandb=True,
         train=True,
     )
