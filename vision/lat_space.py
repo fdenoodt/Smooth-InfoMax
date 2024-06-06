@@ -9,11 +9,12 @@ from sklearn.manifold import TSNE
 
 from arg_parser import arg_parser
 ## own modules
-from config_code.config_classes import OptionsConfig, Loss
+from config_code.config_classes import OptionsConfig, Loss, Dataset
 from options import get_options
 from post_hoc_analysis.interpretability.interpretabil_util import scatter_3d_generic, plot_histograms
 from utils import logger
-from utils.helper_functions import create_log_dir
+from utils.helper_functions import create_log_dir, translate_stl_number_to_class_label, \
+    translate_shapes3d_number_to_class_label, translate_awa2_number_to_class_label
 from utils.utils import set_seed, retrieve_existing_wandb_run_id
 from vision.data import get_dataloader
 from vision.models import load_vision_model
@@ -55,7 +56,7 @@ def _get_data_from_loader(train_loader: torch.utils.data.DataLoader,
     return all_data, all_labels
 
 
-def scatter_generic(x, labels, title, dir=None, file=None, show=True, n=100):
+def scatter_generic(x, labels, title, translate_idx_to_label_fn: callable, dir=None, file=None, show=True, n=100):
     """
     creates scatter plot for t-SNE visualization
     :param x: 2-D latent space as output by t-SNE
@@ -73,8 +74,8 @@ def scatter_generic(x, labels, title, dir=None, file=None, show=True, n=100):
     ax = plt.subplot(aspect="equal")
 
     # for each loop created by chat gpt
-    for i, label in enumerate(np.unique(labels)):
-        indices = np.where(labels == label)[0]
+    for i, label_idx in enumerate(np.unique(labels)):
+        indices = np.where(labels == label_idx)[0]
         if len(indices) > n:
             indices = np.random.choice(indices, size=n, replace=False)
         # color = np.tile(palette[i], (len(indices), 1))
@@ -82,7 +83,7 @@ def scatter_generic(x, labels, title, dir=None, file=None, show=True, n=100):
                    lw=0,
                    s=40,
                    # color=color,
-                   label=label)
+                   label=translate_idx_to_label_fn(label_idx))
 
     plt.legend()
 
@@ -108,7 +109,8 @@ def scatter_generic(x, labels, title, dir=None, file=None, show=True, n=100):
     plt.cla()
 
 
-def plot_tsne_vision(opt, all_data_mean, all_labels, param, lr, n_iter, perplexity, wandb_is_on):
+def plot_tsne_vision(opt, all_data_mean, all_labels, param, lr, n_iter, perplexity, wandb_is_on,
+                     translate_idx_to_label_fn: callable):
     # flatten the dataset
     n_samples, n_features, n_channels = all_data_mean.shape
     all_data_mean = all_data_mean.reshape((n_samples, n_features * n_channels))
@@ -126,7 +128,9 @@ def plot_tsne_vision(opt, all_data_mean, all_labels, param, lr, n_iter, perplexi
     save_dir = opt.log_path
 
     scatter_generic(projection, all_labels,
-                    title=f"t-SNE Latent space - {param}", dir=save_dir, file=file, show=False)
+                    title=f"t-SNE Latent space - {param}",
+                    translate_idx_to_label_fn=translate_idx_to_label_fn,
+                    dir=save_dir, file=file, show=False)
 
     print(f"Saved t-SNE plot to {save_dir}/{file}")
 
@@ -164,8 +168,18 @@ def main():
     context_model.eval()
     logs = logger.Logger(opt)
 
+    dataset = opt.encoder_config.dataset
+    if dataset.dataset == Dataset.STL10:
+        translate_idx_to_label_fn: callable = translate_stl_number_to_class_label
+    elif dataset.dataset == Dataset.SHAPES_3D:
+        translate_idx_to_label_fn: callable = translate_shapes3d_number_to_class_label
+    elif dataset.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+        translate_idx_to_label_fn: callable = translate_awa2_number_to_class_label
+    else:
+        raise ValueError(f"Unknown dataset: {dataset.dataset}")
+
     ### t-SNE
-    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(dataset,
                                                                           purpose_is_unsupervised_learning=False)
     all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
     n = all_labels.shape[0]
@@ -174,10 +188,11 @@ def main():
     all_data_mean = np.mean(all_data, axis=1)  # (batch_size, nb_channels)
     lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
     plot_tsne_vision(opt, all_data_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-                     lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
+                     lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on,
+                     translate_idx_to_label_fn=translate_idx_to_label_fn)
 
     ### 3D scatter plot
-    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(dataset,
                                                                           purpose_is_unsupervised_learning=False)
     all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
     n = all_labels.shape[0]
@@ -187,10 +202,11 @@ def main():
     _data_per_channel = np.reshape(_data_per_channel, (_data_per_channel.shape[0], _data_per_channel.shape[1], -1))
     scatter_3d_generic(_data_per_channel[0], _data_per_channel[1], _data_per_channel[2],
                        all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
-                       file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
+                       file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on,
+                       label_idx_to_label_fn=translate_idx_to_label_fn)
 
     ### Histograms
-    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.encoder_config.dataset,
+    _, _, train_loader, _, test_loader, _ = get_dataloader.get_dataloader(dataset,
                                                                           purpose_is_unsupervised_learning=False)
     all_data, all_labels = _get_data_from_loader(train_loader, context_model, opt, num_datapoints=None)
     data_per_channel = np.moveaxis(all_data, 2, 0)  # (nb_channels, batch_size, seq_len)

@@ -359,5 +359,29 @@ def translate_vowel_number_to_vowel(number):
     return "a" if number == 0 else "i" if number == 1 else "u"
 
 
+def translate_stl_number_to_class_label(number):  # stl-10 dataset
+    number_to_class_label = {0: "airplane", 1: "bird", 2: "car",
+                             3: "cat", 4: "deer", 5: "dog", 6: "horse", 7: "monkey", 8: "ship", 9: "truck"}
+    return number_to_class_label[number]
+
+
+def translate_awa2_number_to_class_label(number):  # animals with attributes dataset
+    number_to_class_label = {0: "antelope", 1: "grizzly+bear", 2: "killer+whale", 3: "beaver", 4: "dalmatian",
+                             5: "persian+cat", 6: "horse", 7: "german+shepherd", 8: "blue+whale", 9: "siamese+cat",
+                             10: "skunk", 11: "mole", 12: "tiger", 13: "hippopotamus", 14: "leopard", 15: "moose",
+                             16: "spider+monkey", 17: "humpback+whale", 18: "elephant", 19: "gorilla", 20: "ox",
+                             21: "fox", 22: "sheep", 23: "seal", 24: "chimpanzee", 25: "hamster", 26: "squirrel",
+                             27: "rhinoceros", 28: "rabbit", 29: "bat", 30: "giraffe", 31: "wolf", 32: "chihuahua",
+                             33: "rat", 34: "weasel", 35: "otter", 36: "buffalo", 37: "zebra", 38: "giant+panda",
+                             39: "deer", 40: "bobcat", 41: "pig", 42: "lion", 43: "mouse", 44: "polar+bear",
+                             45: "collie", 46: "walrus", 47: "raccoon", 48: "cow", 49: "dolphin"}
+    return number_to_class_label[number]
+
+
+def translate_shapes3d_number_to_class_label(number):  # 3dshapes dataset
+    number_to_class_label = {0: "cube", 1: "cylinder", 2: "sphere"}
+    return number_to_class_label[number]
+
+
 if __name__ == "__main__":
     pass

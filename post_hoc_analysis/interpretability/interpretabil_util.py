@@ -117,7 +117,7 @@ def scatter_3d_syllable(x, y, z, labels, title, dir, file, show, wandb_is_on):
 
     return f"{dir}/{file}.png"
 
-def scatter_3d_generic(x, y, z, labels, title, dir, file, show, wandb_is_on):
+def scatter_3d_generic(x, y, z, labels, title, dir, file, show, wandb_is_on, label_idx_to_label_fn: callable):
     # ONLY DIFFERENCE WITH scatter_3d_syllable IS THE PALETTE
 
     # x, y, z: (batch_size, seq_len)
@@ -140,7 +140,7 @@ def scatter_3d_generic(x, y, z, labels, title, dir, file, show, wandb_is_on):
     for i, vowel_idx in enumerate(np.unique(labels)):
         indices = np.where(labels == vowel_idx)
         color = np.tile(palette[i], (len(indices), 1))
-        ax.scatter(x[indices], y[indices], z[indices], c=color, label=translate_vowel_number_to_vowel(vowel_idx))
+        ax.scatter(x[indices], y[indices], z[indices], c=color, label=label_idx_to_label_fn(vowel_idx))
 
     plt.legend()
 
