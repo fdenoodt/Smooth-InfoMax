@@ -4,6 +4,7 @@ import torch
 from config_code.config_classes import OptionsConfig, DataSetConfig, Dataset
 from utils import utils
 
+
 class Supervised_Loss(nn.Module):
     def __init__(self, dataset_config: DataSetConfig, hidden_dim, calc_accuracy, device):
         super(Supervised_Loss, self).__init__()
@@ -19,6 +20,8 @@ class Supervised_Loss(nn.Module):
             n_classes = 10
         elif dataset_config.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
             n_classes = 50
+        elif dataset_config.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET]:
+            n_classes = 4  # cube, cylinder, sphere, torus (the shape)
         else:
             raise Exception("Other datasets are not implemented yet")
 
@@ -30,13 +33,11 @@ class Supervised_Loss(nn.Module):
 
         self.label_num = 1
 
-
     def forward(self, z, label):
         total_loss, accuracies = self.calc_supervised_loss(
             z, label
         )
         return total_loss, accuracies
-
 
     def calc_supervised_loss(self, z, labels):
 

@@ -51,10 +51,13 @@ def load_classification_model(opt: OptionsConfig) -> ClassificationModel.Classif
     else:  # 50
         in_channels = 1024
 
-    if opt.vision_classifier_config.dataset.dataset == Dataset.STL10:
+    dataset = opt.vision_classifier_config.dataset.dataset
+    if dataset == Dataset.STL10:
         num_classes = 10
-    elif opt.vision_classifier_config.dataset.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+    elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
         num_classes = 50
+    elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
+        num_classes = 4
     else:
         raise Exception("Invalid option")
 

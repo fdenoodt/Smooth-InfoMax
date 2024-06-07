@@ -171,7 +171,13 @@ def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig,
     ## reload weights for training of the linear classifier
     if reload_model:
         print("Loading weights from ", opt.model_path)
-        nb_classes = 10 if classifier_config.dataset.dataset == Dataset.STL10 else 50  # AWA2
+        dataset = classifier_config.dataset.dataset
+        if dataset == Dataset.STL10:
+            nb_classes = 10
+        elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+            nb_classes = 50
+        elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
+            nb_classes = 4
 
         for idx, layer in enumerate(model.module.encoder):
             # Load the state dictionary

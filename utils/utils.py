@@ -23,6 +23,10 @@ def accuracy(output, target, topk=(1,)):
         maxk = max(topk)
         batch_size = target.size(0)
 
+        # Ensure no crash if # labels < maxk
+        _, nb_classes = output.shape
+        if nb_classes < maxk:
+            maxk = nb_classes  # 100% accuracy
         _, pred = output.topk(maxk, 1, True, True)
         pred = pred.t()
 
@@ -112,6 +116,3 @@ def rescale_between_neg1_and_1(x):
     absolute = np.abs(x)
     print(absolute.max())
     return x / absolute.max()
-
-
-

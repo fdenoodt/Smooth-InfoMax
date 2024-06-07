@@ -19,7 +19,7 @@ def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool
     elif config.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
             get_animal_with_attributes_dataloader(config, purpose_is_unsupervised_learning)
-    elif config.dataset == Dataset.SHAPES_3D:
+    elif config.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET]:
         train_loader, train_dataset, supervised_loader, supervised_dataset, test_loader, test_dataset = \
             get_shapes_3d_dataloader(config, purpose_is_unsupervised_learning)
     else:
@@ -38,8 +38,8 @@ def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool
 def get_shapes_3d_dataloader(config: DataSetConfig, _: bool):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    images, labels, len = Shapes3dDataset.get_data(config)
-    dataset = Shapes3dDataset(config, images, labels, len, device)
+    images, labels, length = Shapes3dDataset.get_data(config)
+    dataset = Shapes3dDataset(config, images, labels, length, device)
     # dataset = Shapes3dDataset(config, device)
     dataset_size = len(dataset)
     train_sampler, valid_sampler = create_validation_sampler(dataset_size)
