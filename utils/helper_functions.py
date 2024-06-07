@@ -379,7 +379,8 @@ def translate_awa2_number_to_class_label(number):  # animals with attributes dat
 
 
 def translate_shapes3d_number_to_class_label(number):  # 3dshapes dataset
-    number_to_class_label = {0: "cube", 1: "cylinder", 2: "sphere"}
+    # shapes 3d: shape (4 options)
+    number_to_class_label = {0: "cube", 1: "cylinder", 2: "sphere", 3: "torus"}
     return number_to_class_label[number]
 
 

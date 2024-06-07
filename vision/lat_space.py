@@ -171,7 +171,7 @@ def main():
     dataset = opt.encoder_config.dataset
     if dataset.dataset == Dataset.STL10:
         translate_idx_to_label_fn: callable = translate_stl_number_to_class_label
-    elif dataset.dataset == Dataset.SHAPES_3D:
+    elif dataset.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET]:
         translate_idx_to_label_fn: callable = translate_shapes3d_number_to_class_label
     elif dataset.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
         translate_idx_to_label_fn: callable = translate_awa2_number_to_class_label

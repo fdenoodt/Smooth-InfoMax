@@ -52,7 +52,7 @@ class Shapes3dDataset(Dataset):
         img = self.transform(img)
 
         label = self.labels[index]  # (6,): 0: floor_hue, 1: wall_hue, 2: object_hue, 3: scale, 4: shape, 5: orientation
-        shape = label[4] # double to int
+        shape = label[4]  # double to int
         shape = torch.tensor(shape, dtype=torch.long)
         return img, shape
 
