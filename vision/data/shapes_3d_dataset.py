@@ -11,40 +11,62 @@ from config_code.config_classes import DataSetConfig
 
 
 class Shapes3dDataset(Dataset):
-    def __init__(self, config: DataSetConfig, device: torch.device, train=True):
-        self.train = train
-        data_dir = f"{config.data_input_dir}/3dshapes/3dshapes.h5"
+    def __init__(self, config: DataSetConfig, images: np.ndarray, labels: np.ndarray, len: int,
+                 device: torch.device, train=True):
 
-        print(f"Opening file {data_dir}")
-        with h5py.File(data_dir, 'r') as data:
-            self.images = torch.tensor(np.array(data['images']))
-            self.labels = torch.tensor(np.array(data['labels']))
-        print(f"Loaded data from {data_dir}")
+        self.images = images
+        self.labels = labels
+        self.len = len
+
+        self.grayscale = config.grayscale
+        self.transform = transforms.Compose([transforms.ToPILImage()])
+
+        # append grayscale if needed
+        if self.grayscale:
+            self.transform.transforms.append(transforms.Grayscale())
+
+        if train:
+            self.transform.transforms.append(transforms.RandomHorizontalFlip())
+
+        self.transform.transforms.append(transforms.ToTensor())
+
+    @staticmethod
+    def get_data(config: DataSetConfig):
+        with h5py.File(f"{config.data_input_dir}/3dshapes/3dshapes.h5", 'r') as data:
+            images = data['images']
+            labels = data['labels']
+
+            # Subset for local testing. (dataset is too large to fit in memory locally)
+            if config.dataset == config_classes.Dataset.SHAPES_3D_SUBSET:
+                images = images[:800]
+                labels = labels[:800]
+
+            # Save in memory
+            images = np.array(images)
+            labels = np.array(labels)
+            length = len(images)
+        return images, labels, length
 
     def __getitem__(self, index):
         img = self.images[index]
+        img = self.transform(img)
+
         label = self.labels[index]
-
-        if self.train:  # flip image with 50% probability
-            if np.random.rand() > 0.5:
-                img = torch.flip(img, [2])
-
         return img, label
 
     def __len__(self):
-        return len(self.images)
+        return self.len
 
 
 if __name__ == '__main__':
-    config = DataSetConfig(config_classes.Dataset.SHAPES_3D, batch_size=32, grayscale=False, num_workers=1)
-    dataset = Shapes3dDataset(config, torch.device('cuda'))
-    print(len(dataset))
-    print(dataset[0])
-    print(dataset[0][0].shape)
-    print(dataset[0][1].shape)
-    print(dataset[0][1])
+    config = DataSetConfig(config_classes.Dataset.SHAPES_3D_SUBSET, batch_size=32, grayscale=False, num_workers=8)
 
-    # label:
-    label = dataset[0][1]
-    print(label)
-    print(label.shape)  # torch.Size([6])
+    images, labels, len = Shapes3dDataset.get_data(config)
+    dataset = Shapes3dDataset(config, images, labels, len, torch.device('cuda'))
+
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True, num_workers=1)
+    for i, (images, labels) in enumerate(dataloader):
+        print(images.shape)
+        print(labels.shape)  # (32, 6); 6 is the number of factors of variation
+        print(labels[0][0])  # 0.0
+        break

@@ -25,6 +25,7 @@ class Dataset(Enum):
     STL10 = 7
     ANIMAL_WITH_ATTRIBUTES = 8
     SHAPES_3D = 9
+    SHAPES_3D_SUBSET = 10  # only used for local development, not in the cluster!
 
 
 class ModelType(Enum):
@@ -130,7 +131,8 @@ class DecoderLoss(Enum):
 
 class DecoderConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 architecture: Union[DecoderArchitectureConfig, VisionDecoderArchitectureConfig], decoder_loss: DecoderLoss):
+                 architecture: Union[DecoderArchitectureConfig, VisionDecoderArchitectureConfig],
+                 decoder_loss: DecoderLoss):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset

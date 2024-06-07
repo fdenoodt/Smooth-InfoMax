@@ -37,7 +37,10 @@ def get_dataloader(config: DataSetConfig, purpose_is_unsupervised_learning: bool
 
 def get_shapes_3d_dataloader(config: DataSetConfig, _: bool):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset = Shapes3dDataset(config, device)
+
+    images, labels, len = Shapes3dDataset.get_data(config)
+    dataset = Shapes3dDataset(config, images, labels, len, device)
+    # dataset = Shapes3dDataset(config, device)
     dataset_size = len(dataset)
     train_sampler, valid_sampler = create_validation_sampler(dataset_size)
 
