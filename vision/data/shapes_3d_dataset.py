@@ -45,6 +45,13 @@ class Shapes3dDataset(Dataset):
             images = np.array(images)
             labels = np.array(labels)
             length = len(images)
+
+            # shuffle
+            indices = np.arange(length)
+            np.random.shuffle(indices)
+            images = images[indices]
+            labels = labels[indices]
+
         return images, labels, length
 
     def __getitem__(self, index):

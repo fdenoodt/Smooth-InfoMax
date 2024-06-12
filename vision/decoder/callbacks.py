@@ -1,21 +1,17 @@
-import torch
+import itertools
+
 import lightning as L
-from lightning.pytorch.loggers import WandbLogger
-
-from vision.decoder.decoderr import Decoder
-import wandb
-
 import torch
-from vision.decoder.decoderr import Decoder
+import wandb
+from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
-# from vision.decoder.callbacks import CustomCallback
-from config_code.config_classes import OptionsConfig, ModelType, DecoderLoss
-from vision.models import load_vision_model
-from vision.data import get_dataloader
+from config_code.config_classes import OptionsConfig
 from decoder.my_data_module import MyDataModule
 from options import get_options
 from utils.utils import set_seed
-from lightning import Trainer
+from vision.data import get_dataloader
+from vision.decoder.decoderr import Decoder
+from vision.models import load_vision_model
 
 
 class CustomCallback(L.Callback):
@@ -39,10 +35,24 @@ class CustomCallback(L.Callback):
         return x_reconstructed
 
     def log_images(self, trainer: L.Trainer, decoder: Decoder, when: str):
+        decoder.eval()
+
         nb_samples = self.nb_samples
 
-        # Reconstruction
         x, _ = next(iter(self.test_loader))
+        # x = None
+        # Reconstruction
+        # for i, (x, _) in enumerate(self.test_loader):
+        #     if i == nb_samples:
+        #         break
+        #
+        #     if i == 0:
+        #         # take the first element of the batch
+        #         x = torch.unsqueeze(x[0], 0)
+        #     else:
+        #         # stack the rest of the elements
+        #         x = torch.cat((x, torch.unsqueeze(x[0], 0)), dim=0)
+
         x = x.to(decoder.device)
         x_reconstructed = self._reconstruction(decoder, x)
 
@@ -67,6 +77,8 @@ class CustomCallback(L.Callback):
                 f"{key_part}/reconstructed/{i}": image_x_reconstructed,
                 f"{key_part}/samples/{i}": image_x_sample
             }, step=trainer.global_step)
+
+        decoder.train()
 
     def on_train_epoch_end(self, trainer: L.Trainer, decoder: Decoder):
         if trainer.current_epoch % self.log_every_n_epoch == 0:
