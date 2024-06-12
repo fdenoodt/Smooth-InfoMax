@@ -35,7 +35,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.decoder_config.dataset.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET, Dataset.STL10]), "Dataset not supported"
+    assert (opt.decoder_config.dataset.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET,
+                                                   Dataset.STL10]), "Dataset not supported"
 
     # get integer val of enum
     loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE
@@ -50,15 +51,6 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         if run_id is not None:
             # Initialize a wandb run with the same run id
             wandb.init(id=run_id, resume="allow", project=project_name)
-        else:
-            # Initialize a new wandb run
-            wandb.init(project="SIM_DECODERv2",
-                       name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
-                            f"_{int(time.time())}",
-                       # Some tags related to encoder and decoder
-                       tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}",
-                             f"l={opt.decoder_config.decoder_loss}",
-                             f"lr={opt.decoder_config.learning_rate}"])
 
     # MUST HAPPEN AFTER wandb.init
     arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")
