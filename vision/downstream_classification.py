@@ -264,8 +264,7 @@ if __name__ == "__main__":
         # Log weights as a table (3 rows, 256 columns)
         deterministic_encoder = opt.encoder_config.deterministic
         wandb.log({f"C_bias={bias}_determistic_enc={deterministic_encoder}/Vowel Classifier Weights tbl":
-                       wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(
-                           opt.encoder_config.architecture.modules[0].cnn_hidden_dim)])})
+                       wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(hidden_dim)])})
 
     if wandb_is_on and USE_WANDB:
         wandb.finish()
