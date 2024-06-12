@@ -71,13 +71,18 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     decoder = Decoder(encoder=context_model,
                       lr=decoder_config.learning_rate,
-                      loss=loss_fun)
+                      loss=loss_fun,
+                      z_dim=opt.encoder_config.architecture.hidden_dim)
 
-    callback = CustomCallback()
+    callback = CustomCallback(
+        z_dim=opt.encoder_config.architecture.hidden_dim,
+        test_loader=test_loader,
+    ) if USE_WANDB else None
 
+    callbacks = [callback] if callback is not None else []
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
-                        logger=wandb_logger, callbacks=[callback])
+                        logger=wandb_logger, callbacks=callbacks)
     if TRAIN:
         trainer.fit(model=decoder, datamodule=data)
 

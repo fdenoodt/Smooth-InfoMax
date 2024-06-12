@@ -112,11 +112,13 @@ def test_callbacks():
     # Set up the decoder
     decoder = Decoder(encoder=context_model,
                       lr=opt.decoder_config.learning_rate,
-                      loss=opt.decoder_config.decoder_loss).to(opt.device)
+                      loss=opt.decoder_config.decoder_loss,
+                      z_dim=opt.encoder_config.architecture.hidden_dim).to(opt.device)
 
     # Set up the callback
     wandb_logger = WandbLogger() if opt.use_wandb else None
-    callback = CustomCallback(test_loader=test_loader, z_dim=256)
+    callback = CustomCallback(test_loader=test_loader,
+                              z_dim=opt.encoder_config.architecture.hidden_dim)
 
     # Set up the trainer
     trainer = Trainer(limit_train_batches=opt.decoder_config.dataset.limit_train_batches,

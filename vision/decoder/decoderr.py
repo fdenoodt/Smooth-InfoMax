@@ -9,11 +9,11 @@ from vision.models.FullModel import FullVisionModel
 
 
 class Decoder(L.LightningModule):
-    def __init__(self, encoder: FullVisionModel, lr: float, loss: DecoderLoss):
+    def __init__(self, encoder: FullVisionModel, lr: float, loss: DecoderLoss, z_dim: int):
         super().__init__()
         encoder.eval()
         self.encoder: FullVisionModel = encoder
-        self.decoder: _Decoder = _Decoder()
+        self.decoder: _Decoder = _Decoder(z_dim)
 
         self.lr = lr
         self.loss_enum = loss
@@ -79,17 +79,27 @@ class Decoder(L.LightningModule):
 
 
 class _Decoder(nn.Module):
-    def __init__(self):
+    def __init__(self, z_dim):
         super().__init__()
+        self.z_dim = z_dim
 
         self.layers = nn.Sequential(
-            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),  # Output: (batch_size, 128, 14, 14)
+            nn.ConvTranspose2d(self.z_dim, self.z_dim, kernel_size=4, stride=1, padding=2),
             nn.ReLU(),
-            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # Output: (batch_size, 64, 28, 28)
+            nn.ConvTranspose2d(self.z_dim, 128, kernel_size=4, stride=2, padding=1),  # upsample
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # Output: (batch_size, 32, 56, 56)
+
+            nn.ConvTranspose2d(128, 128, kernel_size=4, stride=1, padding=2),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1),  # Output: (batch_size, 3, 112, 112)
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # upsample
+            nn.ReLU(),
+
+            nn.ConvTranspose2d(64, 64, kernel_size=4, stride=1, padding=2),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # upsample
+            nn.ReLU(),
+
+            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1),  # upsample
             nn.Tanh(),
             nn.AdaptiveAvgPool2d((64, 64))  # Output: (batch_size, 3, 64, 64)
         )
