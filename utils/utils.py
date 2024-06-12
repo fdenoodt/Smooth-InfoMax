@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.manifold import TSNE
 import torch
 
-from config_code.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig, Dataset
 
 
 def get_device(opt, input_tensor):
@@ -116,3 +116,15 @@ def rescale_between_neg1_and_1(x):
     absolute = np.abs(x)
     print(absolute.max())
     return x / absolute.max()
+
+
+def get_nb_classes(dataset: Dataset):
+    if dataset == Dataset.STL10:
+        nb_classes = 10
+    elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+        nb_classes = 50
+    elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
+        nb_classes = 4
+    else:
+        raise NotImplementedError(f"Dataset {dataset} not supported")
+    return nb_classes

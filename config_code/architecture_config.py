@@ -81,12 +81,29 @@ class VisionArchitectureConfig:
         self.train_module = train_module
         self.modules: List[int] = [0] * model_splits  # [0, 0, 0, 0, 0], dummy variable needed in `logger.py`
 
-        assert resnet_type in [50, 34], "resnet_type must be 50 or 34"
-        self.resnet_type: int = resnet_type
+        self._resnet_type = None
+        self.hidden_dim = None
+        self.resnet_type = resnet_type
+
+    @property
+    def resnet_type(self):
+        return self._resnet_type
+
+    @resnet_type.setter
+    def resnet_type(self, value):
+        # working with a setter such that if after initialization, the value is changed, the hidden_dim is also updated
+        # this is relevant when overriding the config!
+        assert value in [50, 34], "resnet_type must be 50 or 34"
+        self._resnet_type = value
+        if self._resnet_type == 50:
+            self.hidden_dim = 1024
+        else:
+            self.hidden_dim = 256
 
     def __str__(self):
         return (f"VisionArchitectureConfig(predict_distributions={self.predict_distributions}, "
-                f"model_splits={self.model_splits}, train_module={self.train_module})")
+                f"model_splits={self.model_splits}, "
+                f"train_module={self.train_module}, resnet_type={self.resnet_type})")
 
 
 class DecoderArchitectureConfig:
@@ -100,6 +117,11 @@ class DecoderArchitectureConfig:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+
+    def __str__(self):
+        return (f"DecoderArchitectureConfig(kernel_sizes={self.kernel_sizes}, strides={self.strides}, "
+                f"paddings={self.paddings}, output_paddings={self.output_paddings}, input_dim={self.input_dim}, "
+                f"hidden_dim={self.hidden_dim}, output_dim={self.output_dim})")
 
 
 class VisionDecoderArchitectureConfig:

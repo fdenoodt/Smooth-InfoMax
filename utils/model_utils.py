@@ -5,6 +5,7 @@ import torch.nn as nn
 import os
 
 from config_code.config_classes import OptionsConfig, ClassifierConfig, Dataset, DecoderConfig
+from utils.utils import get_nb_classes
 
 
 def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
@@ -172,12 +173,7 @@ def reload_weights_for_training_classifier_vision_experiment(opt: OptionsConfig,
     if reload_model:
         print("Loading weights from ", opt.model_path)
         dataset = classifier_config.dataset.dataset
-        if dataset == Dataset.STL10:
-            nb_classes = 10
-        elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
-            nb_classes = 50
-        elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
-            nb_classes = 4
+        nb_classes = get_nb_classes(dataset)
 
         for idx, layer in enumerate(model.module.encoder):
             # Load the state dictionary

@@ -46,20 +46,10 @@ def load_model_and_optimizer(opt: OptionsConfig,
 
 
 def load_classification_model(opt: OptionsConfig) -> ClassificationModel.ClassificationModel:
-    if opt.encoder_config.architecture.resnet_type == 34:
-        in_channels = 256
-    else:  # 50
-        in_channels = 1024
+    in_channels = opt.encoder_config.architecture.hidden_dim # 1024 for resnet50, 256 for resnet34
 
     dataset = opt.vision_classifier_config.dataset.dataset
-    if dataset == Dataset.STL10:
-        num_classes = 10
-    elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
-        num_classes = 50
-    elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
-        num_classes = 4
-    else:
-        raise Exception("Invalid option")
+    num_classes = model_utils.get_nb_classes(dataset)
 
     classification_model = ClassificationModel.ClassificationModel(
         classifier_config=opt.vision_classifier_config,

@@ -254,8 +254,10 @@ if __name__ == "__main__":
     bias = opt.vision_classifier_config.bias
     if wandb_is_on and USE_WANDB and not bias:
         weights = list(classification_model.parameters())[0].detach().cpu().numpy()
-        assert weights.shape == (
-            opt.vision_classifier_config.dataset.labels, opt.encoder_config.architecture.modules[0].cnn_hidden_dim)
+
+        hidden_dim = opt.encoder_config.architecture.hidden_dim
+        nb_classes = utils.get_nb_classes(dataset)
+        assert weights.shape == (nb_classes, hidden_dim)
 
         weights = utils.rescale_between_neg1_and_1(weights)
 

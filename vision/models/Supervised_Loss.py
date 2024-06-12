@@ -16,14 +16,7 @@ class Supervised_Loss(nn.Module):
         self.calc_accuracy = calc_accuracy
 
         # create linear classifier
-        if dataset_config.dataset == Dataset.STL10:
-            n_classes = 10
-        elif dataset_config.dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
-            n_classes = 50
-        elif dataset_config.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET]:
-            n_classes = 4  # cube, cylinder, sphere, torus (the shape)
-        else:
-            raise Exception("Other datasets are not implemented yet")
+        n_classes = utils.get_nb_classes(dataset_config.dataset)
 
         self.linear_classifier = nn.Sequential(
             nn.Linear(self.hidden_dim, n_classes)
