@@ -3,6 +3,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+
 try:
     import tikzplotlib
 except:
@@ -59,21 +60,21 @@ class Logger:
     def np_save(self, path, data):
         np.save(path, data)
         for idx, item in enumerate(data):
-            try: # just for the decoder
+            try:  # just for the decoder
                 np.savetxt(f"{path}_{idx}.csv", item, delimiter=",")
             except:
                 pass
 
     def create_log(
-        self,
-        model,
-        accuracy=None,
-        epoch=0,
-        optimizer=None,
-        final_test=False,
-        final_loss=None,
-        acc5=None,
-        classification_model=None,
+            self,
+            model,
+            accuracy=None,
+            epoch=0,
+            optimizer=None,
+            final_test=False,
+            final_loss=None,
+            acc5=None,
+            classification_model=None,
     ):
 
         print("Saving model and log-file to " + self.opt.log_path)
@@ -87,12 +88,6 @@ class Logger:
                         self.opt.log_path, "model_{}_{}.ckpt".format(idx, epoch)
                     ),
                 )
-        elif self.opt.experiment == "RMSE_decoder":
-            torch.save(
-                model.state_dict(),
-                os.path.join(self.opt.log_path, "model_{}.ckpt".format(epoch)),
-            )
-            
         else:
             torch.save(
                 model.state_dict(),
@@ -189,13 +184,20 @@ class Logger:
             # self.np_save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
             np.save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
 
-
-
         if final_test:
             # self.np_save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
             np.save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
             # self.np_save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
             np.save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
+
+    def create_decoder_log(self, decoder, epoch):
+        print("Saving model and log-file to " + self.opt.log_path)
+
+        # Save the model checkpoint
+        torch.save(
+            decoder.state_dict(),
+            os.path.join(self.opt.log_path, "decoder_{}.ckpt".format(epoch)),
+        )
 
     def draw_loss_curve(self):
         for idx, loss in enumerate(self.train_loss):
@@ -203,8 +205,8 @@ class Logger:
             plt.plot(lst_iter, np.array(loss), "-b", label="train loss")
 
             if (
-                self.loss_last_training is not None
-                and len(self.loss_last_training) > idx
+                    self.loss_last_training is not None
+                    and len(self.loss_last_training) > idx
             ):
                 lst_iter = np.arange(len(self.loss_last_training[idx]))
                 plt.plot(lst_iter, self.loss_last_training[idx], "-g")

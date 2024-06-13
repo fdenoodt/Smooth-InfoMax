@@ -88,7 +88,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     trainer.test(model=decoder, datamodule=data)
 
-    logs.create_log(decoder, final_test=True, final_loss=[])
+    logs.create_decoder_log(decoder, epoch=decoder_config.num_epochs)
+
+    if USE_WANDB:
+        wandb.finish()
 
 
 if __name__ == "__main__":
