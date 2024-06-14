@@ -13,7 +13,7 @@ from vision.models.FullModel import FullVisionModel
 
 #### own modules
 from utils import logger
-from utils.utils import set_seed
+from utils.utils import set_seed, initialize_wandb
 from vision.arg_parser import arg_parser
 from vision.models import load_vision_model
 from vision.data import get_dataloader
@@ -161,13 +161,7 @@ if __name__ == "__main__":
         project_name = f"SIM_VISION_ENCODER_{dataset}{'_resnet34' if resnet == 34 else ''}"
         wandb.init(project=project_name, config=vars(opt))
 
-        # After initializing the wandb run, get the run id
-        run_id = wandb.run.id
-        # Save the run id to a file in the logs directory
-        with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'w') as f:
-            f.write(run_id)
-            # write project name to file
-            f.write(f"\n{project_name}")
+        initialize_wandb(opt, project_name, run_name=None)
 
     opt.model_type = ModelType.ONLY_ENCODER
 

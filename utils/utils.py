@@ -6,6 +6,7 @@ from sklearn.manifold import TSNE
 import torch
 
 from config_code.config_classes import OptionsConfig, Dataset
+import wandb
 
 
 def get_device(opt, input_tensor):
@@ -128,3 +129,14 @@ def get_nb_classes(dataset: Dataset):
     else:
         raise NotImplementedError(f"Dataset {dataset} not supported")
     return nb_classes
+
+
+def initialize_wandb(options: OptionsConfig, project_name, run_name):
+    wandb.init(project=project_name, name=run_name, config=vars(options))
+    # After initializing the wandb run, get the run id
+    run_id = wandb.run.id
+    # Save the run id to a file in the logs directory
+    with open(os.path.join(options.log_path, 'wandb_run_id.txt'), 'w') as f:
+        f.write(run_id)
+        # write project name to file
+        f.write(f"\n{project_name}")

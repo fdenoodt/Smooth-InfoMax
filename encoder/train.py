@@ -1,29 +1,22 @@
 # Example usage:
-# de_boer dataset:
-# python -m encoder.train temp sim_audio_de_boer_distr_true  --overrides encoder_config.dataset.dataset=4 encoder_config.dataset.batch_size=64 encoder_config.kld_weight=0.01 encoder_config.num_epochs=10 syllables_classifier_config.encoder_num=9 syllables_classifier_config.dataset.batch_size=64
-
+# python -m encoder.train temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 use_wandb=False train=True
 # for cpc: cpc_audio_de_boer
 
-import os
-import torch
-import time
-import numpy as np
-import random
 import gc
+import time
 
-from config_code.config_classes import OptionsConfig, Dataset, ModelType
+import torch
+import wandb
+
+from arg_parser import arg_parser
+from config_code.config_classes import OptionsConfig, ModelType
+from data import get_dataloader
+from models import load_audio_model
 from models.full_model import FullModel
-
 # own modules
 from utils import logger
-from arg_parser import arg_parser
-from models import load_audio_model
-from data import get_dataloader
-from utils.utils import set_seed
-from validation.val_by_syllables import val_by_latent_syllables
+from utils.utils import set_seed, initialize_wandb
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
-
-import wandb
 
 
 def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, test_loader):
@@ -89,14 +82,15 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 if step % print_idx == 0:
                     print(f"\t \t Loss: \t \t {print_loss:.4f}")
 
-            for idx, cur_nce in enumerate(nce):
-                wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
-            for idx, cur_kld in enumerate(kld):
-                wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
-            for idx, cur_losses in enumerate(loss):
-                wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+            if opt.use_wandb:
+                for idx, cur_nce in enumerate(nce):
+                    wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
+                for idx, cur_kld in enumerate(kld):
+                    wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
+                for idx, cur_losses in enumerate(loss):
+                    wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
 
-            wandb.log({'epoch': epoch}, step=global_step)
+                wandb.log({'epoch': epoch}, step=global_step)
 
             global_step += 1
 
@@ -113,34 +107,30 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
             validation_loss = val_by_InfoNCELoss(opt, model, test_loader)
             logs.append_val_loss(validation_loss)
 
-            for i, val_loss in enumerate(validation_loss):
-                wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
+            if opt.use_wandb:
+                for i, val_loss in enumerate(validation_loss):
+                    wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
 
         if (epoch % opt.log_every_x_epochs == 0):
             logs.create_log(model, optimizer=optimizer, epoch=epoch)
 
 
 def _main(options: OptionsConfig):
-    if options.encoder_config.architecture.is_cpc:
-        family = "CPC"
-    elif options.encoder_config.architecture.modules[0].predict_distributions:
-        family = "SIM"
-    else:
-        family = "GIM"
-    run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+    USE_WANDB = options.use_wandb
+    TRAIN = options.train
 
-    project_name = "SIM_ENCODER_k=12"
-    wandb.init(project=project_name, name=run_name)
-    for key, value in vars(options).items():
-        wandb.config[key] = value
+    if USE_WANDB:
+        if options.encoder_config.architecture.is_cpc:
+            family = "CPC"
+        elif options.encoder_config.architecture.modules[0].predict_distributions:
+            family = "SIM"
+        else:
+            family = "GIM"
 
-    # After initializing the wandb run, get the run id
-    run_id = wandb.run.id
-    # Save the run id to a file in the logs directory
-    with open(os.path.join(options.log_path, 'wandb_run_id.txt'), 'w') as f:
-        f.write(run_id)
-        # write project name to file
-        f.write(f"\n{project_name}")
+        dataset = options.encoder_config.dataset.dataset
+        project_name = f"SIM_ACML_de_boer_{dataset}"
+        run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+        initialize_wandb(options, project_name, run_name)
 
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
@@ -156,17 +146,16 @@ def _main(options: OptionsConfig):
 
     try:
         # Train the model
-        train(options, logs, model, optimizer, train_loader, test_loader)
+        if TRAIN:
+            train(options, logs, model, optimizer, train_loader, test_loader)
 
     except KeyboardInterrupt:
         print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
 
-    wandb.finish()
-
-    # TODO:
-    # Save_latents_and_generate_visualisations(options)
+    if USE_WANDB:
+        wandb.finish()
 
 
 def _init(options: OptionsConfig):
@@ -177,7 +166,6 @@ def _init(options: OptionsConfig):
 
     # set random seeds
     set_seed(options.seed)
-
 
 
 def run_configuration(options: OptionsConfig):

@@ -1,7 +1,7 @@
 import torch
 
 from typing import Optional, Union
-from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig
+from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig, DecoderConfig
 from decoder.decoderr import Decoder
 from models import full_model
 from models.full_model import FullModel
