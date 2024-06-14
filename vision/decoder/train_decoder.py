@@ -24,8 +24,6 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
-    TRAIN = opt.train
-    USE_WANDB = opt.use_wandb
     loss_fun: DecoderLoss = opt.decoder_config.decoder_loss
     print(f"\nTRAINING DECODER USING LOSS: {loss_fun} \n")
 
@@ -44,19 +42,15 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     # random seeds
     set_seed(opt.seed)
 
-    distr: bool = opt.encoder_config.architecture.predict_distributions
-
-    if USE_WANDB:
+    if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        if run_id is not None:
-            # Initialize a wandb run with the same run id
-            wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
     arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")
     logs = logger.Logger(opt)
 
-    wandb_logger = WandbLogger() if USE_WANDB else None
+    wandb_logger = WandbLogger() if opt.use_wandb else None
 
     context_model, _ = load_vision_model.load_model_and_optimizer(
         opt, reload_model=True, calc_loss=False, downstream_config=opt.decoder_config
@@ -77,20 +71,20 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     callback = CustomCallback(
         z_dim=opt.encoder_config.architecture.hidden_dim,
         test_loader=test_loader,
-    ) if USE_WANDB else None
+    ) if opt.use_wandb else None
 
     callbacks = [callback] if callback is not None else []
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         logger=wandb_logger, callbacks=callbacks)
-    if TRAIN:
+    if opt.train:
         trainer.fit(model=decoder, datamodule=data)
 
     trainer.test(model=decoder, datamodule=data)
 
     logs.create_decoder_log(decoder, epoch=decoder_config.num_epochs)
 
-    if USE_WANDB:
+    if opt.use_wandb:
         wandb.finish()
 
 

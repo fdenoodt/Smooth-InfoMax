@@ -43,26 +43,14 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     # random seeds
     set_seed(opt.seed)
 
-    distr: bool = opt.encoder_config.architecture.modules[0].predict_distributions
-
-    run_id, project_name = retrieve_existing_wandb_run_id(opt)
-    if run_id is not None:
-        # Initialize a wandb run with the same run id
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
         wandb.init(id=run_id, resume="allow", project=project_name)
-    else:
-        # Initialize a new wandb run
-        wandb.init(project="SIM_DECODERv2",
-                   name=f"[distr={distr}_kld={opt.encoder_config.kld_weight}]_l={opt.decoder_config.decoder_loss}_lr={opt.decoder_config.learning_rate}" +
-                        f"_{int(time.time())}",
-                   # Some tags related to encoder and decoder
-                   tags=[f"distr={distr}", f"kld={opt.encoder_config.kld_weight}",
-                         f"l={opt.decoder_config.decoder_loss}",
-                         f"lr={opt.decoder_config.learning_rate}"])
 
     # MUST HAPPEN AFTER wandb.init
     arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")
 
-    wandb_logger = WandbLogger()
+    wandb_logger = WandbLogger() if opt.use_wandb else None
 
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
@@ -86,12 +74,12 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.decoder_loss)
 
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
-                              plot_ever_n_epoch=2, loss_enum=loss_fun)
+                              plot_ever_n_epoch=2, loss_enum=loss_fun) if opt.use_wandb else None
 
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         accelerator="gpu", devices="1",
-                        logger=wandb_logger, callbacks=[callback])
+                        logger=wandb_logger, callbacks=[callback] if callback is not None else [])
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
 
