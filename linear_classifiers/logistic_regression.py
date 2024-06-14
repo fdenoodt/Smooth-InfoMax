@@ -1,8 +1,7 @@
 # example python call:
 # python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
-# python -m linear_classifiers.logistic_regression_syllables temp sim_audio_distr_true --overrides syllables_classifier_config.encoder_num=9
-
+# python -m linear_classifiers.logistic_regression_syllables temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 syllables_classifier_config.num_epochs=3 use_wandb=False train=True
 import torch
 import torch.nn as nn
 import time
@@ -179,14 +178,9 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
-    # Check if the wandb_run_id.txt file exists
-    wandb_is_on = False
-    run_id, project_name = retrieve_existing_wandb_run_id(opt)
-    # check if wandb alredy initialized
-    if run_id is not None and not wandb_is_on:
-        # Initialize a wandb run with the same run id
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
         wandb.init(id=run_id, resume="allow", project=project_name)
-        wandb_is_on = True
 
     arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}_bias={bias}")
 
@@ -231,10 +225,11 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
 
     try:
         # Train the model
-        train(opt, context_model, loss, logs, train_loader, optimizer, wandb_is_on, bias)
+        if opt.train:
+            train(opt, context_model, loss, logs, train_loader, optimizer, opt.use_wandb, bias)
 
         # Test the model
-        result_loss, accuracy = test(opt, context_model, loss, test_loader, wandb_is_on, bias)
+        result_loss, accuracy = test(opt, context_model, loss, test_loader, opt.use_wandb, bias)
 
     except KeyboardInterrupt:
         print("Training interrupted, saving log files")
@@ -244,7 +239,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     print(f"Finished training {syllables}")
 
     # return wandb, wandb_is_on, linear_model.parameters()
-    return wandb, wandb_is_on, list(loss.linear_classifier.parameters())
+    return wandb, opt.use_wandb, list(loss.linear_classifier.parameters())
 
 
 if __name__ == "__main__":

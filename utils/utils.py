@@ -101,8 +101,9 @@ def retrieve_existing_wandb_run_id(opt: OptionsConfig):
         run_id = None
         project_name = None
 
-    assert run_id is not None, "Run id not found"
-    assert project_name is not None, "Project name not found"
+    assert run_id is not None, "Run id not found, set use_wandb to False in the config file to disable wandb logging"
+    assert project_name is not None, "Project name not found, set use_wandb to False in the config file to disable wandb logging"
+
     return run_id, project_name
 
 
