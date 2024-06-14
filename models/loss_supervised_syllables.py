@@ -19,8 +19,6 @@ class Syllables_Loss(loss.Loss):
 
         self.opt = opt
 
-        # TODO: update in logistic_regression_vowel etc
-        #self.hidden_dim = hidden_dim if bias else hidden_dim * 2  # 512 is the output of the ConvLayer, only used for space analysis
         self.hidden_dim = hidden_dim
 
         self.calc_accuracy = calc_accuracy

@@ -106,12 +106,14 @@ class EncoderConfig:
 
 class ClassifierConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 bias: Optional[bool] = True):
+                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
         self.bias = bias
+
+        self.encoder_module = encoder_module  # Train classifier on output of this module (default: -1, last module)
 
     # to string
     def __str__(self):

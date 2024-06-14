@@ -23,34 +23,46 @@ import os
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
 
 
-def get_c(opt, context_model, model_input):
-    if opt.model_type == ModelType.FULLY_SUPERVISED:
-        full_model: FullModel = context_model.module
-        z = full_model.forward_through_all_modules(model_input)
-    else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
+def _get_representation(opt: OptionsConfig, method: callable, arg1, arg2):
+    def _forward(method, arg1, arg2):
+        if not (isinstance(arg2, int)):
+            z = method(arg1)
+        else:
+            z = method(arg1, arg2)
+        return z
+
+    if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK:
         with torch.no_grad():
-            full_model: FullModel = context_model.module
-            z = full_model.forward_through_all_modules(model_input)
+            z = _forward(method, arg1, arg2)
         z = z.detach()
+    else:  # opt.model_type == ModelType.FULLY_SUPERVISED
+        z = _forward(method, arg1, arg2)
     return z
 
 
-def get_z(opt, context_model, model_input):
-    if opt.model_type == ModelType.FULLY_SUPERVISED:
-        full_model: FullModel = context_model.module
-        z = full_model.forward_through_all_cnn_modules(model_input)
-    else:  # else: ModelType.ONLY_DOWNSTREAM_TASK
-        with torch.no_grad():
-            full_model: FullModel = context_model.module
-            z = full_model.forward_through_all_cnn_modules(model_input)
-        z = z.detach()
+def get_z(opt, context_model, model_input, regression: bool, which_module: int):
+    if regression:
+        assert which_module == -1, "Regression layer doesn't have modules"
 
-    z = z.permute(0, 2, 1)
-    return z
+    if regression:  # typical case, includes regression layer
+        method = context_model.module.forward_through_all_modules
+        return _get_representation(opt, method, model_input, None)
+
+    # Conv module only used for latent space/interpretability analysis
+    if which_module == -1:
+        method = context_model.module.forward_through_all_cnn_modules
+        z = _get_representation(opt, method, model_input, None)
+    else:
+        method = context_model.module.forward_through_module  # takes 2 args (input, module)
+        z = _get_representation(opt, method, model_input, which_module)
+
+    return z.permute(0, 2, 1)
 
 
 def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer,
           wandb_is_on: bool, bias: bool):
+    # loss also contains the classifier model
+
     total_step = len(train_loader)
     print_idx = 100
 
@@ -75,10 +87,9 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
 
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
-            if bias:  # typical case
-                z = get_c(opt, context_model, model_input)  # forward through all modules
-            else:  # only for space analysis
-                z = get_z(opt, context_model, model_input)  # forward only through CNN modules
+            z = get_z(opt, context_model, model_input,
+                      regression=bias,
+                      which_module=opt.syllables_classifier_config.encoder_module)
 
             # forward pass
             total_loss, accuracies = loss.get_loss(model_input, z, z, label)
@@ -134,7 +145,8 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
             model_input = audio.to(opt.device)
 
             with torch.no_grad():
-                z = get_c(opt, context_model, model_input) if bias else get_z(opt, context_model, model_input)
+                z = get_z(opt, context_model, model_input, regression=bias,
+                          which_module=opt.syllables_classifier_config.encoder_module)
 
             z = z.detach()
 
@@ -182,7 +194,11 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
         wandb.init(id=run_id, resume="allow", project=project_name)
 
-    arg_parser.create_log_path(opt, add_path_var=f"linear_model_{classifier_config.dataset.labels}_bias={bias}")
+    # on which module to train the classifier (default: -1, last module)
+    classif_module: int = classifier_config.encoder_module
+    classif_path = f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_bias={bias}"
+    arg_parser.create_log_path(
+        opt, add_path_var=classif_path)
 
     # random seeds
     set_seed(opt.seed)
@@ -202,19 +218,30 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
 
     # 512 is the output of the ConvLayer. Conv layer only used for space analysis!
     # regression layer used for performance evaluation! (typical case)
-    n_features = opt.encoder_config.architecture.modules[0].regressor_hidden_dim if bias else \
-        opt.encoder_config.architecture.modules[0].cnn_hidden_dim
+
+    regr_hidden_dim = opt.encoder_config.architecture.modules[0].regressor_hidden_dim
+    cnn_hidden_dim = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
+    if bias:
+        n_features = regr_hidden_dim
+    else:
+        n_features = cnn_hidden_dim
 
     num_classes = 9 if syllables else 3
+
+    # The loss class also contains the classifier!
     loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
     learning_rate = opt.syllables_classifier_config.learning_rate
 
     if opt.model_type == ModelType.FULLY_SUPERVISED:
         context_model.train()
         params = list(context_model.parameters()) + list(loss.parameters())
-    else:
+    elif opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK:
         context_model.eval()
         params = list(loss.parameters())
+    else:
+        raise ValueError(
+            "Model type not supported for training classifier. "
+            "(only FULLY_SUPERVISED or ONLY_DOWNSTREAM_TASK)")
 
     optimizer = torch.optim.Adam(params, lr=learning_rate)
 
