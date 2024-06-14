@@ -63,13 +63,10 @@ def main():
 
     classifier_config = opt.syllables_classifier_config
 
-    # Check if the wandb_run_id.txt file exists
-    wandb_is_on = False
-    run_id, project_name = retrieve_existing_wandb_run_id(opt)
-    if run_id is not None:
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
         # Initialize a wandb run with the same run id
         wandb.init(id=run_id, resume="allow", project=project_name)
-        wandb_is_on = True
 
     arg_parser.create_log_path(opt, add_path_var="post_hoc")
 
@@ -106,7 +103,7 @@ def main():
     all_audio_mean = np.mean(all_audio, axis=1)  # (batch_size, nb_channels)
     lr, n_iter, perplexity = ('auto', 1000, int(float(np.sqrt(n))))
     plot_tsne_syllable(opt, all_audio_mean, all_labels, f"MEAN_SIM_{lr}_{n_iter}_{perplexity}",
-                       lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=wandb_is_on)
+                       lr=lr, n_iter=n_iter, perplexity=perplexity, wandb_is_on=opt.use_wandb)
 
     data_config.labels = 'vowels'
     train_loader_syllables, _, test_loader_syllables, _ = get_dataloader.get_dataloader(data_config)
@@ -116,7 +113,7 @@ def main():
     _audio_per_channel = np.moveaxis(all_audio, 1, 0)
     scatter_3d_syllable(_audio_per_channel[0], _audio_per_channel[1], _audio_per_channel[2],
                         all_labels, title=f"3D Latent Space of the First Three Dimensions", dir=opt.log_path,
-                        file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=wandb_is_on)
+                        file=f"_ 3D latent space idices 0_1_2", show=False, wandb_is_on=opt.use_wandb)
     #
     # retrieve full data that encoder was trained on
     data_config.split_in_syllables = False
@@ -126,10 +123,10 @@ def main():
     # plot histograms
     # (batch_size, seq_len, nb_channels) -> (nb_channels, batch_size, seq_len)
     audio_per_channel = np.moveaxis(all_audio, 2, 0)
-    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=wandb_is_on)
+    plot_histograms(opt, audio_per_channel, f"MEAN_SIM", max_dim=32, wandb_is_on=opt.use_wandb)
 
     print("Finished")
-    if wandb_is_on:
+    if opt.use_wandb:
         wandb.finish()
 
 

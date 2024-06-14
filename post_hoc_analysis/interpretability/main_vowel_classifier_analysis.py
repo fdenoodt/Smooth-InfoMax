@@ -151,13 +151,10 @@ def plot_label_space(opt: OptionsConfig, wandb, classifier, n_features, dim1, di
 def main():
     opt: OptionsConfig = get_options()
 
-    run_id, project_name = retrieve_existing_wandb_run_id(opt)
-    if run_id is not None:
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
         # Initialize a wandb run with the same run id
         wandb.init(id=run_id, resume="allow", project=project_name)
-    else:
-        # Initialize a new wandb run
-        wandb.init(project="temp")
 
     # MUST HAPPEN AFTER wandb.init
     arg_parser.create_log_path(opt, add_path_var="linear_model_vowels_bias=False")
@@ -190,9 +187,10 @@ def main():
 
     weights = rescale_between_neg1_and_1(weights)
 
-    # Log weights as a table (3 rows, 256 columns)
-    wandb.log({"Latent space analysis/Vowel Classifier Weights tbl":
-                   wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
+    if opt.use_wandb:
+        # Log weights as a table (3 rows, 256 columns)
+        wandb.log({"Latent space analysis/Vowel Classifier Weights tbl":
+                       wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
 
     # find most important dimensions for each vowel
     _w = np.abs(weights)
@@ -204,9 +202,10 @@ def main():
     # take first 2 dims
     dim1, dim2 = _w[:2]
 
-    # log the most important 32 dimensions and their weights (_w[:32])
-    wandb.log({"Latent space analysis/Most important dimensions":
-                   wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
+    if opt.use_wandb:
+        # log the most important 32 dimensions and their weights (_w[:32])
+        wandb.log({"Latent space analysis/Most important dimensions":
+                       wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
 
     # plot 32 dimensions at a time
     ims = []
@@ -214,13 +213,14 @@ def main():
         im_path = plot_weights(opt, weights[:, i:i + 32], wandb, first_dim=i + 1)
         ims.append(im_path)
 
-    # log to wandb
-    wandb.log({f"Latent space analysis/Vowel Classifier Weights imgs": [
-        wandb.Image(im) for im in ims]})
+    if opt.use_wandb:
+        wandb.log({f"Latent space analysis/Vowel Classifier Weights imgs": [
+            wandb.Image(im) for im in ims]})
 
     plot_label_space(opt, wandb, linear_classifier, n_features, dim1, dim2)
 
-    wandb.finish()
+    if opt.use_wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":
