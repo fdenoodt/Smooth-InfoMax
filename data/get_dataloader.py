@@ -5,9 +5,6 @@ from torch.utils.data import dataset
 from data import de_boer_sounds, librispeech
 from config_code.config_classes import DataSetConfig, Dataset
 
-NUM_WORKERS = 1  # 6
-
-
 def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir, shuffle):
     data_input_dir = dataset_options.data_input_dir
     train_dataset = de_boer_sounds.DeBoerDataset(
@@ -31,7 +28,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
         batch_size=dataset_options.batch_size_multiGPU,
         shuffle=shuffle,
         drop_last=True,
-        num_workers=NUM_WORKERS,
+        num_workers=dataset_options.num_workers,
         persistent_workers=True
     )
 
@@ -40,7 +37,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
         batch_size=dataset_options.batch_size_multiGPU,
         shuffle=shuffle,
         drop_last=True,
-        num_workers=NUM_WORKERS,
+        num_workers=dataset_options.num_workers,
         persistent_workers=True
     )
 
@@ -106,7 +103,7 @@ def _get_libri_dataloaders(options: DataSetConfig):
         batch_size=batch_size_multiGPU,
         shuffle=True,
         drop_last=True,
-        num_workers=NUM_WORKERS,
+        num_workers=options.num_workers,
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -114,7 +111,7 @@ def _get_libri_dataloaders(options: DataSetConfig):
         batch_size=batch_size_multiGPU,
         shuffle=False,
         drop_last=True,
-        num_workers=NUM_WORKERS,
+        num_workers=options.num_workers,
     )
 
     return train_loader, train_dataset, test_loader, test_dataset
