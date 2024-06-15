@@ -125,12 +125,20 @@ class FullModel(nn.Module):
         context, _ = self.fullmodel[idx].get_latents(model_input)
         return context
 
-    def forward_through_all_cnn_modules(self, x):
+    def _forward_through_module(self, x, stop_idx):
         model_input = x
+        assert stop_idx <= len(self.fullmodel) - 1, \
+            f"stop_idx={stop_idx} is larger than the number of modules in the model"
 
-        for idx, layer in enumerate(self.fullmodel):
-            if idx + 1 < len(self.fullmodel):
+        for idx, layer in enumerate(self.fullmodel[:-1]):
+            if idx <= stop_idx:
                 _, z = layer.get_latents(model_input)
                 model_input = z.permute(0, 2, 1)
 
         return model_input
+
+    def forward_through_all_cnn_modules(self, x):
+        return self._forward_through_module(x, len(self.fullmodel) - 1)  # skip the regressor
+
+    def forward_through_module(self, x, idx):
+        return self._forward_through_module(x, idx)
