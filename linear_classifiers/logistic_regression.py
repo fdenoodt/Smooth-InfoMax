@@ -23,6 +23,12 @@ import os
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
 
 
+def get_wandb_section(opt, bias):
+    label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
+    module_nb = opt.syllables_classifier_config.encoder_module
+    return f"C Singl layer bias={bias} {label_type} modul={module_nb}"
+
+
 def _get_representation(opt: OptionsConfig, method: callable, arg1, arg2):
     def _forward(method, arg1, arg2):
         if not (isinstance(arg2, int)):
@@ -103,10 +109,11 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             accuracy = accuracies.item()
 
             if wandb_is_on:
-                label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
-                wandb.log({f"C Singl layer bias={bias} {label_type}/Loss classification": sample_loss,
-                           f"C Singl layer bias={bias} {label_type}/Train accuracy": accuracy,
-                           f"C Singl layer bias={bias} {label_type}/Step": global_step})
+                wandb_section = get_wandb_section(opt, bias)
+                wandb.log({
+                    f"{wandb_section}/Loss classification": sample_loss,
+                    f"{wandb_section}/Train accuracy": accuracy,
+                    f"{wandb_section}/Step": global_step})
                 global_step += 1
 
             if i % print_idx == 0:
@@ -169,9 +176,9 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
     print("Final Testing Loss: ", loss_epoch)
 
     if wandb_is_on:
-        label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
-        wandb.log({f"C Singl layer bias={bias} {label_type}/FINAL Test accuracy": accuracy,
-                   f"C Singl layer bias={bias} {label_type}/FINAL Test loss": loss_epoch})
+        wandb_section = get_wandb_section(opt, bias)
+        wandb.log({f"{wandb_section}/FINAL Test accuracy": accuracy,
+                   f"{wandb_section}/FINAL Test loss": loss_epoch})
     return loss_epoch, accuracy
 
 
