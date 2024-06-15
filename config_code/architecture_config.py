@@ -5,7 +5,8 @@ class ModuleConfig:
     def __init__(self,
                  max_pool_k_size: Optional[int], max_pool_stride: Optional[int], kernel_sizes: list,
                  is_autoregressor: bool, prediction_step: int, predict_distributions: bool,
-                 strides: list, padding: list, cnn_hidden_dim: int, regressor_hidden_dim: Optional[int],
+                 strides: list, padding: list, non_linearities: list, cnn_hidden_dim: int,
+                 regressor_hidden_dim: Optional[int],
                  is_cnn_and_autoregressor: Optional[bool] = False):  # for CPC
         assert len(kernel_sizes) == len(strides) == len(padding)
 
@@ -14,6 +15,8 @@ class ModuleConfig:
             assert len(kernel_sizes) == 0
             assert len(strides) == 0
             assert len(padding) == 0
+            assert len(non_linearities) == 0
+
             assert max_pool_k_size is None
             assert max_pool_stride is None
 
@@ -22,6 +25,12 @@ class ModuleConfig:
         self.kernel_sizes = kernel_sizes
         self.strides = strides
         self.padding = padding
+
+        # Typically in GIM+SIM always true. but at some layers we set them False for CPC in the density experiments.
+        # That way same number of layers are used in all experiments, and can be compared more easily.
+        # For performance experiments, we set them to True.
+        self.non_linearities = non_linearities
+
         self.cnn_hidden_dim = cnn_hidden_dim
         self.regressor_hidden_dim = regressor_hidden_dim
         self.prediction_step = prediction_step  # eg 12

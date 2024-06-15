@@ -1,22 +1,39 @@
+from typing import Optional
+
+from config_code.architecture_config import ArchitectureConfig, ModuleConfig, DecoderArchitectureConfig
 from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
     DecoderConfig, DecoderLoss
-from config_code.architecture_config import ArchitectureConfig, ModuleConfig, DecoderArchitectureConfig
-import torch
 
 
 class SIMSetup:
-    def __init__(self, predict_distributions: bool, dataset: Dataset, config_file: str, is_cpc: bool):
+    def __init__(self, predict_distributions: bool, dataset: Dataset, config_file: str, is_cpc: bool,
+                 conventional_cpc: Optional[bool] = None):
+        # `conventional_cpc` is without the additional layers. alternative is with the additional layers to have same # layers as in our proposal (due to reparametrization trick)
+
+        if is_cpc:
+            assert conventional_cpc is not None, "conventional_cpc must be set for CPC"
+
         self.config_file = config_file
 
-        # Original dimensions given in CPC paper (Oord et al.).
-        kernel_sizes = [10, 8, 4, 4, 4]
-        strides = [5, 4, 2, 2, 2]
-        padding = [2, 2, 2, 2, 1]
+        if conventional_cpc:
+            # Original dimensions given in CPC paper (Oord et al.).
+            kernel_sizes = [10, 8, 4, 4, 4]
+            strides = [5, 4, 2, 2, 2]
+            padding = [2, 2, 2, 2, 1]
+            non_linearities = [True] * len(kernel_sizes)
+        else:
+            # need to add layers representative for reparametrization trick and thus no relu activation
+            # This is done to make the architecture more similar to the one used in our proposal
+            kernel_sizes = [10, 8] + [1] + [4, 4] + [1] + [4]
+            strides = [5, 4] + [1] + [2, 2] + [1] + [2]
+            padding = [2, 2] + [0] + [2, 2] + [0] + [1]
+            non_linearities = [True, True] + [False] + [True, True] + [False] + [True]
+
+        cnn_hidden_dim = 512
+        regressor_hidden_dim = 256
+        prediction_step_k = 10
         max_pool_stride = None
         max_pool_k_size = None
-        cnn_hidden_dim = 512  # 32
-        regressor_hidden_dim = 256  # 16
-        prediction_step_k = 10
 
         if is_cpc:
             # A single module
@@ -27,12 +44,13 @@ class SIMSetup:
                     kernel_sizes=kernel_sizes,
                     strides=strides,
                     padding=padding,
+                    non_linearities=non_linearities,
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=True,
                     regressor_hidden_dim=regressor_hidden_dim,
                     prediction_step=prediction_step_k,
                     predict_distributions=False,
-                    is_cnn_and_autoregressor=True
+                    is_cnn_and_autoregressor=True,
                 )]
         else:
             # Create three modules, one module contains two layers (except the last module: only one layer)
@@ -44,6 +62,7 @@ class SIMSetup:
                     kernel_sizes=kernel_sizes[:2],
                     strides=strides[:2],
                     padding=padding[:2],
+                    non_linearities=non_linearities[:2],
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
@@ -55,6 +74,7 @@ class SIMSetup:
                     kernel_sizes=kernel_sizes[2:4],
                     strides=strides[2:4],
                     padding=padding[2:4],
+                    non_linearities=non_linearities[2:4],
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
@@ -66,6 +86,7 @@ class SIMSetup:
                     kernel_sizes=kernel_sizes[4:],
                     strides=strides[4:],
                     padding=padding[4:],
+                    non_linearities=non_linearities[4:],
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=False,
                     regressor_hidden_dim=regressor_hidden_dim,
@@ -76,6 +97,8 @@ class SIMSetup:
                 ModuleConfig(
                     # not applicable for the regressor
                     max_pool_k_size=None, max_pool_stride=None, kernel_sizes=[], strides=[], padding=[],
+                    non_linearities=[],
+
                     predict_distributions=False,
                     cnn_hidden_dim=cnn_hidden_dim,
                     is_autoregressor=True,
@@ -91,6 +114,7 @@ class SIMSetup:
             batch_size=64,
             limit_train_batches=1.0,
             limit_validation_batches=1.0,
+            num_workers=1,
         )
 
         self.ENCODER_CONFIG = EncoderConfig(

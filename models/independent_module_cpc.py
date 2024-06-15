@@ -15,7 +15,8 @@ from models import (
 class CPCIndependentModule(nn.Module):
     def __init__(
             self, opt: OptionsConfig,
-            enc_kernel_sizes, enc_strides, enc_padding, nb_channels_cnn, nb_channels_regress,
+            enc_kernel_sizes, enc_strides, enc_paddings, enc_non_linearities,
+            nb_channels_cnn, nb_channels_regress,
             max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
         super(CPCIndependentModule, self).__init__()
 
@@ -31,7 +32,8 @@ class CPCIndependentModule(nn.Module):
             out_nb_channels=nb_channels_cnn,
             kernel_sizes=enc_kernel_sizes,
             strides=enc_strides,
-            padding=enc_padding,
+            padding=enc_paddings,
+            relus=enc_non_linearities,
             max_pool_k_size=max_pool_k_size,
             max_pool_stride=max_pool_stride,
         )

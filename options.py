@@ -14,8 +14,6 @@ import argparse
 
 from config_code.config_classes import Dataset, DecoderLoss
 
-from configs.enc_default import _get_options as default_get_options
-
 # Create the parser
 parser = argparse.ArgumentParser(description='Process some integers.')
 
@@ -29,11 +27,12 @@ args = parser.parse_args()
 
 experiment_name = args.experiment_name
 
+_get_options = None # to be defined later. Done to avoid IDE warnings.
 if args.config_file:
     # eg: `from configs.enc_gim_audio import get_options`
     exec(f'from configs.{args.config_file} import _get_options')
 else:
-    _get_options = default_get_options
+    raise NotImplementedError("Default config file is not supported.")
 
 # Get the options
 assert callable(_get_options), f"_get_options is not callable: {_get_options}"

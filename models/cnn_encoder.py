@@ -5,8 +5,8 @@ import torch
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, max_pool_k_size=None,
-                 max_pool_stride=None):
+    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, relus: List[bool],
+                 max_pool_k_size=None, max_pool_stride=None):
         super(CNNEncoder, self).__init__()
 
         self.opt = opt
@@ -30,6 +30,7 @@ class CNNEncoder(nn.Module):
                     kernel_sizes[idx],
                     strides[idx],
                     padding[idx],
+                    relus[idx]
                 ),
             )
             inp_nb_channels = self.nb_channels
@@ -42,11 +43,10 @@ class CNNEncoder(nn.Module):
                     f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
 
     @staticmethod
-    def new_block(in_dim, out_dim, kernel_size, stride, padding):
-        new_block = nn.Sequential(
-            CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding),
-            nn.ReLU()
-        )
+    def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool):
+        new_block = CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding)
+        if relu:  # always True, except for special case in CPC for density experiments such that equal number of layers for easier comparison with SIM/GIM
+            new_block = nn.Sequential(new_block, nn.ReLU())
         return new_block
 
     @staticmethod

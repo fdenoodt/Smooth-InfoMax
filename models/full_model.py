@@ -56,7 +56,8 @@ class FullModel(nn.Module):
             opt,
             enc_kernel_sizes=m.kernel_sizes,
             enc_strides=m.strides,
-            enc_padding=m.padding,
+            enc_paddings=m.padding,
+            enc_non_linearities=m.non_linearities,
             nb_channels_cnn=m.cnn_hidden_dim,
             nb_channels_regress=m.regressor_hidden_dim,
             max_pool_k_size=m.max_pool_k_size,
@@ -71,7 +72,8 @@ class FullModel(nn.Module):
             -> independent_module.IndependentModule:
         kernel_sizes = module_config.kernel_sizes
         strides = module_config.strides
-        padding = module_config.padding
+        paddings = module_config.padding
+        non_linearities = module_config.non_linearities
         cnn_hidden_dim = module_config.cnn_hidden_dim
 
         assert module_config.regressor_hidden_dim is not None  # TODO: implement regressor_hidden_dim
@@ -86,7 +88,8 @@ class FullModel(nn.Module):
             enc_input=1 if is_first_module else cnn_hidden_dim,  # 1 if first layer, else cnn_hidden_dim
             enc_kernel_sizes=kernel_sizes,  # [10, 8, 4, 4, 4]
             enc_strides=strides,  # [5, 4, 2, 2, 2]
-            enc_padding=padding,  # [2, 2, 2, 2, 1]
+            enc_paddings=paddings,  # [2, 2, 2, 2, 1]
+            enc_non_linearities=non_linearities,  # [True, True, True, True, True]
             nb_channels_cnn=cnn_hidden_dim,  # 512
             nb_channels_regress=regressor_hidden_dim,  # 256
             max_pool_k_size=max_pool_k_size,
