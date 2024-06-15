@@ -16,7 +16,7 @@ from models.full_model import FullModel
 from options import get_options
 from utils.helper_functions import *
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
-from interpretabil_util import plot_tsne_syllable, plot_histograms, scatter_3d_syllable
+from post_hoc_analysis.interpretability.interpretabil_util import plot_tsne_syllable, plot_histograms, scatter_3d_syllable
 from utils import logger
 
 """
