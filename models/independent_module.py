@@ -105,13 +105,13 @@ class IndependentModule(nn.Module):
             # KL-divergence loss
             kld_weight = self.opt.encoder_config.kld_weight
             kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-            kld_loss = kld_weight * kld_loss.mean()  # shape: (1)
+            kld_loss = kld_loss.mean()  # shape: (1)
 
             # reconstruction loss
             nce_loss, accuracies = self.loss.get_loss(z, c)
 
             # Combine the losses
-            total_loss = nce_loss + kld_loss
+            total_loss = nce_loss + kld_weight * kld_loss
 
         else:
             # consider the mean of the distribution as the latent representation, we ignore the variance

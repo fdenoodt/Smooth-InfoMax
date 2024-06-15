@@ -84,11 +84,11 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
             if opt.use_wandb:
                 for idx, cur_nce in enumerate(nce):
-                    wandb.log({f"nce_{idx}": cur_nce}, step=global_step)
+                    wandb.log({f"nce/nce_{idx}": cur_nce}, step=global_step)
                 for idx, cur_kld in enumerate(kld):
-                    wandb.log({f"kld_{idx}": cur_kld}, step=global_step)
+                    wandb.log({f"kld/kld_{idx}": cur_kld}, step=global_step)
                 for idx, cur_losses in enumerate(loss):
-                    wandb.log({f"loss_{idx}": cur_losses}, step=global_step)
+                    wandb.log({f"loss/loss_{idx}": cur_losses}, step=global_step)
 
                 wandb.log({'epoch': epoch}, step=global_step)
 
@@ -109,7 +109,7 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
 
             if opt.use_wandb:
                 for i, val_loss in enumerate(validation_loss):
-                    wandb.log({f"val_loss_{i}": val_loss}, step=global_step)
+                    wandb.log({f"val_loss/val_loss_{i}": val_loss}, step=global_step)
 
         if (epoch % opt.log_every_x_epochs == 0):
             logs.create_log(model, optimizer=optimizer, epoch=epoch)
