@@ -6,6 +6,8 @@ This script is used to analyze the weights of the vowel classifier (bias=False).
 - weights are plotted as a heatmap
 - the most important dimensions for each vowel are found and plotted
 - the predictions of the classifier are plotted in a 2D space
+
+Warning: script only for VOWEL classifier (bias=False)!! The script is only used for latent space analysis.
 """
 
 import matplotlib.pyplot as plt
@@ -143,9 +145,9 @@ def plot_label_space(opt: OptionsConfig, wandb, classifier, n_features, dim1, di
     plt.savefig(f"{save_dir}/vowel_classifier_weights_heatmap.pdf")
     plt.savefig(f"{save_dir}/vowel_classifier_weights_heatmap.png")
 
-    # log to wandb
-    wandb.log({f"Latent space analysis/Vowel Classifier Weights Heatmap": [
-        wandb.Image(f"{save_dir}/vowel_classifier_weights_heatmap.png")]})
+    if opt.use_wandb:
+        wandb.log({f"Latent space analysis/Vowel Classifier Weights Heatmap": [
+            wandb.Image(f"{save_dir}/vowel_classifier_weights_heatmap.png")]})
 
 
 def main():
@@ -153,11 +155,13 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        # Initialize a wandb run with the same run id
         wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
-    arg_parser.create_log_path(opt, add_path_var="linear_model_vowels_bias=False")
+    classifier_config = opt.syllables_classifier_config
+    classif_module: int = classifier_config.encoder_module
+    classif_path = f"linear_model_vowels_modul={classif_module}_bias=False"
+    arg_parser.create_log_path(opt, add_path_var=classif_path)
 
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
