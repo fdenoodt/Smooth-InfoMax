@@ -16,7 +16,8 @@ from models.full_model import FullModel
 from options import get_options
 from utils.helper_functions import *
 from utils.utils import retrieve_existing_wandb_run_id, set_seed
-from post_hoc_analysis.interpretability.interpretabil_util import plot_tsne_syllable, plot_histograms, scatter_3d_syllable
+from post_hoc_analysis.interpretability.interpretabil_util import plot_tsne_syllable, plot_histograms, \
+    scatter_3d_syllable
 from utils import logger
 
 """
@@ -90,7 +91,8 @@ def main():
         batch_size=128,
         limit_train_batches=1.0,
         limit_validation_batches=1.0,
-        labels="syllables"
+        labels="syllables",
+        num_workers=1
     )
 
     # retrieve data for classifier
