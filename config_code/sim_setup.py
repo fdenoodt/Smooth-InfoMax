@@ -15,7 +15,7 @@ class SIMSetup:
 
         self.config_file = config_file
 
-        if conventional_cpc:
+        if conventional_cpc or not (is_cpc): # also for gim/sim
             # Original dimensions given in CPC paper (Oord et al.).
             kernel_sizes = [10, 8, 4, 4, 4]
             strides = [5, 4, 2, 2, 2]

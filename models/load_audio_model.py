@@ -30,6 +30,8 @@ def load_model_and_optimizer(
     if opt.model_type == ModelType.ONLY_ENCODER:
         model, optimizer = model_utils.reload_weights_for_training_encoder(opt, model, optimizer, reload_model)
     else:  # ModelType.ONLY_DOWNSTREAM_TASK or ModelType.FULLY_SUPERVISED
+        print(model)
+        print("-------------------")
         model, optimizer = model_utils.reload_weights_for_training_classifier(
             opt, model, optimizer, reload_model, classifier_config)
 
