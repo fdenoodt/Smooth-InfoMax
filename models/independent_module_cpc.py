@@ -10,9 +10,10 @@ from models import (
     cnn_encoder, autoregressor,
     loss_InfoNCE
 )
+from models.abstract_module import AbstractModule
 
 
-class CPCIndependentModule(nn.Module):
+class CPCIndependentModule(AbstractModule):
     def __init__(
             self, opt: OptionsConfig,
             enc_kernel_sizes, enc_strides, enc_paddings, enc_non_linearities,
@@ -53,6 +54,12 @@ class CPCIndependentModule(nn.Module):
         c = self.autoregressor(z)
         return c, z
 
+    def get_latents_of_intermediate_layers(self, x, layer_idx) -> (Tensor, Tensor):
+        z, _ = self.encoder.forward_intermediate_layer(x, layer_idx)
+        z = z.permute(0, 2, 1)
+        return self.autoregressor(z), z
+
+
     def forward(self, x):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
@@ -78,3 +85,6 @@ class CPCIndependentModule(nn.Module):
         kld_loss = kld_loss.unsqueeze(0)
 
         return total_loss, accuracies, z, nce_loss, kld_loss
+
+
+

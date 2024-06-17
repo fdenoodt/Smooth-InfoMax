@@ -1,7 +1,7 @@
 from typing import List, Tuple
-from torch import Tensor
-import torch.nn as nn
 import torch
+import torch.nn as nn
+from torch import Tensor
 
 
 class CNNEncoder(nn.Module):
@@ -16,14 +16,13 @@ class CNNEncoder(nn.Module):
                 len(kernel_sizes) == len(strides) == len(padding)
         ), "Inconsistent size of network parameters (kernels, strides and padding)"
 
-        self.encoder: nn.Sequential = nn.Sequential()
+        self.encoder = []  # Change to list
         self.encoder_mu: nn.Conv1d = nn.Conv1d(out_nb_channels, out_nb_channels, kernel_size=1, stride=1, padding=0)
         self.encoder_var: nn.Conv1d = nn.Conv1d(out_nb_channels, out_nb_channels, kernel_size=1, stride=1, padding=0)
 
         # add the layers to self.encoder
         for idx, _ in enumerate(kernel_sizes):
-            self.encoder.add_module(
-                f"layer {idx}",
+            self.encoder.append(
                 CNNEncoder.new_block(
                     inp_nb_channels,
                     self.nb_channels,
@@ -31,7 +30,7 @@ class CNNEncoder(nn.Module):
                     strides[idx],
                     padding[idx],
                     relus[idx]
-                ),
+                )
             )
             inp_nb_channels = self.nb_channels
 
@@ -39,8 +38,9 @@ class CNNEncoder(nn.Module):
                 assert max_pool_stride, "max_pool_stride must be set if max_pool_k_size is set"
 
                 # add maxpool to encoder
-                self.encoder.add_module(
-                    f"maxpool {idx}", nn.MaxPool1d(max_pool_k_size, max_pool_stride))
+                self.encoder.append(nn.MaxPool1d(max_pool_k_size, max_pool_stride))
+
+        self.encoder = nn.ModuleList(self.encoder)  # Convert list to ModuleList
 
     @staticmethod
     def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool):
@@ -55,9 +55,25 @@ class CNNEncoder(nn.Module):
 
     def forward(self, x) -> Tuple[Tensor, Tensor]:
         # x is batch of audio files of shape [N x C x L]
-        result = self.encoder(x)
-        mu = self.encoder_mu(result)
-        log_var = self.encoder_var(result)
+        for layer in self.encoder:
+            x = layer(x)
+        mu = self.encoder_mu(x)
+        log_var = self.encoder_var(x)
 
-        assert mu.shape == log_var.shape == result.shape, f"mu shape: {mu.shape}, log_var shape: {log_var.shape}, result shape: {result.shape}"
+        assert mu.shape == log_var.shape == x.shape, f"mu shape: {mu.shape}, log_var shape: {log_var.shape}, result shape: {x.shape}"
         return mu, log_var
+
+    def forward_intermediate_layer(self, x, layer_idx) -> Tuple[Tensor, Tensor]:
+        """
+        Forward pass until layer_idx and return the result. Returns 2 args due to plausible reparameterization trick.
+        """
+        if layer_idx == len(self.encoder) or layer_idx == -1:
+            return self.forward(x)
+
+        for idx, layer in enumerate(self.encoder):
+            x = layer(x)
+            if idx == layer_idx:
+                log_var_placeholder = torch.zeros_like(x)
+                return x, log_var_placeholder
+
+        raise ValueError(f"layer_idx {layer_idx} is out of range")

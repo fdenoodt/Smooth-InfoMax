@@ -38,7 +38,7 @@ class Syllables_Loss(loss.Loss):
     def calc_supervised_syllables_loss(self, c, targets):
         # forward pass
         c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
-
+        b_size, hidden_dim, num_frames = c.shape
         # avg over all frames
         pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
 

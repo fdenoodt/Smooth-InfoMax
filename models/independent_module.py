@@ -10,9 +10,10 @@ from models import (
     cnn_encoder,
     loss_InfoNCE
 )
+from models.abstract_module import AbstractModule
 
 
-class IndependentModule(nn.Module):
+class IndependentModule(AbstractModule):
     def __init__(
             self, opt: OptionsConfig,
             enc_kernel_sizes, enc_strides, enc_paddings, enc_non_linearities,
@@ -84,7 +85,13 @@ class IndependentModule(nn.Module):
         eps = torch.randn_like(std)
         return eps * std + mu
 
-    def forward(self, x):
+    def get_latents_of_intermediate_layers(self, x, layer_idx) -> (Tensor, Tensor):
+        mu, log_var = self.encoder.forward_intermediate_layer(x, layer_idx)
+        mu = mu.permute(0, 2, 1)  # (b, 55, 512)
+        log_var = log_var.permute(0, 2, 1)
+        return (mu, log_var), (mu, log_var)
+
+    def forward(self, x) -> (Tensor, Tensor, Tensor, Tensor, Tensor):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
         :param x: batch with sampled audios (dimensions: B x C x L)

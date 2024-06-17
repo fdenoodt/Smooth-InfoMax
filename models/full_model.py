@@ -1,9 +1,12 @@
+from typing import List
+
 import torch
 import torch.nn as nn
 
 from config_code.config_classes import OptionsConfig
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 from models import independent_module, independent_module_regressor, independent_module_cpc
+from models.abstract_module import AbstractModule
 from utils import utils
 
 
@@ -18,7 +21,7 @@ class FullModel(nn.Module):
         """
         super(FullModel, self).__init__()
 
-        self.fullmodel: nn.ModuleList = nn.ModuleList([])
+        self.fullmodel: nn.ModuleList[AbstractModule] = nn.ModuleList([])
         self.opt: OptionsConfig = opt
         self.output_dim: int = opt.encoder_config.architecture.modules[-1].regressor_hidden_dim
 
@@ -133,7 +136,7 @@ class FullModel(nn.Module):
         assert stop_idx <= len(self.fullmodel) - 1, \
             f"stop_idx={stop_idx} is larger than the number of modules in the model"
 
-        for idx, layer in enumerate(self.fullmodel[:-1]):
+        for idx, layer in enumerate(self.fullmodel[:-1]):  # skip the regressor
             if idx <= stop_idx:
                 _, z = layer.get_latents(model_input)
                 model_input = z.permute(0, 2, 1)
@@ -145,3 +148,22 @@ class FullModel(nn.Module):
 
     def forward_through_module(self, x, idx):
         return self._forward_through_module(x, idx)
+
+    def forward_through_layer(self, x, module_idx, layer_idx):
+        """
+        Forward through a specific layer in a specific module
+        """
+        nb_modules = len(self.fullmodel)
+        model_input = x
+        for idx, module in enumerate(self.fullmodel[:nb_modules - 1]):  # until target module (exclusive)
+            module: AbstractModule = module  # type hinting
+
+            if idx <= module_idx - 1:  # stop one module before the target module
+                _, z = module.get_latents(model_input)
+                model_input = z.permute(0, 2, 1)
+
+        module = self.fullmodel[module_idx]  # target module
+        _, z = module.get_latents_of_intermediate_layers(model_input, layer_idx)
+        model_input = z.permute(0, 2, 1)
+
+        return model_input

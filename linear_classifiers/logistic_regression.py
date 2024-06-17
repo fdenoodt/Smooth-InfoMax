@@ -8,6 +8,8 @@ import time
 # python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
 # python -m linear_classifiers.logistic_regression_syllables temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 syllables_classifier_config.num_epochs=3 use_wandb=False train=True
+from typing import Optional
+
 import torch
 import wandb
 
@@ -22,38 +24,54 @@ from utils import logger
 from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_wandb_section, get_nb_classes
 
 
-def _get_representation(opt: OptionsConfig, method: callable, arg1, arg2):
-    def _forward(method, arg1, arg2):
-        if not (isinstance(arg2, int)):
-            z = method(arg1)
-        else:
+def _get_representation(opt: OptionsConfig, method: callable,
+                        # arg1 is mandatory, arg2 and arg3 are optional depending on the method
+                        arg1, arg2: Optional[int], arg3: Optional[int]):
+    def _forward(method, arg1, arg2: int, arg3: int):
+        if isinstance(arg3, int):  # 3 args
+            assert isinstance(arg2, int)
+            z = method(arg1, arg2, arg3)
+        elif isinstance(arg2, int):  # 2 args
             z = method(arg1, arg2)
+        else:  # single arg
+            z = method(arg1)
         return z
 
     if opt.model_type == ModelType.ONLY_DOWNSTREAM_TASK:
         with torch.no_grad():
-            z = _forward(method, arg1, arg2)
+            z = _forward(method, arg1, arg2, arg3)
         z = z.detach()
     else:  # opt.model_type == ModelType.FULLY_SUPERVISED
-        z = _forward(method, arg1, arg2)
+        z = _forward(method, arg1, arg2, arg3)
     return z
 
 
-def get_z(opt, context_model, model_input, regression: bool, which_module: int):
+def get_z(opt, context_model, model_input, regression: bool, which_module: int, which_layer: int):
+    # Set regression=True, which_module=-1, which_layer=-1, for the conventional case (performance measurements).
+    # `which_module` and `which_layer` are only used for latent space analysis of intermediate layers/modules.
+    # For GIM/SIM, can specify module index. The layer is typically always -1 (last one).
+    # For CPC, there is a single module, but a layer idx can be specified.
+
     if regression:
-        assert which_module == -1, "Regression layer doesn't have modules"
+        assert which_module == -1 and which_layer == -1, "Regression layer doesn't have modules"
 
     if regression:  # typical case, includes regression layer
         method = context_model.module.forward_through_all_modules
-        return _get_representation(opt, method, model_input, None)
+        return _get_representation(opt, method, model_input, None, None)
 
     # Conv module only used for latent space/interpretability analysis
-    if which_module == -1:
+    if which_module == -1 and which_layer == -1:
         method = context_model.module.forward_through_all_cnn_modules
-        z = _get_representation(opt, method, model_input, None)
-    else:
+        z = _get_representation(opt, method, model_input, None, None)
+    elif which_module >= 0 and which_layer == -1:
         method = context_model.module.forward_through_module  # takes 2 args (input, module)
-        z = _get_representation(opt, method, model_input, which_module)
+        z = _get_representation(opt, method, model_input, which_module, None)
+
+    elif which_module >= 0 and which_layer >= 0:  # specific layer in specific module (for CPC for example)
+        method = context_model.module.forward_through_layer  # takes 3 args (input, module, layer)
+        z = _get_representation(opt, method, model_input, which_module, which_layer)
+    else:
+        raise ValueError("Invalid layer/module specification")
 
     return z.permute(0, 2, 1)
 
@@ -88,7 +106,9 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             model_input = audio.to(opt.device)
             z = get_z(opt, context_model, model_input,
                       regression=bias,
-                      which_module=opt.syllables_classifier_config.encoder_module)
+                      which_module=opt.syllables_classifier_config.encoder_module,
+                      which_layer=opt.syllables_classifier_config.encoder_layer
+                      )
 
             # forward pass
             total_loss, accuracies = loss.get_loss(model_input, z, z, label)
@@ -146,7 +166,8 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
 
             with torch.no_grad():
                 z = get_z(opt, context_model, model_input, regression=bias,
-                          which_module=opt.syllables_classifier_config.encoder_module)
+                          which_module=opt.syllables_classifier_config.encoder_module,
+                          which_layer=opt.syllables_classifier_config.encoder_layer)
 
             z = z.detach()
 

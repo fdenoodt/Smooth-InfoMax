@@ -106,7 +106,7 @@ class EncoderConfig:
 
 class ClassifierConfig:
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1):
+                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
@@ -116,6 +116,7 @@ class ClassifierConfig:
         # 0-based index. (0 is first module)
         # self.encoder_module = encoder_module  # Train classifier on output of this module (default: -1, last module)
         self._encoder_module = encoder_module
+        self._encoder_layer = encoder_layer
 
     @property
     def encoder_module(self):
@@ -128,6 +129,18 @@ class ClassifierConfig:
         if value >= 3:
             raise ValueError(f"encoder_module must be less than 3. Got {value}")
         self._encoder_module = value
+
+    @property
+    def encoder_layer(self):
+        return self._encoder_layer
+
+    @encoder_layer.setter
+    def encoder_layer(self, value):
+        if value < -1:
+            raise ValueError(f"encoder_layer must be -1 or greater. Got {value}")
+        if value >= 8:
+            raise ValueError(f"encoder_layer must be less than 8. Got {value}")
+        self._encoder_layer = value
 
     # to string
     def __str__(self):

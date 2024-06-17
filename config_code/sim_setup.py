@@ -24,10 +24,10 @@ class SIMSetup:
         else:
             # need to add layers representative for reparametrization trick and thus no relu activation
             # This is done to make the architecture more similar to the one used in our proposal
-            kernel_sizes = [10, 8] + [1] + [4, 4] + [1] + [4]
-            strides = [5, 4] + [1] + [2, 2] + [1] + [2]
-            padding = [2, 2] + [0] + [2, 2] + [0] + [1]
-            non_linearities = [True, True] + [False] + [True, True] + [False] + [True]
+            kernel_sizes = [10, 8] + [1] + [4, 4] + [1] + [4] + [1]
+            strides = [5, 4] + [1] + [2, 2] + [1] + [2] + [1]
+            padding = [2, 2] + [0] + [2, 2] + [0] + [1] + [0]
+            non_linearities = [True, True] + [False] + [True, True] + [False] + [True] + [False]
 
         cnn_hidden_dim = 512
         regressor_hidden_dim = 256
