@@ -1,32 +1,25 @@
+"""
+This script is only for syllable/vowel classification. For speaker/phoeme classification, see other scripts.
+"""
+
+import time
+
 # example python call:
 # python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
 # python -m linear_classifiers.logistic_regression_syllables temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 syllables_classifier_config.num_epochs=3 use_wandb=False train=True
 import torch
-import torch.nn as nn
-import time
-import numpy as np
+import wandb
 
+from arg_parser import arg_parser
 ## own modules
 from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig
-from models.full_model import FullModel
-from options import get_options
 from data import get_dataloader
-from utils import logger
-from arg_parser import arg_parser
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
-
-import wandb
-import os
-
-from utils.utils import retrieve_existing_wandb_run_id, set_seed
-
-
-def get_wandb_section(opt, bias):
-    label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
-    module_nb = opt.syllables_classifier_config.encoder_module
-    return f"C Singl layer bias={bias} {label_type} modul={module_nb}"
+from options import get_options
+from utils import logger
+from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_wandb_section, get_nb_classes
 
 
 def _get_representation(opt: OptionsConfig, method: callable, arg1, arg2):
@@ -109,7 +102,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             accuracy = accuracies.item()
 
             if wandb_is_on:
-                wandb_section = get_wandb_section(opt, bias)
+                wandb_section = get_audio_classific_wandb_section(opt, bias)
                 wandb.log({
                     f"{wandb_section}/Loss classification": sample_loss,
                     f"{wandb_section}/Train accuracy": accuracy,
@@ -176,21 +169,25 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
     print("Final Testing Loss: ", loss_epoch)
 
     if wandb_is_on:
-        wandb_section = get_wandb_section(opt, bias)
+        wandb_section = get_audio_classific_wandb_section(opt, bias)
         wandb.log({f"{wandb_section}/FINAL Test accuracy": accuracy,
                    f"{wandb_section}/FINAL Test loss": loss_epoch})
     return loss_epoch, accuracy
 
 
-def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK, bias: bool = True):
+def main():
+    # IMPORTANT TO SET classifier_config.dataset.labels=[syllables|vowels], classifier_config.bias=[True|False] in the config file
     opt: OptionsConfig = get_options()
-    opt.model_type = model_type
+    # opt.model_type = model_type
+
+    bias = opt.syllables_classifier_config.bias
+    opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK  # ModelType.FULLY_SUPERVISED
 
     # fully supervised:
     # opt.model_type = ModelType.FULLY_SUPERVISED
 
     classifier_config: ClassifierConfig = opt.syllables_classifier_config
-    classifier_config.dataset.labels = "syllables" if syllables else "vowels"
+    # classifier_config.dataset.labels = "syllables" if syllables else "vowels"
 
     assert opt.syllables_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
@@ -233,7 +230,7 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
     else:
         n_features = cnn_hidden_dim
 
-    num_classes = 9 if syllables else 3
+    num_classes = get_nb_classes(classifier_config.dataset.dataset, classifier_config.dataset.labels)
 
     # The loss class also contains the classifier!
     loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
@@ -270,11 +267,13 @@ def main(syllables: bool, model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK
 
     logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
 
-    print(f"Finished training {syllables}")
+    print(f"Finished training {opt.syllables_classifier_config.dataset.labels} classifier")
 
     # return wandb, wandb_is_on, linear_model.parameters()
     return wandb, opt.use_wandb, list(loss.linear_classifier.parameters())
 
 
 if __name__ == "__main__":
-    pass
+    wandb, wandb_is_on, linear_model_params = main()
+    if wandb_is_on:
+        wandb.finish()

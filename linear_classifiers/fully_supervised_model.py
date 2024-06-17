@@ -1,3 +1,5 @@
+assert False, "Code no longer supported."
+
 # temp cpc_audio_de_boer
 
 import torch
@@ -131,4 +133,3 @@ if __name__ == "__main__":
     model = FullySupervisedModel(cnn_hidden_dim=512, regressor_hidden_dim=256, num_classes=9, freeze=True)
     rnd = torch.rand(64, 1, 10240)
     print(model(rnd).shape)
-

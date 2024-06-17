@@ -15,7 +15,7 @@ class SIMSetup:
 
         self.config_file = config_file
 
-        if conventional_cpc or not (is_cpc): # also for gim/sim
+        if conventional_cpc or not (is_cpc):  # also for gim/sim
             # Original dimensions given in CPC paper (Oord et al.).
             kernel_sizes = [10, 8, 4, 4, 4]
             strides = [5, 4, 2, 2, 2]
@@ -157,6 +157,7 @@ class SIMSetup:
                 batch_size=64,
                 limit_train_batches=1.0,
                 limit_validation_batches=1.0,
+                num_workers=1
             ),
             # For loading a specific model from a specific epoch, to use by the classifier
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1

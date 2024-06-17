@@ -1,5 +1,3 @@
-# Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
-
 """
 This script is used to analyze the weights of the vowel classifier (bias=False).
 - weights are logged as a table to wandb
@@ -9,6 +7,10 @@ This script is used to analyze the weights of the vowel classifier (bias=False).
 
 Warning: script only for VOWEL classifier (bias=False)!! The script is only used for latent space analysis.
 """
+
+
+# Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,7 +22,8 @@ from config_code.config_classes import OptionsConfig
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
-from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1
+from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1, get_audio_classific_wandb_section, \
+    get_nb_classes
 
 
 def plot_weights(opt: OptionsConfig, weights: np.ndarray, wandb, first_dim: int = 1):
@@ -146,12 +149,17 @@ def plot_label_space(opt: OptionsConfig, wandb, classifier, n_features, dim1, di
     plt.savefig(f"{save_dir}/vowel_classifier_weights_heatmap.png")
 
     if opt.use_wandb:
-        wandb.log({f"Latent space analysis/Vowel Classifier Weights Heatmap": [
+        wandb_section = get_audio_classific_wandb_section(opt, bias=False)
+        wandb.log({f"{wandb_section}/Vowel Classifier Weights Heatmap": [
             wandb.Image(f"{save_dir}/vowel_classifier_weights_heatmap.png")]})
 
 
 def main():
     opt: OptionsConfig = get_options()
+    bias = opt.syllables_classifier_config.bias
+
+    assert not bias, "This script is only for the vowel classifier (bias=False)!!"
+    assert opt.syllables_classifier_config.dataset.labels == "vowels", "This script is only for the vowel classifier!!"
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
@@ -160,9 +168,9 @@ def main():
     # MUST HAPPEN AFTER wandb.init
     classifier_config = opt.syllables_classifier_config
     classif_module: int = classifier_config.encoder_module
-    classif_path = f"linear_model_vowels_modul={classif_module}_bias=False"
-    arg_parser.create_log_path(opt, add_path_var=classif_path)
-
+    classif_path = f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_bias={bias}"
+    arg_parser.create_log_path(
+        opt, add_path_var=classif_path)
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         opt.syllables_classifier_config,
@@ -172,7 +180,8 @@ def main():
     )
 
     # the classifier is a part of the loss function
-    n_labels = 3
+    n_labels = get_nb_classes(classifier_config.dataset.dataset, classifier_config.dataset.labels)
+
     n_features = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
     syllables_loss = Syllables_Loss(opt, hidden_dim=n_features, calc_accuracy=True, bias=False, num_syllables=n_labels)
 
@@ -207,8 +216,9 @@ def main():
     dim1, dim2 = _w[:2]
 
     if opt.use_wandb:
+        wandb_section = get_audio_classific_wandb_section(opt, bias)
         # log the most important 32 dimensions and their weights (_w[:32])
-        wandb.log({"Latent space analysis/Most important dimensions":
+        wandb.log({f"{wandb_section}/Most important dimensions":
                        wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
 
     # plot 32 dimensions at a time
@@ -218,7 +228,8 @@ def main():
         ims.append(im_path)
 
     if opt.use_wandb:
-        wandb.log({f"Latent space analysis/Vowel Classifier Weights imgs": [
+        wandb_section = get_audio_classific_wandb_section(opt, bias)
+        wandb.log({f"{wandb_section}/Vowel Classifier Weights imgs": [
             wandb.Image(im) for im in ims]})
 
     plot_label_space(opt, wandb, linear_classifier, n_features, dim1, dim2)

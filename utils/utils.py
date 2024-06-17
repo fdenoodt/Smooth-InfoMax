@@ -122,13 +122,18 @@ def rescale_between_neg1_and_1(x):
     return x / absolute.max()
 
 
-def get_nb_classes(dataset: Dataset):
+def get_nb_classes(dataset: Dataset, args: None):
+    # args only used in de_boer
     if dataset == Dataset.STL10:
         nb_classes = 10
     elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
         nb_classes = 50
     elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
         nb_classes = 4
+    elif dataset == Dataset.DE_BOER and args == "vowels":
+        nb_classes = 3
+    elif dataset == Dataset.DE_BOER and args == "syllables":
+        nb_classes = 9
     else:
         raise NotImplementedError(f"Dataset {dataset} not supported")
     return nb_classes
@@ -143,3 +148,10 @@ def initialize_wandb(options: OptionsConfig, project_name, run_name):
         f.write(run_id)
         # write project name to file
         f.write(f"\n{project_name}")
+
+
+def get_audio_classific_wandb_section(opt,
+                                      bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
+    label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
+    module_nb = opt.syllables_classifier_config.encoder_module
+    return f"C Singl layer bias={bias} {label_type} modul={module_nb}"
