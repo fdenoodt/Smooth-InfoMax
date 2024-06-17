@@ -154,4 +154,5 @@ def get_audio_classific_wandb_section(opt,
                                       bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
-    return f"C Singl layer bias={bias} {label_type} modul={module_nb}"
+    layer_nb = opt.syllables_classifier_config.encoder_layer
+    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
