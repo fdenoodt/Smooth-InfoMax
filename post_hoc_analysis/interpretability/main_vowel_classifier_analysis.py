@@ -201,8 +201,9 @@ def main():
     weights = rescale_between_neg1_and_1(weights)
 
     if opt.use_wandb:
+        wandb_section = get_audio_classific_wandb_section(opt, bias)
         # Log weights as a table (3 rows, 256 columns)
-        wandb.log({"Latent space analysis/Vowel Classifier Weights tbl":
+        wandb.log({f"{wandb_section}/Vowel Classifier Weights tbl":
                        wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
 
     # find most important dimensions for each vowel
