@@ -199,7 +199,10 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
 def main():
     # IMPORTANT TO SET classifier_config.dataset.labels=[syllables|vowels], classifier_config.bias=[True|False] in the config file
     opt: OptionsConfig = get_options()
-    # opt.model_type = model_type
+    [print("*" * 50) for _ in range(3)]
+    print(f"Classifier config: {opt.syllables_classifier_config}")
+    print(f"Model type: {opt.model_type}")
+    [print("*" * 50) for _ in range(3)]
 
     bias = opt.syllables_classifier_config.bias
     opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK  # ModelType.FULLY_SUPERVISED
