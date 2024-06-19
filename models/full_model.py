@@ -132,6 +132,9 @@ class FullModel(nn.Module):
         return context
 
     def _forward_through_module(self, x, stop_idx):
+        if stop_idx == -1:  # take last cnn module
+            stop_idx = (len(self.fullmodel) - 1) - 1  # skip the regressor
+
         model_input = x
         assert stop_idx <= len(self.fullmodel) - 1, \
             f"stop_idx={stop_idx} is larger than the number of modules in the model"
@@ -147,6 +150,7 @@ class FullModel(nn.Module):
         return self._forward_through_module(x, len(self.fullmodel) - 1)  # skip the regressor
 
     def forward_through_module(self, x, idx):
+        """Foward through all modules until the target module (inclusive)"""
         return self._forward_through_module(x, idx)
 
     def forward_through_layer(self, x, module_idx, layer_idx):

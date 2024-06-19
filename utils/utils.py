@@ -150,9 +150,14 @@ def initialize_wandb(options: OptionsConfig, project_name, run_name):
         f.write(f"\n{project_name}")
 
 
-def get_audio_classific_wandb_section(opt,
-                                      bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
+def get_audio_classific_key(opt, bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer
     return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
+
+
+def get_audio_decoder_key(opt, loss_val): # used in train_decoder.py, callbacks.py
+    module_nb = opt.decoder_config.encoder_module
+    layer_nb = opt.decoder_config.encoder_layer
+    return f"Decoder_l={loss_val}_deterministic_enc={opt.encoder_config.deterministic} modul={module_nb} layer={layer_nb}"

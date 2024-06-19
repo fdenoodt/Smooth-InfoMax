@@ -9,7 +9,8 @@ from utils import model_utils
 
 
 def load_model_and_optimizer(
-        opt: OptionsConfig, classifier_config: Union[Optional[ClassifierConfig], Optional[DecoderConfig]], reload_model=False, calc_accuracy=False,
+        opt: OptionsConfig, classifier_config: Union[Optional[ClassifierConfig], Optional[DecoderConfig]],
+        reload_model=False, calc_accuracy=False,
         num_GPU=None) -> (FullModel, torch.optim.Optimizer):
     lr = opt.encoder_config.learning_rate
     # Initialize model.
@@ -40,7 +41,8 @@ def load_model_and_optimizer(
 
 
 def load_decoder(opt: OptionsConfig) -> Decoder:
-    decoder: Decoder = Decoder(opt.decoder_config.architecture)
+    module_idx = opt.decoder_config.encoder_module
+    decoder: Decoder = Decoder(opt.decoder_config.architectures[module_idx])
 
     print(f"Loading decoder trained w/ loss: {opt.decoder_config.decoder_loss}")
     # Load the trained model

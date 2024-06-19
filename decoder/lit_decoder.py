@@ -3,16 +3,17 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-from config_code.config_classes import DecoderLoss
+from config_code.config_classes import DecoderLoss, DecoderConfig
 from decoder.decoder_losses import MSE_Loss, SpectralLoss, MSE_AND_SPECTRAL_LOSS, FFTLoss, MSE_AND_FFT_LOSS, MEL_LOSS, \
     MSE_AND_MEL_LOSS, MEL_LOSS
 from models.full_model import FullModel
 
 
 class LitDecoder(L.LightningModule):
-    def __init__(self, encoder, decoder: nn.Module, lr: float, loss: DecoderLoss):
+    def __init__(self, opt: DecoderConfig, encoder, decoder: nn.Module, lr: float, loss: DecoderLoss):
         super().__init__()
         encoder.eval()
+        self.dec_opt: DecoderConfig = opt
         self.encoder = encoder
 
         self.decoder = decoder
@@ -21,14 +22,19 @@ class LitDecoder(L.LightningModule):
         self.loss = self._get_loss_from_enum(loss)
         self.test_losses = []
 
-        self.save_hyperparameters(ignore=["decoder", "encoder"])
+        self.save_hyperparameters(ignore=["decoder", "encoder", "opt"])
+
+    def encode(self, x):
+        with torch.no_grad():
+            full_model: FullModel = self.encoder.module
+            modul_idx = self.dec_opt.encoder_module
+            z = full_model.forward_through_module(x, modul_idx)
+            # z = full_model.forward_through_all_cnn_modules(x)
+        return z.detach()
 
     def training_step(self, batch, batch_idx):
         (x, _, label, _) = batch  # x.shape: (200, 1, 64, 64), y.shape: (200, 1, 6)
-        with torch.no_grad():
-            full_model: FullModel = self.encoder.module
-            z = full_model.forward_through_all_cnn_modules(x)
-        z = z.detach()
+        z = self.encode(x)
         x_reconstructed = self.decoder(z)
 
         loss = self.loss(x_reconstructed, x)
@@ -39,10 +45,7 @@ class LitDecoder(L.LightningModule):
     # validation step
     def validation_step(self, batch, batch_idx):
         (x, _, label, _) = batch
-        with torch.no_grad():
-            full_model: FullModel = self.encoder.module
-            z = full_model.forward_through_all_cnn_modules(x)
-        z = z.detach()
+        z = self.encode(x)
 
         x_reconstructed = self.decoder(z)
         loss = self.loss(x_reconstructed, x)
@@ -55,10 +58,7 @@ class LitDecoder(L.LightningModule):
 
     def test_step(self, batch, batch_idx):
         (x, _, label, _) = batch
-        with torch.no_grad():
-            full_model: FullModel = self.encoder.module
-            z = full_model.forward_through_all_cnn_modules(x)
-        z = z.detach()
+        z = self.encode(x)
         x_reconstructed = self.decoder(z)
 
         loss = self.loss(x_reconstructed, x)

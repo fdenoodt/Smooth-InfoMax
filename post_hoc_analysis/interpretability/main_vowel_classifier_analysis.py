@@ -22,7 +22,7 @@ from config_code.config_classes import OptionsConfig
 from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
-from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1, get_audio_classific_wandb_section, \
+from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1, get_audio_classific_key, \
     get_nb_classes
 
 
@@ -149,7 +149,7 @@ def plot_label_space(opt: OptionsConfig, wandb, classifier, n_features, dim1, di
     plt.savefig(f"{save_dir}/vowel_classifier_weights_heatmap.png")
 
     if opt.use_wandb:
-        wandb_section = get_audio_classific_wandb_section(opt, bias=False)
+        wandb_section = get_audio_classific_key(opt, bias=False)
         wandb.log({f"{wandb_section}/Vowel Classifier Weights Heatmap": [
             wandb.Image(f"{save_dir}/vowel_classifier_weights_heatmap.png")]})
 
@@ -201,7 +201,7 @@ def main():
     weights = rescale_between_neg1_and_1(weights)
 
     if opt.use_wandb:
-        wandb_section = get_audio_classific_wandb_section(opt, bias)
+        wandb_section = get_audio_classific_key(opt, bias)
         # Log weights as a table (3 rows, 256 columns)
         wandb.log({f"{wandb_section}/Vowel Classifier Weights tbl":
                        wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
@@ -217,7 +217,7 @@ def main():
     dim1, dim2 = _w[:2]
 
     if opt.use_wandb:
-        wandb_section = get_audio_classific_wandb_section(opt, bias)
+        wandb_section = get_audio_classific_key(opt, bias)
         # log the most important 32 dimensions and their weights (_w[:32])
         wandb.log({f"{wandb_section}/Most important dimensions":
                        wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
@@ -229,7 +229,7 @@ def main():
         ims.append(im_path)
 
     if opt.use_wandb:
-        wandb_section = get_audio_classific_wandb_section(opt, bias)
+        wandb_section = get_audio_classific_key(opt, bias)
         wandb.log({f"{wandb_section}/Vowel Classifier Weights imgs": [
             wandb.Image(im) for im in ims]})
 

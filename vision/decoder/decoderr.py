@@ -6,6 +6,7 @@ from torch import optim
 from config_code.config_classes import DecoderLoss
 from decoder.decoder_losses import MSE_Loss
 from vision.models.FullModel import FullVisionModel
+from options import get_options
 
 
 class Decoder(L.LightningModule):

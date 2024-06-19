@@ -8,18 +8,16 @@ from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, Op
 class SIMSetup:
     def __init__(self, predict_distributions: bool, dataset: Dataset, config_file: str, is_cpc: bool,
                  conventional_cpc: Optional[bool] = None):
-        # `conventional_cpc` is without the additional layers. alternative is with the additional layers to have same # layers as in our proposal (due to reparametrization trick)
 
+        # `conventional_cpc` is without the additional layers. alternative is with the additional layers to have same # layers as in our proposal (due to reparametrization trick)
         if is_cpc:
             assert conventional_cpc is not None, "conventional_cpc must be set for CPC"
 
         self.config_file = config_file
 
+        kernel_sizes, strides, padding, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size = self.get_layer_params()
+
         if conventional_cpc or not (is_cpc):  # also for gim/sim
-            # Original dimensions given in CPC paper (Oord et al.).
-            kernel_sizes = [10, 8, 4, 4, 4]
-            strides = [5, 4, 2, 2, 2]
-            padding = [2, 2, 2, 2, 1]
             non_linearities = [True] * len(kernel_sizes)
         else:
             # need to add layers representative for reparametrization trick and thus no relu activation
@@ -28,12 +26,6 @@ class SIMSetup:
             strides = [5, 4] + [1] + [2, 2] + [1] + [2] + [1]
             padding = [2, 2] + [0] + [2, 2] + [0] + [1] + [0]
             non_linearities = [True, True] + [False] + [True, True] + [False] + [True] + [False]
-
-        cnn_hidden_dim = 512
-        regressor_hidden_dim = 256
-        prediction_step_k = 10
-        max_pool_stride = None
-        max_pool_k_size = None
 
         if is_cpc:
             # A single module
@@ -163,6 +155,7 @@ class SIMSetup:
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1
         )
 
+        nb_of_cnn_modules = 3  # 4th module is the autoregressor
         self.DECODER_CONFIG = DecoderConfig(
             num_epochs=200,
             learning_rate=2e-4,
@@ -172,18 +165,11 @@ class SIMSetup:
                 batch_size=64,
                 limit_train_batches=1.0,
                 limit_validation_batches=1.0,
+                num_workers=1
             ),
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1,
-            architecture=DecoderArchitectureConfig(
-                # decoder is trained on second to last module (skip the autoregressor)
-                kernel_sizes=kernel_sizes[::-1],
-                strides=strides[::-1],
-                paddings=padding[::-1],
-                output_paddings=[1, 0, 1, 3, 4],
-                input_dim=cnn_hidden_dim,
-                hidden_dim=cnn_hidden_dim,
-                output_dim=1
-            ),
+            architectures=[self.construct_architecture_for_module(modul_idx)
+                           for modul_idx in range(nb_of_cnn_modules)],
             decoder_loss=DecoderLoss.MSE_MEL
         )
 
@@ -205,3 +191,42 @@ class SIMSetup:
         )
 
         return options
+
+    @staticmethod
+    def get_layer_params():
+        kernel_sizes = [10, 8, 4, 4, 4]
+        strides = [5, 4, 2, 2, 2]
+        padding = [2, 2, 2, 2, 1]
+        cnn_hidden_dim = 512
+        regressor_hidden_dim = 256
+        prediction_step_k = 10
+        max_pool_stride = None
+        max_pool_k_size = None
+
+        return kernel_sizes, strides, padding, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size
+
+    def construct_architecture_for_module(self, modul_idx: int) -> DecoderArchitectureConfig:
+        # Regardless of SIM or CPC w/ conventional_cpc or extra layers, use the same architecture for the decoder:
+        kernel_sizes, strides, padding, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size = self.get_layer_params()
+
+        if modul_idx == 2:  # all layers
+            layers_till_idx = 0
+        elif modul_idx == 1:
+            layers_till_idx = 1
+        elif modul_idx == 0:
+            layers_till_idx = 3
+        else:
+            raise ValueError(f"Invalid module index: {modul_idx}")
+
+        return DecoderArchitectureConfig(
+            # eg: kernel_sizes = [10, 8, 4, 4, 4]
+            # strides = [5, 4, 2, 2, 2]
+            # padding = [2, 2, 2, 2, 1]
+            kernel_sizes=(kernel_sizes[::-1])[layers_till_idx:],  # eg modul 0: [10, 8]
+            strides=strides[::-1][layers_till_idx:],
+            paddings=padding[::-1][layers_till_idx:],
+            output_paddings=[1, 0, 1, 3, 4][layers_till_idx:],
+            input_dim=cnn_hidden_dim,
+            hidden_dim=cnn_hidden_dim,
+            output_dim=1
+        )

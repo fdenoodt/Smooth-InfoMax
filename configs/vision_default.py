@@ -61,7 +61,7 @@ def _get_options(experiment_name):
             num_epochs=20,
             bias=True,
         ),
-        decoder_config=DECODER_CONFIG,
+        decoder_config=[DECODER_CONFIG],
         use_wandb=True,
         train=True,
     )

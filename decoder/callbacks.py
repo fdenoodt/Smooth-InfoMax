@@ -11,6 +11,7 @@ from config_code.config_classes import OptionsConfig
 from data import get_dataloader
 from decoder.lit_decoder import LitDecoder
 from models.full_model import FullModel
+from utils.utils import get_audio_decoder_key
 
 
 class CustomCallback(L.Callback):
@@ -37,7 +38,8 @@ class CustomCallback(L.Callback):
             audio_samples = audio_samples.contiguous().cpu().data.numpy()
 
             ten_audio_sammples = [audio_sample for audio_sample in audio_samples[:nb_files]]
-            self.wandb_logger.log_audio(key=f"Decoder {self.loss_enum}/std normal samples",
+            section = get_audio_decoder_key(self.opt, self.loss_enum)
+            self.wandb_logger.log_audio(key=f"{section}/std normal samples",
                                         audios=ten_audio_sammples,
                                         sample_rate=[16_000] * nb_files)
 
@@ -60,12 +62,14 @@ class CustomCallback(L.Callback):
 
             ten_audio_sammples = [audio_sample for audio_sample in x_reconstructed[:nb_files]]
             audio = [audio_sample.squeeze(0).cpu().numpy() for audio_sample in audio[:nb_files]]
+
+            section = get_audio_decoder_key(self.opt, self.loss_enum)
             self.wandb_logger.log_audio(
-                key=f"Decoder {self.loss_enum}/encode + decode test set",
+                key=f"{section}/encode + decode test set",
                 audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)
 
             self.wandb_logger.log_audio(
-                key=f"Decoder {self.loss_enum}/gt test set", audios=audio, sample_rate=[16_000] * nb_files)
+                key=f"{section}/gt test set", audios=audio, sample_rate=[16_000] * nb_files)
             break
 
 

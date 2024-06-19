@@ -194,6 +194,7 @@ if __name__ == "__main__":
     dataset = opt.vision_classifier_config.dataset.dataset
 
     # order is important! first wandb.init, then create log path
+    # Warning: doesnt consider module or layer, so is overwritten. (Saves storage as don't need to save them really)
     add_path_var = f"linear_model_vision_bias={opt.vision_classifier_config.bias}_deterministic_enc={opt.encoder_config.deterministic}"
     arg_parser.create_log_path(opt, add_path_var=add_path_var)
 

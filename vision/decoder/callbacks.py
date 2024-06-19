@@ -5,7 +5,7 @@ import torch
 import wandb
 from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
-from config_code.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig, DecoderConfig
 from decoder.my_data_module import MyDataModule
 from options import get_options
 from utils.utils import set_seed
@@ -40,19 +40,6 @@ class CustomCallback(L.Callback):
         nb_samples = self.nb_samples
 
         x, _ = next(iter(self.test_loader))
-        # x = None
-        # Reconstruction
-        # for i, (x, _) in enumerate(self.test_loader):
-        #     if i == nb_samples:
-        #         break
-        #
-        #     if i == 0:
-        #         # take the first element of the batch
-        #         x = torch.unsqueeze(x[0], 0)
-        #     else:
-        #         # stack the rest of the elements
-        #         x = torch.cat((x, torch.unsqueeze(x[0], 0)), dim=0)
-
         x = x.to(decoder.device)
         x_reconstructed = self._reconstruction(decoder, x)
 
@@ -94,6 +81,7 @@ def test_callbacks():
 
     # Set up the options
     opt: OptionsConfig = get_options()
+    decoder_config: DecoderConfig = opt.decoder_config
     set_seed(opt.seed)
 
     # Load the model
@@ -111,8 +99,8 @@ def test_callbacks():
 
     # Set up the decoder
     decoder = Decoder(encoder=context_model,
-                      lr=opt.decoder_config.learning_rate,
-                      loss=opt.decoder_config.decoder_loss,
+                      lr=decoder_config.learning_rate,
+                      loss=decoder_config.decoder_loss,
                       z_dim=opt.encoder_config.architecture.hidden_dim).to(opt.device)
 
     # Set up the callback
@@ -121,8 +109,8 @@ def test_callbacks():
                               z_dim=opt.encoder_config.architecture.hidden_dim)
 
     # Set up the trainer
-    trainer = Trainer(limit_train_batches=opt.decoder_config.dataset.limit_train_batches,
-                      max_epochs=opt.decoder_config.num_epochs,
+    trainer = Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
+                      max_epochs=decoder_config.num_epochs,
                       logger=wandb_logger, callbacks=[callback])
 
     # Call the on_train_epoch_end method

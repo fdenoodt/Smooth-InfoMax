@@ -118,7 +118,7 @@ class VisionArchitectureConfig:
 class DecoderArchitectureConfig:
     def __init__(self, kernel_sizes: List[int], strides: List[int], paddings: List[int], output_paddings: List[int],
                  input_dim: int, hidden_dim: int, output_dim: int):
-        assert len(kernel_sizes) == len(strides) == len(paddings)
+        assert len(kernel_sizes) == len(strides) == len(paddings) == len(output_paddings)
         self.kernel_sizes = kernel_sizes
         self.strides = strides
         self.paddings = paddings

@@ -9,7 +9,7 @@ import wandb
 from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
-from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss, DecoderConfig
 from vision.data import get_dataloader
 from vision.decoder.callbacks import CustomCallback
 from vision.decoder.decoderr import Decoder
@@ -24,16 +24,16 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
-    loss_fun: DecoderLoss = opt.decoder_config.decoder_loss
+    decoder_config: DecoderConfig = opt.decoder_config
+    loss_fun: DecoderLoss = decoder_config.decoder_loss
     print(f"\nTRAINING DECODER USING LOSS: {loss_fun} \n")
 
     opt.model_type = model_type
 
-    decoder_config = opt.decoder_config
 
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.decoder_config.dataset.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET,
+    assert (decoder_config.dataset.dataset in [Dataset.SHAPES_3D, Dataset.SHAPES_3D_SUBSET,
                                                    Dataset.STL10]), "Dataset not supported"
 
     # get integer val of enum
@@ -53,7 +53,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     wandb_logger = WandbLogger() if opt.use_wandb else None
 
     context_model, _ = load_vision_model.load_model_and_optimizer(
-        opt, reload_model=True, calc_loss=False, downstream_config=opt.decoder_config
+        opt, reload_model=True, calc_loss=False, downstream_config=decoder_config
     )
     context_model.eval()
 
@@ -93,12 +93,13 @@ if __name__ == "__main__":
 
     ### Simple test to check if encoder and decoder are working together
     # opt: OptionsConfig = get_options()
+    # decoder_config: DecoderConfig = opt.decoder_config
     # context_model, _ = load_vision_model.load_model_and_optimizer(
     #     opt, reload_model=True, calc_loss=False, downstream_config=opt.decoder_config
     # )
     # model: Decoder = Decoder(encoder=context_model,
-    #                          lr=opt.decoder_config.learning_rate,
-    #                          loss=opt.decoder_config.decoder_loss).to(opt.device)
+    #                          lr=decoder_config.learning_rate,
+    #                          loss=decoder_config.decoder_loss).to(opt.device)
     #
     # rnd_ims = torch.rand((33, 3, 64, 64), device=opt.device)  # 33 images, 3 channels, 64x64
     # z = model.encode(rnd_ims)

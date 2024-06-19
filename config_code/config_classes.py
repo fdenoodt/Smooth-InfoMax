@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, List
 import os
 import torch
 import datetime
@@ -104,14 +104,16 @@ class EncoderConfig:
                f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
 
 
-class ClassifierConfig:
+class PostHocModel:  # Classifier or Decoder
+    """encoder_module and encoder_layer are currently only supported for the audio encoder."""
+
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
                  bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
+
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
-        self.bias = bias
 
         # 0-based index. (0 is first module)
         # self.encoder_module = encoder_module  # Train classifier on output of this module (default: -1, last module)
@@ -142,10 +144,18 @@ class ClassifierConfig:
             raise ValueError(f"encoder_layer must be less than 8. Got {value}")
         self._encoder_layer = value
 
+
+class ClassifierConfig(PostHocModel):
+    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
+        super().__init__(num_epochs, learning_rate, dataset, encoder_num, encoder_module, encoder_layer)
+        self.bias = bias
+
     # to string
     def __str__(self):
         return f"ClassifierConfig(num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, " \
-               f"dataset={self.dataset}, encoder_num={self.encoder_num})"
+               f"dataset={self.dataset}, encoder_num={self.encoder_num}, bias={self.bias}, " \
+               f"encoder_module={self.encoder_module}, encoder_layer={self.encoder_layer})"
 
 
 class DecoderLoss(Enum):
@@ -158,15 +168,15 @@ class DecoderLoss(Enum):
     MSE_MEL = 6
 
 
-class DecoderConfig:
+class DecoderConfig(PostHocModel):
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 architecture: Union[DecoderArchitectureConfig, VisionDecoderArchitectureConfig],
-                 decoder_loss: DecoderLoss):
-        self.num_epochs = num_epochs
-        self.learning_rate = learning_rate
-        self.dataset = dataset
-        self.encoder_num = encoder_num
-        self.architecture: DecoderArchitectureConfig = architecture
+                 architectures: Union[List[DecoderArchitectureConfig], List[VisionDecoderArchitectureConfig]],
+                 decoder_loss: DecoderLoss,
+                 encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
+        super().__init__(num_epochs, learning_rate, dataset, encoder_num, encoder_module, encoder_layer)
+
+        self.architectures: Union[
+            List[DecoderArchitectureConfig], List[VisionDecoderArchitectureConfig]] = architectures
         self.decoder_loss: DecoderLoss = decoder_loss
 
 

@@ -1,6 +1,9 @@
+import torch
 import torch.nn as nn
 
 from config_code.architecture_config import DecoderArchitectureConfig
+from config_code.config_classes import OptionsConfig
+from options import get_options
 
 
 class Decoder(nn.Module):
@@ -9,7 +12,7 @@ class Decoder(nn.Module):
         self.decoder = nn.Sequential()
         nb_layers = len(decoder_architecture.kernel_sizes)
         for i in range(nb_layers):
-            self.decoder.add_module(
+            self.decoder.add_module(  # TODO: extend SIM_SETUP DECODER ACHITECTURE
                 f"conv_transpose_{i}",
                 nn.ConvTranspose1d(
                     in_channels=decoder_architecture.input_dim if i == 0 else decoder_architecture.hidden_dim,
@@ -31,4 +34,22 @@ class Decoder(nn.Module):
 
 
 if __name__ == "__main__":
-    pass
+    # de boer:
+
+    x = torch.rand((64, 1, 10240))  # (b, c, t)
+    z0 = torch.rand((64, 512, 511))  # outputs of the encoder (module 0)
+
+    z1 = torch.rand((64, 512, 129))
+    z2 = torch.rand((64, 512, 64))
+
+    ### Simple test to check if encoder and decoder are working together
+    opt: OptionsConfig = get_options()
+    decoder = Decoder(opt.decoder_config.architectures[-1])
+
+    x_reconstructed = decoder.forward(z0)
+    print(x_reconstructed.shape)
+
+    # assert x_reconstructed.shape == x.shape
+
+    print('reconstr:', x_reconstructed.shape)
+    print('original:', x.shape)

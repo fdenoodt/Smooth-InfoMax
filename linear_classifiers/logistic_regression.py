@@ -21,7 +21,7 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
-from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_wandb_section, get_nb_classes
+from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_key, get_nb_classes
 
 
 def _get_representation(opt: OptionsConfig, method: callable,
@@ -122,7 +122,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
             accuracy = accuracies.item()
 
             if wandb_is_on:
-                wandb_section = get_audio_classific_wandb_section(opt, bias)
+                wandb_section = get_audio_classific_key(opt, bias)
                 wandb.log({
                     f"{wandb_section}/Loss classification": sample_loss,
                     f"{wandb_section}/Train accuracy": accuracy,
@@ -190,7 +190,7 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
     print("Final Testing Loss: ", loss_epoch)
 
     if wandb_is_on:
-        wandb_section = get_audio_classific_wandb_section(opt, bias)
+        wandb_section = get_audio_classific_key(opt, bias)
         wandb.log({f"{wandb_section}/FINAL Test accuracy": accuracy,
                    f"{wandb_section}/FINAL Test loss": loss_epoch})
     return loss_epoch, accuracy

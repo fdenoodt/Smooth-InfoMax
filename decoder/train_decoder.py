@@ -10,7 +10,7 @@ import wandb
 from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
-from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss, DecoderConfig
 from data import get_dataloader
 from decoder.callbacks import CustomCallback
 from decoder.decoderr import Decoder
@@ -19,23 +19,25 @@ from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from options import get_options
 from utils import logger
-from utils.utils import retrieve_existing_wandb_run_id, set_seed
+from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_decoder_key
 
+
+# def get_audio_decoder_wandb_section():
+# TODO IN LOGGING PYTODCH
 
 def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
 
     opt: OptionsConfig = get_options()
-    loss_fun: DecoderLoss = opt.decoder_config.decoder_loss
+    decoder_config: DecoderConfig = opt.decoder_config
+    loss_fun: DecoderLoss = decoder_config.decoder_loss
     print(f"\nTRAINING DECODER USING LOSS: {loss_fun} \n")
 
     opt.model_type = model_type
 
-    decoder_config = opt.decoder_config
-
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (opt.decoder_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
+    assert (decoder_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
     # get integer val of enum
     loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE
@@ -48,7 +50,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
-    arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")
+    key = get_audio_decoder_key(opt, loss_val)  # for path and wandb section
+    arg_parser.create_log_path(opt, key)
 
     wandb_logger = WandbLogger() if opt.use_wandb else None
 
@@ -61,17 +64,20 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     )
     context_model.eval()
 
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(decoder_config.dataset)
     data = MyDataModule(train_loader, test_loader, test_loader)
 
-    z_dim = opt.decoder_config.architecture.input_dim
+    module_idx = decoder_config.encoder_module
+    z_dim = decoder_config.architectures[module_idx].input_dim
     nb_frames = 64
 
-    decoder = Decoder(opt.decoder_config.architecture)
+    decoder = Decoder(decoder_config.architectures[module_idx])
 
     logs = logger.Logger(opt)
 
-    lit = LitDecoder(context_model, decoder, opt.decoder_config.learning_rate, opt.decoder_config.decoder_loss)
+    lit = LitDecoder(decoder_config,
+                     context_model, decoder,
+                     decoder_config.learning_rate, decoder_config.decoder_loss)
 
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
                               plot_ever_n_epoch=2, loss_enum=loss_fun) if opt.use_wandb else None
@@ -83,6 +89,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
 
+    # doesn't overwrite the last encoder (stores to adjusted log path)
+    # was done in `arg_parser.create_log_path()`
     logs.create_log(decoder, final_test=True, final_loss=[])
 
 
