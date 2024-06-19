@@ -115,11 +115,16 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-def rescale_between_neg1_and_1(x):
-    # values are currently between -1.5 and 1.5 so we rescale to -1 and 1
-    absolute = np.abs(x)
-    print(absolute.max())
-    return x / absolute.max()
+def rescale_between_neg1_and_1(x, axis=0):
+    """
+    Rescale the input array to be between -1 and 1.
+    e.g.: x = np.array([[1, 2, 3],
+                        [4, 5, 6]])
+    rescale_between_neg1_and_1(x, axis=0) -> array([[-1., -1., -1.],
+    [ 1.,  1.,  1.]])"""
+
+    # values are currently between ~ -1.5 and 1.5, so we rescale to -1 and 1
+    return 2 * (x - x.min(axis=axis, keepdims=True)) / np.ptp(x, axis=axis, keepdims=True) - 1
 
 
 def get_nb_classes(dataset: Dataset, args: None):
@@ -150,14 +155,15 @@ def initialize_wandb(options: OptionsConfig, project_name, run_name):
         f.write(f"\n{project_name}")
 
 
-def get_audio_classific_key(opt: OptionsConfig, bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
+def get_audio_classific_key(opt: OptionsConfig,
+                            bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer
     return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
 
 
-def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val): # used in train_decoder.py, callbacks.py
+def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py
     module_nb = decoder_config.encoder_module
     layer_nb = decoder_config.encoder_layer
     return f"Decoder_l={loss_val} modul={module_nb} layer={layer_nb}"
