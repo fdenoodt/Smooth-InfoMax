@@ -1,16 +1,11 @@
 import lightning as L
-import matplotlib.pyplot as plt
 import torch
-from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
-
-import wandb
 from wandb import Audio
 
 from config_code.config_classes import OptionsConfig
 from data import get_dataloader
 from decoder.lit_decoder import LitDecoder
-from models.full_model import FullModel
 from utils.utils import get_audio_decoder_key
 
 
