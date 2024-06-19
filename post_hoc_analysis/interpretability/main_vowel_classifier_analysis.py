@@ -22,7 +22,7 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1, get_audio_classific_key, \
-    get_nb_classes
+    get_nb_classes, get_classif_log_path
 
 
 def plot_weights(opt: OptionsConfig, weights: np.ndarray, wandb, first_dim: int = 1):
@@ -167,7 +167,8 @@ def main():
     # MUST HAPPEN AFTER wandb.init
     classifier_config = opt.syllables_classifier_config
     classif_module: int = classifier_config.encoder_module
-    classif_path = f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_bias={bias}"
+    classif_layer: int = classifier_config.encoder_layer
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
     context_model, _ = load_audio_model.load_model_and_optimizer(
@@ -200,6 +201,11 @@ def main():
     # axis=1 because we want to rescale each row (vowel) separately
     weights = rescale_between_neg1_and_1(weights, axis=1)
     weights = weights.T  # (dimensions, labels)
+
+    # there seemed to be some problems with wandb so as a backup we save the weights as a numpy file as well
+    np.save(f"{opt.log_path}/vowel_classifier_weights.npy", weights)
+    # also as csv
+    np.savetxt(f"{opt.log_path}/vowel_classifier_weights.csv", weights, delimiter=",")
 
     if opt.use_wandb:
         wandb_section = get_audio_classific_key(opt, bias)

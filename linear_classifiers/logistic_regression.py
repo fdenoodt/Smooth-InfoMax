@@ -21,7 +21,8 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
-from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_key, get_nb_classes
+from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_key, get_nb_classes, \
+    get_classif_log_path
 
 
 def _get_representation(opt: OptionsConfig, method: callable,
@@ -224,7 +225,8 @@ def main():
 
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
-    classif_path = f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_bias={bias}"
+    classif_layer: int = classifier_config.encoder_layer
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
 

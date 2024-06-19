@@ -167,3 +167,6 @@ def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in t
     module_nb = decoder_config.encoder_module
     layer_nb = decoder_config.encoder_layer
     return f"Decoder_l={loss_val} modul={module_nb} layer={layer_nb}"
+
+def get_classif_log_path(classifier_config, classif_module, classif_layer, bias):
+    return f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"
