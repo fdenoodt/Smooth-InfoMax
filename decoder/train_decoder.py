@@ -82,6 +82,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         accelerator="gpu", devices="1",
+                        log_every_n_steps=10,  # arbitrary number to avoid warning
                         logger=wandb_logger, callbacks=[callback] if callback is not None else [])
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
