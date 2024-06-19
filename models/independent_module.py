@@ -86,9 +86,13 @@ class IndependentModule(AbstractModule):
         return eps * std + mu
 
     def get_latents_of_intermediate_layers(self, x, layer_idx) -> (Tensor, Tensor):
+        raise NotImplementedError(
+            "This method is not implemented yet. It is implemented however in independent_module_cpc.py.")
+
         mu, log_var = self.encoder.forward_intermediate_layer(x, layer_idx)
         mu = mu.permute(0, 2, 1)  # (b, 55, 512)
         log_var = log_var.permute(0, 2, 1)
+
         return (mu, log_var), (mu, log_var)
 
     def forward(self, x) -> (Tensor, Tensor, Tensor, Tensor, Tensor):
