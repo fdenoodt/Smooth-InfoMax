@@ -87,8 +87,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     trainer.fit(model=lit, datamodule=data)
     trainer.test(model=lit, datamodule=data)
 
-    # doesn't overwrite the last encoder (stores to adjusted log path)
-    # was done in `arg_parser.create_log_path()`
+    # The following line doesn't overwrite the last encoder (stores to adjusted log path)
+    # which was done in `arg_parser.create_log_path()`
     logs.create_log(decoder, final_test=True, final_loss=[])
 
 
