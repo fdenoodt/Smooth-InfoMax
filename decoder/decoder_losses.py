@@ -101,22 +101,17 @@ class MEL_LOSS(nn.Module):
     def __init__(self, n_fft=4096, sr=16000):
         super().__init__()
 
-        win_length = None  # 1024
         hop_length = n_fft // 2
-        n_mels = None  # 128
 
         self.criterion = nn.MSELoss()
         self.compute_mel_spectr = T.MelSpectrogram(
             sample_rate=sr,
             n_fft=n_fft,
-            # win_length=win_length,
             hop_length=hop_length,
             center=True,
             pad_mode="reflect",
             power=2.0,
             norm="slaney",
-            onesided=True,
-            # n_mels=n_mels,
             mel_scale="htk",
         ).cuda()
 
