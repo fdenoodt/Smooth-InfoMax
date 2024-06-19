@@ -33,7 +33,7 @@ class CustomCallback(L.Callback):
             audio_samples = audio_samples.contiguous().cpu().data.numpy()
 
             ten_audio_sammples = [audio_sample for audio_sample in audio_samples[:nb_files]]
-            section = get_audio_decoder_key(self.opt, self.loss_enum)
+            section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
             self.wandb_logger.log_audio(key=f"{section}/std normal samples",
                                         audios=ten_audio_sammples,
                                         sample_rate=[16_000] * nb_files)
@@ -55,7 +55,7 @@ class CustomCallback(L.Callback):
             ten_audio_sammples = [audio_sample for audio_sample in x_reconstructed[:nb_files]]
             audio = [audio_sample.squeeze(0).cpu().numpy() for audio_sample in audio[:nb_files]]
 
-            section = get_audio_decoder_key(self.opt, self.loss_enum)
+            section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
             self.wandb_logger.log_audio(
                 key=f"{section}/encode + decode test set",
                 audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)

@@ -46,7 +46,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
-    key = get_audio_decoder_key(opt, loss_val)  # for path and wandb section
+    key = get_audio_decoder_key(decoder_config, loss_val)  # for path and wandb section
     arg_parser.create_log_path(opt, key)
 
     wandb_logger = WandbLogger() if opt.use_wandb else None

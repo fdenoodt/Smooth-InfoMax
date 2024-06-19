@@ -56,7 +56,7 @@ class LitDecoder(L.LightningModule):
 
         loss = self.loss(x_reconstructed, x)
 
-        section = get_audio_decoder_key(self.opt, self.loss_enum)
+        section = get_audio_decoder_key(self.dec_opt, self.loss_enum)
         self.log(f"{section}/train_loss", loss, batch_size=x.size(0))
         return loss
 
@@ -67,7 +67,7 @@ class LitDecoder(L.LightningModule):
 
         x_reconstructed = self.decoder(z)
         loss = self.loss(x_reconstructed, x)
-        section = get_audio_decoder_key(self.opt, self.loss_enum)
+        section = get_audio_decoder_key(self.dec_opt, self.loss_enum)
         self.log(f"{section}/val_loss", loss, batch_size=x.size(0))
         return loss
 
@@ -85,7 +85,7 @@ class LitDecoder(L.LightningModule):
         return {"test_loss": loss}
 
     def on_test_epoch_end(self):
-        section = get_audio_decoder_key(self.opt, self.loss_enum)
+        section = get_audio_decoder_key(self.dec_opt, self.loss_enum)
         avg_loss = torch.stack(self.test_losses).mean()
         self.log(f"{section}/avg_test_loss", avg_loss)
         self.test_losses = []  # reset for the next epoch
