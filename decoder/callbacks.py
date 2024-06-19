@@ -45,17 +45,14 @@ class CustomCallback(L.Callback):
 
             pl_module.train()
 
-    def on_train_end(self, trainer, pl_module):  # log encoded + decoded audio vs gt audio
+    def on_train_end(self, trainer, pl_module: LitDecoder):  # log encoded + decoded audio vs gt audio
         pl_module.eval()
         nb_files = 10
 
         _, _, test_loader, _ = get_dataloader.get_dataloader(self.opt.decoder_config.dataset)
         for i, (audio, _, label, _) in enumerate(test_loader):
             audio = audio.to(pl_module.device)  # shape: (100, 1, 2505)
-            with torch.no_grad():
-                full_model: FullModel = pl_module.encoder.module
-                z = full_model.forward_through_all_cnn_modules(audio)
-            z = z.detach()
+            z = pl_module.encode(audio)
             x_reconstructed = pl_module.decoder(z)  # shape: (100, 1, 2505)
             x_reconstructed = x_reconstructed.squeeze(1)
             x_reconstructed = x_reconstructed.contiguous().cpu().data.numpy()
