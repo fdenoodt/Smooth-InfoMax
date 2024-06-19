@@ -12,7 +12,7 @@ class Decoder(nn.Module):
         self.decoder = nn.Sequential()
         nb_layers = len(decoder_architecture.kernel_sizes)
         for i in range(nb_layers):
-            self.decoder.add_module(  # TODO: extend SIM_SETUP DECODER ACHITECTURE
+            self.decoder.add_module(
                 f"conv_transpose_{i}",
                 nn.ConvTranspose1d(
                     in_channels=decoder_architecture.input_dim if i == 0 else decoder_architecture.hidden_dim,

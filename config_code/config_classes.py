@@ -179,6 +179,25 @@ class DecoderConfig(PostHocModel):
             List[DecoderArchitectureConfig], List[VisionDecoderArchitectureConfig]] = architectures
         self.decoder_loss: DecoderLoss = decoder_loss
 
+    def retrieve_correct_decoder_architecture(self) -> DecoderArchitectureConfig:
+        # There are 3 architectures, one of each cnn module. (However, CPC works with single module,
+        # so architectures match to certain layers of the module)
+        module_idx = self.encoder_module
+        layer_idx = self.encoder_layer
+
+        if layer_idx == -1:  # final layer of specified module
+            return self.architectures[module_idx]
+        else:  # specific layer of specified module
+            # [2, 5, 7] These are the layers in CPC_extended that correspond to the final layer of each module
+            if layer_idx == 2:
+                return self.architectures[0]  # equiv to module 0 in SIM/GIM
+            elif layer_idx == 5:
+                return self.architectures[1]
+            elif layer_idx == 7:
+                return self.architectures[2]  # equiv to final cnn module in SIM/GIM
+            else:
+                raise ValueError(f"A decoder architecture for module {module_idx} and layer {layer_idx} does not exist")
+
 
 class OptionsConfig:
     def __init__(self, config_file, seed, validate, loss: Loss, encoder_config, experiment,

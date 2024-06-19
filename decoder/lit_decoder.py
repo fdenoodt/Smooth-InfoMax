@@ -24,12 +24,28 @@ class LitDecoder(L.LightningModule):
 
         self.save_hyperparameters(ignore=["decoder", "encoder", "opt"])
 
+        # used to do a sanity check later
+        self.expected_nb_frames_latent_repr = \
+            self.dec_opt.retrieve_correct_decoder_architecture().expected_nb_frames_latent_repr
+
     def encode(self, x):
+        full_model: FullModel = self.encoder.module
+
+        modul_idx = self.dec_opt.encoder_module
+        layer_idx = self.dec_opt.encoder_layer
+
         with torch.no_grad():
-            full_model: FullModel = self.encoder.module
-            modul_idx = self.dec_opt.encoder_module
-            z = full_model.forward_through_module(x, modul_idx)
-            # z = full_model.forward_through_all_cnn_modules(x)
+            if layer_idx == -1:  # final layer of specified module
+                z = full_model.forward_through_module(x, modul_idx)
+            else:  # specific layer of specified module
+                z = full_model.forward_through_layer(x, modul_idx, layer_idx)
+
+        # Sanity check
+        _, _, nb_frames = z.shape
+        assert nb_frames == self.expected_nb_frames_latent_repr, \
+            (f"Expected {self.expected_nb_frames_latent_repr} frames, got {nb_frames} frames. "
+             f"Reconsider decoder_config.encoder_module and decoder_config.encoder_layer provided in config.")
+
         return z.detach()
 
     def training_step(self, batch, batch_idx):

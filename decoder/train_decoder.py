@@ -10,6 +10,7 @@ import wandb
 from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
+from config_code.architecture_config import DecoderArchitectureConfig
 from config_code.config_classes import OptionsConfig, ModelType, Dataset, DecoderLoss, DecoderConfig
 from data import get_dataloader
 from decoder.callbacks import CustomCallback
@@ -21,9 +22,6 @@ from options import get_options
 from utils import logger
 from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_decoder_key
 
-
-# def get_audio_decoder_wandb_section():
-# TODO IN LOGGING PYTODCH
 
 def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     torch.set_float32_matmul_precision('medium')
@@ -67,18 +65,19 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(decoder_config.dataset)
     data = MyDataModule(train_loader, test_loader, test_loader)
 
-    module_idx = decoder_config.encoder_module
-    z_dim = decoder_config.architectures[module_idx].input_dim
-    nb_frames = 64
+    architecture: DecoderArchitectureConfig = DecoderConfig.retrieve_correct_decoder_architecture(decoder_config)
 
-    decoder = Decoder(decoder_config.architectures[module_idx])
+    decoder = Decoder(architecture)
 
     logs = logger.Logger(opt)
 
     lit = LitDecoder(decoder_config,
                      context_model, decoder,
-                     decoder_config.learning_rate, decoder_config.decoder_loss)
+                     decoder_config.learning_rate,
+                     decoder_config.decoder_loss)
 
+    z_dim = architecture.input_dim
+    nb_frames = architecture.expected_nb_frames_latent_repr
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
                               plot_ever_n_epoch=2, loss_enum=loss_fun) if opt.use_wandb else None
 

@@ -209,12 +209,15 @@ class SIMSetup:
         # Regardless of SIM or CPC w/ conventional_cpc or extra layers, use the same architecture for the decoder:
         kernel_sizes, strides, padding, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size = self.get_layer_params()
 
-        if modul_idx == 2:  # all layers
-            layers_till_idx = 0
+        if modul_idx == 0:
+            layers_till_idx = 3
+            expected_nb_frames_latent_repr = 511
         elif modul_idx == 1:
             layers_till_idx = 1
-        elif modul_idx == 0:
-            layers_till_idx = 3
+            expected_nb_frames_latent_repr = 129
+        elif modul_idx == 2:  # all layers (so final module)
+            layers_till_idx = 0
+            expected_nb_frames_latent_repr = 64
         else:
             raise ValueError(f"Invalid module index: {modul_idx}")
 
@@ -228,5 +231,6 @@ class SIMSetup:
             output_paddings=[1, 0, 1, 3, 4][layers_till_idx:],
             input_dim=cnn_hidden_dim,
             hidden_dim=cnn_hidden_dim,
-            output_dim=1
+            output_dim=1,
+            expected_nb_frames_latent_repr=expected_nb_frames_latent_repr  # used for Gaussian sampling
         )

@@ -117,7 +117,7 @@ class VisionArchitectureConfig:
 
 class DecoderArchitectureConfig:
     def __init__(self, kernel_sizes: List[int], strides: List[int], paddings: List[int], output_paddings: List[int],
-                 input_dim: int, hidden_dim: int, output_dim: int):
+                 input_dim: int, hidden_dim: int, output_dim: int, expected_nb_frames_latent_repr: int):
         assert len(kernel_sizes) == len(strides) == len(paddings) == len(output_paddings)
         self.kernel_sizes = kernel_sizes
         self.strides = strides
@@ -126,6 +126,8 @@ class DecoderArchitectureConfig:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+
+        self.expected_nb_frames_latent_repr: int = expected_nb_frames_latent_repr  # eg 64, used for Gaussian Sampling
 
     def __str__(self):
         return (f"DecoderArchitectureConfig(kernel_sizes={self.kernel_sizes}, strides={self.strides}, "
