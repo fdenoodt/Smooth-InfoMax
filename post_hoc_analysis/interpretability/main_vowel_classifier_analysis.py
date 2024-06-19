@@ -8,7 +8,6 @@ This script is used to analyze the weights of the vowel classifier (bias=False).
 Warning: script only for VOWEL classifier (bias=False)!! The script is only used for latent space analysis.
 """
 
-
 # Example: temp sim_audio_de_boer_distr_true --overrides syllables_classifier_config.encoder_num=9
 
 
@@ -198,42 +197,46 @@ def main():
     weights = list(linear_classifier.parameters())[0].detach().cpu().numpy()
     assert weights.shape == (n_labels, n_features)
 
-    weights = rescale_between_neg1_and_1(weights)
+    # axis=1 because we want to rescale each row (vowel) separately
+    weights = rescale_between_neg1_and_1(weights, axis=1)
+    weights = weights.T  # (dimensions, labels)
 
     if opt.use_wandb:
         wandb_section = get_audio_classific_key(opt, bias)
-        # Log weights as a table (3 rows, 256 columns)
+        # Log weights as a table (256 rows, 3 columns)
         wandb.log({f"{wandb_section}/Vowel Classifier Weights tbl":
-                       wandb.Table(data=weights, columns=[f"dim_{i}" for i in range(n_features)])})
+                       wandb.Table(data=weights, columns=[f"label_{i}" for i in range(n_labels)])})
 
-    # find most important dimensions for each vowel
-    _w = np.abs(weights)
-    # sum over all vowels
-    _w = _w.sum(axis=0)
+    # I broke this code by transposing the weights, but the code below is not used anymore
 
-    # sort
-    _w = np.argsort(_w)
-    # take first 2 dims
-    dim1, dim2 = _w[:2]
+    # # find most important dimensions for each vowel
+    # _w = np.abs(weights)
+    # # sum over all vowels
+    # _w = _w.sum(axis=0)
+    #
+    # # sort
+    # _w = np.argsort(_w)
+    # # take first 2 dims
+    # dim1, dim2 = _w[:2]
+    #
+    # if opt.use_wandb:
+    #     wandb_section = get_audio_classific_key(opt, bias)
+    #     # log the most important 32 dimensions and their weights (_w[:32])
+    #     wandb.log({f"{wandb_section}/Most important dimensions":
+    #                    wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
+    #
+    # # plot 32 dimensions at a time
+    # ims = []
+    # for i in range(0, n_features, 32):
+    #     im_path = plot_weights(opt, weights[:, i:i + 32], wandb, first_dim=i + 1)
+    #     ims.append(im_path)
+    #
+    # if opt.use_wandb:
+    #     wandb_section = get_audio_classific_key(opt, bias)
+    #     wandb.log({f"{wandb_section}/Vowel Classifier Weights imgs": [
+    #         wandb.Image(im) for im in ims]})
 
-    if opt.use_wandb:
-        wandb_section = get_audio_classific_key(opt, bias)
-        # log the most important 32 dimensions and their weights (_w[:32])
-        wandb.log({f"{wandb_section}/Most important dimensions":
-                       wandb.Table(data=weights[:, _w[:32]], columns=[f"dim_{i}" for i in _w[:32]])})
-
-    # plot 32 dimensions at a time
-    ims = []
-    for i in range(0, n_features, 32):
-        im_path = plot_weights(opt, weights[:, i:i + 32], wandb, first_dim=i + 1)
-        ims.append(im_path)
-
-    if opt.use_wandb:
-        wandb_section = get_audio_classific_key(opt, bias)
-        wandb.log({f"{wandb_section}/Vowel Classifier Weights imgs": [
-            wandb.Image(im) for im in ims]})
-
-    plot_label_space(opt, wandb, linear_classifier, n_features, dim1, dim2)
+    # plot_label_space(opt, wandb, linear_classifier, n_features, dim1, dim2)
 
     if opt.use_wandb:
         wandb.finish()
