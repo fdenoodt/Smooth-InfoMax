@@ -1,10 +1,8 @@
 # Example usage:
-# python -m decoder.train_decoder temp sim_audio_de_boer_distr_true --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
-
-import time
+# python -m decoder.train_decoder temp sim_audio_de_boer_distr_true
+# --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
 
 import lightning as L
-import numpy as np
 import torch
 import wandb
 from lightning.pytorch.loggers import WandbLogger
@@ -79,7 +77,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     z_dim = architecture.input_dim
     nb_frames = architecture.expected_nb_frames_latent_repr
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
-                              plot_ever_n_epoch=2, loss_enum=loss_fun) if opt.use_wandb else None
+                              plot_ever_n_epoch=10, loss_enum=loss_fun) if opt.use_wandb else None
 
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,

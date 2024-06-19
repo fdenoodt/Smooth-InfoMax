@@ -43,7 +43,6 @@ class MSE_Loss(nn.Module):
         return self.mse_loss(batch_inputs, batch_targets)
 
 
-# TODO: WINDOW
 class MSE_AND_SPECTRAL_LOSS(nn.Module):
     def __init__(self, n_fft=1024, lambd=1):
         super(MSE_AND_SPECTRAL_LOSS, self).__init__()

@@ -7,6 +7,7 @@ from config_code.config_classes import DecoderLoss, DecoderConfig
 from decoder.decoder_losses import MSE_Loss, SpectralLoss, MSE_AND_SPECTRAL_LOSS, FFTLoss, MSE_AND_FFT_LOSS, MEL_LOSS, \
     MSE_AND_MEL_LOSS, MEL_LOSS
 from models.full_model import FullModel
+from utils.utils import get_audio_decoder_key
 
 
 class LitDecoder(L.LightningModule):
@@ -55,7 +56,8 @@ class LitDecoder(L.LightningModule):
 
         loss = self.loss(x_reconstructed, x)
 
-        self.log(f"Decoder {self.loss_enum}/train_loss", loss, batch_size=x.size(0))
+        section = get_audio_decoder_key(self.opt, self.loss_enum)
+        self.log(f"{section}/train_loss", loss, batch_size=x.size(0))
         return loss
 
     # validation step
@@ -65,7 +67,8 @@ class LitDecoder(L.LightningModule):
 
         x_reconstructed = self.decoder(z)
         loss = self.loss(x_reconstructed, x)
-        self.log(f"Decoder {self.loss_enum}/val_loss", loss)
+        section = get_audio_decoder_key(self.opt, self.loss_enum)
+        self.log(f"{section}/val_loss", loss, batch_size=x.size(0))
         return loss
 
     def configure_optimizers(self):
@@ -82,8 +85,9 @@ class LitDecoder(L.LightningModule):
         return {"test_loss": loss}
 
     def on_test_epoch_end(self):
+        section = get_audio_decoder_key(self.opt, self.loss_enum)
         avg_loss = torch.stack(self.test_losses).mean()
-        self.log(f"Decoder {self.loss_enum}/avg_test_loss", avg_loss)
+        self.log(f"{section}/avg_test_loss", avg_loss)
         self.test_losses = []  # reset for the next epoch
 
     @staticmethod
