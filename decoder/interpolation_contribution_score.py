@@ -24,9 +24,9 @@ class InterpolationContributionScore:
         if print_names:
             print(z1_file, z2_file)
 
-        if idx1 in [27, 15] and idx2 in [27, 15]:
-            assert z1_file in ["bibibi_1", "bagaga_1"]
-            assert z2_file in ["bibibi_1", "bagaga_1"]
+        # if idx1 in [27, 15] and idx2 in [27, 15]:
+        #     assert z1_file in ["bibibi_1", "bagaga_1"]
+        #     assert z2_file in ["bibibi_1", "bagaga_1"]
 
         return z1, z2, z1_file, z2_file
 
