@@ -43,7 +43,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     set_seed(opt.seed)
 
     if opt.use_wandb:
-        # run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        # run_id, project_name = retrieve_existing_wandb_run_id(opt) # TODO: UNDO
         # wandb.init(id=run_id, resume="allow", project=project_name)
 
         wandb.init(project="temp")

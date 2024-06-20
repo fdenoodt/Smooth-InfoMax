@@ -1,11 +1,8 @@
-from typing import Tuple, Dict
-
+from typing import Dict
 import numpy as np
 import torch
-import IPython.display as ipd
-
+from data import get_dataloader
 from config_code.config_classes import OptionsConfig
-from decoder.eval_decoder import _get_models, _reconstruct_audio, _get_data, _get_all_data
 from decoder.lit_decoder import LitDecoder
 
 
@@ -82,11 +79,37 @@ class InterpolationContributionScore:
 
         return dist
 
+    def _get_all_data(self, opt: OptionsConfig, lit_decoder: LitDecoder):
+        print("Loading data... SHUFFLE IS OFF!")
+        _, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset, shuffle=False)
+
+        all_x_reconstructed = []
+        all_x = []
+        all_z = []
+        all_filename = []
+
+        with torch.no_grad():
+            for batch in test_loader:
+                (x, filename, label, _) = batch
+                x = x.to(opt.device)
+                z = lit_decoder.encode(x)
+                x_reconstructed = lit_decoder.decoder(z)
+
+                all_x_reconstructed.append(x_reconstructed)
+                all_x.append(x)
+                all_z.append(z)
+                all_filename.append(filename)
+
+        return (torch.cat(all_x_reconstructed),
+                torch.cat(all_x),
+                torch.cat(all_z),
+                np.concatenate(all_filename))
+
     def compute_score(self) -> Dict[int, float]:
         self.lit_decoder = self.lit_decoder.to(self.opt.device)
         self.lit_decoder.eval()
 
-        _, _, z, filenames = _get_all_data(self.opt, self.lit_decoder)
+        _, _, z, filenames = self._get_all_data(self.opt, self.lit_decoder)
         nb_files = len(filenames)
 
         # calc max error

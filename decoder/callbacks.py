@@ -10,7 +10,6 @@ from data import get_dataloader
 from decoder.interpolation_contribution_score import InterpolationContributionScore
 from decoder.lit_decoder import LitDecoder
 from utils.utils import get_audio_decoder_key
-import wandb
 
 
 class CustomCallback(L.Callback):
@@ -78,6 +77,7 @@ class CustomCallback(L.Callback):
         self.wandb_logger.log_table(key=f"{section}/",
                                     data=list(scores.items()),
                                     columns=["idx", "score"])
+
 
 if __name__ == "__main__":
     import numpy as np

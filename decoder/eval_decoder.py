@@ -1,3 +1,8 @@
+"""
+Legacy code to evaluate the decoder. This code is not used anymore, but kept for reference.
+Relevant parts were moved to `interpolation_contributions_score.py` and `callbacks.py`.
+"""
+
 # eg: for 512 dimensions
 # SIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=trueKLD=0.005 sim_audio_de_boer_distr_true
 # GIM: full_pipeline_bart/audio_FULL_PIPELINE_sim_de_boer_SIM=falseKLD=0 sim_audio_de_boer_distr_false
@@ -35,31 +40,6 @@ def _get_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: Decod
     return x_reconstructed, x, z, filename
 
 
-def _get_all_data(opt: OptionsConfig, lit_decoder: LitDecoder):
-    print("Loading data... SHUFFLE IS OFF!")
-    _, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset, shuffle=False)
-
-    all_x_reconstructed = []
-    all_x = []
-    all_z = []
-    all_filename = []
-
-    with torch.no_grad():
-        for batch in test_loader:
-            (x, filename, label, _) = batch
-            x = x.to(opt.device)
-            z = lit_decoder.encode(x)
-            x_reconstructed = lit_decoder.decoder(z)
-
-            all_x_reconstructed.append(x_reconstructed)
-            all_x.append(x)
-            all_z.append(z)
-            all_filename.append(filename)
-
-    return (torch.cat(all_x_reconstructed),
-            torch.cat(all_x),
-            torch.cat(all_z),
-            np.concatenate(all_filename))
 
 
 def _reconstruct_audio(z: torch.Tensor, decoder: Decoder):
