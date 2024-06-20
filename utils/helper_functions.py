@@ -41,6 +41,10 @@ class EpochPrinter():
                 f"Epoch[{epoch + 1}/{max_epochs}], Step[{step}/{self.total_step}], Time(s): {time.time() - self.starttime: .1f} L: {self.decoder_depth} lr: {self.learning_rate}, {self.criterion.name}")
 
 
+def create_dir(path):
+    create_log_dir(path)
+
+
 def create_log_dir(path):  # created via chat gpt
     if not os.path.exists(path):
         os.makedirs(path)
