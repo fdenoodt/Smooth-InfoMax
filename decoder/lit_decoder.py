@@ -6,12 +6,13 @@ from torch import optim
 from config_code.config_classes import DecoderLoss, DecoderConfig
 from decoder.decoder_losses import MSE_Loss, SpectralLoss, MSE_AND_SPECTRAL_LOSS, FFTLoss, MSE_AND_FFT_LOSS, MEL_LOSS, \
     MSE_AND_MEL_LOSS, MEL_LOSS
+from decoder.decoderr import Decoder
 from models.full_model import FullModel
 from utils.utils import get_audio_decoder_key
 
 
 class LitDecoder(L.LightningModule):
-    def __init__(self, opt: DecoderConfig, encoder, decoder: nn.Module, lr: float, loss: DecoderLoss):
+    def __init__(self, opt: DecoderConfig, encoder, decoder: Decoder, lr: float, loss: DecoderLoss):
         super().__init__()
         encoder.eval()
         self.dec_opt: DecoderConfig = opt

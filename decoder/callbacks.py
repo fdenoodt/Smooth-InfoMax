@@ -1,3 +1,5 @@
+from typing import Dict
+
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
@@ -5,8 +7,10 @@ from wandb import Audio
 
 from config_code.config_classes import OptionsConfig
 from data import get_dataloader
+from decoder.interpolation_contribution_score import InterpolationContributionScore
 from decoder.lit_decoder import LitDecoder
 from utils.utils import get_audio_decoder_key
+import wandb
 
 
 class CustomCallback(L.Callback):
@@ -64,6 +68,16 @@ class CustomCallback(L.Callback):
                 key=f"{section}/gt test set", audios=audio, sample_rate=[16_000] * nb_files)
             break
 
+    def on_test_end(self, trainer, pl_module: LitDecoder) -> None:
+        # used for interpolation experiments
+
+        decoder_utils = InterpolationContributionScore(self.opt, self.z_dim, pl_module)
+        scores: Dict[int, float] = decoder_utils.compute_score()
+        # log as table to wandb
+        section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
+        self.wandb_logger.log_table(key=f"{section}/",
+                                    data=list(scores.items()),
+                                    columns=["idx", "score"])
 
 if __name__ == "__main__":
     import numpy as np

@@ -1,6 +1,7 @@
 # Example usage:
 # python -m decoder.train_decoder temp sim_audio_de_boer_distr_true
 # --overrides decoder_config.decoder_loss=0 decoder_config.encoder_num=9
+from typing import Dict
 
 import lightning as L
 import torch
@@ -42,8 +43,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     set_seed(opt.seed)
 
     if opt.use_wandb:
-        run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        # run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        # wandb.init(id=run_id, resume="allow", project=project_name)
+
+        wandb.init(project="temp")
 
     # MUST HAPPEN AFTER wandb.init
     key = get_audio_decoder_key(decoder_config, loss_val)  # for path and wandb section
@@ -84,12 +87,18 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
                         accelerator="gpu", devices="1",
                         log_every_n_steps=10,  # arbitrary number to avoid warning
                         logger=wandb_logger, callbacks=[callback] if callback is not None else [])
-    trainer.fit(model=lit, datamodule=data)
+
+    if opt.train:
+        trainer.fit(model=lit, datamodule=data)
+
     trainer.test(model=lit, datamodule=data)
 
     # The following line doesn't overwrite the last encoder (stores to adjusted log path)
     # which was done in `arg_parser.create_log_path()`
     logs.create_log(decoder, final_test=True, final_loss=[])
+
+    if opt.use_wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ def load_weights_from_csv(filename):
     return weights
 
 
-def histogram_from_weights(metas: List[Meta]):
+def histogram_from_weights(title, metas: List[Meta]):
     dir = 'graphs'
     create_dir(dir)
     for meta in metas:
@@ -39,8 +39,8 @@ def histogram_from_weights(metas: List[Meta]):
 
         sns.kdeplot(data, bw_adjust=.5, label=name)
 
-        title = "KDE plot of 512 dimensions"
-        plt.title(title)
+    title = f"{title} plot of 512 dimensions"
+    plt.title(title)
 
     plt.legend(loc='upper right')
 
@@ -48,8 +48,8 @@ def histogram_from_weights(metas: List[Meta]):
     plt.xlabel("Weight (normalized between -1 and 1)")
     plt.ylabel("Density")
 
-    tikzplotlib.save(f"{dir}/kde_plot_512_dims.tex")
-    plt.savefig(f"{dir}/kde_plot_512_dims.pdf")
+    tikzplotlib.save(f"{dir}/{title}_kde_plot_512_dims.tex")
+    plt.savefig(f"{dir}/{title}_kde_plot_512_dims.pdf")
     plt.show()
 
 
@@ -66,21 +66,29 @@ if __name__ == '__main__':
     # histograms_512_dims_continuous()
 
     #  module 0
-    # s = flatten(load_weights_from_csv("modul0/wandb_export sim modul=0 layer=-1.csv"))
-    # g = flatten(load_weights_from_csv("modul0/wandb_export gim modul=0 layer=-1.csv"))
-    # c = flatten(load_weights_from_csv("modul0/wandb_export cpc modul=0 layer=2 v1.csv"))
+    s = flatten(load_weights_from_csv("modul0/wandb_export sim modul=0 layer=-1.csv"))
+    g = flatten(load_weights_from_csv("modul0/wandb_export gim modul=0 layer=-1.csv"))
+    c = flatten(load_weights_from_csv("modul0/wandb_export cpc modul=0 layer=2 v2.csv"))
+    histogram_from_weights("Module 0", [Meta("GIM", g),
+                                        Meta("SIM", s),
+                                        Meta("CPC", c)
+                                        ])
 
     # module 1
-    # s = flatten(load_weights_from_csv("modul1/wandb_export sim modul=1 layer=-1.csv"))
-    # g = flatten(load_weights_from_csv("modul1/wandb_export gim modul=1 layer=-1.csv"))
-    # c = flatten(load_weights_from_csv("modul1/wandb_export cpc modul=0 layer=5 v1.csv"))
+    s = flatten(load_weights_from_csv("modul1/wandb_export sim modul=1 layer=-1.csv"))
+    g = flatten(load_weights_from_csv("modul1/wandb_export gim modul=1 layer=-1.csv"))
+    c = flatten(load_weights_from_csv("modul1/wandb_export cpc modul=0 layer=5 v2.csv"))
+    histogram_from_weights("Module 1", [Meta("GIM", g),
+                                        Meta("SIM", s),
+                                        Meta("CPC", c)
+                                        ])
 
     # module 2
     s = flatten(load_weights_from_csv("modul2/wandb_export sim modul=2 layer=-1.csv"))
     g = flatten(load_weights_from_csv("modul2/wandb_export gim modul=2 layer=-1.csv"))
-    c = flatten(load_weights_from_csv("modul2/wandb_export cpc modul=0 layer=7 v1.csv"))
-
-    histogram_from_weights([Meta("GIM", g),
+    c = flatten(load_weights_from_csv("modul2/wandb_export cpc modul=0 layer=7 v2.csv"))
+    histogram_from_weights("module 2",
+                           [Meta("GIM", g),
                             Meta("SIM", s),
                             Meta("CPC", c)
                             ])

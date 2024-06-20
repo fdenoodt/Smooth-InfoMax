@@ -35,7 +35,7 @@ def _get_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: Decod
     return x_reconstructed, x, z, filename
 
 
-def _get_all_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: Decoder):
+def _get_all_data(opt: OptionsConfig, lit_decoder: LitDecoder):
     print("Loading data... SHUFFLE IS OFF!")
     _, _, test_loader, _ = get_dataloader.get_dataloader(opt.decoder_config.dataset, shuffle=False)
 
@@ -48,17 +48,18 @@ def _get_all_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: D
         for batch in test_loader:
             (x, filename, label, _) = batch
             x = x.to(opt.device)
-            full_model = context_model.module
-            z = full_model.forward_through_all_cnn_modules(x)
-            z = z.detach()
-            x_reconstructed = decoder(z)
+            z = lit_decoder.encode(x)
+            x_reconstructed = lit_decoder.decoder(z)
 
             all_x_reconstructed.append(x_reconstructed)
             all_x.append(x)
             all_z.append(z)
             all_filename.append(filename)
 
-    return torch.cat(all_x_reconstructed), torch.cat(all_x), torch.cat(all_z), np.concatenate(all_filename)
+    return (torch.cat(all_x_reconstructed),
+            torch.cat(all_x),
+            torch.cat(all_z),
+            np.concatenate(all_filename))
 
 
 def _reconstruct_audio(z: torch.Tensor, decoder: Decoder):
