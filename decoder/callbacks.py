@@ -68,7 +68,8 @@ class CustomCallback(L.Callback):
             break
 
     def on_test_end(self, trainer, pl_module: LitDecoder) -> None:
-        # used for interpolation experiments
+        """Do interpolation experiments."""
+        pl_module.eval()
 
         decoder_utils = InterpolationContributionScore(self.opt, self.z_dim, pl_module)
         scores: Dict[int, float] = decoder_utils.compute_score()

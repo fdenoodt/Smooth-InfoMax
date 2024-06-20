@@ -119,11 +119,6 @@ class InterpolationContributionScore:
                     dist = self._dist_after_interpol_important_dims(z1, z2, 512, max_err=True)
                     max_error += dist
 
-            #     if j == 10:  # TODO: remove this
-            #         break
-            # if i == 10:
-            #     break
-
         max_error /= (nb_files * (nb_files - 1))
         print(f"Max error: {max_error}")
 
@@ -137,11 +132,6 @@ class InterpolationContributionScore:
                         z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                         dist = self._dist_after_interpol_important_dims(z1, z2, nb_most_important_dims)
                         avg_error += dist
-
-                    if j == 10:  # TODO: remove this
-                        break
-                if i == 10:
-                    break
 
             avg_error /= (nb_files * (nb_files - 1))
             # print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")

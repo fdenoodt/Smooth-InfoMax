@@ -40,8 +40,6 @@ def _get_data(opt: OptionsConfig, context_model: torch.nn.Module, decoder: Decod
     return x_reconstructed, x, z, filename
 
 
-
-
 def _reconstruct_audio(z: torch.Tensor, decoder: Decoder):
     x_reconstructed = decoder(z)
     return x_reconstructed
@@ -58,6 +56,7 @@ def _get_models(opt: OptionsConfig):
     context_model.eval()
     context_model = context_model.to(opt.device)
 
+    assert False, "load_decoder was updated, this code is outdated. See commit 20/06/2024. msg: 'train_decoder.py load in audio model if no training done'"
     decoder: Decoder = load_audio_model.load_decoder(opt)
     decoder.eval()
     decoder = decoder.to(opt.device)

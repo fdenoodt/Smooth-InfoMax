@@ -3,9 +3,11 @@ import torch
 from typing import Optional, Union
 from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig, DecoderConfig
 from decoder.decoderr import Decoder
+from decoder.lit_decoder import LitDecoder
 from models import full_model
 from models.full_model import FullModel
 from utils import model_utils
+import os
 
 
 def load_model_and_optimizer(
@@ -40,14 +42,12 @@ def load_model_and_optimizer(
     return model, optimizer
 
 
-def load_decoder(opt: OptionsConfig) -> Decoder:
-    module_idx = opt.decoder_config.encoder_module
-    decoder: Decoder = Decoder(opt.decoder_config.architectures[module_idx])
-
+def load_decoder(opt: OptionsConfig, decoder: Decoder) -> Decoder:
     print(f"Loading decoder trained w/ loss: {opt.decoder_config.decoder_loss}")
-    # Load the trained model
-    loss_int = opt.decoder_config.decoder_loss.value
-    model_path = f"{opt.log_path}/decoder_model_l={loss_int}/model_0.ckpt"
-    decoder.load_state_dict(torch.load(model_path))
+    model_path = os.path.join(f"{opt.log_path}/model_0.ckpt")
+    # Load the state dictionary
+    state_dict = torch.load(model_path)
 
+    # Load the state dictionary into the model
+    decoder.load_state_dict(state_dict)
     return decoder

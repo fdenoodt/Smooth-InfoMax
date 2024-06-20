@@ -17,6 +17,7 @@ from decoder.decoderr import Decoder
 from decoder.lit_decoder import LitDecoder
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
+from models.load_audio_model import load_decoder
 from options import get_options
 from utils import logger
 from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_decoder_key
@@ -91,11 +92,15 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     if opt.train:
         trainer.fit(model=lit, datamodule=data)
 
-    trainer.test(model=lit, datamodule=data)
+        # The following line doesn't overwrite the last encoder (stores to adjusted log path)
+        # which was done in `arg_parser.create_log_path()`
+        logs.create_log(decoder, final_test=True, final_loss=[])
 
-    # The following line doesn't overwrite the last encoder (stores to adjusted log path)
-    # which was done in `arg_parser.create_log_path()`
-    logs.create_log(decoder, final_test=True, final_loss=[])
+    # regardless of training, test the model by loading the final checkpoint
+    decoder = load_decoder(opt, decoder)
+    lit.decoder = decoder  # update lit as well!!!
+
+    trainer.test(model=lit, datamodule=data)
 
     if opt.use_wandb:
         wandb.finish()

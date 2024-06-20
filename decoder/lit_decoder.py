@@ -1,6 +1,5 @@
 import lightning as L
 import torch
-import torch.nn as nn
 from torch import optim
 
 from config_code.config_classes import DecoderLoss, DecoderConfig
