@@ -103,7 +103,7 @@ class InterpolationContributionScore:
                 torch.cat(all_z),
                 np.concatenate(all_filename))
 
-    def compute_score(self) -> Dict[int, float]:
+    def compute_score(self) -> (Dict[int, float], Dict[int, float]):
         self.lit_decoder = self.lit_decoder.to(self.opt.device)
         self.lit_decoder.eval()
 
@@ -122,7 +122,8 @@ class InterpolationContributionScore:
         max_error /= (nb_files * (nb_files - 1))
         print(f"Max error: {max_error}")
 
-        results: Dict[int, float] = {}
+        results_relative: Dict[int, float] = {}
+        results_absolute: Dict[int, float] = {}
         for nb_most_important_dims in [2, 4, 8, 16, 32, 64, 128, 256, 512]:
             avg_error = torch.tensor(0.0, device=self.opt.device)
             print(f"nb_most_important_dims: {nb_most_important_dims}")
@@ -137,6 +138,8 @@ class InterpolationContributionScore:
             # print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")
             # print(f"Scaled average error for dim {nb_most_important_dims}: {avg_error / max_error}")
             normalized_avg_error = avg_error / max_error
-            results[nb_most_important_dims] = normalized_avg_error.item()
 
-        return results
+            results_absolute[nb_most_important_dims] = avg_error.item()
+            results_relative[nb_most_important_dims] = normalized_avg_error.item()
+
+        return results_absolute, results_relative

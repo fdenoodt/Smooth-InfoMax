@@ -72,11 +72,14 @@ class CustomCallback(L.Callback):
         pl_module.eval()
 
         decoder_utils = InterpolationContributionScore(self.opt, self.z_dim, pl_module)
-        scores: Dict[int, float] = decoder_utils.compute_score()
+        scores_absolute, scores_relative = decoder_utils.compute_score()
         # log as table to wandb
         section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
-        self.wandb_logger.log_table(key=f"{section}/",
-                                    data=list(scores.items()),
+        self.wandb_logger.log_table(key=f"{section}/Absolute errors",
+                                    data=list(scores_absolute.items()),
+                                    columns=["idx", "score"])
+        self.wandb_logger.log_table(key=f"{section}/Relative errors",
+                                    data=list(scores_relative.items()),
                                     columns=["idx", "score"])
 
 
