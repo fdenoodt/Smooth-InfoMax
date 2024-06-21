@@ -207,7 +207,7 @@ class SIMSetup:
 
     def construct_architecture_for_module(self, modul_idx: int) -> DecoderArchitectureConfig:
         # Regardless of SIM or CPC w/ conventional_cpc or extra layers, use the same architecture for the decoder:
-        kernel_sizes, strides, padding, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size = self.get_layer_params()
+        kernel_sizes, strides, paddings, cnn_hidden_dim, regressor_hidden_dim, prediction_step_k, max_pool_stride, max_pool_k_size = self.get_layer_params()
 
         if modul_idx == 0:
             layers_till_idx = 3
@@ -221,14 +221,26 @@ class SIMSetup:
         else:
             raise ValueError(f"Invalid module index: {modul_idx}")
 
+        kernel_sizes = (kernel_sizes[::-1])[layers_till_idx:]
+        strides = (strides[::-1])[layers_till_idx:]
+        paddings = (paddings[::-1])[layers_till_idx:]
+        output_paddings = [1, 0, 1, 3, 4][layers_till_idx:]
+
+        if modul_idx == 0:  # make the architecture a bit more complex by adding some layers
+            assert len(kernel_sizes) == 2, "Only two layers are expected for the first module"
+            kernel_sizes = [kernel_sizes[0], 3, 3, kernel_sizes[1], 3, 3]
+            strides = [strides[0], 1, 1, strides[1], 1, 1]
+            paddings = [paddings[0], 1, 1, paddings[1], 1, 1]  # such that same output size
+            output_paddings = [output_paddings[0], 0, 0, output_paddings[1], 0, 0]
+
         return DecoderArchitectureConfig(
             # eg: kernel_sizes = [10, 8, 4, 4, 4]
             # strides = [5, 4, 2, 2, 2]
             # padding = [2, 2, 2, 2, 1]
-            kernel_sizes=(kernel_sizes[::-1])[layers_till_idx:],  # eg modul 0: [10, 8]
-            strides=strides[::-1][layers_till_idx:],
-            paddings=padding[::-1][layers_till_idx:],
-            output_paddings=[1, 0, 1, 3, 4][layers_till_idx:],
+            kernel_sizes=kernel_sizes,  # eg modul 0: [10, 8]
+            strides=strides,
+            paddings=paddings,
+            output_paddings=output_paddings,
             input_dim=cnn_hidden_dim,
             hidden_dim=cnn_hidden_dim,
             output_dim=1,
