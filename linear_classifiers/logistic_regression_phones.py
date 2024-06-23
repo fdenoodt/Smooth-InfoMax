@@ -86,6 +86,14 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
             sample_loss = loss.item()
             loss_epoch += sample_loss
 
+            if opt.use_wandb:
+                wandb_section = get_audio_libri_classific_key("phones")
+                wandb.log({f"{wandb_section}/Train Loss": sample_loss,
+                           f"{wandb_section}/Train Accuracy": accuracy},
+                          step=global_step)
+
+            global_step += 1
+
             if i % 10 == 0:
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
@@ -101,13 +109,6 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
 
         logs.append_train_loss([loss_epoch / total_step])
         logs.create_log(model, epoch=epoch, accuracy=accuracy)
-
-        if opt.use_wandb:
-            wandb_section = get_audio_libri_classific_key("phones")
-            wandb.log({f"{wandb_section}/Train Loss": loss_epoch / total_step,
-                       f"{wandb_section}/Train Accuracy": accuracy},
-                      step=global_step)
-        global_step += 1
 
 
 def test(opt, phone_dict, context_model, model, test_dataset, n_features):
@@ -161,7 +162,7 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
             #         )
             #     )
 
-    accuracy = (correct / total) #* 100, -->  0.8 = 80%
+    accuracy = (correct / total)  # * 100, -->  0.8 = 80%
     print("Final Testing Accuracy: ", accuracy)
 
     if opt.use_wandb:
@@ -241,6 +242,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     print("Done")
     if opt.use_wandb:
         wandb.finish()
+
 
 if __name__ == "__main__":
     main()

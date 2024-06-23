@@ -26,7 +26,6 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
         loss_epoch = 0
         acc_epoch = 0
         for i, (audio, filename, _, audio_idx) in enumerate(train_loader):
-
             starttime = time.time()
 
             loss.zero_grad()
@@ -67,14 +66,15 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
             loss_epoch += sample_loss
             acc_epoch += accuracy
 
-        logs.append_train_loss([loss_epoch / total_step])
+            if opt.use_wandb:
+                wandb_section = get_audio_libri_classific_key("speakers")
+                wandb.log({f"{wandb_section}/Train Loss": sample_loss,
+                           f"{wandb_section}/Train Accuracy": accuracy},
+                          step=global_step)
 
-        if opt.use_wandb:
-            wandb_section = get_audio_libri_classific_key("speakers")
-            wandb.log({f"{wandb_section}/Train Loss": loss_epoch / total_step,
-                       f"{wandb_section}/Train Accuracy": acc_epoch / total_step},
-                      step=global_step)
-        global_step += 1
+            global_step += 1
+
+        logs.append_train_loss([loss_epoch / total_step])
 
 
 def test(opt, context_model, loss, data_loader):
