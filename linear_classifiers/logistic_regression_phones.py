@@ -161,7 +161,7 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
             #         )
             #     )
 
-    accuracy = (correct / total) * 100
+    accuracy = (correct / total) #* 100, -->  0.8 = 80%
     print("Final Testing Accuracy: ", accuracy)
 
     if opt.use_wandb:

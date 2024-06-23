@@ -157,6 +157,7 @@ def initialize_wandb(options: OptionsConfig, project_name, run_name):
 
 def get_audio_classific_key(opt: OptionsConfig,
                             bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
+    """ONLY FOR DE_BOER DATASET. FOR LIBRI, USE get_audio_libri_classific_key() INSTEAD."""
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer

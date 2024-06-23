@@ -11,7 +11,8 @@ from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model, loss_supervised_speaker
-from utils.utils import set_seed
+from utils.utils import set_seed, retrieve_existing_wandb_run_id, get_audio_libri_classific_key
+import wandb
 
 
 def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer):
@@ -19,6 +20,7 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
     print_idx = 100
 
     num_epochs = opt.speakers_classifier_config.num_epochs
+    global_step = 0
 
     for epoch in range(num_epochs):
         loss_epoch = 0
@@ -67,6 +69,13 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
 
         logs.append_train_loss([loss_epoch / total_step])
 
+        if opt.use_wandb:
+            wandb_section = get_audio_libri_classific_key("speakers")
+            wandb.log({f"{wandb_section}/Train Loss": loss_epoch / total_step,
+                       f"{wandb_section}/Train Accuracy": acc_epoch / total_step},
+                      step=global_step)
+        global_step += 1
+
 
 def test(opt, context_model, loss, data_loader):
     loss.eval()
@@ -104,6 +113,11 @@ def test(opt, context_model, loss, data_loader):
     loss_epoch = loss_epoch / len(data_loader)
     print("Final Testing Accuracy: ", accuracy)
     print("Final Testing Loss: ", loss_epoch)
+
+    if opt.use_wandb:
+        wandb_section = get_audio_libri_classific_key("speakers")
+        wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
+
     return loss_epoch, accuracy
 
 
@@ -112,6 +126,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt.model_type = model_type
 
     classifier_config = opt.speakers_classifier_config
+
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        wandb.init(id=run_id, resume="allow", project=project_name)
 
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
@@ -151,7 +169,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     try:
         # Train the model
-        train(opt, context_model, loss, logs, train_loader, optimizer)
+        if opt.train:
+            train(opt, context_model, loss, logs, train_loader, optimizer)
 
         # Test the model
         result_loss, accuracy = test(opt, context_model, loss, test_loader)
@@ -160,6 +179,11 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         print("Training interrupted, saving log files")
 
     logs.create_log(loss, accuracy=accuracy, final_test=True, final_loss=result_loss)
+
+    if opt.use_wandb:
+        wandb.finish()
+
+    print("DONE")
 
 
 if __name__ == "__main__":
