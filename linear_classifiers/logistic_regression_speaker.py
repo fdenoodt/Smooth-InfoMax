@@ -69,8 +69,7 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
             if opt.use_wandb:
                 wandb_section = get_audio_libri_classific_key("speakers")
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
-                           f"{wandb_section}/Train Accuracy": accuracy},
-                          step=global_step)
+                           f"{wandb_section}/Train Accuracy": accuracy})
 
             global_step += 1
 
