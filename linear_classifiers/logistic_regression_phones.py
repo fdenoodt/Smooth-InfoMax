@@ -10,7 +10,8 @@ from data import get_dataloader, phone_dict
 from utils import logger, utils
 from arg_parser import arg_parser
 from models import load_audio_model
-from utils.utils import set_seed
+from utils.utils import set_seed, retrieve_existing_wandb_run_id, get_audio_libri_classific_key
+import wandb
 
 
 def weights_init(m):
@@ -25,6 +26,7 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
     total_step = len(train_dataset.file_list)
 
     num_epochs = opt.phones_classifier_config.num_epochs
+    global_step = 0
     for epoch in range(num_epochs):
         loss_epoch = 0
 
@@ -100,8 +102,16 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
         logs.append_train_loss([loss_epoch / total_step])
         logs.create_log(model, epoch=epoch, accuracy=accuracy)
 
+        if opt.use_wandb:
+            wandb_section = get_audio_libri_classific_key("phones")
+            wandb.log({f"{wandb_section}/Train Loss": loss_epoch / total_step,
+                       f"{wandb_section}/Train Accuracy": accuracy},
+                      step=global_step)
+        global_step += 1
+
 
 def test(opt, phone_dict, context_model, model, test_dataset, n_features):
+    print("Testing the model")
     model.eval()
 
     total = 0
@@ -144,15 +154,20 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
             total += targets.size(0)
             correct += (predicted == targets).sum().item()
 
-            if idx % 1000 == 0:
-                print(
-                    "Step [{}/{}], Accuracy: {:.4f}".format(
-                        idx, len(test_dataset.file_list), correct / total
-                    )
-                )
+            # if idx % 10_000 == 0:
+            #     print(
+            #         "Step [{}/{}], Accuracy: {:.4f}".format(
+            #             idx, len(test_dataset.file_list), correct / total
+            #         )
+            #     )
 
     accuracy = (correct / total) * 100
     print("Final Testing Accuracy: ", accuracy)
+
+    if opt.use_wandb:
+        wandb_section = get_audio_libri_classific_key("phones")
+        wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
+
     return accuracy
 
 
@@ -161,6 +176,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt.model_type = model_type
 
     classifier_config = opt.phones_classifier_config
+
+    if opt.use_wandb:
+        run_id, project_name = retrieve_existing_wandb_run_id(opt)
+        wandb.init(id=run_id, resume="allow", project=project_name)
 
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
@@ -202,7 +221,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     try:
         # Train the model
-        train(opt, phone_dictionary, context_model, model, logs, train_dataset, criterion, optimizer, n_features)
+        if opt.train:
+            train(opt, phone_dictionary, context_model, model, logs, train_dataset, criterion, optimizer, n_features)
 
         # Test the model
         accuracy = test(opt, phone_dictionary, context_model, model, test_dataset, n_features)
