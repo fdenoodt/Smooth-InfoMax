@@ -238,6 +238,9 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
             context_model.state_dict(), os.path.join(opt.log_path, "context_model.ckpt")
         )
 
+    print("Done")
+    if opt.use_wandb:
+        wandb.finish()
 
 if __name__ == "__main__":
     main()
