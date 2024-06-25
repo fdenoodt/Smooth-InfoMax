@@ -46,7 +46,9 @@ class CNNEncoder(nn.Module):
     def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool):
         new_block = CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding)
         if relu:  # always True, except for special case in CPC for density experiments such that equal number of layers for easier comparison with SIM/GIM
-            new_block = nn.Sequential(new_block, nn.ReLU())
+            # new_block = nn.Sequential(new_block, nn.ReLU())
+            # also batchnorm
+            new_block = nn.Sequential(new_block, nn.BatchNorm1d(out_dim), nn.ReLU())
         return new_block
 
     @staticmethod
