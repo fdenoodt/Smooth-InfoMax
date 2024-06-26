@@ -62,8 +62,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     )
     context_model.eval()
 
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(decoder_config.dataset)
-    data = MyDataModule(train_loader, test_loader, test_loader)
+    data = MyDataModule(decoder_config.dataset)
 
     architecture: DecoderArchitectureConfig = DecoderConfig.retrieve_correct_decoder_architecture(decoder_config)
 

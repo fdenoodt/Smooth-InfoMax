@@ -5,18 +5,62 @@
 import gc
 import time
 
+import lightning as L
 import torch
 import wandb
+from lightning import Trainer
+from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType
-from data import get_dataloader
+from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
 # own modules
 from utils import logger
 from utils.utils import set_seed, initialize_wandb, get_wandb_project_name, timer_decorator
-from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
+
+
+class ContrastiveModel(L.LightningModule):
+    def __init__(self, options: OptionsConfig):
+        super(ContrastiveModel, self).__init__()
+        self.options = options
+        self.model, self.optimizer = load_audio_model.load_model_and_optimizer(options, None)
+
+    def forward(self, x):
+        return self.model(x)
+
+    def training_step(self, batch, batch_idx):
+        audio, _, _, _ = batch
+        model_input = audio.to(self.options.device)
+        loss, nce, kld = self.model(model_input)
+
+        # Average over the losses from different GPUs
+        loss = torch.mean(loss, 0)
+        nce = torch.mean(nce, 0)
+        kld = torch.mean(kld, 0)
+
+        # zip the losses together
+        for idx, (cur_losses, cur_nce, cur_kld) in enumerate(zip(loss, nce, kld)):
+            self.log(f'train/loss_{idx}', cur_losses)
+            self.log(f'nce/nce_{idx}', cur_nce)
+            self.log(f'kld/kld_{idx}', cur_kld)
+        return loss.sum()  # sum of all module losses
+
+    def validation_step(self, batch, batch_idx):
+        audio, _, _, _ = batch
+        model_input = audio.to(self.options.device)
+        loss, nce, kld = self.model(model_input)
+
+        # Average over the losses from different GPUs
+        loss = torch.mean(loss, 0)
+
+        for i, modul_loss in enumerate(loss):
+            self.log(f'validation/val_loss_{i}', modul_loss)
+        return loss.sum()  # sum of all module losses
+
+    def configure_optimizers(self):
+        return [self.optimizer]
 
 
 def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, test_loader):
@@ -124,22 +168,21 @@ def _main(options: OptionsConfig):
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
-    assert options.model_type == ModelType.ONLY_ENCODER, "Only encoder training is supported."
+    assert options.model_type == ModelType.ONLY_ENCODER, \
+        "Only encoder training is supported."
 
-    # load model
-    model, optimizer = load_audio_model.load_model_and_optimizer(options, None)
+    model = ContrastiveModel(options)
+    data_module = MyDataModule(options.encoder_config.dataset)
+    trainer = Trainer(
+        max_epochs=options.encoder_config.num_epochs,
+        logger=WandbLogger() if options.use_wandb else None)
 
-    # get datasets and dataloaders
-    train_loader, train_dataset, test_loader, test_dataset = get_dataloader.get_dataloader(
-        config=options.encoder_config.dataset)
-
-    try:
-        # Train the model
-        if options.train:
-            train(options, logs, model, optimizer, train_loader, test_loader)
-
-    except KeyboardInterrupt:
-        print("Training got interrupted, saving log-files now.")
+    if options.train:
+        try:
+            # Train the model
+            trainer.fit(model, data_module)
+        except KeyboardInterrupt:
+            print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
 
