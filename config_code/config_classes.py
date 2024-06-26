@@ -207,6 +207,7 @@ class OptionsConfig:
                  syllables_classifier_config: Optional[ClassifierConfig],
                  decoder_config: Optional[DecoderConfig],
                  vision_classifier_config: Optional[ClassifierConfig],
+                 wandb_project_name: Optional[str] = "",
                  # two params used for local development. Not used in the cluster
                  use_wandb: Optional[bool] = True,
                  train: Optional[bool] = True,
@@ -239,6 +240,7 @@ class OptionsConfig:
         self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
         self.use_wandb = use_wandb
         self.train = train
+        self.wandb_project_name = wandb_project_name
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

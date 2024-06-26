@@ -128,7 +128,7 @@ def _main(options: OptionsConfig):
             family = "GIM"
 
         dataset = options.encoder_config.dataset.dataset
-        project_name = f"SIM_ACML_de_boer_{dataset}_V4"
+        project_name = f"{dataset}_{options.wandb_project_name}"
         run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
         initialize_wandb(options, project_name, run_name)
 
@@ -168,12 +168,15 @@ def _init(options: OptionsConfig):
     set_seed(options.seed)
 
 
-def run_configuration(options: OptionsConfig):
-    _init(options)
-    _main(options)
-
-
 if __name__ == "__main__":
     from options import get_options
 
-    run_configuration(get_options())
+    options = get_options()
+
+    print("*" * 80)
+    print(options)
+    print("*" * 80)
+    print()
+
+    _init(options)
+    _main(options)
