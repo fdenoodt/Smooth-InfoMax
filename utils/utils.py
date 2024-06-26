@@ -7,6 +7,7 @@ import torch
 
 from config_code.config_classes import OptionsConfig, Dataset, DecoderConfig, ClassifierConfig
 import wandb
+import time
 
 
 def get_device(opt, input_tensor):
@@ -144,6 +145,20 @@ def get_nb_classes(dataset: Dataset, args: None):
     return nb_classes
 
 
+def get_wandb_project_name(options: OptionsConfig):
+    if options.encoder_config.architecture.is_cpc:
+        family = "CPC"
+    elif options.encoder_config.architecture.modules[0].predict_distributions:
+        family = "SIM"
+    else:
+        family = "GIM"
+
+    dataset = options.encoder_config.dataset.dataset
+    project_name = f"{dataset}_{options.wandb_project_name}"
+    run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+    return project_name, run_name
+
+
 def initialize_wandb(options: OptionsConfig, project_name, run_name):
     wandb.init(project=project_name, name=run_name, config=vars(options))
     # After initializing the wandb run, get the run id
@@ -178,3 +193,14 @@ def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in t
 
 def get_classif_log_path(classifier_config, classif_module, classif_layer, bias):
     return f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"
+
+
+def timer_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Execution time of {func.__name__}: {end_time - start_time} seconds")
+        return result
+
+    return wrapper

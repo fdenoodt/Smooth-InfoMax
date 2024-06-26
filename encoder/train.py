@@ -15,7 +15,7 @@ from models import load_audio_model
 from models.full_model import FullModel
 # own modules
 from utils import logger
-from utils.utils import set_seed, initialize_wandb
+from utils.utils import set_seed, initialize_wandb, get_wandb_project_name, timer_decorator
 from validation.val_by_InfoNCELoss import val_by_InfoNCELoss
 
 
@@ -115,21 +115,10 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
             logs.create_log(model, optimizer=optimizer, epoch=epoch)
 
 
+@timer_decorator
 def _main(options: OptionsConfig):
-    USE_WANDB = options.use_wandb
-    TRAIN = options.train
-
-    if USE_WANDB:
-        if options.encoder_config.architecture.is_cpc:
-            family = "CPC"
-        elif options.encoder_config.architecture.modules[0].predict_distributions:
-            family = "SIM"
-        else:
-            family = "GIM"
-
-        dataset = options.encoder_config.dataset.dataset
-        project_name = f"{dataset}_{options.wandb_project_name}"
-        run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
+    if options.use_wandb:
+        project_name, run_name = get_wandb_project_name(options)
         initialize_wandb(options, project_name, run_name)
 
     options.model_type = ModelType.ONLY_ENCODER
@@ -146,7 +135,7 @@ def _main(options: OptionsConfig):
 
     try:
         # Train the model
-        if TRAIN:
+        if options.train:
             train(options, logs, model, optimizer, train_loader, test_loader)
 
     except KeyboardInterrupt:
@@ -154,7 +143,7 @@ def _main(options: OptionsConfig):
 
     logs.create_log(model)
 
-    if USE_WANDB:
+    if options.use_wandb:
         wandb.finish()
 
 
@@ -171,12 +160,12 @@ def _init(options: OptionsConfig):
 if __name__ == "__main__":
     from options import get_options
 
-    options = get_options()
+    _options = get_options()
 
     print("*" * 80)
-    print(options)
+    print(_options)
     print("*" * 80)
     print()
 
-    _init(options)
-    _main(options)
+    _init(_options)
+    _main(_options)
