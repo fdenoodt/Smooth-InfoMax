@@ -4,19 +4,16 @@
 
 import gc
 import time
-
 import lightning as L
 import torch
 import wandb
 from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
-
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
-# own modules
 from utils import logger
 from utils.utils import set_seed, initialize_wandb, get_wandb_project_name, timer_decorator
 
@@ -42,9 +39,9 @@ class ContrastiveModel(L.LightningModule):
 
         # zip the losses together
         for idx, (cur_losses, cur_nce, cur_kld) in enumerate(zip(loss, nce, kld)):
-            self.log(f'train/loss_{idx}', cur_losses)
-            self.log(f'nce/nce_{idx}', cur_nce)
-            self.log(f'kld/kld_{idx}', cur_kld)
+            self.log(f'train/loss_{idx}', cur_losses, batch_size=self.options.encoder_config.dataset.batch_size)
+            self.log(f'nce/nce_{idx}', cur_nce, batch_size=self.options.encoder_config.dataset.batch_size)
+            self.log(f'kld/kld_{idx}', cur_kld, batch_size=self.options.encoder_config.dataset.batch_size)
         return loss.sum()  # sum of all module losses
 
     def validation_step(self, batch, batch_idx):
@@ -56,7 +53,7 @@ class ContrastiveModel(L.LightningModule):
         loss = torch.mean(loss, 0)
 
         for i, modul_loss in enumerate(loss):
-            self.log(f'validation/val_loss_{i}', modul_loss)
+            self.log(f'validation/val_loss_{i}', modul_loss, batch_size=self.options.encoder_config.dataset.batch_size)
         return loss.sum()  # sum of all module losses
 
     def configure_optimizers(self):
@@ -172,6 +169,7 @@ def _main(options: OptionsConfig):
         "Only encoder training is supported."
 
     model = ContrastiveModel(options)
+    # model = torch.compile(model, mode='default')  # Compile it to make it faster
     data_module = MyDataModule(options.encoder_config.dataset)
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
@@ -191,6 +189,7 @@ def _main(options: OptionsConfig):
 
 
 def _init(options: OptionsConfig):
+    torch.set_float32_matmul_precision('medium')
     torch.cuda.empty_cache()
     gc.collect()
 

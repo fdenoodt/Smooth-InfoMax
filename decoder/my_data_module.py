@@ -25,7 +25,7 @@ class MyDataModule(L.LightningDataModule):
         super().__init__()
         self.config = config
 
-        self.train_loader, _, self.test_loader, _ = get_dataloader.get_dataloader(config=self.config)
+        self.train_loader, _, self.test_loader, _ = get_dataloader.get_dataloader(config=self.config, shuffle=False)
 
     def train_dataloader(self):
         return self.train_loader

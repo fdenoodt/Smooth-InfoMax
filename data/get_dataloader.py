@@ -35,7 +35,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
     test_loader = torch.utils.data.DataLoader(
         dataset=test_dataset,
         batch_size=dataset_options.batch_size_multiGPU,
-        shuffle=shuffle,
+        shuffle=False,
         drop_last=True,
         num_workers=dataset_options.num_workers,
         persistent_workers=True
