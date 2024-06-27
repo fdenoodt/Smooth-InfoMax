@@ -211,6 +211,7 @@ class OptionsConfig:
                  # two params used for local development. Not used in the cluster
                  use_wandb: Optional[bool] = True,
                  train: Optional[bool] = True,
+                 compile_model: Optional[bool] = False,
                  ):
         root_logs = r"./sim_logs/"
 
@@ -241,6 +242,7 @@ class OptionsConfig:
         self.use_wandb = use_wandb
         self.train = train
         self.wandb_project_name = wandb_project_name
+        self.compile_model = compile_model
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

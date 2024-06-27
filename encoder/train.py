@@ -169,7 +169,9 @@ def _main(options: OptionsConfig):
         "Only encoder training is supported."
 
     model = ContrastiveModel(options)
-    # model = torch.compile(model, mode='default')  # Compile it to make it faster
+    if options.compile_model:
+        model = torch.compile(model, mode='default')  # Compile it to make it faster
+
     data_module = MyDataModule(options.encoder_config.dataset)
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
