@@ -170,7 +170,10 @@ def _main(options: OptionsConfig):
 
     model = ContrastiveModel(options)
     if options.compile_model:
-        model = torch.compile(model, mode='default')  # Compile it to make it faster
+        try:
+            model = torch.compile(model, mode='default')  # Compile it to make it faster
+        except Exception as e:
+            print(f"Could not compile model: {e}")
 
     data_module = MyDataModule(options.encoder_config.dataset)
     trainer = Trainer(
