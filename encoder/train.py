@@ -178,6 +178,8 @@ def _main(options: OptionsConfig):
     data_module = MyDataModule(options.encoder_config.dataset)
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
+        limit_train_batches=options.encoder_config.dataset.limit_train_batches,
+        limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
         logger=WandbLogger() if options.use_wandb else None)
 
     if options.train:
