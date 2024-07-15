@@ -3,19 +3,33 @@
 # for cpc: cpc_audio_de_boer
 
 import gc
-import time
+
 import lightning as L
 import torch
-import wandb
 from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
+
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
-from models.full_model import FullModel
 from utils import logger
-from utils.utils import set_seed, initialize_wandb, get_wandb_project_name, timer_decorator
+from utils.decorators import timer_decorator, wandb_decorator
+from utils.utils import set_seed
+
+
+class TorchTensorboardProfilerCallback(L.Callback):
+    """Quick-and-dirty Callback for invoking TensorboardProfiler during training.
+
+    For greater robustness, extend the pl.profiler.profilers.BaseProfiler. See
+    https://pytorch-lightning.readthedocs.io/en/stable/advanced/profiler.html"""
+
+    def __init__(self, profiler):
+        super().__init__()
+        self.profiler = profiler
+
+    def on_train_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
+        self.profiler.step()
 
 
 class ContrastiveModel(L.LightningModule):
@@ -61,11 +75,9 @@ class ContrastiveModel(L.LightningModule):
 
 
 @timer_decorator
+@wandb_decorator  # calls wandb.init
+# @profile_decorator  # calls torch.profiler.profile
 def _main(options: OptionsConfig):
-    if options.use_wandb:
-        project_name, run_name = get_wandb_project_name(options)
-        initialize_wandb(options, project_name, run_name)
-
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
@@ -80,11 +92,15 @@ def _main(options: OptionsConfig):
             print(f"Could not compile model: {e}")
 
     data_module = MyDataModule(options.encoder_config.dataset)
+
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
         limit_train_batches=options.encoder_config.dataset.limit_train_batches,
         limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
-        logger=WandbLogger() if options.use_wandb else None)
+        logger=WandbLogger() if options.use_wandb else None,
+        # callbacks=[profiler_callback] if options.profile else None,
+        log_every_n_steps=10
+    )
 
     if options.train:
         try:
@@ -94,9 +110,6 @@ def _main(options: OptionsConfig):
             print("Training got interrupted, saving log-files now.")
 
     logs.create_log(model)
-
-    if options.use_wandb:
-        wandb.finish()
 
 
 def _init(options: OptionsConfig):
