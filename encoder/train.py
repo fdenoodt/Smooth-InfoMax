@@ -60,10 +60,21 @@ class ContrastiveModel(L.LightningModule):
         return [self.optimizer]
 
 
+def init(options: OptionsConfig):
+    torch.set_float32_matmul_precision('medium')
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    arg_parser.create_log_path(options)
+
+    # set random seeds
+    set_seed(options.seed)
+
+
 @timer_decorator
 @wandb_decorator  # calls wandb.init
-# @profile_decorator  # calls torch.profiler.profile
-def _main(options: OptionsConfig):
+def main(options: OptionsConfig):
+    init(options)
     options.model_type = ModelType.ONLY_ENCODER
     logs = logger.Logger(options)
 
@@ -84,7 +95,6 @@ def _main(options: OptionsConfig):
         limit_train_batches=options.encoder_config.dataset.limit_train_batches,
         limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
         logger=WandbLogger() if options.use_wandb else None,
-        # callbacks=[profiler_callback] if options.profile else None,
         log_every_n_steps=10
     )
 
@@ -98,17 +108,6 @@ def _main(options: OptionsConfig):
     logs.create_log(model)
 
 
-def _init(options: OptionsConfig):
-    torch.set_float32_matmul_precision('medium')
-    torch.cuda.empty_cache()
-    gc.collect()
-
-    arg_parser.create_log_path(options)
-
-    # set random seeds
-    set_seed(options.seed)
-
-
 if __name__ == "__main__":
     from options import get_options
 
@@ -119,5 +118,4 @@ if __name__ == "__main__":
     print("*" * 80)
     print()
 
-    _init(_options)
-    _main(_options)
+    main(_options)
