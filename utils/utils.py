@@ -154,7 +154,7 @@ def get_wandb_project_name(options: OptionsConfig):
         family = "GIM"
 
     dataset = options.encoder_config.dataset.dataset
-    project_name = f"{dataset}_{options.wandb_project_name}"
+    project_name = f"SIM_{dataset}_{options.wandb_project_name}"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
     return project_name, run_name
 
