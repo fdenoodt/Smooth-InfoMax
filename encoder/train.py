@@ -18,20 +18,6 @@ from utils.decorators import timer_decorator, wandb_decorator
 from utils.utils import set_seed
 
 
-class TorchTensorboardProfilerCallback(L.Callback):
-    """Quick-and-dirty Callback for invoking TensorboardProfiler during training.
-
-    For greater robustness, extend the pl.profiler.profilers.BaseProfiler. See
-    https://pytorch-lightning.readthedocs.io/en/stable/advanced/profiler.html"""
-
-    def __init__(self, profiler):
-        super().__init__()
-        self.profiler = profiler
-
-    def on_train_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
-        self.profiler.step()
-
-
 class ContrastiveModel(L.LightningModule):
     def __init__(self, options: OptionsConfig):
         super(ContrastiveModel, self).__init__()
