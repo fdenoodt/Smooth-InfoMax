@@ -6,6 +6,7 @@ from decoder.decoderr import Decoder
 from decoder.lit_decoder import LitDecoder
 from models import full_model
 from models.full_model import FullModel
+from models.loss_supervised_syllables import Syllables_Loss
 from utils import model_utils
 import os
 
@@ -51,3 +52,14 @@ def load_decoder(opt: OptionsConfig, decoder: Decoder) -> Decoder:
     # Load the state dictionary into the model
     decoder.load_state_dict(state_dict)
     return decoder
+
+
+def load_classifier(opt: OptionsConfig, classifier: Syllables_Loss) -> Syllables_Loss:
+    print(f"Loading classifier")
+    model_path = os.path.join(f"{opt.log_path}/model_0.ckpt")
+    # Load the state dictionary
+    state_dict = torch.load(model_path)
+
+    # Load the state dictionary into the model
+    classifier.load_state_dict(state_dict)
+    return classifier
