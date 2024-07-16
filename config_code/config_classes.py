@@ -212,6 +212,7 @@ class OptionsConfig:
                  use_wandb: Optional[bool] = True,
                  train: Optional[bool] = True,
                  compile_model: Optional[bool] = False,
+                 profile: Optional[bool] = False,
                  ):
         root_logs = r"./sim_logs/"
 
@@ -243,6 +244,7 @@ class OptionsConfig:
         self.train = train
         self.wandb_project_name = wandb_project_name
         self.compile_model = compile_model
+        self.profile = profile
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

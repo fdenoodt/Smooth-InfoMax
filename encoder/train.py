@@ -86,7 +86,8 @@ def main(options: OptionsConfig):
         limit_train_batches=options.encoder_config.dataset.limit_train_batches,
         limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
         logger=WandbLogger() if options.use_wandb else None,
-        log_every_n_steps=10
+        log_every_n_steps=10,
+        profiler="pytorch" if options.profile else None,
     )
 
     if options.train:

@@ -2,7 +2,6 @@
 This script is only for syllable/vowel classification. For speaker/phoeme classification, see other scripts.
 """
 
-import time
 # example python call:
 # python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
@@ -11,12 +10,10 @@ from typing import Optional
 
 import lightning
 import torch
-import wandb
 from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
-## own modules
 from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
@@ -26,7 +23,7 @@ from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
 from utils.decorators import timer_decorator, wandb_resume_decorator, init_decorator
-from utils.utils import set_seed, get_audio_classific_key, get_nb_classes, \
+from utils.utils import get_audio_classific_key, get_nb_classes, \
     get_classif_log_path
 
 
@@ -182,7 +179,8 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         limit_train_batches=classifier_config.dataset.limit_train_batches,
         limit_val_batches=classifier_config.dataset.limit_validation_batches,
         logger=WandbLogger() if opt.use_wandb else None,
-        log_every_n_steps=10
+        log_every_n_steps=10,
+        profiler="pytorch" if opt.profile else None
     )
 
     if opt.train:
