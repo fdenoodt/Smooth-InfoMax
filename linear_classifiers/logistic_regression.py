@@ -21,6 +21,7 @@ from models import load_audio_model
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
+from utils.decorators import timer_decorator, wandb_resume_decorator
 from utils.utils import retrieve_existing_wandb_run_id, set_seed, get_audio_classific_key, get_nb_classes, \
     get_classif_log_path
 
@@ -197,14 +198,9 @@ def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
     return loss_epoch, accuracy
 
 
-def main():
-    # IMPORTANT TO SET classifier_config.dataset.labels=[syllables|vowels], classifier_config.bias=[True|False] in the config file
-    opt: OptionsConfig = get_options()
-    [print("*" * 50) for _ in range(3)]
-    print(f"Classifier config: {opt.syllables_classifier_config}")
-    print(f"Model type: {opt.model_type}")
-    [print("*" * 50) for _ in range(3)]
-
+@timer_decorator
+@wandb_resume_decorator
+def main(opt: OptionsConfig):
     bias = opt.syllables_classifier_config.bias
     opt.model_type = ModelType.ONLY_DOWNSTREAM_TASK  # ModelType.FULLY_SUPERVISED
 
@@ -218,10 +214,6 @@ def main():
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert (opt.syllables_classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
-
-    if opt.use_wandb:
-        run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
 
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
@@ -300,6 +292,11 @@ def main():
 
 
 if __name__ == "__main__":
-    wandb, wandb_is_on, linear_model_params = main()
-    if wandb_is_on:
-        wandb.finish()
+    # IMPORTANT TO SET classifier_config.dataset.labels=[syllables|vowels], classifier_config.bias=[True|False] in the config file
+    options: OptionsConfig = get_options()
+    [print("*" * 50) for _ in range(3)]
+    print(f"Classifier config: {options.syllables_classifier_config}")
+    print(f"Model type: {options.model_type}")
+    [print("*" * 50) for _ in range(3)]
+
+    wandb, wandb_is_on, linear_model_params = main(options)

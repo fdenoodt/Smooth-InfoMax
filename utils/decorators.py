@@ -1,7 +1,7 @@
 import time
 
 from config_code.config_classes import OptionsConfig
-from utils.utils import get_wandb_project_name, initialize_wandb
+from utils.utils import get_wandb_project_name, initialize_wandb, retrieve_existing_wandb_run_id
 import wandb
 import torch
 import glob
@@ -19,6 +19,11 @@ def timer_decorator(func):
 
 
 def wandb_decorator(func):
+    """
+    Initialize wandb if options.use_wandb is True, and finish the run after the function is done.
+    Warning: ensure that the first argument of the function with this decorator is the options object!
+    """
+
     def wrapper(options: OptionsConfig, *args, **kwargs):
         assert type(options) == OptionsConfig, \
             ("First argument must be an OptionsConfig object. "
@@ -35,6 +40,22 @@ def wandb_decorator(func):
 
         if options.use_wandb:
             wandb.finish()
+        return result
+
+    return wrapper
+
+
+def wandb_resume_decorator(func):
+    def wrapper(options: OptionsConfig, *args, **kwargs):
+        assert type(options) == OptionsConfig, \
+            ("See `wandb_decorator` for more information.")
+
+        if options.use_wandb:
+            run_id, project_name = retrieve_existing_wandb_run_id(options)
+            wandb.init(id=run_id, resume="allow", project=project_name)
+
+        result = func(options, *args, **kwargs)
+
         return result
 
     return wrapper

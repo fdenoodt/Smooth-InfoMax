@@ -13,6 +13,7 @@ from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig, ModelType
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
+from models.full_model import FullModel
 from utils import logger
 from utils.decorators import timer_decorator, wandb_decorator
 from utils.utils import set_seed
@@ -23,6 +24,7 @@ class ContrastiveModel(L.LightningModule):
         super(ContrastiveModel, self).__init__()
         self.options = options
         self.model, self.optimizer = load_audio_model.load_model_and_optimizer(options, None)
+        self.model: FullModel = self.model  # for type hinting
 
     def forward(self, x):
         return self.model(x)
