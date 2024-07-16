@@ -25,7 +25,7 @@ from models.load_audio_model import load_classifier
 from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
-from utils.decorators import timer_decorator, wandb_resume_decorator
+from utils.decorators import timer_decorator, wandb_resume_decorator, init_decorator
 from utils.utils import set_seed, get_audio_classific_key, get_nb_classes, \
     get_classif_log_path
 
@@ -153,15 +153,6 @@ class ClassifierModel(lightning.LightningModule):
         self.log(f"{wandb_section}/Train accuracy", accuracies, batch_size=self.classifier_config.dataset.batch_size)
         return loss
 
-    # def validation_step(self, batch, batch_idx):
-    #     loss, accuracies = self.forward(batch)
-    #
-    #     wandb_section = get_audio_classific_key(self.options, self.classifier_config.bias)
-    #     self.log(f"{wandb_section}/Validation loss", loss, batch_size=self.classifier_config.dataset.batch_size)
-    #     self.log(f"{wandb_section}/Validation accuracy", accuracies,
-    #              batch_size=self.classifier_config.dataset.batch_size)
-    #     return loss
-
     def test_step(self, batch, batch_idx):
         loss, accuracies = self.forward(batch)
 
@@ -171,146 +162,17 @@ class ClassifierModel(lightning.LightningModule):
         return loss
 
 
-def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.Logger, train_loader, optimizer,
-          wandb_is_on: bool, bias: bool):
-    # loss also contains the classifier model
-
-    total_step = len(train_loader)
-    print_idx = 100
-
-    num_epochs = classifier_config.num_epochs
-    global_step = 0
-
-    for epoch in range(num_epochs):
-        loss_epoch = 0
-        acc_epoch = 0
-
-        if opt.model_type == ModelType.FULLY_SUPERVISED:
-            context_model.train()
-        else:
-            context_model.eval()
-
-        for i, (audio, _, label, _) in enumerate(train_loader):
-            audio = audio.to(opt.device)
-            label = label.to(opt.device)
-
-            starttime = time.time()
-            loss.zero_grad()
-
-            ### get latent representations for current audio
-            model_input = audio.to(opt.device)
-            z = get_z(opt, context_model, model_input,
-                      regression=bias,
-                      which_module=classifier_config.encoder_module,
-                      which_layer=classifier_config.encoder_layer
-                      )
-
-            # forward pass
-            total_loss, accuracies = loss.get_loss(model_input, z, z, label)
-
-            # Backward and optimize
-            optimizer.zero_grad()
-            total_loss.backward()
-            optimizer.step()
-
-            sample_loss = total_loss.item()
-            accuracy = accuracies.item()
-
-            if wandb_is_on:
-                wandb_section = get_audio_classific_key(opt, bias)
-                wandb.log({
-                    f"{wandb_section}/Loss classification": sample_loss,
-                    f"{wandb_section}/Train accuracy": accuracy,
-                    f"{wandb_section}/Step": global_step})
-                global_step += 1
-
-            if i % print_idx == 0:
-                print(
-                    "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
-                        epoch + 1,
-                        num_epochs,
-                        i,
-                        total_step,
-                        time.time() - starttime,
-                        accuracy,
-                        sample_loss,
-                    )
-                )
-                starttime = time.time()
-
-            loss_epoch += sample_loss
-            acc_epoch += accuracy
-
-        logs.append_train_loss([loss_epoch / total_step])
-
-
-def test(opt, context_model, loss, data_loader, wandb_is_on: bool, bias: bool):
-    loss.eval()
-    accuracy = 0
-    loss_epoch = 0
-
-    with torch.no_grad():
-        for i, (audio, _, label, _) in enumerate(data_loader):
-            audio = audio.to(opt.device)
-            label = label.to(opt.device)
-
-            loss.zero_grad()
-
-            ### get latent representations for current audio
-            model_input = audio.to(opt.device)
-
-            with torch.no_grad():
-                z = get_z(opt, context_model, model_input, regression=bias,
-                          which_module=classifier_config.encoder_module,
-                          which_layer=classifier_config.encoder_layer)
-
-            z = z.detach()
-
-            # forward pass
-            total_loss, step_accuracy = loss.get_loss(model_input, z, z, label)
-
-            accuracy += step_accuracy.item()
-            loss_epoch += total_loss.item()
-
-            if i % 10 == 0:
-                print(
-                    "Step [{}/{}], Loss: {:.4f}, Accuracy: {:.4f}".format(
-                        i, len(data_loader), loss_epoch / (i + 1), accuracy / (i + 1)
-                    )
-                )
-
-    accuracy = accuracy / len(data_loader)
-    loss_epoch = loss_epoch / len(data_loader)
-    print("Final Testing Accuracy: ", accuracy)
-    print("Final Testing Loss: ", loss_epoch)
-
-    if wandb_is_on:
-        wandb_section = get_audio_classific_key(opt, bias)
-        wandb.log({f"{wandb_section}/FINAL Test accuracy": accuracy,
-                   f"{wandb_section}/FINAL Test loss": loss_epoch})
-    return loss_epoch, accuracy
-
-
+@init_decorator  # sets seed and clears cache etc
 @timer_decorator
 @wandb_resume_decorator
 def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
-    bias = classifier_config.bias
-
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert (classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
 
-    # on which module to train the classifier (default: -1, last module)
-    classif_module: int = classifier_config.encoder_module
-    classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
-    arg_parser.create_log_path(opt, add_path_var=classif_path)
-
+    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(classifier_config))
     logs = logger.Logger(opt)  # Will be used to save the classifier model for instance
-
-    # random seeds
-    set_seed(opt.seed)
 
     classifier = ClassifierModel(opt, classifier_config)
     data_module = MyDataModule(classifier_config.dataset)
@@ -327,17 +189,12 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         try:
             # Train the model
             trainer.fit(classifier, data_module)
-
-            # train(opt, context_model, loss, logs, train_loader, optimizer, opt.use_wandb, bias)
-            # result_loss, accuracy = test(opt, context_model, loss, test_loader, opt.use_wandb, bias)
             logs.create_log(classifier.classifier, accuracy=0, final_test=True, final_loss=0)
-
         except KeyboardInterrupt:
             print("Training interrupted, saving log files")
 
     # regardless of training, test the model by loading the final checkpoint
     classifier.classifier = load_classifier(opt, classifier.classifier)  # update Lightning module as well!!!
-
     trainer.test(classifier, data_module)  # Test the model
 
     # Only for De Boer dataset

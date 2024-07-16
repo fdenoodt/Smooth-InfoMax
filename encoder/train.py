@@ -2,7 +2,6 @@
 # python -m encoder.train temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 use_wandb=False train=True
 # for cpc: cpc_audio_de_boer
 
-import gc
 
 import lightning as L
 import torch
@@ -15,8 +14,7 @@ from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
 from utils import logger
-from utils.decorators import timer_decorator, wandb_decorator
-from utils.utils import set_seed
+from utils.decorators import timer_decorator, wandb_decorator, init_decorator
 
 
 class ContrastiveModel(L.LightningModule):
@@ -62,22 +60,13 @@ class ContrastiveModel(L.LightningModule):
         return [self.optimizer]
 
 
-def init(options: OptionsConfig):
-    torch.set_float32_matmul_precision('medium')
-    torch.cuda.empty_cache()
-    gc.collect()
-
-    arg_parser.create_log_path(options)
-
-    # set random seeds
-    set_seed(options.seed)
-
-
+@init_decorator  # sets seed and clears cache etc
 @timer_decorator
 @wandb_decorator  # calls wandb.init
 def main(options: OptionsConfig):
-    init(options)
     options.model_type = ModelType.ONLY_ENCODER
+
+    arg_parser.create_log_path(options)
     logs = logger.Logger(options)
 
     assert options.model_type == ModelType.ONLY_ENCODER, \

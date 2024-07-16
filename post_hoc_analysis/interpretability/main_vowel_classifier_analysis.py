@@ -155,25 +155,21 @@ def plot_label_space(opt: OptionsConfig, wandb, classifier, n_features, dim1, di
 
 def main():
     opt: OptionsConfig = get_options()
-    bias = opt.syllables_classifier_config.bias
+    classifier_config = opt.syllables_classifier_config
+    bias = classifier_config.bias
 
     assert not bias, "This script is only for the vowel classifier (bias=False)!!"
-    assert opt.syllables_classifier_config.dataset.labels == "vowels", "This script is only for the vowel classifier!!"
+    assert classifier_config.dataset.labels == "vowels", "This script is only for the vowel classifier!!"
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
         wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
-    classifier_config = opt.syllables_classifier_config
-    classif_module: int = classifier_config.encoder_module
-    classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
-    arg_parser.create_log_path(
-        opt, add_path_var=classif_path)
+    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(classifier_config))
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
-        opt.syllables_classifier_config,
+        classifier_config,
         reload_model=True,
         calc_accuracy=True,
         num_GPU=1,

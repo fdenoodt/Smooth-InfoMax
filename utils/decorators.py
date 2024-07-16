@@ -5,6 +5,8 @@ from utils.utils import get_wandb_project_name, initialize_wandb, retrieve_exist
 import wandb
 import torch
 import glob
+import gc
+from utils.utils import set_seed
 
 
 def timer_decorator(func):
@@ -54,6 +56,27 @@ def wandb_resume_decorator(func):
             run_id, project_name = retrieve_existing_wandb_run_id(options)
             wandb.init(id=run_id, resume="allow", project=project_name)
 
+        result = func(options, *args, **kwargs)
+
+        return result
+
+    return wrapper
+
+
+def init_decorator(func):
+    def init(options: OptionsConfig):
+        torch.set_float32_matmul_precision('medium')
+        torch.cuda.empty_cache()
+        gc.collect()
+
+        # set random seeds
+        set_seed(options.seed)
+
+    def wrapper(options: OptionsConfig, *args, **kwargs):
+        assert type(options) == OptionsConfig, \
+            ("See `wandb_decorator` for more information.")
+
+        init(options)
         result = func(options, *args, **kwargs)
 
         return result
