@@ -35,8 +35,8 @@ def wandb_decorator(func):
              "    ...")
 
         if options.use_wandb:
-            project_name, run_name = get_wandb_project_name(options)
-            initialize_wandb(options, project_name, run_name)
+            entity, project_name, run_name = get_wandb_project_name(options)
+            initialize_wandb(options, entity, project_name, run_name)
 
         result = func(options, *args, **kwargs)
 

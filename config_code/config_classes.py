@@ -202,6 +202,7 @@ class DecoderConfig(PostHocModel):
 class OptionsConfig:
     def __init__(self, config_file, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
+                 wandb_entity: str | None,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
                  syllables_classifier_config: Optional[ClassifierConfig],
@@ -243,6 +244,7 @@ class OptionsConfig:
         self.use_wandb = use_wandb
         self.train = train
         self.wandb_project_name = wandb_project_name
+        self.wandb_entity = wandb_entity
         self.compile_model = compile_model
         self.profile = profile
 
