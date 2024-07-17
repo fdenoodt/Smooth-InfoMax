@@ -26,6 +26,7 @@ class Dataset(Enum):
     ANIMAL_WITH_ATTRIBUTES = 8
     SHAPES_3D = 9
     SHAPES_3D_SUBSET = 10  # only used for local development, not in the cluster!
+    RADIO = 11
 
 
 class ModelType(Enum):

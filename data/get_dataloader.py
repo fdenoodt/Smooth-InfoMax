@@ -2,10 +2,15 @@ import os
 import torch
 from torch.utils.data import dataset
 
-from data import de_boer_sounds, librispeech
 from config_code.config_classes import DataSetConfig, Dataset
+from data.de_boer import de_boer_sounds
+from data.libri import librispeech
+from data.radio.radio import _get_radio_data_loaders
 
-def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir, shuffle):
+
+def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir,
+                 shuffle) -> (
+        torch.utils.data.DataLoader, dataset.Dataset, torch.utils.data.DataLoader, dataset.Dataset):
     data_input_dir = dataset_options.data_input_dir
     train_dataset = de_boer_sounds.DeBoerDataset(
         dataset_options=dataset_options,
@@ -49,9 +54,6 @@ def _get_de_boer_sounds_data_loaders(d_config: DataSetConfig, shuffle=True):
     print("Loading De Boer Sounds dataset...")
 
     split: bool = d_config.split_in_syllables
-    reshuffled_verison = d_config.dataset
-    subset_size = None  # TODO
-
     if split:  # for classification
         # specific_directory = "split up data cropped reshuffled"
         specific_directory = "split up data padded"
@@ -117,15 +119,22 @@ def _get_libri_dataloaders(options: DataSetConfig):
     return train_loader, train_dataset, test_loader, test_dataset
 
 
-def get_dataloader(config: DataSetConfig, **kwargs):
+def get_dataloader(config: DataSetConfig,
+                   # **kwargs for instance shuffle=True/False, used in DeBoer dataset.
+                   # (for instance for training dataset to make fixed in latent space analysis)
+                   # But kwargs not used anywhere else I believe.
+                   **kwargs) \
+        -> (torch.utils.data.DataLoader,
+            torch.utils.data.DataLoader,
+            torch.utils.data.DataLoader):
     d = config.dataset
     if d == Dataset.DE_BOER:
+        raise NotImplementedError("De Boer dataset is not supported")
         return _get_de_boer_sounds_data_loaders(config, **kwargs)
-    # elif d == Dataset.DE_BOER_RESHUFFLED:  # used for training CPC
-    #     return _get_de_boer_sounds_data_loaders(config, **kwargs)
-    # elif d == Dataset.DE_BOER_RESHUFFLED_V2:  # used for training CPC Decoder
-    #     return _get_de_boer_sounds_data_loaders(config, **kwargs)
     elif d in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+        raise NotImplementedError("LibriSpeech dataset is not supported")
         return _get_libri_dataloaders(config)
+    elif d == Dataset.RADIO:
+        return _get_radio_data_loaders(config)
     else:
         raise ValueError("Unknown dataset")
