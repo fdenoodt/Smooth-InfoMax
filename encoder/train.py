@@ -96,7 +96,6 @@ def main(options: OptionsConfig):
         # gpus=options.gpus,
         # num_nodes=options.num_nodes, # for DDP.
         # strategy="ddp",
-
     )
 
     if options.train:
