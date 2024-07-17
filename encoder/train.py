@@ -81,13 +81,24 @@ def main(options: OptionsConfig):
 
     data_module = MyDataModule(options.encoder_config.dataset)
 
+    from lightning.pytorch.profilers import SimpleProfiler
+    # from lightning.pytorch.callbacks import DeviceStatsMonitor
+
+    # profiler = SimpleProfiler(dirpath=".", filename="perf_logs")
+
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
         limit_train_batches=options.encoder_config.dataset.limit_train_batches,
         limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
         logger=WandbLogger() if options.use_wandb else None,
         log_every_n_steps=10,
-        profiler="pytorch" if options.profile else None,
+        profiler="simple" if options.profile else None,
+        # profiler="advanced" if options.profile else None,
+        # callbacks=[DeviceStatsMonitor()] if options.profile else None,
+        # gpus=options.gpus,
+        # num_nodes=options.num_nodes, # for DDP.
+        # strategy="ddp",
+
     )
 
     if options.train:
