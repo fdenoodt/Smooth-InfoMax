@@ -1,5 +1,6 @@
 import time
 
+from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig
 from utils.utils import get_wandb_project_name, initialize_wandb, retrieve_existing_wandb_run_id
 import wandb
@@ -71,6 +72,8 @@ def init_decorator(func):
 
         # set random seeds
         set_seed(options.seed)
+
+        arg_parser.create_log_path(options)
 
     def wrapper(options: OptionsConfig, *args, **kwargs):
         assert type(options) == OptionsConfig, \

@@ -58,13 +58,13 @@ class ContrastiveModel(L.LightningModule):
         return [self.optimizer]
 
 
-@init_decorator  # sets seed and clears cache etc
+@init_decorator  # sets seed and clears cache etc, create log dir
 @timer_decorator
 @wandb_decorator  # calls wandb.init
 def main(options: OptionsConfig):
     options.model_type = ModelType.ONLY_ENCODER
 
-    arg_parser.create_log_path(options)
+
     logs = logger.Logger(options)
 
     assert options.model_type == ModelType.ONLY_ENCODER, \
