@@ -29,8 +29,7 @@ class ContrastiveModel(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         audio, _, _, _ = batch
-        model_input = audio.to(self.options.device)
-        loss, nce, kld = self.model(model_input)
+        loss, nce, kld = self.model(audio)
 
         # Average over the losses from different GPUs
         loss = torch.mean(loss, 0)
