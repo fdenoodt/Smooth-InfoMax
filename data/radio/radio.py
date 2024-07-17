@@ -25,7 +25,7 @@ def load_data_and_label(path, batch_size, data_type):
 
     data_dataset = TensorDataset(X_data_scaled, Y_data)
     shuffle = True if data_type == 'train' else False
-    data_loader = DataLoader(data_dataset, batch_size=batch_size, shuffle=shuffle)
+    data_loader = DataLoader(data_dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True)
     return data_loader
 
 

@@ -17,7 +17,7 @@ class CPCIndependentModule(AbstractModule):
     def __init__(
             self, opt: OptionsConfig,
             enc_kernel_sizes, enc_strides, enc_paddings, enc_non_linearities,
-            nb_channels_cnn, nb_channels_regress,
+            nb_channels_cnn, nb_channels_regress, nb_channels_inp,
             max_pool_k_size=None, max_pool_stride=None, calc_accuracy=False, prediction_step=12):
         super(CPCIndependentModule, self).__init__()
 
@@ -29,7 +29,7 @@ class CPCIndependentModule(AbstractModule):
         # encoder, out: B x L x C = (22, 55, 512)
         self.encoder: cnn_encoder.CNNEncoder = cnn_encoder.CNNEncoder(
             opt=opt,
-            inp_nb_channels=1,
+            inp_nb_channels=nb_channels_inp,  # eg 1 for audio, 2 for radio
             out_nb_channels=nb_channels_cnn,
             kernel_sizes=enc_kernel_sizes,
             strides=enc_strides,
@@ -59,7 +59,6 @@ class CPCIndependentModule(AbstractModule):
         z = z.permute(0, 2, 1)
         return self.autoregressor(z), z
 
-
     def forward(self, x):
         """
         combines all the operations necessary for calculating the loss and accuracy of the network given the input
@@ -85,6 +84,3 @@ class CPCIndependentModule(AbstractModule):
         kld_loss = kld_loss.unsqueeze(0)
 
         return total_loss, accuracies, z, nce_loss, kld_loss
-
-
-

@@ -3,7 +3,7 @@ from typing import List
 import torch
 import torch.nn as nn
 
-from config_code.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig, Dataset
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig
 from models import independent_module, independent_module_regressor, independent_module_cpc
 from models.abstract_module import AbstractModule
@@ -55,8 +55,10 @@ class FullModel(nn.Module):
 
     @staticmethod
     def cpc_module_from_config(opt, m: ModuleConfig, calc_accuracy) -> independent_module_cpc.CPCIndependentModule:
+        nb_channels_inp = FullModel.get_nb_channels_inp(opt, is_first_module=True, cnn_hidden_dim=m.cnn_hidden_dim)
         cpc_module = independent_module_cpc.CPCIndependentModule(
             opt,
+            nb_channels_inp=nb_channels_inp,
             enc_kernel_sizes=m.kernel_sizes,
             enc_strides=m.strides,
             enc_paddings=m.padding,
@@ -86,9 +88,10 @@ class FullModel(nn.Module):
         max_pool_stride = module_config.max_pool_stride
         prediction_step = module_config.prediction_step
 
+        nb_channels_inp = FullModel.get_nb_channels_inp(opt, is_first_module, cnn_hidden_dim)
         module = independent_module.IndependentModule(
             opt,
-            enc_input=1 if is_first_module else cnn_hidden_dim,  # 1 if first layer, else cnn_hidden_dim
+            nb_channels_inp=nb_channels_inp,  # 1 if first layer, else cnn_hidden_dim
             enc_kernel_sizes=kernel_sizes,  # [10, 8, 4, 4, 4]
             enc_strides=strides,  # [5, 4, 2, 2, 2]
             enc_paddings=paddings,  # [2, 2, 2, 2, 1]
@@ -102,6 +105,16 @@ class FullModel(nn.Module):
             predict_distributions=module_config.predict_distributions
         )
         return module
+
+    @staticmethod
+    def get_nb_channels_inp(opt: OptionsConfig, is_first_module: bool, cnn_hidden_dim: int):
+        if is_first_module:
+            # Radio: 2
+            # Audio: 1 channel
+            nb_channels_inp = 2 if opt.encoder_config.dataset.dataset == Dataset.RADIO else 1
+        else:
+            nb_channels_inp = cnn_hidden_dim
+        return nb_channels_inp
 
     def forward(self, x):
         model_input = x
