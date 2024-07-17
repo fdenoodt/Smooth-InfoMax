@@ -202,7 +202,7 @@ class DecoderConfig(PostHocModel):
 class OptionsConfig:
     def __init__(self, config_file, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
-                 wandb_entity: str | None,
+                 wandb_entity: str,
                  log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
                  speakers_classifier_config: Optional[ClassifierConfig],
                  syllables_classifier_config: Optional[ClassifierConfig],

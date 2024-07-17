@@ -157,6 +157,8 @@ def get_wandb_project_name(options: OptionsConfig):
     project_name = f"SIM_{dataset}_{options.wandb_project_name}"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
     entity = options.wandb_entity
+    # replace empty string with None
+    entity = entity if entity != "" else None
     return entity, project_name, run_name
 
 

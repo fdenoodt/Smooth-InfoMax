@@ -188,7 +188,7 @@ class SIMSetup:
             syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
             decoder_config=self.DECODER_CONFIG,
             vision_classifier_config=None,
-            wandb_entity=None
+            wandb_entity=""
         )
 
         return options
