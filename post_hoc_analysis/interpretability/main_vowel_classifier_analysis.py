@@ -166,7 +166,7 @@ def main():
         wandb.init(id=run_id, resume="allow", project=project_name)
 
     # MUST HAPPEN AFTER wandb.init
-    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(classifier_config))
+    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(opt, classifier_config))
     context_model, _ = load_audio_model.load_model_and_optimizer(
         opt,
         classifier_config,

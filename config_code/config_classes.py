@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union, List, Dict
+from typing import Optional, Union, List, Dict, Tuple
 import os
 import torch
 import datetime
@@ -141,8 +141,8 @@ class EncoderConfig:
 class PostHocModel:  # Classifier or Decoder
     """encoder_module and encoder_layer are currently only supported for the audio encoder."""
 
-    def __init__(self, num_epochs, learning_rate, encoder_num: str,
-                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
+    def __init__(self, num_epochs, learning_rate, encoder_num: str, encoder_module: Optional[int] = -1,
+                 encoder_layer: Optional[int] = -1):
 
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
@@ -288,27 +288,32 @@ class OptionsConfig:
 
     @property
     def classifier_config(self):
-        return self._get_classifier(self.post_hoc_dataset)
+        classif, _ = self._get_classifier_and_key(self.post_hoc_dataset)
+        return classif
 
-    def _get_classifier(self, config: DataSetConfig) -> ClassifierConfig:
+    def _get_classifier_and_key(self, config: DataSetConfig) -> Tuple[ClassifierConfig, ClassifierKey]:
         if config.dataset == Dataset.LIBRISPEECH:
             if config.labels == Label.PHONES:
-                return self._classifier_configs[ClassifierKey.LIBRI_PHONES]
+                return self._classifier_configs[ClassifierKey.LIBRI_PHONES], ClassifierKey.LIBRI_PHONES
             elif config.labels == Label.SPEAKERS:
-                return self._classifier_configs[ClassifierKey.LIBRI_SPEAKERS]
+                return self._classifier_configs[ClassifierKey.LIBRI_SPEAKERS], ClassifierKey.LIBRI_SPEAKERS
             else:
                 raise ValueError(f"Invalid label {config.labels} for dataset {config.dataset}")
         elif config.dataset == Dataset.DE_BOER:
             if config.labels == Label.SYLLABLES:
-                return self._classifier_configs[ClassifierKey.DE_BOER_SYLLABLES]
+                return self._classifier_configs[ClassifierKey.DE_BOER_SYLLABLES], ClassifierKey.DE_BOER_SYLLABLES
             elif config.labels == Label.VOWELS:
-                return self._classifier_configs[ClassifierKey.DE_BOER_VOWELS]
+                return self._classifier_configs[ClassifierKey.DE_BOER_VOWELS], ClassifierKey.DE_BOER_SYLLABLES
             else:
                 raise ValueError(f"Invalid label {config.labels} for dataset {config.dataset}")
         elif config.dataset == Dataset.RADIO:
-            return self._classifier_configs[ClassifierKey.RADIO]
+            return self._classifier_configs[ClassifierKey.RADIO], ClassifierKey.RADIO
         else:
             raise ValueError(f"Invalid dataset {config.dataset}. (Vision datasets are not supported anymore)")
+
+    def get_classifier_key(self):
+        _, key = self._get_classifier_and_key(self.post_hoc_dataset)
+        return key
 
     def __str__(self):
         return f"OptionsConfig(config_file={self.config_file}, seed={self.seed}, validate={self.validate}, " \

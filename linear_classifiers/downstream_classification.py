@@ -23,8 +23,8 @@ from models.loss_supervised_syllables import Syllables_Loss
 from options import get_options
 from utils import logger
 from utils.decorators import timer_decorator, wandb_resume_decorator, init_decorator
-from utils.utils import get_audio_classific_key, get_nb_classes, \
-    get_classif_log_path
+from utils.utils import get_nb_classes, \
+    get_classif_log_path, get_wandb_audio_classific_key
 
 
 class ClassifierModel(lightning.LightningModule):
@@ -59,7 +59,7 @@ class ClassifierModel(lightning.LightningModule):
         else:
             n_features = cnn_hidden_dim
 
-        num_classes = get_nb_classes(opt.post_hoc_dataset.dataset, opt.post_hoc_dataset.labels)
+        num_classes = get_nb_classes(opt.get_classifier_key())
 
         # The loss class also contains the classifier!
         loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
@@ -145,7 +145,7 @@ class ClassifierModel(lightning.LightningModule):
     def training_step(self, batch, batch_idx):
         loss, accuracies = self.forward(batch)
 
-        wandb_section = get_audio_classific_key(self.options, self.classifier_config.bias)
+        wandb_section = get_wandb_audio_classific_key(self.options, self.classifier_config)
         self.log(f"{wandb_section}/Loss classification", loss, batch_size=self.options.post_hoc_dataset.batch_size)
         self.log(f"{wandb_section}/Train accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
@@ -153,7 +153,7 @@ class ClassifierModel(lightning.LightningModule):
     def test_step(self, batch, batch_idx):
         loss, accuracies = self.forward(batch)
 
-        wandb_section = get_audio_classific_key(self.options, self.classifier_config.bias)
+        wandb_section = get_wandb_audio_classific_key(self.options, self.classifier_config)
         self.log(f"{wandb_section}/Test loss", loss, batch_size=self.options.post_hoc_dataset.batch_size)
         self.log(f"{wandb_section}/Test accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
@@ -171,7 +171,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     assert (opt.post_hoc_dataset.dataset in
             [Dataset.DE_BOER, Dataset.LIBRISPEECH, Dataset.RADIO]), "Dataset not supported"
 
-    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(classifier_config))
+    arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(opt, classifier_config))
     logs = logger.Logger(opt)  # Will be used to save the classifier model for instance
 
     classifier = ClassifierModel(opt, classifier_config)

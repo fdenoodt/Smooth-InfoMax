@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.manifold import TSNE
 import torch
 
-from config_code.config_classes import OptionsConfig, Dataset, DecoderConfig, ClassifierConfig
+from config_code.config_classes import OptionsConfig, Dataset, DecoderConfig, ClassifierConfig, ClassifierKey, Label
 import wandb
 import time
 
@@ -128,22 +128,34 @@ def rescale_between_neg1_and_1(x, axis=0):
     return 2 * (x - x.min(axis=axis, keepdims=True)) / np.ptp(x, axis=axis, keepdims=True) - 1
 
 
-def get_nb_classes(dataset: Dataset, args: None): # TODOODO: ARGS TYPE
-    assert False, todo
-    # args only used in de_boer
-    if dataset == Dataset.STL10:
-        nb_classes = 10
-    elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
-        nb_classes = 50
-    elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
-        nb_classes = 4
-    elif dataset == Dataset.DE_BOER and args == "vowels":
-        nb_classes = 3
-    elif dataset == Dataset.DE_BOER and args == "syllables":
-        nb_classes = 9
+def get_nb_classes(classifier_key: ClassifierKey):
+    if classifier_key == ClassifierKey.LIBRI_PHONES:
+        raise NotImplementedError("Libri phones not supported")
+    elif classifier_key == ClassifierKey.LIBRI_SPEAKERS:
+        raise NotImplementedError("Libri speakers not supported")
+    elif classifier_key == ClassifierKey.DE_BOER_SYLLABLES:
+        return 9
+    elif classifier_key == ClassifierKey.DE_BOER_VOWELS:
+        return 3
+    elif classifier_key == ClassifierKey.RADIO:
+        return 20
     else:
-        raise NotImplementedError(f"Dataset {dataset} not supported")
-    return nb_classes
+        raise NotImplementedError(f"`get_nb_classes()` not implemented for Classifier key {classifier_key}")
+
+    # # args only used in de_boer
+    # if dataset == Dataset.STL10:
+    #     nb_classes = 10
+    # elif dataset == Dataset.ANIMAL_WITH_ATTRIBUTES:
+    #     nb_classes = 50
+    # elif dataset in [Dataset.SHAPES_3D_SUBSET, Dataset.SHAPES_3D]:
+    #     nb_classes = 4
+    # elif dataset == Dataset.DE_BOER and args == "vowels":
+    #     nb_classes = 3
+    # elif dataset == Dataset.DE_BOER and args == "syllables":
+    #     nb_classes = 9
+    # else:
+    #     raise NotImplementedError(f"Dataset {dataset} not supported")
+    # return nb_classes
 
 
 def get_wandb_project_name(options: OptionsConfig):
@@ -154,7 +166,7 @@ def get_wandb_project_name(options: OptionsConfig):
     else:
         family = "GIM"
 
-    dataset = options.encoder_config.dataset.dataset
+    dataset = options.encoder_dataset.dataset
     project_name = f"SIM_{dataset}_{options.wandb_project_name}"
     run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
     entity = options.wandb_entity
@@ -174,9 +186,10 @@ def initialize_wandb(options: OptionsConfig, entity, project_name, run_name):
         f.write(f"\n{project_name}")
 
 
-def get_audio_classific_key(opt: OptionsConfig,
+def get_audio_classific_key(opt: OptionsConfig,  # for WANDB
                             bias):  # used in logistic_regression.py and main_vowel_classifier_analysis.py
     """ONLY FOR DE_BOER DATASET. FOR LIBRI, USE get_audio_libri_classific_key() INSTEAD."""
+    raise NotImplementedError("This is outdated. Use the generic get_wandb_audio_classific_key() instead.")
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer
@@ -184,9 +197,19 @@ def get_audio_classific_key(opt: OptionsConfig,
 
 
 def get_audio_libri_classific_key(label_type: str):
+    raise NotImplementedError("This is outdated. Use the generic get_wandb_audio_classific_key() instead.")
+
     assert label_type in ["phones", "speakers"], "Label type not supported"
 
     return f"libri_{label_type}_classifier"
+
+
+def get_wandb_audio_classific_key(opt: OptionsConfig, classifier_config: ClassifierConfig):
+    label_type: Label = opt.post_hoc_dataset.labels
+    module_nb = classifier_config.encoder_module
+    layer_nb = classifier_config.encoder_layer
+    bias = classifier_config.bias
+    return f"C bias={bias} lbl={label_type} modul={module_nb} layer={layer_nb}"
 
 
 def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py
@@ -195,9 +218,9 @@ def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in t
     return f"Decoder_l={loss_val} modul={module_nb} layer={layer_nb}"
 
 
-def get_classif_log_path(classifier_config):
+def get_classif_log_path(options: OptionsConfig, classifier_config: ClassifierConfig):
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
     bias: bool = classifier_config.bias
-    return f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"
+    return f"linear_model_{options.post_hoc_dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"

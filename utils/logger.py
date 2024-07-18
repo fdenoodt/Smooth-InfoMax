@@ -68,13 +68,7 @@ class Logger:
     def create_log(
             self,
             model,
-            accuracy=None,
             epoch=0,
-            optimizer=None,
-            final_test=False,
-            final_loss=None,
-            acc5=None,
-            classification_model=None,
     ):
 
         print("Saving model and log-file to " + self.opt.log_path)
@@ -117,78 +111,7 @@ class Logger:
             except:
                 print("not enough models there yet, nothing to delete")
 
-        if classification_model is not None:
-            # Save the predict model checkpoint
-            torch.save(
-                classification_model.state_dict(),
-                os.path.join(
-                    self.opt.log_path, "classification_model_{}.ckpt".format(epoch)
-                ),
-            )
-
-            ### remove old model files to keep dir uncluttered
-            try:
-                os.remove(
-                    os.path.join(
-                        self.opt.log_path,
-                        "classification_model_{}.ckpt".format(
-                            epoch - self.num_models_to_keep
-                        ),
-                    )
-                )
-            except:
                 print("not enough models there yet, nothing to delete")
-
-        if optimizer is not None:
-            torch.save(
-                optimizer.state_dict(),
-                os.path.join(self.opt.log_path, "optim_{}.ckpt".format(epoch)),
-            )
-
-            try:
-                os.remove(
-                    os.path.join(
-                        self.opt.log_path,
-                        "optim_{}.ckpt".format(epoch - self.num_models_to_keep),
-                    )
-                )
-            except:
-                print("not enough models there yet, nothing to delete")
-
-        # Save hyper-parameters
-        path = os.path.join(self.opt.log_path, "log.txt")
-        with open(path, "w+") as cur_file:
-            cur_file.write(str(self.opt))
-            if accuracy is not None:
-                cur_file.write("Top 1 -  accuracy: " + str(accuracy))
-            if acc5 is not None:
-                cur_file.write("Top 5 - Accuracy: " + str(acc5))
-            if final_test and accuracy is not None:
-                cur_file.write(" Very Final testing accuracy: " + str(accuracy))
-            if final_test and acc5 is not None:
-                cur_file.write(" Very Final testing top 5 - accuracy: " + str(acc5))
-
-        # Save losses throughout training and plot
-        self.np_save(
-            os.path.join(self.opt.log_path, "train_loss"), np.array(self.train_loss, dtype=object)
-        )
-
-        if self.val_loss is not None:
-            self.np_save(
-                os.path.join(self.opt.log_path, "val_loss"), np.array(self.val_loss, dtype=object)
-            )
-
-        self.draw_loss_curve()
-
-        if accuracy is not None:
-            # self.np_save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
-            np.save(os.path.join(self.opt.log_path, "accuracy"), accuracy)
-
-        if final_test:
-            # self.np_save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
-            np.save(os.path.join(self.opt.log_path, "final_accuracy"), accuracy)
-            # self.np_save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
-            np.save(os.path.join(self.opt.log_path, "final_loss"), final_loss)
 
     def create_decoder_log(self, decoder, epoch):
         print("Saving model and log-file to " + self.opt.log_path)
@@ -198,40 +121,3 @@ class Logger:
             decoder.state_dict(),
             os.path.join(self.opt.log_path, "decoder_{}.ckpt".format(epoch)),
         )
-
-    def draw_loss_curve(self):
-        for idx, loss in enumerate(self.train_loss):
-            lst_iter = np.arange(len(loss))
-            plt.plot(lst_iter, np.array(loss), "-b", label="train loss")
-
-            if (
-                    self.loss_last_training is not None
-                    and len(self.loss_last_training) > idx
-            ):
-                lst_iter = np.arange(len(self.loss_last_training[idx]))
-                plt.plot(lst_iter, self.loss_last_training[idx], "-g")
-
-            if self.val_loss is not None and len(self.val_loss) > idx:
-                lst_iter = np.arange(len(self.val_loss[idx]))
-                plt.plot(lst_iter, np.array(self.val_loss[idx]), "-r", label="val loss")
-
-            plt.xlabel("epoch")
-            plt.ylabel("loss")
-            plt.legend(loc="upper right")
-            # plt.axis([0, max(200,len(loss)+self.opt.encoder_config.start_epoch), 0, -round(np.log(1/(self.opt["negative_samples"]+1)),1)])
-
-            # save image
-            plt.savefig(os.path.join(self.opt.log_path, f"loss_{idx}.png"))
-            try:
-                tikzplotlib.save(os.path.join(self.opt.log_path, f"loss_{idx}.tex"))
-            except:
-                pass
-            plt.close()
-
-    def append_train_loss(self, train_loss):
-        for idx, elem in enumerate(train_loss):
-            self.train_loss[idx].append(elem)
-
-    def append_val_loss(self, val_loss):
-        for idx, elem in enumerate(val_loss):
-            self.val_loss[idx].append(elem)
