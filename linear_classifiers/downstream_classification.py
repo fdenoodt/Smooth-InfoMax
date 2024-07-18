@@ -131,15 +131,15 @@ class ClassifierModel(lightning.LightningModule):
 
         return z.permute(0, 2, 1)
 
-    def forward(self, x):
+    def forward(self, batch):
         # return self.encoder(x)
-        (audio, _, label, _) = x
-        z = self.get_z(self.options, self.encoder, audio,
+        (x, label) = batch
+        z = self.get_z(self.options, self.encoder, x,
                        regression=self.classifier_config.bias,
                        which_module=self.classifier_config.encoder_module,
                        which_layer=self.classifier_config.encoder_layer)
 
-        total_loss, accuracies = self.classifier.get_loss(audio, z, z, label)
+        total_loss, accuracies = self.classifier.get_loss(x, z, z, label)
         return total_loss, accuracies
 
     def training_step(self, batch, batch_idx):
@@ -190,7 +190,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         try:
             # Train the model
             trainer.fit(classifier, data_module)
-            logs.create_log(classifier.classifier, accuracy=0, final_test=True, final_loss=0)
+            logs.create_log(classifier.classifier)
         except KeyboardInterrupt:
             print("Training interrupted, saving log files")
 
