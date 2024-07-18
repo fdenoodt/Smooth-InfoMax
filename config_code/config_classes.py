@@ -59,6 +59,7 @@ class DataSetConfig:
                  num_workers: Optional[int] = 0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
+
         # self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
@@ -93,6 +94,21 @@ class DataSetConfig:
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
         self.grayscale = grayscale
+
+    @property
+    def dataset(self):
+        return self._dataset
+
+    @dataset.setter
+    def dataset(self, value):
+        if not isinstance(value, Dataset):
+            raise TypeError("dataset must be an instance of Dataset Enum")
+        self._dataset = value
+        # Update the dataset-dependent assertions or configurations here if needed
+
+        # also update labels to default if dataset is not de_boer
+        if value != Dataset.DE_BOER:
+            self.labels = Label.DEFAULT
 
     def __copy__(self):
         return DataSetConfig(
