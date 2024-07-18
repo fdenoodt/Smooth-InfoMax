@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Dict
 import os
 import torch
 import datetime
@@ -29,6 +29,22 @@ class Dataset(Enum):
     RADIO = 11
 
 
+class Label(Enum):
+    DEFAULT = 0  # when no ambiguity
+    PHONES = 1  # (Libri)
+    SPEAKERS = 2  # (Libri)
+    SYLLABLES = 3  # (de boer)
+    VOWELS = 4  # (de boer)
+
+
+class ClassifierKey(Enum):
+    LIBRI_PHONES = 1
+    LIBRI_SPEAKERS = 2
+    DE_BOER_SYLLABLES = 3
+    DE_BOER_VOWELS = 4
+    RADIO = 5
+
+
 class ModelType(Enum):
     UNDEFINED = 0
     FULLY_SUPERVISED = 1  # Both the downstream and the encoder are trained
@@ -37,29 +53,43 @@ class ModelType(Enum):
 
 
 class DataSetConfig:
-    def __init__(self, dataset: Dataset, batch_size, labels: Optional[str] = None,
+    def __init__(self, dataset: Dataset, batch_size, labels: Label,
                  limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
-                 grayscale: Optional[bool] = False, split_in_syllables: Optional[bool] = False,
+                 grayscale: Optional[bool] = False,
                  num_workers: Optional[int] = 0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
-        self.split_in_syllables = split_in_syllables
+        # self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
         self.num_workers = num_workers
 
-        if split_in_syllables:
-            assert dataset in [Dataset.DE_BOER]
-            "split_in_syllables can only be True for de_boer_sounds dataset"
+        if dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+            assert labels in [Label.PHONES, Label.SPEAKERS]
 
-        if (split_in_syllables and dataset in [Dataset.DE_BOER]):
-            assert labels in ["syllables", "vowels"]
+        if dataset in [Dataset.DE_BOER]:
+            assert labels in [Label.DEFAULT,  # no splitting into syllables/vowels
+                              Label.SYLLABLES,
+                              Label.VOWELS]
+
+        if dataset == Dataset.RADIO:
+            assert labels == Label.DEFAULT
+
+        if dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES, Dataset.SHAPES_3D]:
+            assert labels == Label.DEFAULT
+
+        # if split_in_syllables:
+        #     assert dataset in [Dataset.DE_BOER]
+        #     "split_in_syllables can only be True for de_boer_sounds dataset"
+
+        # if (split_in_syllables and dataset in [Dataset.DE_BOER]):
+        #     assert labels in ["syllables", "vowels"]
 
         if grayscale:
             assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES, Dataset.SHAPES_3D]
             "grayscale can only be True for STL10 dataset or ANIMAL_WITH_ATTRIBUTES dataset"
 
-        self.labels = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
+        self.labels: Label = labels  # eg: syllables or vowels, only for de_boer_sounds dataset
         self.limit_train_batches = limit_train_batches
         self.limit_validation_batches = limit_validation_batches
         self.grayscale = grayscale
@@ -67,21 +97,25 @@ class DataSetConfig:
     def __copy__(self):
         return DataSetConfig(
             dataset=self.dataset,
-            split_in_syllables=self.split_in_syllables,
             batch_size=self.batch_size,
-            labels=self.labels
+            labels=self.labels,
+            limit_train_batches=self.limit_train_batches,
+            limit_validation_batches=self.limit_validation_batches,
+            grayscale=self.grayscale,
+            num_workers=self.num_workers
         )
 
     def __str__(self):
-        return f"DataSetConfig(dataset={self.dataset}, split_in_syllables={self.split_in_syllables}, " \
-               f"batch_size={self.batch_size}, labels={self.labels})"
+        return f"DataSetConfig(dataset={self.dataset}, batch_size={self.batch_size}, labels={self.labels}, " \
+               f"limit_train_batches={self.limit_train_batches}, limit_validation_batches={self.limit_validation_batches}, " \
+               f"grayscale={self.grayscale}, num_workers={self.num_workers})"
 
 
 class EncoderConfig:
     def __init__(self, start_epoch, num_epochs, negative_samples, subsample,
                  architecture: Union[ArchitectureConfig, VisionArchitectureConfig],
                  kld_weight, learning_rate, decay_rate,
-                 train_w_noise, dataset: DataSetConfig,
+                 train_w_noise,
                  deterministic: Optional[bool] = False):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
@@ -92,7 +126,6 @@ class EncoderConfig:
         self.learning_rate = learning_rate
         self.decay_rate = decay_rate
         self.train_w_noise = train_w_noise
-        self.dataset = dataset
 
         # Useful after training to get deterministic results. If True, the encoder will use mode of the posterior distribution
         self.deterministic = deterministic
@@ -102,18 +135,17 @@ class EncoderConfig:
                f"negative_samples={self.negative_samples}, subsample={self.subsample}, " \
                f"architecture={self.architecture}, kld_weight={self.kld_weight}, " \
                f"learning_rate={self.learning_rate}, decay_rate={self.decay_rate}, " \
-               f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
+               f"train_w_noise={self.train_w_noise}, deterministic={self.deterministic})"
 
 
 class PostHocModel:  # Classifier or Decoder
     """encoder_module and encoder_layer are currently only supported for the audio encoder."""
 
-    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+    def __init__(self, num_epochs, learning_rate, encoder_num: str,
                  bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
 
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
-        self.dataset = dataset
         self.encoder_num = encoder_num
 
         # 0-based index. (0 is first module)
@@ -147,16 +179,16 @@ class PostHocModel:  # Classifier or Decoder
 
 
 class ClassifierConfig(PostHocModel):
-    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+    def __init__(self, num_epochs, learning_rate, encoder_num: str,
                  bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
-        super().__init__(num_epochs, learning_rate, dataset, encoder_num, encoder_module, encoder_layer)
+        super().__init__(num_epochs, learning_rate, encoder_num, encoder_module, encoder_layer)
         self.bias = bias
 
     # to string
     def __str__(self):
         return f"ClassifierConfig(num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, " \
-               f"dataset={self.dataset}, encoder_num={self.encoder_num}, bias={self.bias}, " \
-               f"encoder_module={self.encoder_module}, encoder_layer={self.encoder_layer})"
+               f"encoder_num={self.encoder_num}, bias={self.bias}, encoder_module={self.encoder_module}, " \
+               f"encoder_layer={self.encoder_layer})"
 
 
 class DecoderLoss(Enum):
@@ -170,11 +202,11 @@ class DecoderLoss(Enum):
 
 
 class DecoderConfig(PostHocModel):
-    def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
+    def __init__(self, num_epochs, learning_rate, encoder_num: str,
                  architectures: Union[List[DecoderArchitectureConfig], List[VisionDecoderArchitectureConfig]],
                  decoder_loss: DecoderLoss,
                  encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
-        super().__init__(num_epochs, learning_rate, dataset, encoder_num, encoder_module, encoder_layer)
+        super().__init__(num_epochs, learning_rate, encoder_num, encoder_module, encoder_layer)
 
         self.architectures: Union[
             List[DecoderArchitectureConfig], List[VisionDecoderArchitectureConfig]] = architectures
@@ -204,11 +236,14 @@ class OptionsConfig:
     def __init__(self, config_file, seed, validate, loss: Loss, encoder_config, experiment,
                  save_dir,
                  wandb_entity: str,
-                 log_every_x_epochs, phones_classifier_config: Optional[ClassifierConfig],
-                 speakers_classifier_config: Optional[ClassifierConfig],
-                 syllables_classifier_config: Optional[ClassifierConfig],
+                 log_every_x_epochs,
+                 classifier_configs: Dict[ClassifierKey, ClassifierConfig],
                  decoder_config: Optional[DecoderConfig],
                  vision_classifier_config: Optional[ClassifierConfig],
+
+                 encoder_dataset: DataSetConfig,
+                 post_hoc_dataset: DataSetConfig,
+
                  wandb_project_name: Optional[str] = "",
                  # two params used for local development. Not used in the cluster
                  use_wandb: Optional[bool] = True,
@@ -236,9 +271,7 @@ class OptionsConfig:
         self.model_path = f'{root_logs}/{save_dir}'
 
         self.encoder_config: EncoderConfig = encoder_config
-        self.phones_classifier_config: Optional[ClassifierConfig] = phones_classifier_config
-        self.speakers_classifier_config: Optional[ClassifierConfig] = speakers_classifier_config
-        self.syllables_classifier_config: Optional[ClassifierConfig] = syllables_classifier_config
+
         self.decoder_config: Optional[DecoderConfig] = decoder_config
 
         self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
@@ -248,10 +281,39 @@ class OptionsConfig:
         self.wandb_entity = wandb_entity
         self.compile_model = compile_model
         self.profile = profile
+        self._classifier_configs: Dict[ClassifierKey, ClassifierConfig] = classifier_configs
+
+        self.encoder_dataset = encoder_dataset
+        self.post_hoc_dataset = post_hoc_dataset
+
+    @property
+    def classifier_config(self):
+        return self._get_classifier(self.post_hoc_dataset)
+
+    def _get_classifier(self, config: DataSetConfig) -> ClassifierConfig:
+        if config.dataset == Dataset.LIBRISPEECH:
+            if config.labels == Label.PHONES:
+                return self._classifier_configs[ClassifierKey.LIBRI_PHONES]
+            elif config.labels == Label.SPEAKERS:
+                return self._classifier_configs[ClassifierKey.LIBRI_SPEAKERS]
+            else:
+                raise ValueError(f"Invalid label {config.labels} for dataset {config.dataset}")
+        elif config.dataset == Dataset.DE_BOER:
+            if config.labels == Label.SYLLABLES:
+                return self._classifier_configs[ClassifierKey.DE_BOER_SYLLABLES]
+            elif config.labels == Label.VOWELS:
+                return self._classifier_configs[ClassifierKey.DE_BOER_VOWELS]
+            else:
+                raise ValueError(f"Invalid label {config.labels} for dataset {config.dataset}")
+        elif config.dataset == Dataset.RADIO:
+            return self._classifier_configs[ClassifierKey.RADIO]
+        else:
+            raise ValueError(f"Invalid dataset {config.dataset}. (Vision datasets are not supported anymore)")
 
     def __str__(self):
-        return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \
-               f"loss={self.loss}, encoder_config={self.encoder_config}, device={self.device}, " \
-               f"experiment={self.experiment}, save_dir={self.save_dir}, log_path={self.log_path}, " \
-               f"log_every_x_epochs={self.log_every_x_epochs}, model_path={self.model_path}, " \
-               f"phones_classifier_config={self.phones_classifier_config}, speakers_classifier_config={self.speakers_classifier_config})"
+        return f"OptionsConfig(config_file={self.config_file}, seed={self.seed}, validate={self.validate}, " \
+               f"loss={self.loss}, encoder_config={self.encoder_config}, experiment={self.experiment}, " \
+               f"save_dir={self.save_dir}, wandb_entity={self.wandb_entity}, log_every_x_epochs={self.log_every_x_epochs}, " \
+               f"classifier_configs={self._classifier_configs}, decoder_config={self.decoder_config}, " \
+               f"vision_classifier_config={self.vision_classifier_config}, wandb_project_name={self.wandb_project_name}, " \
+               f"use_wandb={self.use_wandb}, train={self.train}, compile_model={self.compile_model}, profile={self.profile})"

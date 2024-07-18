@@ -14,7 +14,7 @@ from lightning import Trainer
 from lightning.pytorch.loggers import WandbLogger
 
 from arg_parser import arg_parser
-from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig, Label
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
@@ -59,7 +59,7 @@ class ClassifierModel(lightning.LightningModule):
         else:
             n_features = cnn_hidden_dim
 
-        num_classes = get_nb_classes(classifier_config.dataset.dataset, classifier_config.dataset.labels)
+        num_classes = get_nb_classes(opt.post_hoc_dataset.dataset, opt.post_hoc_dataset.labels)
 
         # The loss class also contains the classifier!
         loss: Syllables_Loss = Syllables_Loss(opt, n_features, calc_accuracy=True, num_syllables=num_classes, bias=bias)
@@ -146,16 +146,16 @@ class ClassifierModel(lightning.LightningModule):
         loss, accuracies = self.forward(batch)
 
         wandb_section = get_audio_classific_key(self.options, self.classifier_config.bias)
-        self.log(f"{wandb_section}/Loss classification", loss, batch_size=self.classifier_config.dataset.batch_size)
-        self.log(f"{wandb_section}/Train accuracy", accuracies, batch_size=self.classifier_config.dataset.batch_size)
+        self.log(f"{wandb_section}/Loss classification", loss, batch_size=self.options.post_hoc_dataset.batch_size)
+        self.log(f"{wandb_section}/Train accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
 
     def test_step(self, batch, batch_idx):
         loss, accuracies = self.forward(batch)
 
         wandb_section = get_audio_classific_key(self.options, self.classifier_config.bias)
-        self.log(f"{wandb_section}/Test loss", loss, batch_size=self.classifier_config.dataset.batch_size)
-        self.log(f"{wandb_section}/Test accuracy", accuracies, batch_size=self.classifier_config.dataset.batch_size)
+        self.log(f"{wandb_section}/Test loss", loss, batch_size=self.options.post_hoc_dataset.batch_size)
+        self.log(f"{wandb_section}/Test accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
 
 
@@ -166,18 +166,21 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (classifier_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
+    if opt.post_hoc_dataset.dataset == Dataset.DE_BOER:
+        assert opt.post_hoc_dataset.labels in [Label.SYLLABLES, Label.VOWELS], "Labels not supported"
+    assert (opt.post_hoc_dataset.dataset in
+            [Dataset.DE_BOER, Dataset.LIBRISPEECH, Dataset.RADIO]), "Dataset not supported"
 
     arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(classifier_config))
     logs = logger.Logger(opt)  # Will be used to save the classifier model for instance
 
     classifier = ClassifierModel(opt, classifier_config)
-    data_module = MyDataModule(classifier_config.dataset)
+    data_module = MyDataModule(opt.post_hoc_dataset)
 
     trainer = Trainer(
         max_epochs=classifier_config.num_epochs,
-        limit_train_batches=classifier_config.dataset.limit_train_batches,
-        limit_val_batches=classifier_config.dataset.limit_validation_batches,
+        limit_train_batches=options.post_hoc_dataset.limit_train_batches,
+        limit_val_batches=options.post_hoc_dataset.limit_validation_batches,
         logger=WandbLogger() if opt.use_wandb else None,
         log_every_n_steps=10,
         profiler="pytorch" if opt.profile else None
@@ -196,13 +199,13 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     trainer.test(classifier, data_module)  # Test the model
 
     # Only for De Boer dataset
-    print(f"Finished training {classifier_config.dataset.labels} classifier")
+    print(f"Finished training {options.post_hoc_dataset.labels} classifier")
 
 
 if __name__ == "__main__":
     # IMPORTANT TO SET classifier_config.dataset.labels=[syllables|vowels], classifier_config.bias=[True|False] in the config file
     options: OptionsConfig = get_options()
-    c_config: ClassifierConfig = options.syllables_classifier_config
+    c_config: ClassifierConfig = options.classifier_config
 
     options.model_type = ModelType.ONLY_DOWNSTREAM_TASK  # ModelType.FULLY_SUPERVISED
     [print("*" * 50) for _ in range(3)]

@@ -1,12 +1,12 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from config_code.architecture_config import ArchitectureConfig, ModuleConfig, DecoderArchitectureConfig
 from config_code.config_classes import EncoderConfig, DataSetConfig, Dataset, OptionsConfig, Loss, ClassifierConfig, \
-    DecoderConfig, DecoderLoss
+    DecoderConfig, DecoderLoss, ClassifierKey, Label
 
 
 class SIMSetup:
-    def __init__(self, predict_distributions: bool, dataset: Dataset, config_file: str, is_cpc: bool,
+    def __init__(self, predict_distributions: bool, config_file: str, is_cpc: bool,
                  conventional_cpc: Optional[bool] = None):
 
         # `conventional_cpc` is without the additional layers. alternative is with the additional layers to have same # layers as in our proposal (due to reparametrization trick)
@@ -100,15 +100,6 @@ class SIMSetup:
 
         ARCHITECTURE = ArchitectureConfig(modules=modules, is_cpc=is_cpc)
 
-        DATASET = DataSetConfig(
-            dataset=dataset,
-            split_in_syllables=False,
-            batch_size=64,
-            limit_train_batches=1.0,
-            limit_validation_batches=1.0,
-            num_workers=1,
-        )
-
         self.ENCODER_CONFIG = EncoderConfig(
             start_epoch=0,
             num_epochs=1_000,
@@ -119,54 +110,14 @@ class SIMSetup:
             learning_rate=2e-4,  # = 0.0002
             decay_rate=1,
             train_w_noise=False,
-            dataset=DATASET,
         )
 
-        self.CLASSIFIER_CONFIG_PHONES = ClassifierConfig(
-            num_epochs=20,
-            learning_rate=1e-4,  # = 0.0001
-            # Deep copy of the dataset, to avoid changing the original dataset
-            dataset=DATASET.__copy__(),
-            # For loading a specific model from a specific epoch, to use by the classifier
-            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
-        )
-
-        self.CLASSIFIER_CONFIG_SPEAKERS = ClassifierConfig(
-            num_epochs=50,
-            learning_rate=1e-3,  # = 0.001
-            dataset=DATASET.__copy__(),
-            # For loading a specific model from a specific epoch, to use by the classifier
-            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
-        )
-
-        self.CLASSIFIER_CONFIG_SYLLABLES = ClassifierConfig(
-            num_epochs=50,
-            learning_rate=1e-3,  # = 0.001
-            dataset=DataSetConfig(
-                dataset=dataset,
-                split_in_syllables=True,
-                labels="syllables",
-                batch_size=64,
-                limit_train_batches=1.0,
-                limit_validation_batches=1.0,
-                num_workers=1
-            ),
-            # For loading a specific model from a specific epoch, to use by the classifier
-            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
-        )
+        self.CLASSIER_CONFIGS = self.construct_classifiers()
 
         nb_of_cnn_modules = 3  # 4th module is the autoregressor
         self.DECODER_CONFIG = DecoderConfig(
             num_epochs=200,
             learning_rate=2e-4,
-            dataset=DataSetConfig(
-                dataset=dataset,
-                split_in_syllables=False,
-                batch_size=64,
-                limit_train_batches=1.0,
-                limit_validation_batches=1.0,
-                num_workers=1
-            ),
             encoder_num=self.ENCODER_CONFIG.num_epochs - 1,
             architectures=[self.construct_architecture_for_module(modul_idx)
                            for modul_idx in range(nb_of_cnn_modules)],
@@ -183,12 +134,29 @@ class SIMSetup:
             save_dir=experiment_name,
             log_every_x_epochs=1,
             encoder_config=self.ENCODER_CONFIG,
-            phones_classifier_config=self.CLASSIFIER_CONFIG_PHONES,
-            speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
-            syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
+            classifier_configs=self.CLASSIER_CONFIGS,
+            # phones_classifier_config=self.CLASSIFIER_CONFIG_PHONES,
+            # speakers_classifier_config=self.CLASSIFIER_CONFIG_SPEAKERS,
+            # syllables_classifier_config=self.CLASSIFIER_CONFIG_SYLLABLES,
             decoder_config=self.DECODER_CONFIG,
             vision_classifier_config=None,
-            wandb_entity=""
+            wandb_entity="",
+            encoder_dataset=DataSetConfig(
+                dataset=Dataset.DE_BOER,
+                labels=Label.DEFAULT,
+                batch_size=64,
+                limit_train_batches=1.0,
+                limit_validation_batches=1.0,
+                num_workers=1,
+            ),
+            post_hoc_dataset=DataSetConfig(
+                dataset=Dataset.DE_BOER,
+                labels=Label.VOWELS,
+                batch_size=64,
+                limit_train_batches=1.0,
+                limit_validation_batches=1.0,
+                num_workers=1,
+            ),
         )
 
         return options
@@ -247,3 +215,42 @@ class SIMSetup:
             output_dim=1,
             expected_nb_frames_latent_repr=expected_nb_frames_latent_repr  # used for Gaussian sampling
         )
+
+    def construct_classifiers(self) -> Dict[ClassifierKey, ClassifierConfig]:
+        classifiers: Dict[ClassifierKey, ClassifierConfig] = {}
+
+        classifiers[ClassifierKey.LIBRI_PHONES] = ClassifierConfig(
+            num_epochs=20,
+            learning_rate=1e-4,  # = 0.0001
+            # Deep copy of the dataset, to avoid changing the original dataset
+            # For loading a specific model from a specific epoch, to use by the classifier
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
+        classifiers[ClassifierKey.LIBRI_SPEAKERS] = ClassifierConfig(
+            num_epochs=50,
+            learning_rate=1e-3,  # = 0.001
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
+        classifiers[ClassifierKey.DE_BOER_SYLLABLES] = ClassifierConfig(
+            num_epochs=50,
+            learning_rate=1e-3,  # = 0.001
+            # For loading a specific model from a specific epoch, to use by the classifier
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
+        classifiers[ClassifierKey.DE_BOER_VOWELS] = ClassifierConfig(
+            num_epochs=50,
+            learning_rate=1e-3,  # = 0.001
+            # For loading a specific model from a specific epoch, to use by the classifier
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
+        classifiers[ClassifierKey.RADIO] = ClassifierConfig(
+            num_epochs=50,
+            learning_rate=1e-3,  # = 0.001
+            encoder_num=self.ENCODER_CONFIG.num_epochs - 1
+        )
+
+        return classifiers

@@ -111,7 +111,7 @@ class FullModel(nn.Module):
         if is_first_module:
             # Radio: 2
             # Audio: 1 channel
-            nb_channels_inp = 2 if opt.encoder_config.dataset.dataset == Dataset.RADIO else 1
+            nb_channels_inp = 2 if opt.encoder_dataset.dataset == Dataset.RADIO else 1
         else:
             nb_channels_inp = cnn_hidden_dim
         return nb_channels_inp

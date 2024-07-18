@@ -38,9 +38,9 @@ class ContrastiveModel(L.LightningModule):
 
         # zip the losses together
         for idx, (cur_losses, cur_nce, cur_kld) in enumerate(zip(loss, nce, kld)):
-            self.log(f'train/loss_{idx}', cur_losses, batch_size=self.options.encoder_config.dataset.batch_size)
-            self.log(f'nce/nce_{idx}', cur_nce, batch_size=self.options.encoder_config.dataset.batch_size)
-            self.log(f'kld/kld_{idx}', cur_kld, batch_size=self.options.encoder_config.dataset.batch_size)
+            self.log(f'train/loss_{idx}', cur_losses, batch_size=self.options.encoder_dataset.batch_size)
+            self.log(f'nce/nce_{idx}', cur_nce, batch_size=self.options.encoder_dataset.batch_size)
+            self.log(f'kld/kld_{idx}', cur_kld, batch_size=self.options.encoder_dataset.batch_size)
         return loss.sum()  # sum of all module losses
 
     def validation_step(self, batch, batch_idx):
@@ -51,7 +51,7 @@ class ContrastiveModel(L.LightningModule):
         loss = torch.mean(loss, 0)
 
         for i, modul_loss in enumerate(loss):
-            self.log(f'validation/val_loss_{i}', modul_loss, batch_size=self.options.encoder_config.dataset.batch_size)
+            self.log(f'validation/val_loss_{i}', modul_loss, batch_size=self.options.encoder_dataset.batch_size)
         return loss.sum()  # sum of all module losses
 
     def configure_optimizers(self):
@@ -77,7 +77,7 @@ def main(options: OptionsConfig):
         except Exception as e:
             print(f"Could not compile model: {e}")
 
-    data_module = MyDataModule(options.encoder_config.dataset)
+    data_module = MyDataModule(options.encoder_dataset)
 
     from lightning.pytorch.profilers import SimpleProfiler
     # from lightning.pytorch.callbacks import DeviceStatsMonitor
@@ -86,8 +86,8 @@ def main(options: OptionsConfig):
 
     trainer = Trainer(
         max_epochs=options.encoder_config.num_epochs,
-        limit_train_batches=options.encoder_config.dataset.limit_train_batches,
-        limit_val_batches=options.encoder_config.dataset.limit_validation_batches,
+        limit_train_batches=options.encoder_dataset.limit_train_batches,
+        limit_val_batches=options.encoder_dataset.limit_validation_batches,
         logger=WandbLogger() if options.use_wandb else None,
         log_every_n_steps=10,
         profiler="simple" if options.profile else None,

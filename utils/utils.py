@@ -128,7 +128,8 @@ def rescale_between_neg1_and_1(x, axis=0):
     return 2 * (x - x.min(axis=axis, keepdims=True)) / np.ptp(x, axis=axis, keepdims=True) - 1
 
 
-def get_nb_classes(dataset: Dataset, args: None):
+def get_nb_classes(dataset: Dataset, args: None): # TODOODO: ARGS TYPE
+    assert False, todo
     # args only used in de_boer
     if dataset == Dataset.STL10:
         nb_classes = 10

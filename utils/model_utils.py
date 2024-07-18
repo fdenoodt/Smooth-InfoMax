@@ -14,16 +14,16 @@ def distribute_over_GPUs(opt: OptionsConfig, model, num_GPU):
         if num_GPU is None:
             model = nn.DataParallel(model)
             num_GPU = torch.cuda.device_count()
-            opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size * num_GPU
+            opt.encoder_dataset.batch_size_multiGPU = opt.encoder_dataset.batch_size * num_GPU
         else:
             assert (
                     num_GPU <= torch.cuda.device_count()
             ), "You cant use more GPUs than you have."
             model = nn.DataParallel(model, device_ids=list(range(num_GPU)))
-            opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size * num_GPU
+            opt.encoder_dataset.batch_size_multiGPU = opt.encoder_dataset.batch_size * num_GPU
     else:
         model = nn.DataParallel(model)
-        opt.encoder_config.dataset.batch_size_multiGPU = opt.encoder_config.dataset.batch_size
+        opt.encoder_dataset.batch_size_multiGPU = opt.encoder_dataset.batch_size
 
     model = model.to(opt.device)
     print("Let's use", num_GPU, "GPUs!")

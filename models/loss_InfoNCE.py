@@ -53,7 +53,7 @@ class InfoNCE_Loss(loss.Loss):
         :param input_tensor: tensor to be broadcasted, generally of shape B x L x C
         :return: reshaped tensor of shape (B*L) x C
         """
-        assert input_tensor.size(0) == self.opt.encoder_config.dataset.batch_size
+        assert input_tensor.size(0) == self.opt.encoder_dataset.batch_size
         assert len(input_tensor.size()) == 3
 
         return input_tensor.reshape(-1, input_tensor.size(2))
@@ -137,7 +137,7 @@ class InfoNCE_Loss(loss.Loss):
         cur_device = utils.get_device(self.opt, Wc)
 
         total_loss = 0
-        batch_size = self.opt.encoder_config.dataset.batch_size
+        batch_size = self.opt.encoder_dataset.batch_size
 
         accuracies = torch.zeros(self.prediction_step, 1)
         true_labels = torch.zeros(
