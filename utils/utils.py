@@ -176,7 +176,12 @@ def get_wandb_project_name(options: OptionsConfig):
 
 
 def initialize_wandb(options: OptionsConfig, entity, project_name, run_name):
-    wandb.init(entity=entity, project=project_name, name=run_name, config=vars(options))
+    conf = vars(options)
+    # store conf._classifier_configs them as string instead of type Dict[ClassifierKey, ...]
+    # Fixes ClassifierKey not serializable error for wandb
+    conf["_classifier_configs"] = str(conf["_classifier_configs"])
+
+    wandb.init(entity=entity, project=project_name, name=run_name, config=conf)
     # After initializing the wandb run, get the run id
     run_id = wandb.run.id
     # Save the run id to a file in the logs directory
