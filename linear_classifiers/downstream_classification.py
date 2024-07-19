@@ -220,3 +220,8 @@ if __name__ == "__main__":
     [print("*" * 50) for _ in range(3)]
 
     main(options, c_config)
+
+    # Fully supervised with randomly initialized backbone --> says if architecture is any good
+    # rnd init backbone, call train.py with train=False, then call downstream_classification.py with classifier_config.encoder_num=0
+    # Fully supervised with frozen backbone (so ModelType.ONLY_DOWNSTREAM_TASK) --> says if representations from cpc are any good
+    # For optimal performance: fine tuning the backbone with the downstream task: fully supervised but with backbone weights from cpc
