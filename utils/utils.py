@@ -214,7 +214,8 @@ def get_wandb_audio_classific_key(opt: OptionsConfig, classifier_config: Classif
     module_nb = classifier_config.encoder_module
     layer_nb = classifier_config.encoder_layer
     bias = classifier_config.bias
-    return f"C bias={bias} lbl={label_type} modul={module_nb} layer={layer_nb}"
+    use_single_frame = classifier_config.use_single_frame
+    return f"C bias={bias} lbl={label_type} modul={module_nb} layer={layer_nb} single_frame={use_single_frame}"
 
 
 def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py

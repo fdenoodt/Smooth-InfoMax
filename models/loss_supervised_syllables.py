@@ -30,9 +30,12 @@ class Syllables_Loss(loss.Loss):
         self.syllables_loss = nn.CrossEntropyLoss()
 
     def get_loss(self, x, z, c, targets):
-        total_loss, accuracies = self.calc_supervised_syllables_loss(
-            c, targets,
-        )
+        if self.opt.classifier_config.use_single_frame: # predict using a single frame
+            total_loss, accuracies = self.calc_supervised_syllables_loss_subsample(c, targets)
+        else:
+            total_loss, accuracies = self.calc_supervised_syllables_loss(
+                c, targets,
+            )
         return total_loss, accuracies
 
     def calc_supervised_syllables_loss(self, c, targets):
@@ -50,6 +53,37 @@ class Syllables_Loss(loss.Loss):
 
         assert syllables_out.shape[0] == targets.shape[0]
 
+        loss = self.syllables_loss(syllables_out, targets)
+
+        accuracy = torch.zeros(1)
+        # calculate accuracy
+        if self.calc_accuracy:
+            _, predicted = torch.max(syllables_out.data, 1)
+            total = targets.size(0)
+            correct = (predicted == targets).sum().item()
+            accuracy[0] = correct / total
+
+        return loss, accuracy
+
+    def calc_supervised_syllables_loss_subsample(self, c, targets):
+        # forward pass
+        b_size, num_frames, hidden_dim = c.shape
+        c = c.reshape(b_size * num_frames, hidden_dim) # predict on every timestep
+
+        # c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
+        # avg over all frames
+        # pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
+
+        assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
+
+        # pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, self.hidden_dim)  # shape: (batch_size, hidden_dim)
+
+        syllables_out = self.linear_classifier(c)  # shape: (batch_size, 9)
+
+        # duplicate targets for each timestep
+        temp = targets.clone()
+        targets = targets.repeat(num_frames, 1).T.reshape(-1)
+        assert syllables_out.shape[0] == targets.shape[0]
         loss = self.syllables_loss(syllables_out, targets)
 
         accuracy = torch.zeros(1)

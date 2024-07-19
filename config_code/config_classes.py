@@ -196,9 +196,11 @@ class PostHocModel:  # Classifier or Decoder
 
 class ClassifierConfig(PostHocModel):
     def __init__(self, num_epochs, learning_rate, encoder_num: str,
-                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
+                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1,
+                 use_single_frame: Optional[bool] = False):
         super().__init__(num_epochs, learning_rate, encoder_num, encoder_module, encoder_layer)
         self.bias = bias
+        self.use_single_frame = use_single_frame
 
     # to string
     def __str__(self):
@@ -306,7 +308,7 @@ class OptionsConfig:
         self.overfit_batches = overfit_batches
 
     @property
-    def classifier_config(self):
+    def classifier_config(self) -> ClassifierConfig:
         classif, _ = self._get_classifier_and_key(self.post_hoc_dataset)
         return classif
 

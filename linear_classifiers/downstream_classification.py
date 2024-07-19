@@ -183,7 +183,9 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         limit_val_batches=options.post_hoc_dataset.limit_validation_batches,
         logger=WandbLogger() if opt.use_wandb else None,
         log_every_n_steps=10,
-        profiler="pytorch" if opt.profile else None
+        profiler="pytorch" if opt.profile else None,
+        fast_dev_run=opt.fast_dev_run,
+        overfit_batches=opt.overfit_batches,
     )
 
     if opt.train:
