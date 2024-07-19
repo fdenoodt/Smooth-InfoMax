@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 experiment_name = args.experiment_name
 
-_get_options = None # to be defined later. Done to avoid IDE warnings.
+_get_options = None  # to be defined later. Done to avoid IDE warnings.
 if args.config_file:
     # eg: `from configs.enc_gim_audio import get_options`
     exec(f'from configs.{args.config_file} import _get_options')
@@ -58,9 +58,17 @@ if args.overrides is not None:
         last_key = keys.pop()
         obj = _options
         for k in keys:
-            if not hasattr(obj, k):
-                raise AttributeError(f"Object {obj} does not have attribute {k}")
-            obj = getattr(obj, k)
+            # eg k = 'encoder_config'
+
+            # Handle arrays, eg modules[0]
+            if '[' in k:
+                k, idx = k.split('[')
+                idx = int(idx[:-1])
+                obj = getattr(obj, k)[idx]
+            else:
+                if not hasattr(obj, k):
+                    raise AttributeError(f"Object {obj} does not have attribute {k}")
+                obj = getattr(obj, k)
 
         attr_type = type(getattr(obj, last_key))
         if attr_type is bool:  # related to `use_wandb='False'` not working otherwise.
