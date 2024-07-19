@@ -266,7 +266,8 @@ class OptionsConfig:
                  train: Optional[bool] = True,
                  compile_model: Optional[bool] = False,
                  profile: Optional[bool] = False,
-                 ):
+                 fast_dev_run: Optional[bool] = False,
+                 overfit_batches: Optional[int] = 0):
         root_logs = r"./sim_logs/"
 
         # current time
@@ -301,6 +302,8 @@ class OptionsConfig:
 
         self.encoder_dataset = encoder_dataset
         self.post_hoc_dataset = post_hoc_dataset
+        self.fast_dev_run = fast_dev_run
+        self.overfit_batches = overfit_batches
 
     @property
     def classifier_config(self):

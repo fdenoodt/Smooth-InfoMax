@@ -97,8 +97,8 @@ def main(options: OptionsConfig):
         log_every_n_steps=10,
         profiler="simple" if options.profile else None,
         callbacks=[log_creation_callback],  # Add your custom callback here
-        # profiler="advanced" if options.profile else None,
-        # callbacks=[DeviceStatsMonitor()] if options.profile else None,
+        fast_dev_run=options.fast_dev_run,
+        overfit_batches=options.overfit_batches,
         # gpus=options.gpus,
         # num_nodes=options.num_nodes, # for DDP.
         # strategy="ddp",
