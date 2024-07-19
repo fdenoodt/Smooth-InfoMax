@@ -44,6 +44,42 @@ class Syllables_Loss(loss.Loss):
         correct = (predicted == targets).sum().item()
         return correct / total
 
+    import torch
+    import torch.nn as nn
+
+    def apply_moving_average_pooling(self, c, window_size=3):
+        """
+        Applies moving average pooling over all frames with a specified window size.
+
+        Parameters:
+        - c: Input tensor with shape (batch_size, hidden_dim, num_frames).
+        - window_size: The size of the moving window.
+
+        Returns:
+        - pooled_c: Tensor after applying moving average pooling.
+        """
+        # Ensure the input tensor is in the correct shape for convolution
+        c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames)
+
+        # Define a 1D convolutional layer for moving average with the specified window size
+        b, hidden_dim, num_frames = c.shape
+        moving_avg_filter = nn.Conv1d(in_channels=hidden_dim,
+                                      out_channels=hidden_dim,
+                                      kernel_size=window_size,
+                                      stride=1, padding=0, bias=False
+                                      ).to(c.device)
+        # Set uniform weights for the moving average and disable gradient computation
+        moving_avg_filter.weight.data.fill_(1.0 / window_size)
+        moving_avg_filter.weight.requires_grad = False
+
+        # Apply the moving average filter
+        pooled_c = moving_avg_filter(c)
+
+        # Return to original tensor shape
+        pooled_c = pooled_c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames)
+
+        return pooled_c
+
     def calc_supervised_syllables_loss(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
         # forward pass
         c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
@@ -72,6 +108,10 @@ class Syllables_Loss(loss.Loss):
         return loss, accuracy, accuracy
 
     def calc_supervised_syllables_loss_subsample(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
+        # moving average (with window size 3) over all frames
+        pooled_c = self.apply_moving_average_pooling(c, window_size=3)  # shape: (batch_size, hidden_dim, num_frames)
+        c = pooled_c
+
         # forward pass
         b_size, num_frames, hidden_dim = c.shape
         c = c.reshape(b_size * num_frames, hidden_dim)  # predict on every timestep
@@ -106,4 +146,4 @@ class Syllables_Loss(loss.Loss):
 
             accuracy_mode[0] = self._compute_accuracy(predicted_mode, targets)
 
-        return loss, accuracy_single_frame, accuracy_mode  # , variance
+        return loss, accuracy_single_frame, accuracy_mode
