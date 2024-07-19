@@ -160,8 +160,8 @@ class ClassifierModel(lightning.LightningModule):
 
 
 @init_decorator  # sets seed and clears cache etc
-@timer_decorator
 @wandb_resume_decorator
+@timer_decorator
 def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
