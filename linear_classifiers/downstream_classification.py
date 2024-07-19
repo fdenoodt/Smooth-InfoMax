@@ -139,23 +139,27 @@ class ClassifierModel(lightning.LightningModule):
                        which_module=self.classifier_config.encoder_module,
                        which_layer=self.classifier_config.encoder_layer)
 
-        total_loss, accuracies = self.classifier.get_loss(x, z, z, label)
-        return total_loss, accuracies
+        # mode_accuracy only useful when predicting from a single frame
+        total_loss, accuracy, mode_accuracy = self.classifier.get_loss(x, z, z, label)
+        return total_loss, accuracy, mode_accuracy
 
     def training_step(self, batch, batch_idx):
-        loss, accuracies = self.forward(batch)
+        loss, accuracies, mode_accuracy = self.forward(batch)
 
         wandb_section = get_wandb_audio_classific_key(self.options, self.classifier_config)
         self.log(f"{wandb_section}/Loss classification", loss, batch_size=self.options.post_hoc_dataset.batch_size)
         self.log(f"{wandb_section}/Train accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
+        self.log(f"{wandb_section}/Mode accuracy", mode_accuracy, batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
 
     def test_step(self, batch, batch_idx):
-        loss, accuracies = self.forward(batch)
+        loss, accuracy, mode_accuracy = self.forward(batch)
 
         wandb_section = get_wandb_audio_classific_key(self.options, self.classifier_config)
         self.log(f"{wandb_section}/Test loss", loss, batch_size=self.options.post_hoc_dataset.batch_size)
-        self.log(f"{wandb_section}/Test accuracy", accuracies, batch_size=self.options.post_hoc_dataset.batch_size)
+        self.log(f"{wandb_section}/Test accuracy", accuracy, batch_size=self.options.post_hoc_dataset.batch_size)
+        self.log(f"{wandb_section}/Test mode accuracy", mode_accuracy,
+                 batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
 
 

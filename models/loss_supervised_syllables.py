@@ -29,16 +29,22 @@ class Syllables_Loss(loss.Loss):
         self.label_num = 1
         self.syllables_loss = nn.CrossEntropyLoss()
 
-    def get_loss(self, x, z, c, targets):
-        if self.opt.classifier_config.use_single_frame: # predict using a single frame
-            total_loss, accuracies = self.calc_supervised_syllables_loss_subsample(c, targets)
+    def get_loss(self, x, z, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
+        if self.opt.classifier_config.use_single_frame:  # predict using a single frame
+            total_loss, accuracy, mode_accuracy = self.calc_supervised_syllables_loss_subsample(c, targets)
         else:
-            total_loss, accuracies = self.calc_supervised_syllables_loss(
+            total_loss, accuracy, mode_accuracy = self.calc_supervised_syllables_loss(
                 c, targets,
             )
-        return total_loss, accuracies
+        return total_loss, accuracy, mode_accuracy  # mode_accuracies is the same as accuracies for predict_from_single_timeframe=False
 
-    def calc_supervised_syllables_loss(self, c, targets):
+    def _compute_accuracy(self, predicted, targets):
+        # calculate accuracy
+        total = targets.size(0)
+        correct = (predicted == targets).sum().item()
+        return correct / total
+
+    def calc_supervised_syllables_loss(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
         # forward pass
         c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
         b_size, hidden_dim, num_frames = c.shape
@@ -63,35 +69,41 @@ class Syllables_Loss(loss.Loss):
             correct = (predicted == targets).sum().item()
             accuracy[0] = correct / total
 
-        return loss, accuracy
+        return loss, accuracy, accuracy
 
-    def calc_supervised_syllables_loss_subsample(self, c, targets):
+    def calc_supervised_syllables_loss_subsample(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
         # forward pass
         b_size, num_frames, hidden_dim = c.shape
-        c = c.reshape(b_size * num_frames, hidden_dim) # predict on every timestep
-
-        # c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
-        # avg over all frames
-        # pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
-
+        c = c.reshape(b_size * num_frames, hidden_dim)  # predict on every timestep
         assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
-
-        # pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, self.hidden_dim)  # shape: (batch_size, hidden_dim)
-
         syllables_out = self.linear_classifier(c)  # shape: (batch_size, 9)
 
         # duplicate targets for each timestep
-        temp = targets.clone()
         targets = targets.repeat(num_frames, 1).T.reshape(-1)
         assert syllables_out.shape[0] == targets.shape[0]
         loss = self.syllables_loss(syllables_out, targets)
 
-        accuracy = torch.zeros(1)
+        accuracy_single_frame = torch.zeros(1)
+        accuracy_mode = torch.zeros(1)
+        # variances = torch.zeros(1)
+
         # calculate accuracy
         if self.calc_accuracy:
-            _, predicted = torch.max(syllables_out.data, 1)
-            total = targets.size(0)
-            correct = (predicted == targets).sum().item()
-            accuracy[0] = correct / total
+            # Accuracy of classifier when predicting a single frame
+            _, predicted = torch.max(syllables_out.data, 1)  # shape: (batch_size*num_frames, 1)
+            accuracy_single_frame[0] = self._compute_accuracy(predicted, targets)
 
-        return loss, accuracy
+            # reduce to (batch_size, 1) by taking the most frequent prediction
+            predicted = predicted.reshape(b_size, num_frames)
+            predicted_mode = torch.mode(predicted, dim=1).values  # shape: (batch_size)
+            # variance = torch.var(predicted.float(), dim=1)  # shape: (batch_size)
+
+            # reduce the targets to (batch_size, 1) by removing duplicates in the num_frames dimension
+            targets = targets.reshape(b_size, num_frames)
+            # all targets are the same, so we can take the first one (or any)
+            targets = targets[:, 0]
+            # targets = torch.mode(targets, dim=1).values # slow
+
+            accuracy_mode[0] = self._compute_accuracy(predicted_mode, targets)
+
+        return loss, accuracy_single_frame, accuracy_mode  # , variance
