@@ -44,12 +44,10 @@ class Syllables_Loss(loss.Loss):
         correct = (predicted == targets).sum().item()
         return correct / total
 
-    import torch
-    import torch.nn as nn
-
     def apply_moving_average_pooling(self, c, window_size=3):
         """
-        Applies moving average pooling over all frames with a specified window size.
+        Applies moving average pooling over all frames with a specified window size,
+        independently for each hidden channel.
 
         Parameters:
         - c: Input tensor with shape (batch_size, hidden_dim, num_frames).
@@ -58,16 +56,16 @@ class Syllables_Loss(loss.Loss):
         Returns:
         - pooled_c: Tensor after applying moving average pooling.
         """
-        # Ensure the input tensor is in the correct shape for convolution
-        c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames)
+        c = c.permute(0, 2, 1)
+        batch_size, hidden_dim, num_frames = c.shape
 
-        # Define a 1D convolutional layer for moving average with the specified window size
-        b, hidden_dim, num_frames = c.shape
-        moving_avg_filter = nn.Conv1d(in_channels=hidden_dim,
-                                      out_channels=hidden_dim,
-                                      kernel_size=window_size,
-                                      stride=1, padding=0, bias=False
-                                      ).to(c.device)
+        # Reshape c to treat each hidden channel independently
+        c = c.reshape(-1, 1, num_frames)  # shape: (batch_size*hidden_dim, 1, num_frames)
+
+        # Define a 1D convolutional layer for moving average
+        moving_avg_filter = nn.Conv1d(in_channels=1, out_channels=1, kernel_size=window_size,
+                                      stride=1, padding=0, bias=False).to(c.device)
+
         # Set uniform weights for the moving average and disable gradient computation
         moving_avg_filter.weight.data.fill_(1.0 / window_size)
         moving_avg_filter.weight.requires_grad = False
@@ -75,9 +73,11 @@ class Syllables_Loss(loss.Loss):
         # Apply the moving average filter
         pooled_c = moving_avg_filter(c)
 
-        # Return to original tensor shape
-        pooled_c = pooled_c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames)
+        # Reshape back to original dimensions with moving average applied
+        pooled_c = pooled_c.reshape(batch_size, hidden_dim,
+                                    -1)  # shape: (batch_size, hidden_dim, num_frames or adjusted)
 
+        pooled_c = pooled_c.permute(0, 2, 1)  # shape: (batch_size, num_frames, hidden_dim)
         return pooled_c
 
     def calc_supervised_syllables_loss(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
