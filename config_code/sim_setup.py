@@ -98,7 +98,7 @@ class SIMSetup:
                     prediction_step=prediction_step_k,
                 )]
 
-        ARCHITECTURE = ArchitectureConfig(modules=modules, is_cpc=is_cpc)
+        ARCHITECTURE = ArchitectureConfig(modules=modules, is_cpc=is_cpc, use_batch_norm=True)
 
         self.ENCODER_CONFIG = EncoderConfig(
             start_epoch=0,

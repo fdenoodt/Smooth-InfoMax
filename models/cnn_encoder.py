@@ -43,11 +43,13 @@ class CNNEncoder(nn.Module):
         self.encoder = nn.ModuleList(self.encoder)  # Convert list to ModuleList
 
     @staticmethod
-    def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool):
-        new_block = CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding)
-        if relu:  # always True, except for special case in CPC for density experiments such that equal number of layers for easier comparison with SIM/GIM
-            new_block = nn.Sequential(new_block, nn.ReLU())
-        return new_block
+    def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool, batch_norm=True):
+        layers = [CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding)]
+        if relu:
+            layers.append(nn.ReLU())
+        if batch_norm:
+            layers.append(nn.BatchNorm1d(out_dim))
+        return nn.Sequential(*layers)
 
     @staticmethod
     def conv1d(in_dim, out_dim, kernel_size, stride, padding):

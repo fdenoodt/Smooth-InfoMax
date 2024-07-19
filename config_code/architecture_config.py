@@ -71,16 +71,17 @@ class ModuleConfig:
 
 
 class ArchitectureConfig:  # for encoder, only AUDIO
-    def __init__(self, modules: list[ModuleConfig], is_cpc: Optional[bool] = False):
+    def __init__(self, modules: list[ModuleConfig], use_batch_norm: bool, is_cpc: Optional[bool] = False):
         if is_cpc:
             assert len(modules) == 1
 
         self.is_cpc = is_cpc
+        self.use_batch_norm = use_batch_norm
         self.modules: list[ModuleConfig] = modules
 
     def __str__(self):
         modules: str = ", ".join([str(module) for module in self.modules])
-        return f"ArchitectureConfig(modules={modules})"
+        return f"ArchitectureConfig(modules=[{modules}], use_batch_norm={self.use_batch_norm}, is_cpc={self.is_cpc})"
 
 
 class VisionArchitectureConfig:
