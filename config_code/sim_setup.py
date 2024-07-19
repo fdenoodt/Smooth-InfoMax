@@ -163,11 +163,18 @@ class SIMSetup:
 
     @staticmethod
     def get_layer_params():
-        kernel_sizes = [10, 8, 4, 4, 4]
-        strides = [5, 4, 2, 2, 2]
+        # kernel_sizes = [10, 8, 4, 4, 4] # radio: 2080 -> 13 so 2080/13 = 160
+        # strides = [5, 4, 2, 2, 2]
+        # padding = [2, 2, 2, 2, 1]
+        # cnn_hidden_dim = 512
+        # regressor_hidden_dim = 256
+
+        kernel_sizes = [10, 8, 4, 4, 4]  # radio: 2080 -> 104 so 2080/104 = 20
+        strides = [5, 4, 1, 1, 1]
         padding = [2, 2, 2, 2, 1]
         cnn_hidden_dim = 512
         regressor_hidden_dim = 256
+
         prediction_step_k = 10
         max_pool_stride = None
         max_pool_k_size = None
