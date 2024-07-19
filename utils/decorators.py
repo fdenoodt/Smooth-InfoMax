@@ -55,7 +55,7 @@ def wandb_resume_decorator(func):
 
         if options.use_wandb:
             run_id, project_name = retrieve_existing_wandb_run_id(options)
-            wandb.init(id=run_id, resume="allow", project=project_name)
+            wandb.init(id=run_id, resume="allow", project=project_name, entity=options.wandb_entity)
 
         result = func(options, *args, **kwargs)
 
