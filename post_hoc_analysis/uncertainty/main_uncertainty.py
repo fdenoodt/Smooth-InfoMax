@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import torch
 import wandb
 from torch import Tensor
@@ -11,7 +10,7 @@ from linear_classifiers.downstream_classification import ClassifierModel
 from models.load_audio_model import load_classifier
 from options import get_options
 from utils.decorators import init_decorator, wandb_resume_decorator, timer_decorator
-from utils.utils import get_classif_log_path
+from utils.utils import get_classif_log_path, get_wandb_audio_classific_key
 
 try:
     import tikzplotlib
@@ -41,16 +40,8 @@ def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: T
     return stack
 
 
-import numpy as np
-import wandb
-
-import matplotlib.pyplot as plt
-import numpy as np
-import wandb
-from torch import Tensor
-
-
-def histogram_of_accuracies(title, var_vs_accuracy: Tensor):
+def histogram_of_accuracies(opt: OptionsConfig, classifier_config: ClassifierConfig, title: str,
+                            var_vs_accuracy: Tensor):
     variances = var_vs_accuracy[:, 0].numpy()
     accuracies = var_vs_accuracy[:, 1].numpy()  # 0 or 1s
 
@@ -81,12 +72,13 @@ def histogram_of_accuracies(title, var_vs_accuracy: Tensor):
 
     # Log the matplotlib figure to wandb
     if options.use_wandb:
-        wandb.log({f"{title}_plot": wandb.Image(fig)})
+        wandb_section = get_wandb_audio_classific_key(opt, classifier_config)
+        wandb.log({f"{wandb_section}/{title}_plot": wandb.Image(fig)})
 
     plt.close(fig)  # Close the figure to prevent it from displaying in the notebook or script output
 
 
-def log_accuracy_vs_variance(var_vs_accuracy: Tensor):
+def log_accuracy_vs_variance(opt: OptionsConfig, classifier_config: ClassifierConfig, var_vs_accuracy: Tensor):
     variances = var_vs_accuracy[:, 0].numpy()
     accuracies = var_vs_accuracy[:, 1].numpy()
 
@@ -97,10 +89,10 @@ def log_accuracy_vs_variance(var_vs_accuracy: Tensor):
     table = wandb.Table(data=data, columns=["Variance", "Accuracy"])
 
     if options.use_wandb:
-        # Log the table with a custom line plot
+        wandb_section = get_wandb_audio_classific_key(opt, classifier_config)
         wandb.log({
-            "variance_vs_accuracy": wandb.plot.scatter(table, "Variance", "Accuracy", title="Accuracy vs Variance")
-        })
+            f"{wandb_section}/variance_vs_accuracy": wandb.plot.scatter(
+                table, "Variance", "Accuracy", title="Accuracy vs Variance")})
 
 
 @init_decorator  # sets seed and clears cache etc
@@ -123,8 +115,8 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
     var_vs_accuracy = var_vs_accuracy.cpu().detach()
 
-    # log_accuracy_vs_variance(var_vs_accuracy)
-    histogram_of_accuracies("Accuracy", var_vs_accuracy)
+    log_accuracy_vs_variance(opt, opt.classifier_config, var_vs_accuracy)
+    histogram_of_accuracies(opt, opt.classifier_config, "Accuracy", var_vs_accuracy)
 
 
 if __name__ == "__main__":
