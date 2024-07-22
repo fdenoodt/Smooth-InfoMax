@@ -30,8 +30,12 @@ from utils.utils import get_nb_classes, \
 class ClassifierModel(lightning.LightningModule):
     def __init__(self, options: OptionsConfig, classifier_config: ClassifierConfig):
         super(ClassifierModel, self).__init__()
+        # sanity checks
+        self._apply_sanity_checks(options, classifier_config)
+
         self.options = options
         self.classifier_config = classifier_config
+
         self.encoder, _ = load_audio_model.load_model_and_optimizer(
             options,
             classifier_config,
@@ -41,6 +45,17 @@ class ClassifierModel(lightning.LightningModule):
         )
         self.encoder: FullModel = self.encoder  # for type hinting
         self.classifier: Syllables_Loss = self.setup_classifier(options, classifier_config)
+
+    def _apply_sanity_checks(self, opt, classifier_config):
+        assert classifier_config is not None, "Classifier config is not set"
+        assert opt.model_type in [ModelType.FULLY_SUPERVISED,
+                                  ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
+
+        if opt.post_hoc_dataset.dataset == Dataset.DE_BOER:
+            assert opt.post_hoc_dataset.labels in [Label.SYLLABLES, Label.VOWELS], "Labels not supported"
+
+        assert (opt.post_hoc_dataset.dataset in
+                [Dataset.DE_BOER, Dataset.LIBRISPEECH, Dataset.RADIO]), "Dataset not supported"
 
     def setup_classifier(self, opt: OptionsConfig, classifier_config: ClassifierConfig):
         """
@@ -167,14 +182,6 @@ class ClassifierModel(lightning.LightningModule):
 @wandb_resume_decorator
 @timer_decorator
 def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
-    assert classifier_config is not None, "Classifier config is not set"
-    assert opt.model_type in [ModelType.FULLY_SUPERVISED,
-                              ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    if opt.post_hoc_dataset.dataset == Dataset.DE_BOER:
-        assert opt.post_hoc_dataset.labels in [Label.SYLLABLES, Label.VOWELS], "Labels not supported"
-    assert (opt.post_hoc_dataset.dataset in
-            [Dataset.DE_BOER, Dataset.LIBRISPEECH, Dataset.RADIO]), "Dataset not supported"
-
     arg_parser.create_log_path(opt, add_path_var=get_classif_log_path(opt, classifier_config))
     logs = logger.Logger(opt)  # Will be used to save the classifier model for instance
 
@@ -191,7 +198,6 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         fast_dev_run=opt.fast_dev_run,
         overfit_batches=opt.overfit_batches,
     )
-
 
     if opt.train:
         try:
