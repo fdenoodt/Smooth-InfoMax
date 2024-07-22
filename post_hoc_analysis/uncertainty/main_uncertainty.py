@@ -1,4 +1,6 @@
-import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 import torch
 import wandb
 from torch import Tensor
@@ -10,6 +12,11 @@ from models.load_audio_model import load_classifier
 from options import get_options
 from utils.decorators import init_decorator, wandb_resume_decorator, timer_decorator
 from utils.utils import get_classif_log_path
+
+try:
+    import tikzplotlib
+except ImportError:
+    print("Tikzplotlib not installed. Please install it to save plots as tikz.")
 
 
 def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: Tensor) -> Tensor:
@@ -34,6 +41,57 @@ def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: T
     return stack
 
 
+import numpy as np
+import wandb
+
+
+def histogram_of_accuracies(title, var_vs_accuracy: Tensor):
+    variances = var_vs_accuracy[:, 0].numpy()
+    accuracies = var_vs_accuracy[:, 1].numpy()  # 0 or 1s
+
+    # Bin the variances
+    num_bins = 4  # Adjust the number of bins as needed
+    bins = np.linspace(variances.min(), variances.max(), num_bins)
+    variance_bins = np.digitize(variances, bins)  # values between 1 ... num_bins
+
+    # Count accuracies for each bin
+    accuracy_counts = np.zeros(num_bins)
+    for i in range(1, num_bins + 1):
+        # Indices where variances fall into the current bin
+        indices = np.where(variance_bins == i)[0]
+        # Count of 1s in accuracies for the current bin
+        accuracy_counts[i - 1] = accuracies[indices].sum()
+
+    # normalize
+    accuracy_per_bin = accuracy_counts / len(accuracies)
+
+    bin_width = np.min(np.diff(bins)) * 0.8  # Adjust the 0.8 as needed to change the bar width
+
+    # Create a bar plot of the accuracy counts per bin with mathplotlib
+    plt.bar(bins, accuracy_per_bin, width=bin_width)
+    plt.xlabel("Variance Bins")
+    plt.ylabel("Accuracy Counts")
+    plt.title(f"{title} Accuracy Counts per Variance Bin")
+    plt.show()
+
+
+
+def log_accuracy_vs_variance(var_vs_accuracy: Tensor):
+    variances = var_vs_accuracy[:, 0].numpy()
+    accuracies = var_vs_accuracy[:, 1].numpy()
+
+    # Prepare data for the table
+    data = [[variance, accuracy] for variance, accuracy in zip(variances, accuracies)]
+
+    # Create a wandb.Table
+    table = wandb.Table(data=data, columns=["Variance", "Accuracy"])
+
+    # Log the table with a custom line plot
+    wandb.log({
+        "variance_vs_accuracy": wandb.plot.scatter(table, "Variance", "Accuracy", title="Accuracy vs Variance")
+    })
+
+
 @init_decorator  # sets seed and clears cache etc
 @wandb_resume_decorator
 @timer_decorator
@@ -53,32 +111,9 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
 
     var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
     var_vs_accuracy = var_vs_accuracy.cpu().detach()
-    variances = var_vs_accuracy[:, 0].numpy()
-    accuracies = var_vs_accuracy[:, 1].numpy()
 
-    # 
-
-    # Prepare data for the table
-    data = [[variance, accuracy] for variance, accuracy in zip(variances, accuracies)]
-
-    # Create a wandb.Table
-    table = wandb.Table(data=data, columns=["Variance", "Accuracy"])
-
-    # Log the table with a custom line plot
-    wandb.log({
-        "variance_vs_accuracy": wandb.plot.scatter(table, "Variance", "Accuracy", title="Accuracy vs Variance")
-    })
-
-    # graph the variance vs accuracy to wandb.
-    # x axis is variance, y axis is accuracy
-    # TODO: implement this
-    # data_to_log = [{"variance": float(var_vs_accuracy[i, 0]), "accuracy": float(var_vs_accuracy[i, 1])} for i in
-    #                range(var_vs_accuracy.shape[0])]
-    #
-    # # Log the data
-    # for data_point in data_to_log:
-    #     wandb.log(data_point)
-
+    # log_accuracy_vs_variance(var_vs_accuracy)
+    histogram_of_accuracies("Accuracy", var_vs_accuracy)
 
 
 if __name__ == "__main__":
