@@ -44,6 +44,11 @@ def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: T
 import numpy as np
 import wandb
 
+import matplotlib.pyplot as plt
+import numpy as np
+import wandb
+from torch import Tensor
+
 
 def histogram_of_accuracies(title, var_vs_accuracy: Tensor):
     variances = var_vs_accuracy[:, 0].numpy()
@@ -67,13 +72,18 @@ def histogram_of_accuracies(title, var_vs_accuracy: Tensor):
 
     bin_width = np.min(np.diff(bins)) * 0.8  # Adjust the 0.8 as needed to change the bar width
 
-    # Create a bar plot of the accuracy counts per bin with mathplotlib
-    plt.bar(bins, accuracy_per_bin, width=bin_width)
-    plt.xlabel("Variance Bins")
-    plt.ylabel("Accuracy Counts")
-    plt.title(f"{title} Accuracy Counts per Variance Bin")
-    plt.show()
+    # Create a matplotlib figure and axes
+    fig, ax = plt.subplots()
+    ax.bar(bins, accuracy_per_bin, width=bin_width)
+    ax.set_xlabel("Variance Bins")
+    ax.set_ylabel("Accuracy Counts")
+    ax.set_title(f"{title} Accuracy Counts per Variance Bin")
 
+    # Log the matplotlib figure to wandb
+    if options.use_wandb:
+        wandb.log({f"{title}_plot": wandb.Image(fig)})
+
+    plt.close(fig)  # Close the figure to prevent it from displaying in the notebook or script output
 
 
 def log_accuracy_vs_variance(var_vs_accuracy: Tensor):
@@ -86,10 +96,11 @@ def log_accuracy_vs_variance(var_vs_accuracy: Tensor):
     # Create a wandb.Table
     table = wandb.Table(data=data, columns=["Variance", "Accuracy"])
 
-    # Log the table with a custom line plot
-    wandb.log({
-        "variance_vs_accuracy": wandb.plot.scatter(table, "Variance", "Accuracy", title="Accuracy vs Variance")
-    })
+    if options.use_wandb:
+        # Log the table with a custom line plot
+        wandb.log({
+            "variance_vs_accuracy": wandb.plot.scatter(table, "Variance", "Accuracy", title="Accuracy vs Variance")
+        })
 
 
 @init_decorator  # sets seed and clears cache etc
