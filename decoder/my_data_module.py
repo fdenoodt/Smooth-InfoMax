@@ -20,3 +20,11 @@ class MyDataModule(L.LightningDataModule):
 
     def test_dataloader(self):
         return self.test_loader
+
+    def get_batch(self, device):
+        batch = next(iter(self.train_loader))
+        # Assuming the batch is a tuple of (inputs, labels)
+        inputs, labels = batch
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+        return (inputs, labels)

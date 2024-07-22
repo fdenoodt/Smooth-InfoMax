@@ -19,7 +19,7 @@ import wandb
 from arg_parser import arg_parser
 from config_code.config_classes import OptionsConfig
 from models import load_audio_model
-from models.loss_supervised_syllables import Syllables_Loss
+from models.loss_supervised import Syllables_Loss
 from options import get_options
 from utils.utils import retrieve_existing_wandb_run_id, rescale_between_neg1_and_1, get_audio_classific_key, \
     get_nb_classes, get_classif_log_path

@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch.nn as nn
 import torch
 
@@ -39,6 +41,10 @@ class Syllables_Loss(loss.Loss):
         return total_loss, accuracy, mode_accuracy  # mode_accuracies is the same as accuracies for predict_from_single_timeframe=False
 
     def _compute_accuracy(self, predicted, targets):
+        """
+        Inp: predicted: tensor of shape (batch_size*num_frames), targets: tensor of shape (batch_size*num_frames),
+        or  tensor of shape (batch_size), targets: tensor of shape (batch_size)
+        """
         # calculate accuracy
         total = targets.size(0)
         correct = (predicted == targets).sum().item()
@@ -108,6 +114,52 @@ class Syllables_Loss(loss.Loss):
         return loss, accuracy, accuracy
 
     def calc_supervised_syllables_loss_subsample(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
+        b_size = c.shape[0]
+
+        syllables_out, num_frames = self.get_predictions_of_all_frames(c)  # (batch_size*num_frames, num_syllables)
+
+        # duplicate targets for each timestep
+        targets = targets.repeat(num_frames, 1).T.reshape(-1)
+        assert syllables_out.shape[0] == targets.shape[0]
+
+        loss = self.syllables_loss(syllables_out, targets)
+
+        accuracy_single_frame = torch.zeros(1)
+        accuracy_mode = torch.zeros(1)
+
+        # calculate accuracy
+        if self.calc_accuracy:
+            predicted_mode, predicted = self.get_predicted_mode(syllables_out, b_size, num_frames)
+            accuracy_single_frame[0] = self._compute_accuracy(predicted.flatten(), targets)
+
+            targets = targets.reshape(b_size, num_frames)
+            # all targets are the same, so we can take the first one (or any)
+            targets = targets[:, 0]
+
+            accuracy_mode[0] = self._compute_accuracy(predicted_mode, targets)
+
+        return loss, accuracy_single_frame, accuracy_mode
+
+    def get_predicted_mode(self, syllables_out, b_size, num_frames) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Inp: syllables_out: tensor of shape (batch_size*num_frames, num_classes)
+        Out: predicted_mode: tensor of shape (batch_size), predicted: tensor of shape (batch_size, num_frames)
+        """
+
+        # Accuracy of classifier when predicting a single frame
+        _, predicted = torch.max(syllables_out.data, 1)  # shape: (batch_size*num_frames, 1)
+
+        # reduce to (batch_size, 1) by taking the most frequent prediction
+        predicted = predicted.reshape(b_size, num_frames)
+        predicted_mode = torch.mode(predicted, dim=1).values  # shape: (batch_size)
+
+        return predicted_mode, predicted
+
+    def get_predictions_of_all_frames(self, c):
+        """
+        Get predictions of all frames.
+        Returns tensor of shape (batch_size*num_frames, num_syllables). So need to reshape to (batch_size, num_frames, num_syllables) later.
+        """
         # moving average (with window size 3) over all frames
         pooled_c = self.apply_moving_average_pooling(c, window_size=3)  # shape: (batch_size, hidden_dim, num_frames)
         c = pooled_c
@@ -118,32 +170,4 @@ class Syllables_Loss(loss.Loss):
         assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
         syllables_out = self.linear_classifier(c)  # shape: (batch_size, 9)
 
-        # duplicate targets for each timestep
-        targets = targets.repeat(num_frames, 1).T.reshape(-1)
-        assert syllables_out.shape[0] == targets.shape[0]
-        loss = self.syllables_loss(syllables_out, targets)
-
-        accuracy_single_frame = torch.zeros(1)
-        accuracy_mode = torch.zeros(1)
-        # variances = torch.zeros(1)
-
-        # calculate accuracy
-        if self.calc_accuracy:
-            # Accuracy of classifier when predicting a single frame
-            _, predicted = torch.max(syllables_out.data, 1)  # shape: (batch_size*num_frames, 1)
-            accuracy_single_frame[0] = self._compute_accuracy(predicted, targets)
-
-            # reduce to (batch_size, 1) by taking the most frequent prediction
-            predicted = predicted.reshape(b_size, num_frames)
-            predicted_mode = torch.mode(predicted, dim=1).values  # shape: (batch_size)
-            # variance = torch.var(predicted.float(), dim=1)  # shape: (batch_size)
-
-            # reduce the targets to (batch_size, 1) by removing duplicates in the num_frames dimension
-            targets = targets.reshape(b_size, num_frames)
-            # all targets are the same, so we can take the first one (or any)
-            targets = targets[:, 0]
-            # targets = torch.mode(targets, dim=1).values # slow
-
-            accuracy_mode[0] = self._compute_accuracy(predicted_mode, targets)
-
-        return loss, accuracy_single_frame, accuracy_mode
+        return syllables_out, num_frames

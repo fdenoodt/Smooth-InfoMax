@@ -59,6 +59,9 @@ def wandb_resume_decorator(func):
 
         result = func(options, *args, **kwargs)
 
+        if options.use_wandb:
+            wandb.finish()
+
         return result
 
     return wrapper

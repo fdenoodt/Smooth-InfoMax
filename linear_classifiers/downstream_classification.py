@@ -19,7 +19,7 @@ from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
 from models.load_audio_model import load_classifier
-from models.loss_supervised_syllables import Syllables_Loss
+from models.loss_supervised import Syllables_Loss
 from options import get_options
 from utils import logger
 from utils.decorators import timer_decorator, wandb_resume_decorator, init_decorator
@@ -157,6 +157,39 @@ class ClassifierModel(lightning.LightningModule):
         # mode_accuracy only useful when predicting from a single frame
         total_loss, accuracy, mode_accuracy = self.classifier.get_loss(x, z, z, label)
         return total_loss, accuracy, mode_accuracy
+
+    def get_predictions_of_all_frames(self, batch: torch.Tensor) -> torch.Tensor:
+        """
+        Input: batch of shape (batch, channels, num_frames)
+        Output: tensor of shape (batch, num_frames_pooled, num_classes)
+        """
+        # Only useful when classifier_config.use_single_frame is True
+        # Function is used in `main_uncertainty.py`
+
+        (x, label) = batch
+        z = self.get_z(self.options, self.encoder, x,
+                       regression=self.classifier_config.bias,
+                       which_module=self.classifier_config.encoder_module,
+                       which_layer=self.classifier_config.encoder_layer)
+
+        # mode_accuracy only useful when predicting from a single frame
+        predictions, num_frames = self.classifier.get_predictions_of_all_frames(z)
+        # predictions: (batch*num_frames, num_classes) --> (batch, num_frames, num_classes)
+        predictions = predictions.view(-1, num_frames, predictions.size(-1))
+
+        return predictions
+
+    def get_predicted_mode(self, predictions: torch.Tensor) -> (torch.Tensor, torch.Tensor):
+        """
+        Input: predictions of shape (batch, num_frames, num_classes)
+        Output: predicted_mode of shape (batch), mode_accuracies of shape (batch)
+        """
+        assert predictions.dim() == 3, "Predictions should be of shape (batch, num_frames, num_classes)"
+
+        b_size, num_frames, num_classes = predictions.shape
+        return self.classifier.get_predicted_mode(
+            predictions.reshape(b_size * num_frames, num_classes),
+            b_size, num_frames)
 
     def training_step(self, batch, batch_idx):
         loss, accuracies, mode_accuracy = self.forward(batch)

@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 from data import get_dataloader
 from models import load_audio_model
-from models.loss_supervised_syllables import Syllables_Loss
+from models.loss_supervised import Syllables_Loss
 from options import get_options
 from config_code.config_classes import OptionsConfig, ModelType
 

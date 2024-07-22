@@ -6,7 +6,7 @@ from decoder.decoderr import Decoder
 from decoder.lit_decoder import LitDecoder
 from models import full_model
 from models.full_model import FullModel
-from models.loss_supervised_syllables import Syllables_Loss
+from models.loss_supervised import Syllables_Loss
 from utils import model_utils
 import os
 
