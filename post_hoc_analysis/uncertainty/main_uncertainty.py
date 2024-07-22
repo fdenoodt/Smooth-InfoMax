@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -18,7 +20,7 @@ except ImportError:
     print("Tikzplotlib not installed. Please install it to save plots as tikz.")
 
 
-def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: Tensor) -> Tensor:
+def variances_vs_accuracy_per_input_signal(classifier: ClassifierModel, batch: Tuple[Tensor, Tensor]) -> Tensor:
     """Returns tensor of shape (batch, 2),
     where the first column is the variance and the second column
     is 1 or 0 if the prediction is correct or not."""
@@ -110,8 +112,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     classifier.classifier = load_classifier(opt, classifier.classifier)  # update Lightning module as well!!!
 
     # load the data
-    batch = data_module.get_batch(opt.device)
-
+    batch = data_module.get_all_data(opt.device)
     var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
     var_vs_accuracy = var_vs_accuracy.cpu().detach()
 

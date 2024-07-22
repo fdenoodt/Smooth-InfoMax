@@ -6,7 +6,7 @@ This script is only for syllable/vowel classification. For speaker/phoeme classi
 # python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
 # or
 # python -m linear_classifiers.logistic_regression_syllables temp sim_audio_de_boer_distr_true --overrides encoder_config.kld_weight=0.01 encoder_config.num_epochs=2 syllables_classifier_config.encoder_num=1 syllables_classifier_config.num_epochs=3 use_wandb=False train=True
-from typing import Optional
+from typing import Optional, Tuple
 
 import lightning
 import torch
@@ -158,7 +158,7 @@ class ClassifierModel(lightning.LightningModule):
         total_loss, accuracy, mode_accuracy = self.classifier.get_loss(x, z, z, label)
         return total_loss, accuracy, mode_accuracy
 
-    def get_predictions_of_all_frames(self, batch: torch.Tensor) -> torch.Tensor:
+    def get_predictions_of_all_frames(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
         """
         Input: batch of shape (batch, channels, num_frames)
         Output: tensor of shape (batch, num_frames_pooled, num_classes)
