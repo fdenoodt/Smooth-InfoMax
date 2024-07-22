@@ -192,6 +192,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         overfit_batches=opt.overfit_batches,
     )
 
+
     if opt.train:
         try:
             # Train the model

@@ -229,4 +229,5 @@ def get_classif_log_path(options: OptionsConfig, classifier_config: ClassifierCo
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
     bias: bool = classifier_config.bias
-    return f"linear_model_{options.post_hoc_dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"
+    use_single_frame: bool = classifier_config.use_single_frame
+    return f"linear_model_{options.post_hoc_dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}_single_frame={use_single_frame}"
