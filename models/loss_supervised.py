@@ -170,4 +170,7 @@ class Syllables_Loss(loss.Loss):
         assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
         syllables_out = self.linear_classifier(c)  # shape: (batch_size, 9)
 
+        # softmax
+        syllables_out = torch.nn.functional.softmax(syllables_out, dim=1)
+
         return syllables_out, num_frames

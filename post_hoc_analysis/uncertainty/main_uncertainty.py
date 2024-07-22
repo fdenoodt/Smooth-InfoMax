@@ -75,7 +75,7 @@ def histogram_of_accuracies(opt: OptionsConfig, classifier_config: ClassifierCon
     # Log the matplotlib figure to wandb
     if options.use_wandb:
         wandb_section = get_wandb_audio_classific_key(opt, classifier_config)
-        wandb.log({f"{wandb_section}/{title}_plot": wandb.Image(fig)})
+        wandb.log({f"{wandb_section}_softmax/{title}_plot": wandb.Image(fig)})
 
     plt.close(fig)  # Close the figure to prevent it from displaying in the notebook or script output
 
@@ -93,7 +93,7 @@ def log_accuracy_vs_variance(opt: OptionsConfig, classifier_config: ClassifierCo
     if options.use_wandb:
         wandb_section = get_wandb_audio_classific_key(opt, classifier_config)
         wandb.log({
-            f"{wandb_section}/variance_vs_accuracy": wandb.plot.scatter(
+            f"{wandb_section}_softmax/variance_vs_accuracy": wandb.plot.scatter(
                 table, "Variance", "Accuracy", title="Accuracy vs Variance")})
 
 
