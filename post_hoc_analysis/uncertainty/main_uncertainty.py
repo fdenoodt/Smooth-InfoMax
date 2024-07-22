@@ -112,7 +112,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     classifier.classifier = load_classifier(opt, classifier.classifier)  # update Lightning module as well!!!
 
     # load the data
-    batch = data_module.get_all_data(opt.device)
+    batch = data_module.get_batch(opt.device)
     var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
     var_vs_accuracy = var_vs_accuracy.cpu().detach()
 

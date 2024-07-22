@@ -32,6 +32,6 @@ def load_data_and_label(path, batch_size, data_type):
 def _get_radio_data_loaders(config: DataSetConfig) -> Tuple[DataLoader, DataLoader, DataLoader]:
     path = f"{config.data_input_dir}/RadioIdentification/"
     train_loader = load_data_and_label(path, config.batch_size_multiGPU, 'train')
-    test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test')
     val_loader = load_data_and_label(path, config.batch_size_multiGPU, 'val')
-    return train_loader, test_loader, val_loader
+    test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test')
+    return train_loader, val_loader, test_loader

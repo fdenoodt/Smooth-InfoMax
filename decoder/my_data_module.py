@@ -50,4 +50,7 @@ class MyDataModule(L.LightningDataModule):
                 inputs_list = torch.cat((inputs_list, inputs), dim=0)
                 labels_list = torch.cat((labels_list, labels), dim=0)
 
+        print("-" * 10)
+        print(f"In get_all_data: inputs_list.shape = {inputs_list.shape}, labels_list.shape = {labels_list.shape}")
+        print("-" * 10)
         return inputs_list, labels_list
