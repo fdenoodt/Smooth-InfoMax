@@ -253,7 +253,7 @@ if __name__ == "__main__":
     options: OptionsConfig = get_options()
     c_config: ClassifierConfig = options.classifier_config
 
-    options.model_type = ModelType.ONLY_DOWNSTREAM_TASK # ModelType.ONLY_DOWNSTREAM_TASK
+    options.model_type = ModelType.FULLY_SUPERVISED # ModelType.ONLY_DOWNSTREAM_TASK
     [print("*" * 50) for _ in range(3)]
     print(f"Classifier config: {c_config}")
     print(f"Model type: {options.model_type}")
