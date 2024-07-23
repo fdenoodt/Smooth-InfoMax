@@ -97,6 +97,34 @@ def log_accuracy_vs_variance(opt: OptionsConfig, classifier_config: ClassifierCo
                 table, "Variance", "Accuracy", title="Accuracy vs Variance")})
 
 
+def distribution_variances_per_wrong_or_correct_prediction(opt: OptionsConfig, classifier_config: ClassifierConfig,
+                                                           var_vs_accuracy: Tensor):
+    variances = var_vs_accuracy[:, 0].numpy()  # scalar values
+    accuracies = var_vs_accuracy[:, 1].numpy()  # 0 or 1s
+
+    fig, ax = plt.subplots()
+    colors = ['blue', 'red']  # Colors for correct and wrong predictions
+    labels = ['Correct Predictions', 'Wrong Predictions']
+
+    for i, use_correct_predictions in enumerate([1., 0.]):
+        indices = np.where(accuracies == use_correct_predictions)[0]
+        variances_filtered = variances[indices]
+        ax.hist(variances_filtered, bins=20, color=colors[i], alpha=0.5, label=labels[i])
+
+    ax.set_xlabel("Variance")
+    ax.set_ylabel("Count")
+    ax.set_title("Variance Distribution for Correct vs Wrong Predictions")
+    ax.legend()
+
+    # Log the matplotlib figure to wandb
+    if options.use_wandb:
+        wandb_section = get_wandb_audio_classific_key(opt, classifier_config)
+        wandb.log({f"{wandb_section}_softmax/variance_distribution_combined": wandb.Image(fig)})
+
+    plt.show()
+    plt.close(fig)
+
+
 @init_decorator  # sets seed and clears cache etc
 @wandb_resume_decorator
 @timer_decorator
@@ -116,8 +144,10 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
     var_vs_accuracy = var_vs_accuracy.cpu().detach()
 
-    log_accuracy_vs_variance(opt, opt.classifier_config, var_vs_accuracy)
-    histogram_of_accuracies(opt, opt.classifier_config, "Accuracy", var_vs_accuracy)
+    # log_accuracy_vs_variance(opt, opt.classifier_config, var_vs_accuracy)
+    # histogram_of_accuracies(opt, opt.classifier_config, "Accuracy", var_vs_accuracy)
+
+    distribution_variances_per_wrong_or_correct_prediction(opt, opt.classifier_config, var_vs_accuracy)
 
 
 if __name__ == "__main__":
