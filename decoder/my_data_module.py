@@ -33,7 +33,12 @@ class MyDataModule(L.LightningDataModule):
         labels = labels.to(device)
         return (inputs, labels)
 
-    def get_all_data(self, device) -> Tuple[torch.Tensor, torch.Tensor]:
+    import torch
+    from typing import Tuple
+
+    def get_all_data(self, device, subset_percentage: float) -> Tuple[torch.Tensor, torch.Tensor]:
+        assert subset_percentage > 0 and subset_percentage <= 1, "subset_percentage must be between 0 and 1."
+
         inputs_list = torch.Tensor().to(device)
         labels_list = torch.Tensor().to(device)
         first_batch = True
@@ -50,7 +55,20 @@ class MyDataModule(L.LightningDataModule):
                 inputs_list = torch.cat((inputs_list, inputs), dim=0)
                 labels_list = torch.cat((labels_list, labels), dim=0)
 
+        # Calculate the number of samples to include in the subset
+        total_samples = inputs_list.shape[0]
+        subset_size = int(total_samples * subset_percentage)
+
+        # Generate random indices for the subset
+        indices = torch.randperm(total_samples)[:subset_size]
+
+        # Index into inputs_list and labels_list to get the subset
+        inputs_subset = inputs_list[indices]
+        labels_subset = labels_list[indices]
+
         print("-" * 10)
-        print(f"In get_all_data: inputs_list.shape = {inputs_list.shape}, labels_list.shape = {labels_list.shape}")
+        print(
+            f"In get_all_data: inputs_subset.shape = {inputs_subset.shape}, labels_subset.shape = {labels_subset.shape}")
         print("-" * 10)
-        return inputs_list, labels_list
+
+        return inputs_subset, labels_subset
