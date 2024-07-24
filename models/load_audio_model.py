@@ -4,6 +4,7 @@ from typing import Optional, Union
 from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig, DecoderConfig
 from decoder.decoderr import Decoder
 from decoder.lit_decoder import LitDecoder
+from linear_classifiers.downstream_classification import ClassifierModel
 from models import full_model
 from models.full_model import FullModel
 from models.loss_supervised import Syllables_Loss
@@ -54,7 +55,7 @@ def load_decoder(opt: OptionsConfig, decoder: Decoder) -> Decoder:
     return decoder
 
 
-def load_classifier(opt: OptionsConfig, classifier: Syllables_Loss) -> Syllables_Loss:
+def load_classifier(opt: OptionsConfig, classifier: ClassifierModel) -> ClassifierModel:
     print(f"Loading classifier")
     model_path = os.path.join(f"{opt.log_path}/model_0.ckpt")
     # Load the state dictionary

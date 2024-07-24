@@ -236,12 +236,13 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
         try:
             # Train the model
             trainer.fit(classifier, data_module)
-            logs.create_log(classifier.classifier)
+            logs.create_classifier_log(classifier)
         except KeyboardInterrupt:
             print("Training interrupted, saving log files")
 
     # regardless of training, test the model by loading the final checkpoint
-    classifier.classifier = load_classifier(opt, classifier.classifier)  # update Lightning module as well!!!
+    classifier = load_classifier(opt, classifier)
+
     trainer.test(classifier, data_module)  # Test the model
 
     # Only for De Boer dataset
@@ -253,7 +254,7 @@ if __name__ == "__main__":
     options: OptionsConfig = get_options()
     c_config: ClassifierConfig = options.classifier_config
 
-    options.model_type = ModelType.FULLY_SUPERVISED # ModelType.ONLY_DOWNSTREAM_TASK
+    options.model_type = ModelType.FULLY_SUPERVISED  # ModelType.ONLY_DOWNSTREAM_TASK
     [print("*" * 50) for _ in range(3)]
     print(f"Classifier config: {c_config}")
     print(f"Model type: {options.model_type}")

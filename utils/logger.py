@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
+from linear_classifiers.downstream_classification import ClassifierModel
+
 try:
     import tikzplotlib
 except:
@@ -112,6 +114,20 @@ class Logger:
                 print("not enough models there yet, nothing to delete")
 
                 print("not enough models there yet, nothing to delete")
+
+    def create_classifier_log(self, classifier: ClassifierModel, epoch=0):
+        """
+        classifier contains both the encoder as the linear classifier
+        """
+        assert isinstance(classifier, ClassifierModel), "classifier is not a ClassifierModel"
+
+        print("Saving model and log-file to " + self.opt.log_path)
+
+        # Save the model checkpoint
+        torch.save(
+            classifier.state_dict(),
+            os.path.join(self.opt.log_path, "model_{}.ckpt".format(epoch)),
+        )
 
     def create_decoder_log(self, decoder, epoch):
         print("Saving model and log-file to " + self.opt.log_path)

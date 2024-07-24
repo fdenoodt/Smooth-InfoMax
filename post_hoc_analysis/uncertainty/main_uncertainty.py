@@ -137,7 +137,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     data_module = MyDataModule(opt.post_hoc_dataset)
 
     # load the classifier model
-    classifier.classifier = load_classifier(opt, classifier.classifier)  # update Lightning module as well!!!
+    classifier = load_classifier(opt, classifier)  # update Lightning module as well!!!
 
     # load the data
     batch = data_module.get_all_data(opt.device, subset_percentage=0.4)
