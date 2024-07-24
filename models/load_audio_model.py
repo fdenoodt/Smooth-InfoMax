@@ -1,15 +1,13 @@
+import os
+from typing import Optional, Union
+
 import torch
 
-from typing import Optional, Union
 from config_code.config_classes import Loss, ModelType, OptionsConfig, ClassifierConfig, DecoderConfig
 from decoder.decoderr import Decoder
-from decoder.lit_decoder import LitDecoder
-from linear_classifiers.downstream_classification import ClassifierModel
 from models import full_model
 from models.full_model import FullModel
-from models.loss_supervised import Syllables_Loss
 from utils import model_utils
-import os
 
 
 def load_model_and_optimizer(
@@ -53,14 +51,3 @@ def load_decoder(opt: OptionsConfig, decoder: Decoder) -> Decoder:
     # Load the state dictionary into the model
     decoder.load_state_dict(state_dict)
     return decoder
-
-
-def load_classifier(opt: OptionsConfig, classifier: ClassifierModel) -> ClassifierModel:
-    print(f"Loading classifier")
-    model_path = os.path.join(f"{opt.log_path}/model_0.ckpt")
-    # Load the state dictionary
-    state_dict = torch.load(model_path)
-
-    # Load the state dictionary into the model
-    classifier.load_state_dict(state_dict)
-    return classifier

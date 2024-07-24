@@ -9,7 +9,6 @@ from arg_parser import arg_parser
 from config_code.config_classes import ModelType, OptionsConfig, ClassifierConfig
 from decoder.my_data_module import MyDataModule
 from linear_classifiers.downstream_classification import ClassifierModel
-from models.load_audio_model import load_classifier
 from options import get_options
 from utils.decorators import init_decorator, wandb_resume_decorator, timer_decorator
 from utils.utils import get_classif_log_path, get_wandb_audio_classific_key
@@ -137,7 +136,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     data_module = MyDataModule(opt.post_hoc_dataset)
 
     # load the classifier model
-    classifier = load_classifier(opt, classifier)  # update Lightning module as well!!!
+    classifier = classifier.load_classifier(opt)  # update Lightning module as well!!!
 
     # load the data
     batch = data_module.get_all_data(opt.device, subset_percentage=0.4)

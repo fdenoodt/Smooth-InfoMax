@@ -18,13 +18,13 @@ from config_code.config_classes import OptionsConfig, ModelType, Dataset, Classi
 from decoder.my_data_module import MyDataModule
 from models import load_audio_model
 from models.full_model import FullModel
-from models.load_audio_model import load_classifier
 from models.loss_supervised import Syllables_Loss
 from options import get_options
 from utils import logger
 from utils.decorators import timer_decorator, wandb_resume_decorator, init_decorator
 from utils.utils import get_nb_classes, \
     get_classif_log_path, get_wandb_audio_classific_key
+import os
 
 
 class ClassifierModel(lightning.LightningModule):
@@ -210,6 +210,16 @@ class ClassifierModel(lightning.LightningModule):
                  batch_size=self.options.post_hoc_dataset.batch_size)
         return loss
 
+    def load_classifier(self, opt: OptionsConfig) -> 'ClassifierModel':
+        print(f"Loading classifier")
+        model_path = os.path.join(f"{opt.log_path}/model_0.ckpt")
+        # Load the state dictionary
+        state_dict = torch.load(model_path)
+
+        # Load the state dictionary into the model
+        self.load_state_dict(state_dict)
+        return self
+
 
 @init_decorator  # sets seed and clears cache etc
 @wandb_resume_decorator
@@ -241,7 +251,7 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
             print("Training interrupted, saving log files")
 
     # regardless of training, test the model by loading the final checkpoint
-    classifier = load_classifier(opt, classifier)
+    classifier = classifier.load_classifier(opt)
 
     trainer.test(classifier, data_module)  # Test the model
 

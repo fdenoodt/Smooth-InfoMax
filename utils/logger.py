@@ -1,10 +1,7 @@
-import os
-import torch
-import matplotlib.pyplot as plt
-import numpy as np
 import copy
-
-from linear_classifiers.downstream_classification import ClassifierModel
+import os
+import numpy as np
+import torch
 
 try:
     import tikzplotlib
@@ -115,11 +112,10 @@ class Logger:
 
                 print("not enough models there yet, nothing to delete")
 
-    def create_classifier_log(self, classifier: ClassifierModel, epoch=0):
+    def create_classifier_log(self, classifier, epoch=0):
         """
         classifier contains both the encoder as the linear classifier
         """
-        assert isinstance(classifier, ClassifierModel), "classifier is not a ClassifierModel"
 
         print("Saving model and log-file to " + self.opt.log_path)
 
