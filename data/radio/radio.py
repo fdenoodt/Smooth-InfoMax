@@ -33,7 +33,7 @@ def _get_radio_data_loaders(config: DataSetConfig) -> Tuple[DataLoader, DataLoad
     path = f"{config.data_input_dir}/RadioIdentification/"
     train_loader = load_data_and_label(path, config.batch_size_multiGPU, 'train')
     # create a sub_train_loader which is the subset of the train_loader of percentage 10%
-    sub_train_loader = torch.utils.data.Subset(train_loader.dataset, torch.arange(0, int(0.6 * len(train_loader.dataset))))
+    sub_train_loader = torch.utils.data.Subset(train_loader.dataset, torch.arange(0, int(0.7 * len(train_loader.dataset))))
     # print the shape of the sub_train_loader
     print(f"info: sub_train_loader shape: {len(sub_train_loader)}")
     sub_train_loader = DataLoader(sub_train_loader, batch_size=config.batch_size_multiGPU, shuffle=True, drop_last=True)
