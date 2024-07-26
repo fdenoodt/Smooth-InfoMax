@@ -55,12 +55,12 @@ class ModelType(Enum):
 class DataSetConfig:
     def __init__(self, dataset: Dataset, batch_size, labels: Label,
                  limit_train_batches: Optional[float] = 1.0, limit_validation_batches: Optional[float] = 1.0,
-                 grayscale: Optional[bool] = False,
+                 grayscale: Optional[bool] = False, train_subset_percentage: Optional[float] = 1.0,
                  num_workers: Optional[int] = 0):
         self.data_input_dir = './datasets/'
         self.dataset: Dataset = dataset
+        self.train_subset_percentage = limit_train_batches
 
-        # self.split_in_syllables = split_in_syllables
         self.batch_size = batch_size
         self.batch_size_multiGPU = batch_size  # will be overwritten in model_utils.distribute_over_GPUs
         self.num_workers = num_workers
@@ -78,13 +78,6 @@ class DataSetConfig:
 
         if dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES, Dataset.SHAPES_3D]:
             assert labels == Label.DEFAULT
-
-        # if split_in_syllables:
-        #     assert dataset in [Dataset.DE_BOER]
-        #     "split_in_syllables can only be True for de_boer_sounds dataset"
-
-        # if (split_in_syllables and dataset in [Dataset.DE_BOER]):
-        #     assert labels in ["syllables", "vowels"]
 
         if grayscale:
             assert dataset in [Dataset.STL10, Dataset.ANIMAL_WITH_ATTRIBUTES, Dataset.SHAPES_3D]
@@ -109,6 +102,20 @@ class DataSetConfig:
         # also update labels to default if dataset is not de_boer
         if value != Dataset.DE_BOER:
             self.labels = Label.DEFAULT
+
+    @property
+    def train_subset_percentage(self):
+        return self._train_subset_percentage
+
+    @train_subset_percentage.setter
+    def train_subset_percentage(self, value):
+        if value != 1.0:
+            # subset only supported for radio dataset
+            assert self.dataset == Dataset.RADIO, "train_subset_percentage is only supported for RADIO dataset"
+
+        if value < 0 or value > 1:
+            raise ValueError(f"train_subset_percentage must be between 0 and 1. Got {value}")
+        self._train_subset_percentage = value
 
     def __copy__(self):
         return DataSetConfig(
