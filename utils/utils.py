@@ -215,7 +215,9 @@ def get_wandb_audio_classific_key(opt: OptionsConfig, classifier_config: Classif
     layer_nb = classifier_config.encoder_layer
     bias = classifier_config.bias
     use_single_frame = classifier_config.use_single_frame
-    return f"C bias={bias} lbl={label_type} modul={module_nb} layer={layer_nb} single_frame={use_single_frame}"
+    subset = opt.post_hoc_dataset.train_subset_percentage
+    model_type = opt.model_type
+    return f"C bias={bias} lbl={label_type} modul={module_nb} layer={layer_nb} single_frame={use_single_frame} subset={subset} {model_type}"
 
 
 def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py
@@ -230,4 +232,6 @@ def get_classif_log_path(options: OptionsConfig, classifier_config: ClassifierCo
     classif_layer: int = classifier_config.encoder_layer
     bias: bool = classifier_config.bias
     use_single_frame: bool = classifier_config.use_single_frame
-    return f"linear_model_{options.post_hoc_dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}_single_frame={use_single_frame}"
+    subset = options.post_hoc_dataset.train_subset_percentage
+    model_type = options.model_type
+    return f"linear_model_{options.post_hoc_dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}_single_frame={use_single_frame}_subset={subset}_{model_type}"
