@@ -41,7 +41,7 @@ def _get_radio_data_loaders(config: DataSetConfig) -> Tuple[DataLoader, DataLoad
         train_subset = torch.utils.data.Subset(train_loader.dataset, indices)
         train_loader = DataLoader(train_subset, batch_size=config.batch_size_multiGPU, shuffle=True, drop_last=True)
 
-    print(f"info: sub_train_loader shape: {len(train_loader.dataset)}")
+    print(f"Info: Train loader shape: {len(train_loader.dataset)}, subset percentage: {subset_percentage}")
     val_loader = load_data_and_label(path, config.batch_size_multiGPU, 'val')
     test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test')
     return train_loader, val_loader, test_loader
