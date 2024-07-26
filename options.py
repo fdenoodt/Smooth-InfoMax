@@ -12,7 +12,7 @@ config_file and overrides are optional. If config_file is not provided, it will 
 
 import argparse
 
-from config_code.config_classes import Dataset, DecoderLoss
+from config_code.config_classes import Dataset, DecoderLoss, ModelType
 
 # Create the parser
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -48,6 +48,13 @@ if args.overrides is not None:
             # assert number
             assert value.isdigit(), f"Value for {key} should be an integer, but it is {value}"
             value = Dataset(int(value))
+
+        # Handle enums (model_type Enum)
+        if key.endswith('model_type'):  # convert into Dataset enum
+            # assert number
+            assert value.isdigit(), f"Value for {key} should be an integer, but it is {value}"
+            value = ModelType(int(value))
+
 
         # Loss enum of decoder
         if key.endswith('decoder_config.decoder_loss'):

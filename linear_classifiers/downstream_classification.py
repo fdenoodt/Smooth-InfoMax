@@ -264,7 +264,10 @@ if __name__ == "__main__":
     options: OptionsConfig = get_options()
     c_config: ClassifierConfig = options.classifier_config
 
-    options.model_type = ModelType.FULLY_SUPERVISED  # ModelType.ONLY_DOWNSTREAM_TASK
+    print(options.model_type)
+    assert options.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], \
+        "Please specify the model type in the config file. e.g.: --overrides model_type=1"
+
     [print("*" * 50) for _ in range(3)]
     print(f"Classifier config: {c_config}")
     print(f"Model type: {options.model_type}")
