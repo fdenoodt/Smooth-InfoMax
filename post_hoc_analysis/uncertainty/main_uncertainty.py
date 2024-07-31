@@ -126,7 +126,7 @@ def distribution_variances_per_wrong_or_correct_prediction(opt: OptionsConfig, c
 
 
 # calculate the accuracy using dataset from different signal-to-noise ratios
-def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel, batch: Tuple[Tensor, Tensor],
+def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel,
                          data_module=None) -> Tensor:
     """Returns tensor of shape (snr levels, accuracy)"""
     snr_levels = [-10, -5, 0, 5, 10, 15, 20]
@@ -135,11 +135,13 @@ def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel, batch:
         print(f"info: calculating accuracy at snr level: {snr}")
         test_data = data_module.get_noisy_test_data(opt.device, snr=snr)
         # get predictions from classifier config
-        results = trainer.test(classifier, test_data)
-        accuracies = torch.cat((accuracies, torch.tensor(results[0]["test_acc"])))
+        prediction = classifier.get_predictions_of_pooled_c_softmax(test_data)
+        # calculate the accuracy from the softmax output compared to the labels
+        accuracy = (prediction == test_data[1]) / len(test_data[1])
+        accuracies = torch.cat((accuracies, torch.Tensor(accuracy)), dim=0)
 
-    total_results = torch.stack((torch.tensor(snr_levels), accuracies), dim=1) # (snr levels, accuracy)
-
+    total_results = torch.stack((torch.tensor(snr_levels), accuracies), dim=1)  # (snr levels, accuracy)
+    print(f"info: total results: {total_results}")
     return total_results
 
 
@@ -157,15 +159,18 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
     # load the classifier model
     classifier = classifier.load_classifier(opt)  # update Lightning module as well!!!
 
+    # function to calculate the accuracy at different snr levels
+    accuracy_at_diff_snr(opt, classifier, data_module)
+
     # load the data
-    batch = data_module.get_all_data(opt.device, subset_percentage=0.4)
-    var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
-    var_vs_accuracy = var_vs_accuracy.cpu().detach()
+    # batch = data_module.get_all_data(opt.device, subset_percentage=0.4)
+    # var_vs_accuracy: Tensor = variances_vs_accuracy_per_input_signal(classifier, batch)
+    # var_vs_accuracy = var_vs_accuracy.cpu().detach()
 
     # log_accuracy_vs_variance(opt, opt.classifier_config, var_vs_accuracy)
     # histogram_of_accuracies(opt, opt.classifier_config, "Accuracy", var_vs_accuracy)
 
-    distribution_variances_per_wrong_or_correct_prediction(opt, opt.classifier_config, var_vs_accuracy)
+    # distribution_variances_per_wrong_or_correct_prediction(opt, opt.classifier_config, var_vs_accuracy)
 
 
 if __name__ == "__main__":
