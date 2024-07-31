@@ -87,20 +87,10 @@ class Syllables_Loss(loss.Loss):
         return pooled_c
 
     def calc_supervised_syllables_loss(self, c, targets) -> (torch.Tensor, torch.Tensor, torch.Tensor):
-        # forward pass
-        c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
-        b_size, hidden_dim, num_frames = c.shape
-        # avg over all frames
-        pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
 
-        assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
-
-        pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, self.hidden_dim)  # shape: (batch_size, hidden_dim)
-
-        syllables_out = self.linear_classifier(pooled_c)  # shape: (batch_size, 9)
+        syllables_out = self.get_single_prediction_pooled_c(c)  # (batch_size, num_classes)
 
         assert syllables_out.shape[0] == targets.shape[0]
-
         loss = self.syllables_loss(syllables_out, targets)
 
         accuracy = torch.zeros(1)
@@ -157,6 +147,12 @@ class Syllables_Loss(loss.Loss):
 
     def get_predictions_of_all_frames(self, c):
         """
+        In:  c: tensor of shape (batch_size, hidden_dim, num_frames)
+        Out: syllables_out: tensor of shape (batch_size*num_frames, num_classes) (not softmaxed)
+        """
+        assert self.opt.classifier_config.use_single_frame is True, "This function is only for use_single_frame=True"
+
+        """
         Get predictions of all frames.
         Returns tensor of shape (batch_size*num_frames, num_syllables). So need to reshape to (batch_size, num_frames, num_syllables) later.
         """
@@ -171,6 +167,26 @@ class Syllables_Loss(loss.Loss):
         syllables_out = self.linear_classifier(c)  # shape: (batch_size, 9)
 
         # softmax
-        syllables_out = torch.nn.functional.softmax(syllables_out, dim=1)
+        # assert False, "This is incorrect as the returned softmax is being given to the loss which also applies softmax!!"
+        # syllables_out = torch.nn.functional.softmax(syllables_out, dim=1)
 
         return syllables_out, num_frames
+
+    def get_single_prediction_pooled_c(self, c):
+        """
+        In:  c: tensor of shape (batch_size, hidden_dim, num_frames)
+        Out: syllables_out: tensor of shape (batch_size, num_classes) (not softmaxed)
+        """
+        assert self.opt.classifier_config.use_single_frame is False, "This function is only for use_single_frame=False"
+
+        c = c.permute(0, 2, 1)  # shape: (batch_size, hidden_dim, num_frames) = (128, 256, 16)
+        b_size, hidden_dim, num_frames = c.shape
+        # avg over all frames
+        pooled_c = nn.functional.adaptive_avg_pool1d(c, self.label_num)  # shape: (batch_size, hidden_dim, 1)
+
+        assert c.shape[1] == self.hidden_dim  # verify if 512 or 256, depending on bias
+
+        pooled_c = pooled_c.permute(0, 2, 1).reshape(-1, self.hidden_dim)  # shape: (batch_size, hidden_dim)
+
+        syllables_out = self.linear_classifier(pooled_c)  # shape: (batch_size, 9)
+        return syllables_out

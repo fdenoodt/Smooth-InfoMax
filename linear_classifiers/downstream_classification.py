@@ -158,13 +158,15 @@ class ClassifierModel(lightning.LightningModule):
         total_loss, accuracy, mode_accuracy = self.classifier.get_loss(x, z, z, label)
         return total_loss, accuracy, mode_accuracy
 
-    def get_predictions_of_all_frames(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
+    def get_predictions_of_all_frames_softmax(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
         """
         Input: batch of shape (batch, channels, num_frames)
         Output: tensor of shape (batch, num_frames_pooled, num_classes)
         """
         # Only useful when classifier_config.use_single_frame is True
         # Function is used in `main_uncertainty.py`
+
+        assert self.classifier_config.use_single_frame, "This function is only useful when predicting from a single frame"
 
         (x, label) = batch
         z = self.get_z(self.options, self.encoder, x,
@@ -177,6 +179,29 @@ class ClassifierModel(lightning.LightningModule):
         # predictions: (batch*num_frames, num_classes) --> (batch, num_frames, num_classes)
         predictions = predictions.view(-1, num_frames, predictions.size(-1))
 
+        # softmax
+        predictions = torch.nn.functional.softmax(predictions, dim=-1)  # -1 cause last dim is num_classes
+
+        return predictions
+
+    def get_predictions_of_pooled_c_softmax(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
+        """
+        Input: batch of shape (batch, channels, num_frames)
+        Output: tensor of shape (batch, num_classes)
+        """
+        assert not self.classifier_config.use_single_frame, "This function is only useful when predicting from multiple frames"
+
+        (x, label) = batch
+        z = self.get_z(self.options, self.encoder, x,
+                       regression=self.classifier_config.bias,
+                       which_module=self.classifier_config.encoder_module,
+                       which_layer=self.classifier_config.encoder_layer)
+
+        # mode_accuracy only useful when predicting from a single frame
+        predictions = self.classifier.get_single_prediction_pooled_c(z)
+
+        # softmax
+        predictions = torch.nn.functional.softmax(predictions, dim=-1)
         return predictions
 
     def get_predicted_mode(self, predictions: torch.Tensor) -> (torch.Tensor, torch.Tensor):
