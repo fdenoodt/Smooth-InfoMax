@@ -5,7 +5,7 @@ from torch.utils.data import dataset
 from config_code.config_classes import DataSetConfig, Dataset
 from data.de_boer import de_boer_sounds
 from data.libri import librispeech
-from data.radio.radio import _get_radio_data_loaders
+from data.radio.radio import _get_radio_data_loaders, _get_noisy_test_data_loader
 
 
 def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir,
@@ -138,3 +138,6 @@ def get_dataloader(config: DataSetConfig,
         return _get_radio_data_loaders(config)
     else:
         raise ValueError("Unknown dataset")
+
+def get_noisy_test_data_loader(config: DataSetConfig, snr) -> torch.utils.data.DataLoader:
+    return _get_noisy_test_data_loader(config, snr)

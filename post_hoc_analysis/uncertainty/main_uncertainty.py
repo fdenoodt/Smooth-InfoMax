@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import wandb
+from pytorch_lightning.trainer import trainer
 from torch import Tensor
 from arg_parser import arg_parser
 from config_code.config_classes import ModelType, OptionsConfig, ClassifierConfig
@@ -122,6 +123,24 @@ def distribution_variances_per_wrong_or_correct_prediction(opt: OptionsConfig, c
 
     plt.show()
     plt.close(fig)
+
+
+# calculate the accuracy using dataset from different signal-to-noise ratios
+def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel, batch: Tuple[Tensor, Tensor],
+                         data_module=None) -> Tensor:
+    """Returns tensor of shape (snr levels, accuracy)"""
+    snr_levels = [-10, -5, 0, 5, 10, 15, 20]
+    accuracies: Tensor = torch.tensor([])
+    for snr in snr_levels:
+        print(f"info: calculating accuracy at snr level: {snr}")
+        test_data = data_module.get_noisy_test_data(opt.device, snr=snr)
+        # get predictions from classifier config
+        results = trainer.test(classifier, test_data)
+        accuracies = torch.cat((accuracies, torch.tensor(results[0]["test_acc"])))
+
+    total_results = torch.stack((torch.tensor(snr_levels), accuracies), dim=1) # (snr levels, accuracy)
+
+    return total_results
 
 
 @init_decorator  # sets seed and clears cache etc

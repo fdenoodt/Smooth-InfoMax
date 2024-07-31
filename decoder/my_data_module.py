@@ -6,6 +6,7 @@ from torch import Tensor
 
 from config_code.config_classes import DataSetConfig
 from data import get_dataloader
+from data.get_dataloader import get_noisy_test_data_loader
 
 
 class MyDataModule(L.LightningDataModule):
@@ -72,3 +73,6 @@ class MyDataModule(L.LightningDataModule):
         print("-" * 10)
 
         return inputs_subset, labels_subset
+
+    def get_noisy_test_data(self, device, snr: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        return get_noisy_test_data_loader(self.config, snr)

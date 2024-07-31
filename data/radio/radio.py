@@ -6,7 +6,11 @@ from config_code.config_classes import DataSetConfig
 import torch
 
 
+<<<<<<< Updated upstream
 def load_data_and_label(path, batch_size, data_type) -> DataLoader:
+=======
+def load_data_and_label(path, batch_size, data_type, snr=None):
+>>>>>>> Stashed changes
     print(f"info: start loading the {data_type} data")
     X_data = torch.load(f"{path}X_{data_type}.pth")  # (b, c, t)
     Y_data = torch.load(f"{path}y_{data_type}.pth")  # (b, 1)
@@ -34,6 +38,7 @@ def _get_radio_data_loaders(config: DataSetConfig) -> Tuple[DataLoader, DataLoad
     train_loader: DataLoader = load_data_and_label(path, config.batch_size_multiGPU, 'train')
 
     # create a sub_train_loader which is the subset of the train_loader of percentage 10%
+<<<<<<< Updated upstream
     subset_percentage = config.train_subset_percentage
     if subset_percentage < 1:
         subset_size = int(subset_percentage * len(train_loader.dataset))
@@ -45,3 +50,19 @@ def _get_radio_data_loaders(config: DataSetConfig) -> Tuple[DataLoader, DataLoad
     val_loader = load_data_and_label(path, config.batch_size_multiGPU, 'val')
     test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test')
     return train_loader, val_loader, test_loader
+=======
+    sub_train_loader = torch.utils.data.Subset(train_loader.dataset,
+                                               torch.arange(0, int(0.9 * len(train_loader.dataset))))
+    # print the shape of the sub_train_loader
+    print(f"info: sub_train_loader shape: {len(sub_train_loader)}")
+    sub_train_loader = DataLoader(sub_train_loader, batch_size=config.batch_size_multiGPU, shuffle=True, drop_last=True)
+    val_loader = load_data_and_label(path, config.batch_size_multiGPU, 'val')
+    test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test')
+    return sub_train_loader, val_loader, test_loader
+
+
+def _get_noisy_test_data_loader(config: DataSetConfig, snr) -> DataLoader:
+    path = f"{config.data_input_dir}/RadioIdentification/"
+    test_loader = load_data_and_label(path, config.batch_size_multiGPU, 'test', snr)
+    return test_loader
+>>>>>>> Stashed changes
