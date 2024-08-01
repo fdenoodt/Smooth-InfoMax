@@ -176,5 +176,5 @@ def main(opt: OptionsConfig, classifier_config: ClassifierConfig):
 if __name__ == "__main__":
     options: OptionsConfig = get_options()
     c_config: ClassifierConfig = options.classifier_config
-    options.model_type = ModelType.ONLY_DOWNSTREAM_TASK
+    # options.model_type = ModelType.ONLY_DOWNSTREAM_TASK
     main(options, c_config)
