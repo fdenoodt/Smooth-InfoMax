@@ -37,14 +37,15 @@ class MyDataModule(L.LightningDataModule):
     import torch
     from typing import Tuple
 
-    def get_all_data(self, device, subset_percentage: float) -> Tuple[torch.Tensor, torch.Tensor]:
+    @staticmethod
+    def get_all_data(data_loader: torch.utils.data.DataLoader, device, subset_percentage: float) -> Tuple[torch.Tensor, torch.Tensor]:
         assert subset_percentage > 0 and subset_percentage <= 1, "subset_percentage must be between 0 and 1."
 
         inputs_list = torch.Tensor().to(device)
         labels_list = torch.Tensor().to(device)
         first_batch = True
 
-        for inputs, labels in self.test_loader:
+        for inputs, labels in data_loader:
             inputs = inputs.to(device)
             labels = labels.to(device)
 
@@ -74,5 +75,5 @@ class MyDataModule(L.LightningDataModule):
 
         return inputs_subset, labels_subset
 
-    def get_noisy_test_data(self, device, snr: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def get_noisy_test_data(self, device, snr: int) -> torch.utils.data.DataLoader:
         return get_noisy_test_data_loader(self.config, snr)
