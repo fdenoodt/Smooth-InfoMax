@@ -133,9 +133,9 @@ def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel,
     accuracies: Tensor = torch.tensor([])
     for snr in snr_levels:
         print(f"info: calculating accuracy at snr level: {snr}")
-        test_data = data_module.get_noisy_test_data(opt.device, snr=snr)
-        # get predictions from classifier config
-        prediction = classifier.get_predictions_of_pooled_c_softmax(test_data)
+        test_data: tuple[Tensor, Tensor] = data_module.get_noisy_test_data(opt.device, snr=snr)
+        # get predictions from classifier configs
+        prediction = classifier.get_predictions_of_pooled_c_softmax(batch=test_data)
         # calculate the accuracy from the softmax output compared to the labels
         accuracy = (prediction == test_data[1]) / len(test_data[1])
         accuracies = torch.cat((accuracies, torch.Tensor(accuracy)), dim=0)
