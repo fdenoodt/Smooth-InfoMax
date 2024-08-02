@@ -130,17 +130,37 @@ def accuracy_at_diff_snr(opt: OptionsConfig, classifier: ClassifierModel,
                          data_module=None) -> Tensor:
     """Returns tensor of shape (snr levels, accuracy)"""
     snr_levels = [-10, -5, 0, 5, 10, 15, 20]
-    accuracies: Tensor = torch.tensor([])
+    accuracies: Tensor = torch.tensor([])  # eventually will be shape (snr levels, 1)
+
     for snr in snr_levels:
         print(f"info: calculating accuracy at snr level: {snr}")
-        test_data: tuple[Tensor, Tensor] = data_module.get_all_data(data_module.get_noisy_test_data(opt.device, snr), opt.device, subset_percentage=1)
-        # get predictions from classifier configs
-        prediction = classifier.get_predictions_of_pooled_c_softmax(batch=test_data)
-        # calculate the accuracy from the softmax output compared to the labels
-        accuracy = (prediction == test_data[1]) / len(test_data[1])
-        accuracies = torch.cat((accuracies, torch.Tensor(accuracy)), dim=0)
+        test_loader = data_module.get_noisy_test_data(opt.device, snr)
 
-    total_results = torch.stack((torch.tensor(snr_levels), accuracies), dim=1)  # (snr levels, accuracy)
+        correct = 0
+        total = 0
+
+        for batch in test_loader:
+            inputs, labels = batch
+            inputs, labels = inputs.to(opt.device), labels.to(opt.device)
+
+            # get predictions from classifier
+            outputs = classifier.get_predictions_of_pooled_c_softmax(
+                batch=(inputs, labels))  # (batch_size, num_classes)
+            predicted = torch.argmax(outputs, dim=1)  # (batch_size)
+
+            # calculate the number of correct predictions
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+
+        # calculate accuracy for the current SNR level
+        accuracy = correct / total
+        accuracies = torch.cat((accuracies, torch.tensor([accuracy])), dim=0)
+
+    # assert accuracies is a tensor of shape (snr levels, 1)
+    assert len(accuracies) == len(snr_levels)
+
+    total_results = torch.stack((torch.tensor(snr_levels), accuracies),
+                                dim=1)  # (snr levels, 2) where total_results[:, 0] is the snr level and total_results[:, 1] is the accuracy
     print(f"info: total results: {total_results}")
     return total_results
 
