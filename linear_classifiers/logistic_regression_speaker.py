@@ -52,8 +52,8 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
             model_input = audio.to(opt.device)
             z = get_z(opt, context_model, model_input,
                       regression=bias,
-                      which_module=opt.syllables_classifier_config.encoder_module,
-                      which_layer=opt.syllables_classifier_config.encoder_layer
+                      which_module=opt.speakers_classifier_config.encoder_module,
+                      which_layer=opt.speakers_classifier_config.encoder_layer
                       )
 
             # forward pass
@@ -118,8 +118,8 @@ def test(opt, context_model, loss, data_loader, bias):
 
             with torch.no_grad():
                 z = get_z(opt, context_model, model_input, regression=bias,
-                          which_module=opt.syllables_classifier_config.encoder_module,
-                          which_layer=opt.syllables_classifier_config.encoder_layer)
+                          which_module=opt.speakers_classifier_config.encoder_module,
+                          which_layer=opt.speakers_classifier_config.encoder_layer)
 
             z = z.detach()
 
