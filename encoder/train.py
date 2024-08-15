@@ -132,7 +132,11 @@ def _main(options: OptionsConfig):
             family = "GIM"
 
         dataset = options.encoder_config.dataset.dataset
-        project_name = f"SIM_ACML_de_boer_{dataset}_V5_batchnorm"
+        if options.wandb_project_name == "":
+            project_name = f"SIM_{dataset}_{dataset}"
+        else:
+            project_name = f"SIM_{options.wandb_project_name}_{dataset}"
+            # f"SIM_ACML_de_boer_{dataset}_V5_batchnorm"
         run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
         initialize_wandb(options, project_name, run_name)
 

@@ -221,7 +221,7 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module

@@ -240,6 +240,10 @@ class OptionsConfig:
         self.use_wandb = use_wandb
         self.train = train
 
+        # None would be better but causes issue with param overrides
+        self.wandb_project_name: str = ""
+        self.wandb_entity: str = ""
+
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \
                f"loss={self.loss}, encoder_config={self.encoder_config}, device={self.device}, " \

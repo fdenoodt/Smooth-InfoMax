@@ -44,7 +44,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # MUST HAPPEN AFTER wandb.init
     arg_parser.create_log_path(opt, add_path_var=f"decoder_model_l={loss_val}")

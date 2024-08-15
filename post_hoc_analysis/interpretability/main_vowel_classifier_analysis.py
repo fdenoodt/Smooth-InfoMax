@@ -162,7 +162,7 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # MUST HAPPEN AFTER wandb.init
     classifier_config = opt.syllables_classifier_config

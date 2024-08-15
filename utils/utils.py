@@ -145,7 +145,8 @@ def get_nb_classes(dataset: Dataset, args: None):
 
 
 def initialize_wandb(options: OptionsConfig, project_name, run_name):
-    wandb.init(project=project_name, name=run_name, config=vars(options))
+    entity = options.wandb_entity
+    wandb.init(project=project_name, name=run_name, config=vars(options), entity=entity)
     # After initializing the wandb run, get the run id
     run_id = wandb.run.id
     # Save the run id to a file in the logs directory

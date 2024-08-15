@@ -128,7 +128,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,

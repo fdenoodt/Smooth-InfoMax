@@ -188,7 +188,7 @@ if __name__ == "__main__":
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
         if run_id is not None:
             # Initialize a wandb run with the same run id
-            wandb.init(id=run_id, resume="allow", project=project_name)
+            wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
             wandb_is_on = True
 
     dataset = opt.vision_classifier_config.dataset.dataset

@@ -45,7 +45,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # MUST HAPPEN AFTER wandb.init
     key = get_audio_decoder_key(decoder_config, loss_val)  # for path and wandb section
