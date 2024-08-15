@@ -3,7 +3,8 @@ import time
 import numpy as np
 
 ## own modules
-from config_code.config_classes import OptionsConfig, ModelType, Dataset
+from config_code.config_classes import OptionsConfig, ModelType, Dataset, ClassifierConfig
+from linear_classifiers.logistic_regression import get_z
 from models.full_model import FullModel
 from models.loss_supervised_speaker import Speaker_Loss
 from options import get_options
@@ -11,11 +12,11 @@ from data import get_dataloader
 from utils import logger
 from arg_parser import arg_parser
 from models import load_audio_model, loss_supervised_speaker
-from utils.utils import set_seed, retrieve_existing_wandb_run_id, get_audio_libri_classific_key
+from utils.utils import set_seed, retrieve_existing_wandb_run_id, get_audio_libri_classific_key, get_classif_log_path
 import wandb
 
 
-def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer):
+def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Logger, train_loader, optimizer, bias):
     total_step = len(train_loader)
     print_idx = 100
 
@@ -26,19 +27,37 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
         loss_epoch = 0
         acc_epoch = 0
         for i, (audio, filename, _, audio_idx) in enumerate(train_loader):
-            starttime = time.time()
+            # starttime = time.time()
+            #
+            # loss.zero_grad()
+            #
+            # ### get latent representations for current audio
+            # model_input = audio.to(opt.device)
+            #
+            # with torch.no_grad():
+            #     full_model: FullModel = context_model.module
+            #     z = full_model.forward_through_all_modules(model_input)
+            # z = z.detach()
+            #
+            # # forward pass
+            # total_loss, accuracies = loss.get_loss(model_input, z, z, filename, audio_idx)
 
+            audio = audio.to(opt.device)
+            # label = label.to(opt.device)
+
+            starttime = time.time()
             loss.zero_grad()
 
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
-
-            with torch.no_grad():
-                full_model: FullModel = context_model.module
-                z = full_model.forward_through_all_modules(model_input)
-            z = z.detach()
+            z = get_z(opt, context_model, model_input,
+                      regression=bias,
+                      which_module=opt.syllables_classifier_config.encoder_module,
+                      which_layer=opt.syllables_classifier_config.encoder_layer
+                      )
 
             # forward pass
+            # total_loss, accuracies = loss.get_loss(model_input, z, z, label)
             total_loss, accuracies = loss.get_loss(model_input, z, z, filename, audio_idx)
 
             # Backward and optimize
@@ -67,7 +86,11 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
             acc_epoch += accuracy
 
             if opt.use_wandb:
-                wandb_section = get_audio_libri_classific_key("speakers")
+                wandb_section = get_audio_libri_classific_key(
+                    "speakers",
+                    module_nb=opt.speakers_classifier_config.encoder_module,
+                    layer_nb=opt.speakers_classifier_config.encoder_layer,
+                    bias=opt.speakers_classifier_config.bias)
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
                            f"{wandb_section}/Train Accuracy": accuracy})
 
@@ -76,7 +99,7 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
         logs.append_train_loss([loss_epoch / total_step])
 
 
-def test(opt, context_model, loss, data_loader):
+def test(opt, context_model, loss, data_loader, bias):
     loss.eval()
     accuracy = 0
     loss_epoch = 0
@@ -89,9 +112,14 @@ def test(opt, context_model, loss, data_loader):
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
 
+            # with torch.no_grad():
+            #     full_model: FullModel = context_model.module
+            #     z = full_model.forward_through_all_modules(model_input)
+
             with torch.no_grad():
-                full_model: FullModel = context_model.module
-                z = full_model.forward_through_all_modules(model_input)
+                z = get_z(opt, context_model, model_input, regression=bias,
+                          which_module=opt.syllables_classifier_config.encoder_module,
+                          which_layer=opt.syllables_classifier_config.encoder_layer)
 
             z = z.detach()
 
@@ -114,7 +142,11 @@ def test(opt, context_model, loss, data_loader):
     print("Final Testing Loss: ", loss_epoch)
 
     if opt.use_wandb:
-        wandb_section = get_audio_libri_classific_key("speakers")
+        wandb_section = get_audio_libri_classific_key(
+            "speakers",
+            module_nb=opt.speakers_classifier_config.encoder_module,
+            layer_nb=opt.speakers_classifier_config.encoder_layer,
+            bias=opt.speakers_classifier_config.bias)
         wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
 
     return loss_epoch, accuracy
@@ -124,19 +156,26 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     opt: OptionsConfig = get_options()
     opt.model_type = model_type
 
-    classifier_config = opt.speakers_classifier_config
+    classifier_config: ClassifierConfig = opt.speakers_classifier_config
+    bias = classifier_config.bias
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
         wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
+
+    # on which module to train the classifier (default: -1, last module)
+    classif_module: int = classifier_config.encoder_module
+    classif_layer: int = classifier_config.encoder_layer
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    arg_parser.create_log_path(
+        opt, add_path_var=classif_path)
+    # arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
                               ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
     assert opt.speakers_classifier_config.dataset.dataset in [Dataset.LIBRISPEECH,
                                                               Dataset.LIBRISPEECH_SUBSET], "Dataset not supported"
-
-    arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     # random seeds
     set_seed(opt.seed)
@@ -151,7 +190,13 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     )
     context_model.eval()
 
-    n_features = context_model.module.output_dim
+    regr_hidden_dim = opt.encoder_config.architecture.modules[0].regressor_hidden_dim
+    cnn_hidden_dim = opt.encoder_config.architecture.modules[0].cnn_hidden_dim
+
+    if bias:
+        n_features = regr_hidden_dim
+    else:
+        n_features = cnn_hidden_dim
 
     loss: Speaker_Loss = loss_supervised_speaker.Speaker_Loss(
         opt, n_features, calc_accuracy=True
@@ -169,10 +214,10 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     try:
         # Train the model
         if opt.train:
-            train(opt, context_model, loss, logs, train_loader, optimizer)
+            train(opt, context_model, loss, logs, train_loader, optimizer, bias)
 
         # Test the model
-        result_loss, accuracy = test(opt, context_model, loss, test_loader)
+        result_loss, accuracy = test(opt, context_model, loss, test_loader, bias)
 
     except KeyboardInterrupt:
         print("Training interrupted, saving log files")

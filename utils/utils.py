@@ -165,10 +165,9 @@ def get_audio_classific_key(opt: OptionsConfig,
     return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
 
 
-def get_audio_libri_classific_key(label_type: str):
+def get_audio_libri_classific_key(label_type: str, module_nb, layer_nb, bias):
     assert label_type in ["phones", "speakers"], "Label type not supported"
-
-    return f"libri_{label_type}_classifier"
+    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
 
 
 def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py

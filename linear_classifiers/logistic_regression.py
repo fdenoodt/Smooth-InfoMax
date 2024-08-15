@@ -128,7 +128,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
                     f"{wandb_section}/Loss classification": sample_loss,
                     f"{wandb_section}/Train accuracy": accuracy,
                     f"{wandb_section}/Step": global_step})
-                global_step += 1
+            global_step += 1
 
             if i % print_idx == 0:
                 print(
