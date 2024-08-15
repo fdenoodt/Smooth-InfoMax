@@ -80,7 +80,10 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 loss_epoch[idx] += print_loss
 
                 if step % print_idx == 0:
-                    print(f"\t \t Loss: \t \t {print_loss:.4f}")
+                    if idx == 0:
+                        print("\n")
+                    print(f"\t \t Idx: {idx} \t \t Tot Loss: \t \t {print_loss:.4f} "
+                          f"\t \t NCE: {nce[idx]:.4f} \t \t KLD: {kld[idx]:.4f}")
 
             if opt.use_wandb:
                 for idx, cur_nce in enumerate(nce):
@@ -95,6 +98,7 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
             global_step += 1
 
             if step >= total_step:
+                print("Breaking training loop at step", step)
                 break
 
         scheduler.step()
