@@ -27,24 +27,7 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
         loss_epoch = 0
         acc_epoch = 0
         for i, (audio, filename, _, audio_idx) in enumerate(train_loader):
-            # starttime = time.time()
-            #
-            # loss.zero_grad()
-            #
-            # ### get latent representations for current audio
-            # model_input = audio.to(opt.device)
-            #
-            # with torch.no_grad():
-            #     full_model: FullModel = context_model.module
-            #     z = full_model.forward_through_all_modules(model_input)
-            # z = z.detach()
-            #
-            # # forward pass
-            # total_loss, accuracies = loss.get_loss(model_input, z, z, filename, audio_idx)
-
             audio = audio.to(opt.device)
-            # label = label.to(opt.device)
-
             starttime = time.time()
             loss.zero_grad()
 
@@ -112,10 +95,6 @@ def test(opt, context_model, loss, data_loader, bias):
             ### get latent representations for current audio
             model_input = audio.to(opt.device)
 
-            # with torch.no_grad():
-            #     full_model: FullModel = context_model.module
-            #     z = full_model.forward_through_all_modules(model_input)
-
             with torch.no_grad():
                 z = get_z(opt, context_model, model_input, regression=bias,
                           which_module=opt.speakers_classifier_config.encoder_module,
@@ -169,7 +148,6 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
-    # arg_parser.create_log_path(opt, add_path_var="linear_model_speaker")
 
     assert opt.speakers_classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED,
@@ -199,7 +177,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
         n_features = cnn_hidden_dim
 
     loss: Speaker_Loss = loss_supervised_speaker.Speaker_Loss(
-        opt, n_features, calc_accuracy=True
+        opt, n_features, calc_accuracy=True,
+        bias=bias
     )
 
     learning_rate = opt.speakers_classifier_config.learning_rate
