@@ -195,7 +195,10 @@ def main():
     linear_classifier = syllables_loss.linear_classifier
     linear_classifier.eval()
 
-    weights = list(linear_classifier.parameters())[0].detach().cpu().numpy()
+    weights_and_biases = list(linear_classifier.parameters())
+    assert len(
+        weights_and_biases) == 1, f"The classifier also has a bias term, which is not supported here. len(temp)={len(weights_and_biases)}"
+    weights = weights_and_biases[0].detach().cpu().numpy()
     assert weights.shape == (n_labels, n_features)
 
     # axis=1 because we want to rescale each row (vowel) separately
