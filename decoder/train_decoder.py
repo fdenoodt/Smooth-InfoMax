@@ -35,7 +35,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     assert opt.decoder_config is not None, "Decoder config is not set"
     assert opt.model_type in [ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"
-    assert (decoder_config.dataset.dataset in [Dataset.DE_BOER]), "Dataset not supported"
+    assert (decoder_config.dataset.dataset in [Dataset.DE_BOER, Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]), "Dataset not supported"
 
     # get integer val of enum
     loss_val = loss_fun.value  # eg 0 for DecoderLoss.MSE
