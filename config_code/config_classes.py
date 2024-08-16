@@ -108,12 +108,13 @@ class PostHocModel:  # Classifier or Decoder
     """encoder_module and encoder_layer are currently only supported for the audio encoder."""
 
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
-
+                 encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1,
+                 gradient_clipping: Optional[float] = 0.0):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
+        self.gradient_clipping = gradient_clipping  # 0.0 means no clipping
 
         # 0-based index. (0 is first module)
         # self.encoder_module = encoder_module  # Train classifier on output of this module (default: -1, last module)

@@ -28,7 +28,7 @@ def main():
     classifier_config = opt.speakers_classifier_config
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias, deterministic_encoder=opt.encoder_config.deterministic)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
     context_model, _ = load_audio_model.load_model_and_optimizer(
@@ -80,7 +80,7 @@ def main():
 
     if opt.use_wandb:
         wandb_section = get_audio_libri_classific_key('speakers', module_nb=classif_module, layer_nb=classif_layer,
-                                                      bias=bias)
+                                                      bias=bias, deterministic_encoder=opt.encoder_config.deterministic)
         # Log weights as a table (256 rows, 3 columns)
         wandb.log({f"{wandb_section}/Speaker Classifier Weights tbl":
                        wandb.Table(data=weights, columns=[f"label_{i}" for i in range(n_labels)])})

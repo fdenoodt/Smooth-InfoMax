@@ -226,7 +226,7 @@ def main():
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias, deterministic_encoder=opt.encoder_config.deterministic)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
 
