@@ -79,13 +79,15 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     z_dim = architecture.input_dim
     nb_frames = architecture.expected_nb_frames_latent_repr
     callback = CustomCallback(opt, z_dim=z_dim, wandb_logger=wandb_logger, nb_frames=nb_frames,
-                              plot_ever_n_epoch=10, loss_enum=loss_fun) if opt.use_wandb else None
+                              plot_ever_n_epoch=5, loss_enum=loss_fun) # if opt.use_wandb else None
 
     trainer = L.Trainer(limit_train_batches=decoder_config.dataset.limit_train_batches,
                         max_epochs=decoder_config.num_epochs,
                         accelerator="gpu", devices="1",
                         log_every_n_steps=10,  # arbitrary number to avoid warning
-                        logger=wandb_logger, callbacks=[callback] if callback is not None else [])
+                        logger=wandb_logger, callbacks=[callback] if callback is not None else [],
+                        fast_dev_run=True # TODO
+                        )
 
     if opt.train:
         trainer.fit(model=lit, datamodule=data)

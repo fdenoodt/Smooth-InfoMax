@@ -2,7 +2,7 @@ from typing import Dict
 import numpy as np
 import torch
 from data import get_dataloader
-from config_code.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig, Dataset
 from decoder.lit_decoder import LitDecoder
 
 
@@ -12,6 +12,17 @@ class InterpolationContributionScore:
         self.nb_dims = nb_dims
         self.latent_nb_frames = (
             opt.decoder_config.retrieve_correct_decoder_architecture()).expected_nb_frames_latent_repr
+        # latent_nb_frames is based on De_boer dataset, so overwrite it if librispeech
+        if opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+            if self.latent_nb_frames == 511:  # values based on encoder module that is selected
+                self.latent_nb_frames = 1023
+            elif self.latent_nb_frames == 129:
+                self.latent_nb_frames = 257
+            elif self.latent_nb_frames == 64:
+                self.latent_nb_frames = 128
+            else:
+                raise ValueError(f"latent_nb_frames: {self.latent_nb_frames}")
+
         self.lit_decoder = lit_decoder
 
     def _get_two_zs(self, z, filenames, idx1, idx2, print_names: bool = True) -> (np.ndarray, np.ndarray, str, str):
