@@ -36,8 +36,8 @@ class CustomCallback(L.Callback):
             audio_samples = audio_samples.contiguous().cpu().data.numpy()
 
             ten_audio_sammples = [audio_sample for audio_sample in audio_samples[:nb_files]]
-            if self.opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
-                ten_audio_sammples = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in ten_audio_sammples]
+            # if self.opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+            #     ten_audio_sammples = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in ten_audio_sammples]
             section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
             self.wandb_logger.log_audio(key=f"{section}/std normal samples",
                                         audios=ten_audio_sammples,
@@ -60,9 +60,9 @@ class CustomCallback(L.Callback):
             ten_audio_sammples = [audio_sample for audio_sample in x_reconstructed[:nb_files]]
             audio = [audio_sample.squeeze(0).cpu().numpy() for audio_sample in audio[:nb_files]]
             # Unnormalize if librispeech
-            if self.opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
-                audio = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in audio]
-                ten_audio_sammples = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in ten_audio_sammples]
+            # if self.opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+            #     audio = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in audio]
+            #     ten_audio_sammples = [audio_sample * 135303504.0 + -1456218.7500 for audio_sample in ten_audio_sammples]
 
             section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
             self.wandb_logger.log_audio(
