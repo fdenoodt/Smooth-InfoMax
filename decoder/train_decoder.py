@@ -86,7 +86,6 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
                         accelerator="gpu", devices="1",
                         log_every_n_steps=10,  # arbitrary number to avoid warning
                         logger=wandb_logger, callbacks=[callback] if callback is not None else [],
-                        fast_dev_run=True # TODO
                         )
 
     if opt.train:
