@@ -99,7 +99,7 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
 
             global_step += 1
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
                         epoch + 1,
