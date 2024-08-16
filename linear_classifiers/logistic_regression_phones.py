@@ -87,7 +87,7 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
             loss_epoch += sample_loss
 
             if opt.use_wandb:
-                wandb_section = get_audio_libri_classific_key("phones")
+                wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True)
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
                            f"{wandb_section}/Train Accuracy": accuracy})
 
@@ -165,7 +165,7 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     print("Final Testing Accuracy: ", accuracy)
 
     if opt.use_wandb:
-        wandb_section = get_audio_libri_classific_key("phones")
+        wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True)
         wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
 
     return accuracy
