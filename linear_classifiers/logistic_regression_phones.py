@@ -80,14 +80,20 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
 
             # Backward and optimize
             optimizer.zero_grad()
-            loss.backward()
+            loss.backward()  # compute gradients
+
+            # optional: gradient clipping
+            if opt.phones_classifier_config.gradient_clipping != 0.0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), opt.phones_classifier_config.gradient_clipping)
+
             optimizer.step()
 
             sample_loss = loss.item()
             loss_epoch += sample_loss
 
             if opt.use_wandb:
-                wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True)
+                wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True,
+                                                              deterministic_encoder=opt.encoder_config.deterministic)
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
                            f"{wandb_section}/Train Accuracy": accuracy})
 
@@ -165,7 +171,8 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     print("Final Testing Accuracy: ", accuracy)
 
     if opt.use_wandb:
-        wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True)
+        wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True,
+                                                      deterministic_encoder=opt.encoder_config.deterministic)
         wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
 
     return accuracy

@@ -45,7 +45,12 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
 
             # Backward and optimize
             optimizer.zero_grad()
-            total_loss.backward()
+            total_loss.backward()  # compute gradients
+
+            # optional: gradient clipping
+            if opt.speakers_classifier_config.gradient_clipping != 0.0:
+                torch.nn.utils.clip_grad_norm_(loss.parameters(), opt.speakers_classifier_config.gradient_clipping)
+
             optimizer.step()
 
             sample_loss = total_loss.item()
@@ -73,7 +78,8 @@ def train(opt: OptionsConfig, context_model, loss: Speaker_Loss, logs: logger.Lo
                     "speakers",
                     module_nb=opt.speakers_classifier_config.encoder_module,
                     layer_nb=opt.speakers_classifier_config.encoder_layer,
-                    bias=opt.speakers_classifier_config.bias)
+                    bias=opt.speakers_classifier_config.bias,
+                    deterministic_encoder=opt.encoder_config.deterministic)
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
                            f"{wandb_section}/Train Accuracy": accuracy})
 
@@ -125,7 +131,8 @@ def test(opt, context_model, loss, data_loader, bias):
             "speakers",
             module_nb=opt.speakers_classifier_config.encoder_module,
             layer_nb=opt.speakers_classifier_config.encoder_layer,
-            bias=opt.speakers_classifier_config.bias)
+            bias=opt.speakers_classifier_config.bias,
+            deterministic_encoder=opt.encoder_config.deterministic)
         wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
 
     return loss_epoch, accuracy
@@ -145,7 +152,8 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias,
+                                        deterministic_encoder=opt.encoder_config.deterministic)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
 
