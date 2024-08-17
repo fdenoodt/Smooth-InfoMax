@@ -119,8 +119,13 @@ class InterpolationContributionScore:
         self.lit_decoder.eval()
 
         _, _, z, filenames = self._get_all_data(self.opt, self.lit_decoder)  # z is a tensor
+        # take a random subset of the data
+        rnd_indices = np.random.choice(len(filenames), 200, replace=False)
+        z = z[rnd_indices]
+        filenames = filenames[rnd_indices]
+
         nb_files = len(filenames)
-        print("Computing scores...") # nb_files: 448, so 200_256 comparisons
+        print("Computing scores...") # nb_files: 5696, so 32_438_720 comparisons for each dim (9 dims)
         print(f"nb_files: {nb_files}, so {nb_files * (nb_files - 1)} comparisons for each dim (9 dims)")
 
         print("Computing max error... (nb_files * (nb_files - 1))")
@@ -128,7 +133,7 @@ class InterpolationContributionScore:
         max_error = torch.tensor(0.0, device=self.opt.device)
         for i in range(nb_files):
             for j in range(nb_files):
-                if i != j and torch.rand(1) > 0.95: # 5% chance
+                if i != j: # and torch.rand(1) > 0.995: # 0.5% chance so
                     z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                     dist = self._dist_after_interpol_important_dims(z1, z2, 512, max_err=True)
                     max_error += dist
@@ -143,7 +148,7 @@ class InterpolationContributionScore:
             print(f"nb_most_important_dims: {nb_most_important_dims}")
             for i in range(nb_files):
                 for j in range(nb_files):
-                    if i != j and torch.rand(1) > 0.95: # 5% chance
+                    if i != j: # and torch.rand(1) > 0.95: # 5% chance
                         z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                         dist = self._dist_after_interpol_important_dims(z1, z2, nb_most_important_dims)
                         avg_error += dist
