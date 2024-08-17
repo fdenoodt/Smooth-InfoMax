@@ -120,7 +120,10 @@ class InterpolationContributionScore:
 
         _, _, z, filenames = self._get_all_data(self.opt, self.lit_decoder)  # z is a tensor
         nb_files = len(filenames)
+        print("Computing scores...")
+        print(f"nb_files: {nb_files}, so {nb_files * (nb_files - 1)} comparisons for each dim (9 dims)")
 
+        print("Computing max error... (nb_files * (nb_files - 1))")
         # calc max error
         max_error = torch.tensor(0.0, device=self.opt.device)
         for i in range(nb_files):

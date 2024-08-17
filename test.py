@@ -1,11 +1,8 @@
-from torch.utils.data import Dataset
-import os
-import os.path
 import torchaudio
-from collections import defaultdict
-import torch
 import numpy as np
 import random
+import torchaudio
+import wandb
 
 def default_loader(path):
     return torchaudio.load(path, normalize=False)
@@ -44,3 +41,8 @@ audio = audio[:, start_idx: start_idx + audio_length]
 # audio = audio * std + mean
 audio = audio.float()
 torchaudio.save("x.wav", audio, 16000)
+
+audio = audio.squeeze(0).cpu().numpy()
+wandb.init(project="test")
+wandb.log({"audio": wandb.Audio(audio, sample_rate=16000)})
+wandb.finish()

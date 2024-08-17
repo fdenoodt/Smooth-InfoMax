@@ -86,6 +86,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
                         accelerator="gpu", devices="1",
                         log_every_n_steps=10,  # arbitrary number to avoid warning
                         logger=wandb_logger, callbacks=[callback] if callback is not None else [],
+                        fast_dev_run=True # TODO: remove ***IMPORTANT***
                         )
 
     if opt.train:
@@ -99,10 +100,13 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
     decoder = load_decoder(opt, decoder)
     lit.decoder = decoder  # update lit as well!!!
 
+    print("Testing the model...")
     trainer.test(model=lit, datamodule=data)
 
     if opt.use_wandb:
         wandb.finish()
+
+    print("Done!")
 
 
 if __name__ == "__main__":
