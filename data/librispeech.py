@@ -67,6 +67,7 @@ class LibriDataset(Dataset):
 
         # normalize
         # audio = (audio - self.mean) / self.std
+        audio = audio.float() # TODO
 
 
         return audio, filename, speaker_id, 0
@@ -111,5 +112,6 @@ class LibriDataset(Dataset):
 
         # normalize
         # audio = (audio - self.mean) / self.std
+        audio = audio.float() # TODO
 
         return audio, filename
