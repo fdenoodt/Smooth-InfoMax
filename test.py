@@ -3,9 +3,14 @@ import numpy as np
 import random
 import torchaudio
 import wandb
+from lightning.pytorch.loggers import WandbLogger
+from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import Callback
+
 
 def default_loader(path):
     return torchaudio.load(path, normalize=False)
+
 
 # mean = -1456218.7500
 # std = 135303504.0
@@ -27,7 +32,6 @@ start_idx = random.choice(
 
 audio = audio[:, start_idx: start_idx + audio_length]
 
-
 # Calculate the mean and std based on the actual audio data
 # mean = audio.mean()
 # std = audio.std()
@@ -43,6 +47,17 @@ audio = audio.float()
 torchaudio.save("x.wav", audio, 16000)
 
 audio = audio.squeeze(0).cpu().numpy()
-wandb.init(project="test")
-wandb.log({"audio": wandb.Audio(audio, sample_rate=16000)})
+
+
+class LogAudioCallback(Callback):
+    def __init__(self, wandb_logger):
+        self.wandb_logger = wandb_logger
+        self.wandb_logger.experiment.log({"audioa": wandb.Audio(audio, sample_rate=16000)})
+
+
+wandb_logger = WandbLogger(project="test")
+trainer = Trainer(logger=wandb_logger, callbacks=[LogAudioCallback(wandb_logger)])
+# Assuming you have a LightningModule `model`
+# trainer.fit(model)
+
 wandb.finish()
