@@ -128,7 +128,7 @@ class InterpolationContributionScore:
         max_error = torch.tensor(0.0, device=self.opt.device)
         for i in range(nb_files):
             for j in range(nb_files):
-                if i != j:
+                if i != j and torch.rand(1) > 0.9: # 10% chance
                     z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                     dist = self._dist_after_interpol_important_dims(z1, z2, 512, max_err=True)
                     max_error += dist
@@ -149,8 +149,8 @@ class InterpolationContributionScore:
                         avg_error += dist
 
             avg_error /= (nb_files * (nb_files - 1))
-            # print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")
-            # print(f"Scaled average error for dim {nb_most_important_dims}: {avg_error / max_error}")
+            print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")
+            print(f"Scaled average error for dim {nb_most_important_dims}: {avg_error / max_error}")
             normalized_avg_error = avg_error / max_error
 
             results_absolute[nb_most_important_dims] = avg_error.item()
