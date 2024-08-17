@@ -66,11 +66,11 @@ class CustomCallback(L.Callback):
 
             section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
             self.wandb_logger.log_audio(
-                key=f"BBB {section}/encode + decode test set",
+                key=f"{section}/encode + decode test set",
                 audios=ten_audio_sammples, sample_rate=[16_000] * nb_files)
 
             self.wandb_logger.log_audio(
-                key=f"BBB {section}/ gt test set", audios=audio, sample_rate=[16_000] * nb_files)
+                key=f"{section}/ gt test set", audios=audio, sample_rate=[16_000] * nb_files)
             break
 
     def on_test_end(self, trainer, pl_module: LitDecoder) -> None:
