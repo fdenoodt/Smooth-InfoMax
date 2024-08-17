@@ -79,7 +79,7 @@ class CustomCallback(L.Callback):
 
         decoder_utils = InterpolationContributionScore(self.opt, self.z_dim, pl_module)
         print("Computing interpolation scores")
-        scores_absolute, scores_relative = decoder_utils.compute_score()
+        # scores_absolute, scores_relative = decoder_utils.compute_score()
         print("Done computing interpolation scores")
         # log as table to wandb
         section = get_audio_decoder_key(self.opt.decoder_config, self.loss_enum)
