@@ -9,7 +9,7 @@ import random
 
 
 def default_loader(path):
-    return torchaudio.load(path, normalize=False)
+    return torchaudio.load(path)
 
 
 def default_flist_reader(flist):
