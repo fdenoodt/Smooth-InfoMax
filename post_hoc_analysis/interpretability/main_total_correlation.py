@@ -65,8 +65,8 @@ def _calculate_total_correlation(latent_codes):
     return total_correlation
 
 
-def total_correlation(opt: OptionsConfig, context_model, data_loader, classifier: ClassifierConfig, nb_channel_indices,
-                      nb_time_indices, max_nb_signals):
+def total_correlation(opt: OptionsConfig, context_model, data_loader, classifier: ClassifierConfig,
+                      nb_channel_indices, nb_time_indices, max_nb_signals):
     print(f"Calculating total correlation for {max_nb_signals} signals, "
           f"with {nb_channel_indices} channels and {nb_time_indices} time indices")
     expected_channels = 512
@@ -82,17 +82,18 @@ def total_correlation(opt: OptionsConfig, context_model, data_loader, classifier
         audio = audio.to(opt.device)
         model_input = audio.to(opt.device)
         z = get_z(opt, context_model, model_input,  # (batch_size, time, channels)
-                  regression=False, # not regressive layer
+                  regression=False,  # not regressive layer
                   which_module=classifier.encoder_module,
                   which_layer=classifier.encoder_layer)
         b_size, time, channels = z.shape
 
         z_subsampled = z[:, :, rnd_channel_indices]
-        rnd_time_indices = np.random.choice(
-            time,
-            nb_time_indices,
-            replace=False)  # take 5 random time indices for each signal
-        z_subsampled = z_subsampled[:, rnd_time_indices, :]
+        if nb_time_indices < time:
+            rnd_time_indices = np.random.choice(
+                time,
+                nb_time_indices,
+                replace=False)  # take 5 random time indices for each signal
+            z_subsampled = z_subsampled[:, rnd_time_indices, :]
 
         assert z.shape[2] == channels, "Latent code shape is not 512"
         if all_latent_codes is None:
@@ -155,10 +156,9 @@ def main():
     # load dataset
     train_loader, _, test_loader, _ = get_dataloader.get_dataloader(classifier_config.dataset)
 
-
-    channel_indices_list = [10, 50, 100, 512, 512]
-    time_indices_list = [5, 5, 5, 5, 5]
-    max_signals_list = [1_000, 1_000, 1_000, 1_000, np.inf]
+    channel_indices_list = [10, 50, 100, 512, 512, 512]
+    time_indices_list = [5, 5, 5, 5, 5, np.inf]
+    max_signals_list = [1_000, 1_000, 1_000, 1_000, np.inf, np.inf]
 
     for nb_channel_indices, nb_time_indices, max_nb_signals in (
             zip(channel_indices_list, time_indices_list, max_signals_list)):
@@ -168,7 +168,7 @@ def main():
             f"nb_time_indices: {nb_time_indices}, "
             f"max_nb_signals: {max_nb_signals}")
         print("*" * 50)
-        for _ in range(1, 3):
+        for _ in range(0, 3):
             start = time.time()
             total_correlation(opt, context_model, test_loader, classifier_config,
                               nb_channel_indices=nb_channel_indices,
