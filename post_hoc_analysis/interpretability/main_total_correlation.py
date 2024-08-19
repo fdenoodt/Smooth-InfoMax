@@ -82,7 +82,7 @@ def total_correlation(opt: OptionsConfig, context_model, data_loader, classifier
         audio = audio.to(opt.device)
         model_input = audio.to(opt.device)
         z = get_z(opt, context_model, model_input,  # (batch_size, time, channels)
-                  regression=classifier.bias,
+                  regression=False, # not regressive layer
                   which_module=classifier.encoder_module,
                   which_layer=classifier.encoder_layer)
         b_size, time, channels = z.shape
