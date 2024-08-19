@@ -153,7 +153,7 @@ def main():
     context_model.eval()
 
     # load dataset
-    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(opt.speakers_classifier_config.dataset)
+    train_loader, _, test_loader, _ = get_dataloader.get_dataloader(classifier_config.dataset)
 
 
     channel_indices_list = [10, 50, 100, 512, 512]
