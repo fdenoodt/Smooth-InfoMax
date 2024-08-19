@@ -162,7 +162,7 @@ def get_audio_classific_key(opt: OptionsConfig,
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer
-    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
+    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb} deterministic={opt.encoder_config.deterministic}"
 
 
 def get_audio_libri_classific_key(label_type: str, module_nb, layer_nb, bias, deterministic_encoder):
