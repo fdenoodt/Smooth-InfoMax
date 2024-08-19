@@ -81,7 +81,9 @@ class EncoderConfig:
                  architecture: Union[ArchitectureConfig, VisionArchitectureConfig],
                  kld_weight, learning_rate, decay_rate,
                  train_w_noise, dataset: DataSetConfig,
-                 deterministic: Optional[bool] = False):
+                 deterministic: Optional[bool] = False,
+                 use_batch_norm: Optional[bool] = True
+                 ):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
         self.negative_samples = negative_samples
@@ -92,6 +94,7 @@ class EncoderConfig:
         self.decay_rate = decay_rate
         self.train_w_noise = train_w_noise
         self.dataset = dataset
+        self.use_batch_norm = use_batch_norm
 
         # Useful after training to get deterministic results. If True, the encoder will use mode of the posterior distribution
         self.deterministic = deterministic
@@ -101,7 +104,8 @@ class EncoderConfig:
                f"negative_samples={self.negative_samples}, subsample={self.subsample}, " \
                f"architecture={self.architecture}, kld_weight={self.kld_weight}, " \
                f"learning_rate={self.learning_rate}, decay_rate={self.decay_rate}, " \
-               f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
+               f"train_w_noise={self.train_w_noise}, dataset={self.dataset}, " \
+               f"deterministic={self.deterministic}, use_batch_norm={self.use_batch_norm})"
 
 
 class PostHocModel:  # Classifier or Decoder

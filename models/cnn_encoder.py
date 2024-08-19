@@ -3,9 +3,12 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
+from config_code.config_classes import OptionsConfig
+
 
 class CNNEncoder(nn.Module):
-    def __init__(self, opt, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding, relus: List[bool],
+    def __init__(self, opt: OptionsConfig, inp_nb_channels, out_nb_channels, kernel_sizes, strides, padding,
+                 relus: List[bool],
                  max_pool_k_size=None, max_pool_stride=None):
         super(CNNEncoder, self).__init__()
 
@@ -29,7 +32,8 @@ class CNNEncoder(nn.Module):
                     kernel_sizes[idx],
                     strides[idx],
                     padding[idx],
-                    relus[idx]
+                    relus[idx],
+                    bn=opt.encoder_config.use_batch_norm
                 )
             )
             inp_nb_channels = self.nb_channels
@@ -43,12 +47,15 @@ class CNNEncoder(nn.Module):
         self.encoder = nn.ModuleList(self.encoder)  # Convert list to ModuleList
 
     @staticmethod
-    def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool):
+    def new_block(in_dim, out_dim, kernel_size, stride, padding, relu: bool, bn: bool):
         new_block = CNNEncoder.conv1d(in_dim, out_dim, kernel_size, stride, padding)
         if relu:  # always True, except for special case in CPC for density experiments such that equal number of layers for easier comparison with SIM/GIM
             # new_block = nn.Sequential(new_block, nn.ReLU())
             # also batchnorm
-            new_block = nn.Sequential(new_block, nn.BatchNorm1d(out_dim), nn.ReLU())
+            if bn:
+                new_block = nn.Sequential(new_block, nn.BatchNorm1d(out_dim), nn.ReLU())
+            else:
+                new_block = nn.Sequential(new_block, nn.ReLU())
         return new_block
 
     @staticmethod
