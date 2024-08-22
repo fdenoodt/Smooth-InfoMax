@@ -89,6 +89,8 @@ def fit_TSNE_and_plot(opt, feature_space, speaker_labels, label):
 
 def retrieve_existing_wandb_run_id(opt: OptionsConfig):
     # Save the run id to a file in the logs directory
+    path = os.path.join(opt.log_path, 'wandb_run_id.txt')
+    print(f"Retrieving run id from {path}")
     if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
         with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
             text = f.read()
