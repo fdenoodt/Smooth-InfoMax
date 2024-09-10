@@ -24,7 +24,7 @@ class Syllables_Loss(loss.Loss):
         self.calc_accuracy = calc_accuracy
         self.bias = bias
 
-        self.linear_classifier = nn.Linear(self.hidden_dim, num_syllables, bias=True).to(opt.device)
+        self.linear_classifier = nn.Linear(self.hidden_dim, num_syllables, bias=bias).to(opt.device)
 
         self.label_num = 1
         self.syllables_loss = nn.CrossEntropyLoss()

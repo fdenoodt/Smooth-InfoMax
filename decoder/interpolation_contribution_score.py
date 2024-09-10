@@ -2,7 +2,7 @@ from typing import Dict
 import numpy as np
 import torch
 from data import get_dataloader
-from config_code.config_classes import OptionsConfig
+from config_code.config_classes import OptionsConfig, Dataset
 from decoder.lit_decoder import LitDecoder
 
 
@@ -12,6 +12,17 @@ class InterpolationContributionScore:
         self.nb_dims = nb_dims
         self.latent_nb_frames = (
             opt.decoder_config.retrieve_correct_decoder_architecture()).expected_nb_frames_latent_repr
+        # latent_nb_frames is based on De_boer dataset, so overwrite it if librispeech
+        if opt.decoder_config.dataset.dataset in [Dataset.LIBRISPEECH, Dataset.LIBRISPEECH_SUBSET]:
+            if self.latent_nb_frames == 511:  # values based on encoder module that is selected
+                self.latent_nb_frames = 1023
+            elif self.latent_nb_frames == 129:
+                self.latent_nb_frames = 257
+            elif self.latent_nb_frames == 64:
+                self.latent_nb_frames = 128
+            else:
+                raise ValueError(f"latent_nb_frames: {self.latent_nb_frames}")
+
         self.lit_decoder = lit_decoder
 
     def _get_two_zs(self, z, filenames, idx1, idx2, print_names: bool = True) -> (np.ndarray, np.ndarray, str, str):
@@ -108,13 +119,21 @@ class InterpolationContributionScore:
         self.lit_decoder.eval()
 
         _, _, z, filenames = self._get_all_data(self.opt, self.lit_decoder)  # z is a tensor
-        nb_files = len(filenames)
+        # take a random subset of the data
+        rnd_indices = np.random.choice(len(filenames), 200, replace=False)
+        z = z[rnd_indices]
+        filenames = filenames[rnd_indices]
 
+        nb_files = len(filenames)
+        print("Computing scores...") # nb_files: 5696, so 32_438_720 comparisons for each dim (9 dims)
+        print(f"nb_files: {nb_files}, so {nb_files * (nb_files - 1)} comparisons for each dim (9 dims)")
+
+        print("Computing max error... (nb_files * (nb_files - 1))")
         # calc max error
         max_error = torch.tensor(0.0, device=self.opt.device)
         for i in range(nb_files):
             for j in range(nb_files):
-                if i != j:
+                if i != j: # and torch.rand(1) > 0.995: # 0.5% chance so
                     z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                     dist = self._dist_after_interpol_important_dims(z1, z2, 512, max_err=True)
                     max_error += dist
@@ -129,14 +148,14 @@ class InterpolationContributionScore:
             print(f"nb_most_important_dims: {nb_most_important_dims}")
             for i in range(nb_files):
                 for j in range(nb_files):
-                    if i != j:
+                    if i != j: # and torch.rand(1) > 0.95: # 5% chance
                         z1, z2, z1_file, z2_file = self._get_two_zs(z, filenames, idx1=i, idx2=j, print_names=False)
                         dist = self._dist_after_interpol_important_dims(z1, z2, nb_most_important_dims)
                         avg_error += dist
 
             avg_error /= (nb_files * (nb_files - 1))
-            # print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")
-            # print(f"Scaled average error for dim {nb_most_important_dims}: {avg_error / max_error}")
+            print(f"Unscaled average error for dim {nb_most_important_dims}: {avg_error}")
+            print(f"Scaled average error for dim {nb_most_important_dims}: {avg_error / max_error}")
             normalized_avg_error = avg_error / max_error
 
             results_absolute[nb_most_important_dims] = avg_error.item()

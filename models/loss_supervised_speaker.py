@@ -8,14 +8,15 @@ from utils import utils
 
 
 class Speaker_Loss(loss.Loss):
-    def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy):
+    def __init__(self, opt: OptionsConfig, hidden_dim, calc_accuracy, bias: bool):
         super(Speaker_Loss, self).__init__()
 
         self.opt = opt
         self.hidden_dim = hidden_dim
         self.calc_accuracy = calc_accuracy
+        self.bias = bias
 
-        self.linear_classifier = nn.Sequential(nn.Linear(self.hidden_dim, 251)).to(
+        self.linear_classifier = nn.Sequential(nn.Linear(self.hidden_dim, 251, bias=bias)).to(
             opt.device
         )
 

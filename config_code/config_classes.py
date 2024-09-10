@@ -81,7 +81,9 @@ class EncoderConfig:
                  architecture: Union[ArchitectureConfig, VisionArchitectureConfig],
                  kld_weight, learning_rate, decay_rate,
                  train_w_noise, dataset: DataSetConfig,
-                 deterministic: Optional[bool] = False):
+                 deterministic: Optional[bool] = False,
+                 use_batch_norm: Optional[bool] = True
+                 ):
         self.start_epoch = start_epoch
         self.num_epochs = num_epochs
         self.negative_samples = negative_samples
@@ -92,6 +94,7 @@ class EncoderConfig:
         self.decay_rate = decay_rate
         self.train_w_noise = train_w_noise
         self.dataset = dataset
+        self.use_batch_norm = use_batch_norm
 
         # Useful after training to get deterministic results. If True, the encoder will use mode of the posterior distribution
         self.deterministic = deterministic
@@ -101,19 +104,21 @@ class EncoderConfig:
                f"negative_samples={self.negative_samples}, subsample={self.subsample}, " \
                f"architecture={self.architecture}, kld_weight={self.kld_weight}, " \
                f"learning_rate={self.learning_rate}, decay_rate={self.decay_rate}, " \
-               f"train_w_noise={self.train_w_noise}, dataset={self.dataset})"
+               f"train_w_noise={self.train_w_noise}, dataset={self.dataset}, " \
+               f"deterministic={self.deterministic}, use_batch_norm={self.use_batch_norm})"
 
 
 class PostHocModel:  # Classifier or Decoder
     """encoder_module and encoder_layer are currently only supported for the audio encoder."""
 
     def __init__(self, num_epochs, learning_rate, dataset: DataSetConfig, encoder_num: str,
-                 bias: Optional[bool] = True, encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1):
-
+                 encoder_module: Optional[int] = -1, encoder_layer: Optional[int] = -1,
+                 gradient_clipping: Optional[float] = 0.0):
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.dataset = dataset
         self.encoder_num = encoder_num
+        self.gradient_clipping = gradient_clipping  # 0.0 means no clipping
 
         # 0-based index. (0 is first module)
         # self.encoder_module = encoder_module  # Train classifier on output of this module (default: -1, last module)
@@ -239,6 +244,10 @@ class OptionsConfig:
         self.vision_classifier_config: Optional[ClassifierConfig] = vision_classifier_config
         self.use_wandb = use_wandb
         self.train = train
+
+        # None would be better but causes issue with param overrides
+        self.wandb_project_name: str = ""
+        self.wandb_entity: str = ""
 
     def __str__(self):
         return f"OptionsConfig(model_type={self.model_type}, seed={self.seed}, validate={self.validate}, " \

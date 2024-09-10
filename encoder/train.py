@@ -80,7 +80,10 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
                 loss_epoch[idx] += print_loss
 
                 if step % print_idx == 0:
-                    print(f"\t \t Loss: \t \t {print_loss:.4f}")
+                    if idx == 0:
+                        print("\n")
+                    print(f"\t \t Idx: {idx} \t \t Tot Loss: \t \t {print_loss:.4f} "
+                          f"\t \t NCE: {nce[idx]:.4f} \t \t KLD: {kld[idx]:.4f}")
 
             if opt.use_wandb:
                 for idx, cur_nce in enumerate(nce):
@@ -95,6 +98,7 @@ def train(opt: OptionsConfig, logs, model: FullModel, optimizer, train_loader, t
             global_step += 1
 
             if step >= total_step:
+                print("Breaking training loop at step", step)
                 break
 
         scheduler.step()
@@ -128,7 +132,11 @@ def _main(options: OptionsConfig):
             family = "GIM"
 
         dataset = options.encoder_config.dataset.dataset
-        project_name = f"SIM_ACML_de_boer_{dataset}_V5_batchnorm"
+        if options.wandb_project_name == "":
+            project_name = f"SIM_{dataset}_{dataset}"
+        else:
+            project_name = f"SIM_{options.wandb_project_name}_{dataset}"
+            # f"SIM_ACML_de_boer_{dataset}_V5_batchnorm"
         run_name = f"{family}_kld={options.encoder_config.kld_weight}_lr={options.encoder_config.learning_rate}_{int(time.time())}"
         initialize_wandb(options, project_name, run_name)
 

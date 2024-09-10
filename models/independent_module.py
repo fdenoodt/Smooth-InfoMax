@@ -25,7 +25,11 @@ class IndependentModule(AbstractModule):
         self.calc_accuracy = calc_accuracy
         self.nb_channels_cnn = nb_channels_cnn
         self.nb_channels_regressor = nb_channels_regress
-        self.predict_distributions = predict_distributions
+        # Check whether GIM or SIM
+        self.predict_distributions = predict_distributions and \
+                                     not (opt.encoder_config.deterministic)
+        # also in SIM has option to be deterministic via encoder_config.deterministic
+        # So.. by default, SIM probabilistic, but can be made deterministic
 
         # encoder, out: B x L x C = (22, 55, 512)
         self.encoder: cnn_encoder.CNNEncoder = cnn_encoder.CNNEncoder(

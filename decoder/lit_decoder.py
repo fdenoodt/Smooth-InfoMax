@@ -2,7 +2,7 @@ import lightning as L
 import torch
 from torch import optim
 
-from config_code.config_classes import DecoderLoss, DecoderConfig
+from config_code.config_classes import DecoderLoss, DecoderConfig, Dataset
 from decoder.decoder_losses import MSE_Loss, SpectralLoss, MSE_AND_SPECTRAL_LOSS, FFTLoss, MSE_AND_FFT_LOSS, MEL_LOSS, \
     MSE_AND_MEL_LOSS, MEL_LOSS
 from decoder.decoderr import Decoder
@@ -28,6 +28,7 @@ class LitDecoder(L.LightningModule):
         # used to do a sanity check later
         self.expected_nb_frames_latent_repr = \
             self.dec_opt.retrieve_correct_decoder_architecture().expected_nb_frames_latent_repr
+        # only supported on de_boer dataset
 
     def encode(self, x):
         full_model: FullModel = self.encoder.module
@@ -41,11 +42,13 @@ class LitDecoder(L.LightningModule):
             else:  # specific layer of specified module
                 z = full_model.forward_through_layer(x, modul_idx, layer_idx)
 
-        # Sanity check
+        # Sanity check. Sanity check is only
         _, _, nb_frames = z.shape
-        assert nb_frames == self.expected_nb_frames_latent_repr, \
-            (f"Expected {self.expected_nb_frames_latent_repr} frames, got {nb_frames} frames. "
-             f"Reconsider decoder_config.encoder_module and decoder_config.encoder_layer provided in config.")
+        if self.dec_opt.dataset.dataset == Dataset.DE_BOER:
+            # check only supported on de_boer dataset
+            assert (nb_frames == self.expected_nb_frames_latent_repr), \
+                (f"Expected {self.expected_nb_frames_latent_repr} frames, got {nb_frames} frames. "
+                 f"Reconsider decoder_config.encoder_module and decoder_config.encoder_layer provided in config.")
 
         return z.detach()
 

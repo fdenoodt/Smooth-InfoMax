@@ -80,20 +80,26 @@ def train(opt: OptionsConfig, phone_dict, context_model, model, logs: logger.Log
 
             # Backward and optimize
             optimizer.zero_grad()
-            loss.backward()
+            loss.backward()  # compute gradients
+
+            # optional: gradient clipping
+            if opt.phones_classifier_config.gradient_clipping != 0.0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), opt.phones_classifier_config.gradient_clipping)
+
             optimizer.step()
 
             sample_loss = loss.item()
             loss_epoch += sample_loss
 
             if opt.use_wandb:
-                wandb_section = get_audio_libri_classific_key("phones")
+                wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True,
+                                                              deterministic_encoder=opt.encoder_config.deterministic)
                 wandb.log({f"{wandb_section}/Train Loss": sample_loss,
                            f"{wandb_section}/Train Accuracy": accuracy})
 
             global_step += 1
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 print(
                     "Epoch [{}/{}], Step [{}/{}], Time (s): {:.1f}, Accuracy: {:.4f}, Loss: {:.4f}".format(
                         epoch + 1,
@@ -165,7 +171,8 @@ def test(opt, phone_dict, context_model, model, test_dataset, n_features):
     print("Final Testing Accuracy: ", accuracy)
 
     if opt.use_wandb:
-        wandb_section = get_audio_libri_classific_key("phones")
+        wandb_section = get_audio_libri_classific_key(module_nb=-1, label_type="phones", layer_nb=-1, bias=True,
+                                                      deterministic_encoder=opt.encoder_config.deterministic)
         wandb.log({f"{wandb_section}/Test Accuracy": accuracy})
 
     return accuracy
@@ -179,7 +186,7 @@ def main(model_type: ModelType = ModelType.ONLY_DOWNSTREAM_TASK):
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     assert classifier_config is not None, "Classifier config is not set"
     assert opt.model_type in [ModelType.FULLY_SUPERVISED, ModelType.ONLY_DOWNSTREAM_TASK], "Model type not supported"

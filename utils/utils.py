@@ -89,6 +89,8 @@ def fit_TSNE_and_plot(opt, feature_space, speaker_labels, label):
 
 def retrieve_existing_wandb_run_id(opt: OptionsConfig):
     # Save the run id to a file in the logs directory
+    path = os.path.join(opt.log_path, 'wandb_run_id.txt')
+    print(f"Retrieving run id from {path}")
     if os.path.exists(os.path.join(opt.log_path, 'wandb_run_id.txt')):
         with open(os.path.join(opt.log_path, 'wandb_run_id.txt'), 'r') as f:
             text = f.read()
@@ -145,7 +147,8 @@ def get_nb_classes(dataset: Dataset, args: None):
 
 
 def initialize_wandb(options: OptionsConfig, project_name, run_name):
-    wandb.init(project=project_name, name=run_name, config=vars(options))
+    entity = options.wandb_entity
+    wandb.init(project=project_name, name=run_name, config=vars(options), entity=entity)
     # After initializing the wandb run, get the run id
     run_id = wandb.run.id
     # Save the run id to a file in the logs directory
@@ -161,13 +164,12 @@ def get_audio_classific_key(opt: OptionsConfig,
     label_type = "syllables" if opt.syllables_classifier_config.dataset.labels == "syllables" else "vowels"
     module_nb = opt.syllables_classifier_config.encoder_module
     layer_nb = opt.syllables_classifier_config.encoder_layer
-    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb}"
+    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb} deterministic={opt.encoder_config.deterministic}"
 
 
-def get_audio_libri_classific_key(label_type: str):
+def get_audio_libri_classific_key(label_type: str, module_nb, layer_nb, bias, deterministic_encoder):
     assert label_type in ["phones", "speakers"], "Label type not supported"
-
-    return f"libri_{label_type}_classifier"
+    return f"C bias={bias} {label_type} modul={module_nb} layer={layer_nb} deterministic={deterministic_encoder}"
 
 
 def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in train_decoder.py, callbacks.py
@@ -175,6 +177,5 @@ def get_audio_decoder_key(decoder_config: DecoderConfig, loss_val):  # used in t
     layer_nb = decoder_config.encoder_layer
     return f"Decoder_l={loss_val} modul={module_nb} layer={layer_nb}"
 
-
-def get_classif_log_path(classifier_config, classif_module, classif_layer, bias):
-    return f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}"
+def get_classif_log_path(classifier_config, classif_module, classif_layer, bias, deterministic_encoder):
+    return f"linear_model_{classifier_config.dataset.labels}_modul={classif_module}_layer={classif_layer}_bias={bias}_deterministic={deterministic_encoder}"

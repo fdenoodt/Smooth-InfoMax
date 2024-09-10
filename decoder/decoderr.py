@@ -24,6 +24,10 @@ class Decoder(nn.Module):
                 ),
             )
             if i < nb_layers - 1:
+                # self.decoder.add_module(
+                #     f"batch_norm_{i}",
+                #     nn.BatchNorm1d(decoder_architecture.hidden_dim),
+                # )
                 self.decoder.add_module(
                     f"relu_{i}",
                     nn.ReLU(),

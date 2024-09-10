@@ -128,7 +128,7 @@ def train(opt: OptionsConfig, context_model, loss: Syllables_Loss, logs: logger.
                     f"{wandb_section}/Loss classification": sample_loss,
                     f"{wandb_section}/Train accuracy": accuracy,
                     f"{wandb_section}/Step": global_step})
-                global_step += 1
+            global_step += 1
 
             if i % print_idx == 0:
                 print(
@@ -221,12 +221,12 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # on which module to train the classifier (default: -1, last module)
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias, deterministic_encoder=opt.encoder_config.deterministic)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
 

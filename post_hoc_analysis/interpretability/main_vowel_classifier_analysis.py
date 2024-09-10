@@ -162,13 +162,13 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     # MUST HAPPEN AFTER wandb.init
     classifier_config = opt.syllables_classifier_config
     classif_module: int = classifier_config.encoder_module
     classif_layer: int = classifier_config.encoder_layer
-    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias)
+    classif_path = get_classif_log_path(classifier_config, classif_module, classif_layer, bias, deterministic_encoder=opt.encoder_config.deterministic)
     arg_parser.create_log_path(
         opt, add_path_var=classif_path)
     context_model, _ = load_audio_model.load_model_and_optimizer(
@@ -195,7 +195,10 @@ def main():
     linear_classifier = syllables_loss.linear_classifier
     linear_classifier.eval()
 
-    weights = list(linear_classifier.parameters())[0].detach().cpu().numpy()
+    weights_and_biases = list(linear_classifier.parameters())
+    assert len(
+        weights_and_biases) == 1, f"The classifier also has a bias term, which is not supported here. len(temp)={len(weights_and_biases)}"
+    weights = weights_and_biases[0].detach().cpu().numpy()
     assert weights.shape == (n_labels, n_features)
 
     # axis=1 because we want to rescale each row (vowel) separately

@@ -66,7 +66,7 @@ def main():
 
     if opt.use_wandb:
         run_id, project_name = retrieve_existing_wandb_run_id(opt)
-        wandb.init(id=run_id, resume="allow", project=project_name)
+        wandb.init(id=run_id, resume="allow", project=project_name, entity=opt.wandb_entity)
 
     arg_parser.create_log_path(opt, add_path_var="post_hoc")
 

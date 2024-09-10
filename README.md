@@ -1,117 +1,259 @@
-# Variational Greedy InfoMax (V-GIM)
+# Smooth InfoMax
 
-This repository contains the code of my thesis on interpretable representation learning with latent space constraints.
-The code for both V-GIM and the decoder is included.
-
-## Abstract
-
-We introduces Variational Greedy InfoMax (V-GIM), a self-supervised representation
-learning method that incorporates an interpretability constraint into both the network and the
-loss function. V-GIM’s architecture is split up into modules, each individually optimised to
-promote interpretability by imposing constraints on their respective latent spaces. This approach
-enables the analysis of the underlying structures in the internal and final representations.
-Inspired by Variational Autoencoders (VAE), V-GIM represents each module’s representations
-as samples from Gaussian distributions. These representations are optimised to maximise
-the mutual information between temporally nearby patches using the InfoNCE bound introduced
-in (van den Oord et al., 2019). However, V-GIM introduces a regularisation term to the loss
-function, encouraging distributions to approximate the standard normal distribution, thereby
-constraining the latent space of each module. By enforcing these latent space constraints, VGIM
-ensures that sampling a random point from the standard normal distribution within a
-specific latent space is likely to correspond to a meaningful data point in the original space,
-similar to the points in the dataset. This constraint also promotes smooth transitions in the
-latent space with respect to the mutual information. V-GIM’s latent space is utilised to train a
-decoder, enabling the analysis of the underlying structure of representations at different levels in
-the architecture while ensuring good generalisation. Additionally, we argue that V-GIM’s latent
-space constraint is related to theories from VAEs leading to disentangled representations, which
-could potentially enable easier analysis of the model through post-hoc explainability approaches.
-We evaluate V-GIM’s performance on sequential speech data. V-GIM achieves similar performance
-to its less interpretable counterpart, GIM, and even outperforms it in deeper modules
-due to V-GIM’s internal batch normalisation mechanism. We examine the potential of V-GIM’s
-representation variance as a data augmentation tool for downstream tasks with limited labelled
-data and demonstrate that the variability in representations does not contribute to improved
-performance. Finally, we provide insights into V-GIM’s internal representations. We demonstrate
-that the representations learn to differentiate between vowel information while consonant
-information appears to be less prominent. Additionally, we discuss which internal neurons are
-sensitive to which vowels, further demonstrating the interpretability of V-GIM.
+This repository contains the code for the paper Smooth InfoMax -- Towards Easier Post-Hoc Interpretability. [[2408.12936\] Smooth InfoMax -- Towards easier Post-Hoc interpretability (arxiv.org)](https://arxiv.org/abs/2408.12936)
 
 
-
-<img src="assets\image-20230613110122953.png" alt="image-20230613110122953" style="zoom: 33%;" />
 
 <img src="./assets/image-20230613111315897.png" alt="image-20230613111315897" style="zoom:33%;" />
 
 
 
+## Abstract
+
+We introduce Smooth InfoMax (SIM), a novel method for self-supervised representation learning that incorporates an interpretability constraint into the learned representations at various depths of the neural network. SIM's architecture is split up into probabilistic modules, each locally optimized using the InfoNCE bound. Inspired by VAEs, the representations from these modules are designed to be samples from Gaussian distributions and are further constrained to be close to the standard normal distribution. This results in a smooth and predictable space, enabling traversal of the latent space through a decoder for easier post-hoc analysis of the learned representations. We evaluate SIM's performance on sequential speech data, showing that it performs competitively with its less interpretable counterpart, Greedy InfoMax (GIM). Moreover, we provide insights into SIM's internal representations, demonstrating that the contained information is less entangled throughout the representation and more concentrated in a smaller subset of the dimensions. This further highlights the improved interpretability of SIM.
 
 
-<img src="./assets/image-20230613110900073.png" alt="image-20230613110900073" style="zoom: 67%;" />
 
-## Installation
-
-```bash
-git clone https://github.com/oBoii/Smooth-InfoMax
-./download_audio_data.sh
-./audio_traineval.sh
-```
-
-```bash
-cd /project_ghent/Smooth-InfoMax/ && git fetch && git pull && chmod +x ./audio_traineval.sh && ./audio_traineval.sh
-```
-
-```undefined
-watch -n 0.5 nvidia-smi
-```
-
-## Running the project
-
-De boer encoder + classifier:
-
-```shell
-bash -c "set -e;
-outp_dir='bart_audio_distribs_distr=false_kld=0';
-config_file='sim_audio_distr_false';
-override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
+<img src="assets\image-20230613110122953.png" alt="image-20230613110122953" style="zoom: 33%;" />
 
 
-cd /project_antwerp/Smooth-InfoMax/;
-git fetch; git pull;
-pip install soundfile;
-pip install librosa;
-pip install tikzplotlib;
 
-echo 'Training the Greedy InfoMax Model on audio data (librispeech)'; 
-python -m main $outp_dir $config_file --overrides $override encoder_config.dataset.limit_train_batches=0.01 encoder_config.dataset.limit_validation_batches=0.01;
+## Reproducing the experiments
 
-echo 'Testing syllable classification'; 
-python -m linear_classifiers.logistic_regression_syllables $outp_dir $config_file --overrides $override;"
-```
 
-GIM:
-```shell
-outp_dir='bart_audio_distribs_distr=false_kld=0';
-config_file='sim_audio_distr_false';
-override='encoder_config.kld_weight=0 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
-```
 
-SIM: (kld=0.0033)
-```shell
-outp_dir='bart_audio_distribs_distr=true_kld=0.0033';
-config_file='sim_audio_distr_true';
-override='encoder_config.kld_weight=0.0033 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
-```
+### LibriSpeech dataset
 
-CPC
-```shell
-outp_dir='cpc';
-config_file='sim_audio_cpc';
-override='encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128';
-```
+- ```shell
+  # Download LibriSpeech
+  mkdir datasets
+  cd datasets || exit
+  wget http://www.openslr.org/resources/12/train-clean-100.tar.gz
+  tar -xzf train-clean-100.tar.gz || exit
+  mkdir LibriSpeech100_labels_split
+  cd LibriSpeech100_labels_split || exit
+  gdown https://drive.google.com/uc?id=1vSHmncPsRY7VWWAd_BtoWs9-fQ5cBrEB # test split
+  gdown https://drive.google.com/uc?id=1ubREoLQu47_ZDn39YWv1wvVPe2ZlIZAb # train split
+  gdown https://drive.google.com/uc?id=1bLuDkapGBERG_VYPS7fNZl5GXsQ9z3p2 # converted_aligned_phones.zip
+  unzip converted_aligned_phones.zip
+  cd ../..
+  ```
 
-```shell
-python -m decoder.train_decoder ${output_dir} ${config_file} bart_audio_distribs_distr=true_kld=0.0033 sim_audio_distr_true --overrides encoder_config.kld_weight=0.0033 encoder_config.dataset.dataset=5 encoder_config.dataset.batch_size=128 decoder_config.decoder_loss=2
-```
+- ```shell
+    # Required setup (overwrites hyperparameters and sets up wandb for logging)
+    
+    # By default these args will run SIM. If you want to run GIM instead, change `sim_audio_de_boer_distr_true` to `sim_audio_de_boer_distr_false`
+    override='./logs sim_audio_de_boer_distr_true \
+    --overrides encoder_config.dataset.num_workers=4 speakers_classifier_config.dataset.num_workers=4 phones_classifier_config.dataset.num_workers=4 decoder_config.dataset.num_workers=4 \
+    encoder_config.dataset.dataset=1 phones_classifier_config.dataset.dataset=1 speakers_classifier_config.dataset.dataset=1 decoder_config.dataset.dataset=1 \
+    encoder_config.dataset.batch_size=8 decoder_config.dataset.batch_size=8 speakers_classifier_config.dataset.batch_size=8 phones_classifier_config.dataset.batch_size=8 \
+    seed=4 encoder_config.num_epochs=100 speakers_classifier_config.encoder_num=99 phones_classifier_config.encoder_num=99 decoder_config.encoder_num=99 decoder_config.num_epochs=50 \
+    phones_classifier_config.num_epochs=10 speakers_classifier_config.num_epochs=10 speakers_classifier_config.gradient_clipping=1.0 phones_classifier_config.gradient_clipping=1.0 \
+    encoder_config.kld_weight=0.001 \
+    wandb_project_name=TODO wandb_entity=TODO '; # Please update this line in
+    
+    # Log into WandB
+    wandb login XXXXX-WANDB-KEY-PLEASE-USE-YOUR-OWN-XXXX;
+    ```
+    
+    ```shell
+    # *** Train SIM and a classifier ***
+    
+    # Train the Greedy InfoMax model on audio data
+    echo '*****'; 
+    echo 'Training the Greedy InfoMax Model on audio data (de boer)'; 
+    python -m main $override;
+    
+    # Train classifier for speakers
+    echo '*****'; 
+    echo 'Training classifier - speakers'; 
+    python -m linear_classifiers.logistic_regression_speaker $override \
+        speakers_classifier_config.dataset.dataset=1 \
+        speakers_classifier_config.bias=True \
+        encoder_config.deterministic=True;
+    
+    # Train classifier for phones
+    echo '*****'; 
+    echo 'Training classifier - phones'; 
+    python -m linear_classifiers.logistic_regression_phones $override \
+        phones_classifier_config.dataset.dataset=1 \
+        speakers_classifier_config.bias=True \
+        encoder_config.deterministic=True;
+    ```
+    
+- ```shell
+    ## *** Latent space analysis, through classifier and decoder. 
+    # These commands are only useful for reproducing the experiments. ***
+    
+    # Perform speaker classification with different encoder settings
+    python -m linear_classifiers.logistic_regression_speaker $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=0 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    python -m post_hoc_analysis.interpretability.main_speakers_analysis $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=0 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    python -m linear_classifiers.logistic_regression_speaker $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=1 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    python -m post_hoc_analysis.interpretability.main_speakers_analysis $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=1 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    python -m linear_classifiers.logistic_regression_speaker $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=2 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    python -m post_hoc_analysis.interpretability.main_speakers_analysis $override \
+        encoder_config.deterministic=False \
+        speakers_classifier_config.bias=False \
+        speakers_classifier_config.encoder_module=2 \
+        speakers_classifier_config.encoder_layer=-1;
+    
+    # Train decoder with different encoder modules
+    python -m decoder.train_decoder $override \
+        decoder_config.decoder_loss=0 \
+        decoder_config.dataset.dataset=1 \
+        decoder_config.encoder_module=0 \
+        decoder_config.encoder_layer=-1;
+    
+    python -m decoder.train_decoder $override \
+        decoder_config.decoder_loss=0 \
+        decoder_config.dataset.dataset=1 \
+        decoder_config.encoder_module=1 \
+        decoder_config.encoder_layer=-1;
+    
+    python -m decoder.train_decoder $override \
+        decoder_config.decoder_loss=0 \
+        decoder_config.dataset.dataset=1 \
+        decoder_config.encoder_module=2 \
+        decoder_config.encoder_layer=-1;
+    
+    ```
 
-Syllable classification:
-```shell
-python -m linear_classifiers.logistic_regression_syllables  final_bart/bart_full_audio_distribs_distr=true_kld=0 sim_audio_distr_false
-```
+
+
+### Artificial Speech dataset
+
+- ```shell
+  # Set the overrides for the run, including dataset parameters, batch normalization, and WandB settings
+  # By default these args will run SIM. If you want to run GIM instead, change `sim_audio_de_boer_distr_true` to `sim_audio_de_boer_distr_false`
+  
+  override='./logs sim_audio_de_boer_distr_true --overrides \
+  encoder_config.dataset.num_workers=4 \
+  syllables_classifier_config.dataset.num_workers=4 \
+  decoder_config.dataset.num_workers=4 \
+  encoder_config.use_batch_norm=False \
+  use_wandb=True \
+  wandb_project_name=TODO wandb_entity=TODO '; # Please update this line
+  
+  
+  # Log into WandB
+  wandb login XXXXX-WANDB-KEY-PLEASE-USE-YOUR-OWN-XXXX;
+  ```
+
+- ```shell
+  # Train the Greedy InfoMax model on audio data
+  echo '*****'; 
+  echo 'Training the Greedy InfoMax Model on audio data (de boer)'; 
+  python -m main $override;
+  
+  # Train classifier for syllables
+  echo '*****'; 
+  echo 'Training classifier - syllables'; 
+  python -m linear_classifiers.logistic_regression $override \
+      syllables_classifier_config.bias=True \
+      syllables_classifier_config.dataset.labels=syllables \
+      encoder_config.deterministic=True;
+  
+  # Train classifier for vowels
+  echo '*****'; 
+  echo 'Training classifier - vowels'; 
+  python -m linear_classifiers.logistic_regression $override \
+      syllables_classifier_config.bias=True \
+      syllables_classifier_config.dataset.labels=vowels \
+      encoder_config.deterministic=True;
+  ```
+
+- ```shell
+  # Perform vowel classification with different encoder settings
+  python -m linear_classifiers.logistic_regression $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=0 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  # Run vowel classifier analysis and plot results
+  echo 'vowel weight plots'; 
+  python -m post_hoc_analysis.interpretability.main_vowel_classifier_analysis $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=0 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  # Repeat vowel classification and analysis for other encoder modules
+  python -m linear_classifiers.logistic_regression $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=1 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  echo 'vowel weight plots'; 
+  python -m post_hoc_analysis.interpretability.main_vowel_classifier_analysis $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=1 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  python -m linear_classifiers.logistic_regression $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=2 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  echo 'vowel weight plots'; 
+  python -m post_hoc_analysis.interpretability.main_vowel_classifier_analysis $override \
+      encoder_config.deterministic=False \
+      syllables_classifier_config.bias=False \
+      syllables_classifier_config.dataset.labels=vowels \
+      syllables_classifier_config.encoder_module=2 \
+      syllables_classifier_config.encoder_layer=-1;
+  
+  # Train decoder with different encoder modules
+  python -m decoder.train_decoder $override \
+      decoder_config.decoder_loss=0 \
+      decoder_config.dataset.dataset=4 \
+      decoder_config.encoder_module=0 \
+      decoder_config.encoder_layer=-1;
+  
+  python -m decoder.train_decoder $override \
+      decoder_config.decoder_loss=0 \
+      decoder_config.dataset.dataset=4 \
+      decoder_config.encoder_module=1 \
+      decoder_config.encoder_layer=-1;
+  
+  python -m decoder.train_decoder $override \
+      decoder_config.decoder_loss=0 \
+      decoder_config.dataset.dataset=4 \
+      decoder_config.encoder_module=2 \
+      decoder_config.encoder_layer=-1;
+  
+  ```
+

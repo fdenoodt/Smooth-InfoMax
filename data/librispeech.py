@@ -9,7 +9,7 @@ import random
 
 
 def default_loader(path):
-    return torchaudio.load(path, normalize=False)
+    return torchaudio.load(path)
 
 
 def default_flist_reader(flist):
@@ -42,8 +42,8 @@ class LibriDataset(Dataset):
         self.loader = loader
         self.audio_length = audio_length
 
-        self.mean = -1456218.7500
-        self.std = 135303504.0
+        # self.mean = -1456218.7500
+        # self.std = 135303504.0
 
     def __getitem__(self, index):
         speaker_id, dir_id, sample_id = self.file_list[index]
@@ -66,7 +66,8 @@ class LibriDataset(Dataset):
         audio = audio[:, start_idx: start_idx + self.audio_length]
 
         # normalize
-        audio = (audio - self.mean) / self.std
+        # audio = (audio - self.mean) / self.std
+        audio = audio.float() # TODO
 
 
         return audio, filename, speaker_id, 0
@@ -110,6 +111,7 @@ class LibriDataset(Dataset):
         audio = audio[:max_length]
 
         # normalize
-        audio = (audio - self.mean) / self.std
+        # audio = (audio - self.mean) / self.std
+        audio = audio.float() # TODO
 
         return audio, filename
