@@ -5,12 +5,12 @@ from torch.utils.data import dataset
 from data import de_boer_sounds, librispeech
 from config_code.config_classes import DataSetConfig, Dataset
 
-def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specific_dir, train_sub_dir, test_sub_dir, shuffle):
+def _dataloaders(dataset_options: DataSetConfig, specific_dir, train_sub_dir, test_sub_dir, shuffle):
     data_input_dir = dataset_options.data_input_dir
     train_dataset = de_boer_sounds.DeBoerDataset(
         dataset_options=dataset_options,
         root=os.path.join(
-            data_input_dir, f"corpus/{train_specific_dir}"
+            data_input_dir, f"corpus/{specific_dir}"
         ),
         directory=train_sub_dir,
     )
@@ -18,7 +18,7 @@ def _dataloaders(dataset_options: DataSetConfig, train_specific_dir, test_specif
     test_dataset = de_boer_sounds.DeBoerDataset(
         dataset_options=dataset_options,
         root=os.path.join(
-            data_input_dir, f"corpus/{test_specific_dir}",
+            data_input_dir, f"corpus/{specific_dir}",
         ),
         directory=test_sub_dir,
     )
@@ -49,17 +49,14 @@ def _get_de_boer_sounds_data_loaders(d_config: DataSetConfig, shuffle=True):
     print("Loading De Boer Sounds dataset...")
 
     split: bool = d_config.split_in_syllables
-    reshuffled_verison = d_config.dataset
-    subset_size = None  # TODO
 
     if split:  # for classification
-        # specific_directory = "split up data cropped reshuffled"
         specific_directory = "split up data padded"
     else:
         specific_directory = "reshuffledv2"
 
     print(f"using {specific_directory} directory")
-    return _dataloaders(d_config, specific_directory, specific_directory, "train", "test", shuffle)
+    return _dataloaders(d_config, specific_directory, "train", "test", shuffle)
 
 
 def _get_libri_dataloaders(options: DataSetConfig):
