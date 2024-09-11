@@ -1,6 +1,6 @@
 # Smooth InfoMax
 
-This repository contains the code for the paper Smooth InfoMax -- Towards Easier Post-Hoc Interpretability. [[2408.12936\] Smooth InfoMax -- Towards easier Post-Hoc interpretability (arxiv.org)](https://arxiv.org/abs/2408.12936)
+This repository contains the code for the paper Smooth InfoMax -- Towards Easier Post-Hoc Interpretability. [[2408.12936] Smooth InfoMax--Towards easier Post-Hoc interpretability (arxiv.org)](https://arxiv.org/abs/2408.12936)
 
 
 
