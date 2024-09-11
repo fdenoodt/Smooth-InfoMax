@@ -161,7 +161,8 @@ dimensions. This further highlights the improved interpretability of SIM.
   <summary>Download the dataset</summary>
 
    ```shell
-      # The dataset is already included in the repository
+    git clone https://github.com/fdenoodt/Artificial-Speech-Dataset
+    cp -r Artificial-Speech-Dataset/* datasets/corpus/
    ```
   </details>
 
