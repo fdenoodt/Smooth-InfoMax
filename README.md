@@ -1,28 +1,18 @@
 # Smooth InfoMax
 
-This repository contains the code for the paper Smooth InfoMax -- Towards Easier Post-Hoc
-Interpretability. [[2408.12936] Smooth InfoMax--Towards easier Post-Hoc interpretability (arxiv.org)](https://arxiv.org/abs/2408.12936)
+This repository contains the code for the paper:
+
+Fabian Denoodt, Bart de Boer and José Oramas - [ Smooth InfoMax - Towards easier Post-Hoc Interpretability](https://arxiv.org/abs/2408.12936)
+
+<video src="assets/GIF.mp4"></video>
+
+## Abstract
+
+We introduce Smooth InfoMax (SIM), a self-supervised representation learning method that incorporates interpretability constraints into the latent representations at different depths of the network. Based on $\beta$-VAEs, SIM's architecture consists of probabilistic modules optimized locally with the InfoNCE loss to produce Gaussian-distributed representations regularized toward the standard normal distribution. This creates smooth, well-defined, and better-disentangled latent spaces, enabling easier post-hoc analysis. Evaluated on speech data, SIM preserves the large-scale training benefits of Greedy InfoMax while improving the effectiveness of post-hoc interpretability methods across layers.
 
 
 
 <img src="./assets/image-20230613111315897.png" alt="image-20230613111315897" style="zoom:33%;" />
-
-## Abstract
-
-We introduce Smooth InfoMax (SIM), a novel method for self-supervised representation learning that incorporates an
-interpretability constraint into the learned representations at various depths of the neural network. SIM's architecture
-is split up into probabilistic modules, each locally optimized using the InfoNCE bound. Inspired by VAEs, the
-representations from these modules are designed to be samples from Gaussian distributions and are further constrained to
-be close to the standard normal distribution. This results in a smooth and predictable space, enabling traversal of the
-latent space through a decoder for easier post-hoc analysis of the learned representations. We evaluate SIM's
-performance on sequential speech data, showing that it performs competitively with its less interpretable counterpart,
-Greedy InfoMax (GIM). Moreover, we provide insights into SIM's internal representations, demonstrating that the
-contained information is less entangled throughout the representation and more concentrated in a smaller subset of the
-dimensions. This further highlights the improved interpretability of SIM.
-
-
-
-<img src="assets\image-20230613110122953.png" alt="image-20230613110122953" style="zoom: 33%;" />
 
 ## Running the code and reproducing the experiments
 
@@ -275,7 +265,7 @@ dimensions. This further highlights the improved interpretability of SIM.
         decoder_config.dataset.dataset=4 \
         decoder_config.encoder_module=1 \
         decoder_config.encoder_layer=-1;
-  
+    
     python -m decoder.train_decoder $override \
         decoder_config.decoder_loss=0 \
         decoder_config.dataset.dataset=4 \
@@ -283,3 +273,6 @@ dimensions. This further highlights the improved interpretability of SIM.
         decoder_config.encoder_layer=-1;
     ```
     </details>
+
+
+
