@@ -4,7 +4,7 @@ This repository contains the code for the paper:
 
 Fabian Denoodt, Bart de Boer and José Oramas - [ Smooth InfoMax - Towards easier Post-Hoc Interpretability](https://arxiv.org/abs/2408.12936)
 
-![GIF short](assets/GIF short.gif)
+![GIF_short](assets/GIF_short.gif)
 
 ## Abstract
 
